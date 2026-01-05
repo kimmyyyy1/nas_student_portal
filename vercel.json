@@ -8,8 +8,12 @@
     ],
     "routes": [
         {
-            "src": "/(build|css|js|images|storage)/(.*)", 
-            "dest": "/public/$1/$2"
+            "src": "/build/(.*)",
+            "dest": "/public/build/$1"
+        },
+        {
+            "src": "/images/(.*)",
+            "dest": "/public/images/$1"
         },
         {
             "src": "/(.*)",
@@ -17,6 +21,10 @@
         }
     ],
     "env": {
+        "APP_ENV": "production",
+        "APP_DEBUG": "true",
+        "APP_URL": "https://nas-student-portal.vercel.app",
+        "ASSET_URL": "https://nas-student-portal.vercel.app",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
