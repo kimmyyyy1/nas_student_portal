@@ -26,37 +26,38 @@ class ScheduleController extends Controller
     }
 
     /**
-     * SHOW TEACHER'S OWN SCHEDULE (New Method)
-     * Ito ang hinahanap ng system na nawawala.
+     * SHOW TEACHER'S OWN SCHEDULE
      */
-    public function mySchedule(): View
+    public function mySchedules(): View
     {
-        $userEmail = Auth::user()->email;
+        // 1. Kunin ang User Info
+        $user = Auth::user();
         
-        // 1. Hanapin ang Staff ID gamit ang email ng naka-login na user
-        $staff = Staff::where('email', $userEmail)->first();
+        // 2. Hanapin ang Staff record gamit ang EMAIL
+        $staff = Staff::where('email', $user->email)->first();
 
         if (!$staff) {
-            // Kung walang match na staff record
-            return view('schedules.my-schedule', ['schedules' => collect([])])
-                ->with('warning', 'No staff record found linked to this account.');
+            // FIX: Pinalitan ang 'schedules.my' -> 'schedules.my-schedule'
+            // para tumugma sa filename mo.
+            return view('schedules.my-schedule', ['mySchedules' => collect([])])
+                ->with('error', 'No staff profile found matching your email. Please contact admin.');
         }
 
-        // 2. Kunin ang schedules na naka-assign sa staff na ito
-        $schedules = Schedule::with(['section', 'subject'])
-                        ->where('staff_id', $staff->id)
+        // 3. Kunin ang schedules
+        $mySchedules = Schedule::with(['section', 'subject'])
+                        ->where('staff_id', $staff->id) 
                         ->orderBy('day')
                         ->orderBy('time_start')
                         ->get();
 
-        return view('schedules.my-schedule', compact('schedules'));
+        // FIX: Pinalitan ang 'schedules.my' -> 'schedules.my-schedule'
+        return view('schedules.my-schedule', compact('mySchedules'));
     }
 
     public function create(): View
     {
         $sections = Section::all();
         $subjects = Subject::all();
-        // Get Teachers and Coaches only
         $staff = Staff::whereIn('role', ['teacher', 'coach'])->get();
         return view('schedules.create', compact('sections', 'subjects', 'staff'));
     }
