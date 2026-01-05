@@ -1,8 +1,5 @@
 <x-app-layout>
     
-    {{-- TANGGALIN NA NATIN ANG BACKGROUND IMAGE DITO --}}
-    {{-- Dahil nasa app.blade.php na siya, automatic na siyang lilitaw --}}
-
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Dashboard') }}
@@ -220,8 +217,13 @@
                             <h3 class="text-lg font-bold text-gray-800 mb-2">Campus Spotlight</h3>
                             <p class="text-xs text-gray-500 mb-4 uppercase tracking-wide">National Academy of Sports</p>
                             
+                            {{-- THUMBNAIL IMAGE --}}
                             <div @click="showModal = true" class="bg-gray-200 h-48 rounded-lg flex items-center justify-center overflow-hidden mb-4 border border-gray-300 relative group cursor-pointer hover:shadow-lg transition-all duration-300">
-                                <img src="{{ asset('images/nas/NAS.png') }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-110" alt="NAS Campus View">
+                                
+                                {{-- Siguraduhin na 'NAS.png' ang file name sa folder mo --}}
+                                <img src="{{ asset('images/nas/NAS.png') }}" 
+                                     class="h-full w-full object-cover transition duration-500 group-hover:scale-110" 
+                                     alt="NAS Campus View">
                                 
                                 <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
                                     <i class='bx bx-zoom-in text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-md'></i>
@@ -235,7 +237,7 @@
                             </div>
                         </div>
                         
-                        {{-- FIXED MODAL STRUCTURE (Teleport para matakpan ang Sidebar) --}}
+                        {{-- FIXED MODAL STRUCTURE --}}
                         <template x-teleport="body">
                             <div x-show="showModal" 
                                  style="display: none;"
@@ -253,17 +255,20 @@
                                 {{-- Modal Box --}}
                                 <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[90vh] overflow-hidden transform transition-all scale-100">
                                     
-                                    {{-- Close Button --}}
                                     <button @click="showModal = false" class="absolute top-3 right-3 text-gray-500 hover:text-gray-900 z-20 bg-white/80 rounded-full p-2 hover:bg-white transition shadow-sm">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
 
-                                    {{-- Image Section --}}
+                                    {{-- Image Section (MODAL) --}}
                                     <div class="flex-1 bg-gray-100 flex items-center justify-center min-h-0 p-1 overflow-hidden">
-                                        <img src="{{ asset('images/nas/NAS.png') }}" class="max-w-full max-h-full w-auto h-auto object-contain rounded shadow-sm" alt="NAS Campus Large">
+                                        
+                                        {{-- Siguraduhin na 'NAS.png' ang file name sa folder mo --}}
+                                        <img src="{{ asset('images/nas/NAS.png') }}" 
+                                             class="max-w-full max-h-full w-auto h-auto object-contain rounded shadow-sm" 
+                                             alt="NAS Campus Large">
+                                             
                                     </div>
                                     
-                                    {{-- Footer Section --}}
                                     <div class="p-4 bg-white border-t border-gray-100 text-center shrink-0">
                                         <h2 class="text-xl font-bold text-blue-900 mb-1">National Academy of Sports - Main Campus</h2>
                                         <p class="text-sm text-gray-600 font-serif italic">
@@ -273,7 +278,6 @@
                                 </div>
                             </div>
                         </template>
-                        {{-- END MODAL --}}
                     </div>
                 </div>
 
