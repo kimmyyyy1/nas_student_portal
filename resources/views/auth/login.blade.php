@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login | NAS SAIS</title>
     
+    <link rel="icon" href="{{ asset('images/nas/nas-logo-spotlight.jpg') }}">
+
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
     
@@ -20,7 +22,8 @@
 
     <div class="absolute inset-0 z-0">
         <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover opacity-60" alt="Background"
-             onerror="this.style.display='none';"> </div>
+             onerror="this.style.display='none';"> 
+    </div>
     
     <div class="absolute inset-0 z-0 bg-gradient-to-br from-blue-900/80 via-blue-900/60 to-black/70 backdrop-blur-[1px]"></div>
 
@@ -45,7 +48,8 @@
                 @endif
 
                 <form method="POST" action="{{ route('login') }}" class="space-y-4">
-                    @csrf <div>
+                    @csrf 
+                    <div>
                         <label class="block font-bold text-[10px] text-gray-500 uppercase mb-1 ml-1">Email Address</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
