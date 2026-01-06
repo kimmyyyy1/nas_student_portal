@@ -1,6 +1,5 @@
 {
     "version": 2,
-    "framework": "laravel",
     "builds": [
         { "src": "/api/index.php", "use": "vercel-php@0.7.2" },
         { "src": "/public/**", "use": "@vercel/static" }
