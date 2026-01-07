@@ -8,18 +8,29 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
+            {{-- PROFILE CARD --}}
             <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 border-l-8 border-indigo-700">
                 <div class="p-6 md:flex items-start justify-between">
                     <div class="flex items-center mb-4 md:mb-0">
+                        
+                        {{-- === PROFILE PICTURE LOGIC (SPATIE) === --}}
                         <div class="h-24 w-24 rounded-full bg-gray-200 border-4 border-indigo-500 shadow-sm overflow-hidden mr-6 flex-shrink-0 relative group">
-                            @if(isset($student->photo) && $student->photo)
-                                <img src="{{ asset('storage/' . $student->photo) }}" alt="Profile" class="h-full w-full object-cover">
+                            @php
+                                // Kunin ang URL galing sa Spatie Media Library ('avatar' collection)
+                                $avatarUrl = $student->getFirstMediaUrl('avatar');
+                            @endphp
+
+                            @if($avatarUrl)
+                                {{-- Kung may in-upload na picture --}}
+                                <img src="{{ $avatarUrl }}" alt="Profile" class="h-full w-full object-cover">
                             @else
+                                {{-- Kung wala, ipakita ang Initials (Fallback) --}}
                                 <div class="h-full w-full flex items-center justify-center bg-indigo-100 text-indigo-700 text-2xl font-bold">
                                     {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}
                                 </div>
                             @endif
                         </div>
+                        {{-- ====================================== --}}
 
                         <div>
                             <h1 class="text-2xl font-bold text-gray-800">{{ $student->last_name }}, {{ $student->first_name }}</h1>
@@ -39,6 +50,7 @@
                     </div>
                 </div>
                 
+                {{-- EXPANDABLE DETAILS --}}
                 <div x-data="{ showInfo: false }" class="border-t border-gray-100">
                     <button @click="showInfo = !showInfo" class="w-full text-center py-2 text-xs text-gray-500 hover:bg-gray-50 flex justify-center items-center bg-gray-50 transition">
                         <span x-show="!showInfo">View Full Profile Details</span>
@@ -48,8 +60,8 @@
                     <div x-show="showInfo" x-transition class="p-6 bg-white grid grid-cols-1 md:grid-cols-3 gap-6 text-sm border-t">
                         <div>
                             <h4 class="font-bold text-indigo-700 mb-2 border-b pb-1">Personal Data</h4>
-                            <p><span class="text-gray-500">Birthdate:</span> {{ date('M d, Y', strtotime($student->birthdate)) }}</p>
-                            <p><span class="text-gray-500">Age:</span> {{ \Carbon\Carbon::parse($student->birthdate)->age }}</p>
+                            <p><span class="text-gray-500">Birthdate:</span> {{ $student->birthdate ? date('M d, Y', strtotime($student->birthdate)) : 'N/A' }}</p>
+                            <p><span class="text-gray-500">Age:</span> {{ $student->birthdate ? \Carbon\Carbon::parse($student->birthdate)->age : 'N/A' }}</p>
                             <p><span class="text-gray-500">Sex:</span> {{ $student->sex }}</p>
                         </div>
                         <div>
@@ -66,12 +78,13 @@
                 </div>
             </div>
             
+            {{-- PROMOTION STATUS BANNER --}}
             @if(isset($student->promotion_status) && $student->promotion_status)
                 @php
                     $borderClass = 'border-red-500';
                     $textClass = 'text-red-600';
                     
-                    if($student->promotion_status == 'Promoted') {
+                    if($student->promotion_status == 'Promoted' || str_contains($student->promotion_status, 'Honors')) {
                         $borderClass = 'border-green-500';
                         $textClass = 'text-green-600';
                     } elseif($student->promotion_status == 'Conditional') {
@@ -85,12 +98,13 @@
                         <h3 class="text-lg font-bold text-gray-800">End of School Year Status</h3>
                         <p class="text-sm text-gray-600">Based on academic performance.</p>
                     </div>
-                    <span class="text-2xl font-extrabold uppercase tracking-wider {{ $textClass }}">
+                    <span class="text-xl md:text-2xl font-extrabold uppercase tracking-wider {{ $textClass }}">
                         {{ $student->promotion_status }}
                     </span>
                 </div>
             @endif
 
+            {{-- CLASS SCHEDULE --}}
             <div x-data="{ showSchedule: false }" class="bg-white shadow-md rounded-lg overflow-hidden mb-8 border border-gray-200">
                 <button @click="showSchedule = !showSchedule" class="w-full p-4 bg-blue-50 border-b border-gray-200 flex justify-between items-center hover:bg-blue-100 transition">
                     <div class="flex items-center text-blue-800">
@@ -111,24 +125,18 @@
                                 <thead>
                                     <tr class="bg-gray-100 text-left text-xs font-bold text-gray-600 uppercase">
                                         <th class="p-3">Time</th>
-                                        <th class="p-3">Mon</th>
-                                        <th class="p-3">Tue</th>
-                                        <th class="p-3">Wed</th>
-                                        <th class="p-3">Thu</th>
-                                        <th class="p-3">Fri</th>
+                                        <th class="p-3">Details</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{-- Simple Table Version for Stability --}}
                                     @foreach($student->section->schedules as $sched)
                                     <tr class="border-b">
-                                        <td class="p-3 font-mono text-xs text-blue-600 font-bold">
+                                        <td class="p-3 font-mono text-xs text-blue-600 font-bold whitespace-nowrap">
                                             {{ date('h:i A', strtotime($sched->time_start)) }} - {{ date('h:i A', strtotime($sched->time_end)) }}
                                         </td>
-                                        <td colspan="5" class="p-3">
-                                            <span class="font-bold text-gray-800">{{ $sched->subject->subject_name }}</span>
-                                            <span class="text-gray-500 text-xs ml-2">({{ $sched->day }})</span>
-                                            <div class="text-xs text-gray-400">Rm: {{ $sched->room ?? 'TBA' }}</div>
+                                        <td class="p-3">
+                                            <span class="font-bold text-gray-800 block">{{ $sched->subject->subject_name }}</span>
+                                            <span class="text-gray-500 text-xs">{{ $sched->day }} | Room: {{ $sched->room ?? 'TBA' }}</span>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -143,6 +151,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
+                {{-- ACADEMIC RECORDS (GRADES) --}}
                 <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-indigo-50">
                         <h3 class="text-lg font-bold text-indigo-800">Academic Records</h3>
@@ -180,6 +189,7 @@
                 </div>
 
                 <div class="space-y-6">
+                    {{-- AWARDS --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                         <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-yellow-50">
                             <h3 class="text-lg font-bold text-yellow-800">Awards & Recognition</h3>
@@ -198,6 +208,7 @@
                         </div>
                     </div>
 
+                    {{-- ATTENDANCE --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                         <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-green-50">
                             <h3 class="text-lg font-bold text-green-800">Attendance Log</h3>
@@ -221,6 +232,7 @@
                         </div>
                     </div>
 
+                    {{-- EXIT CLEARANCE --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-4 flex items-center justify-between">
                             <div><h3 class="text-md font-bold text-gray-800">Exit Clearance</h3><p class="text-xs text-gray-500">Transfer/Graduation</p></div>

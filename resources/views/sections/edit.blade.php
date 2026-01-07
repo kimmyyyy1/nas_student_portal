@@ -10,6 +10,12 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     
+                    @if ($errors->any())
+                        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
+                            <ul>@foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach</ul>
+                        </div>
+                    @endif
+                    
                     <form method="POST" action="{{ route('sections.update', $section->id) }}">
                         @csrf
                         @method('PATCH')
@@ -31,15 +37,18 @@
                             <input type="text" name="section_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required value="{{ old('section_name', $section->section_name) }}">
                         </div>
 
+                        {{-- FIX: Adviser Selection gamit ang ID --}}
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700">Class Adviser</label>
-                            <select name="adviser_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            {{-- Name Attribute: adviser_id --}}
+                            <select name="adviser_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="">-- Select Teacher --</option>
                                 @foreach($teachers as $teacher)
-                                    @php 
-                                        $fullName = $teacher->first_name . ' ' . $teacher->last_name;
-                                    @endphp
-                                    <option value="{{ $fullName }}" {{ $section->adviser_name == $fullName ? 'selected' : '' }}>
+                                    {{-- Value: Staff ID --}}
+                                    {{-- Condition: Check kung match ang ID --}}
+                                    <option value="{{ $teacher->id }}" 
+                                        {{ (old('adviser_id', $section->adviser_id) == $teacher->id) ? 'selected' : '' }}>
+                                        
                                         {{ $teacher->last_name }}, {{ $teacher->first_name }}
                                     </option>
                                 @endforeach

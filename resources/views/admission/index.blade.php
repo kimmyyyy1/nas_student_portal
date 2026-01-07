@@ -8,6 +8,7 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
+            {{-- DASHBOARD CARDS --}}
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                 
                 <a href="{{ route('admission.index') }}" 
@@ -72,9 +73,11 @@
 
             </div>
 
+            {{-- MAIN CONTENT AREA --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
                 <div class="p-6 text-gray-900">
                     
+                    {{-- HEADER & SEARCH --}}
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <div class="flex items-center">
                             <h3 class="text-lg font-bold text-gray-800 flex items-center">
@@ -117,6 +120,7 @@
                         </div>
                     @endif
 
+                    {{-- TABLE --}}
                     @if($applications->count() > 0)
                     <div class="overflow-x-auto rounded-lg border border-gray-200">
                         <table class="min-w-full divide-y divide-gray-200">
@@ -134,9 +138,12 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($applications as $app)
                                 <tr class="hover:bg-gray-50 transition">
+                                    {{-- ID --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
                                         #{{ str_pad($app->id, 4, '0', STR_PAD_LEFT) }}
                                     </td>
+                                    
+                                    {{-- DETAILS --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
@@ -148,26 +155,36 @@
                                             </div>
                                         </div>
                                     </td>
+                                    
+                                    {{-- GRADE LEVEL --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded border border-gray-300">
                                             {{ $app->grade_level_applied }}
                                         </span>
                                     </td>
+                                    
+                                    {{-- DATE SUBMITTED --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $app->created_at->format('M d, Y') }}
                                     </td>
                                     
+                                    {{-- DATE CHECKED (UPDATED FIX HERE) --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @if(!in_array($app->status, ['Pending', 'For Assessment']))
+                                        @if($app->date_checked)
                                             <div class="flex flex-col">
-                                                <span class="font-bold text-gray-700">{{ $app->updated_at->format('M d, Y') }}</span>
-                                                <span class="text-xs text-gray-400">{{ $app->updated_at->format('h:i A') }}</span>
+                                                <span class="font-bold text-gray-700">
+                                                    {{ \Carbon\Carbon::parse($app->date_checked)->format('M d, Y') }}
+                                                </span>
+                                                <span class="text-xs text-gray-400">
+                                                    {{ \Carbon\Carbon::parse($app->date_checked)->format('h:i A') }}
+                                                </span>
                                             </div>
                                         @else
                                             <span class="text-gray-400 italic text-xs">-- Pending --</span>
                                         @endif
                                     </td>
 
+                                    {{-- STATUS --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if(in_array($app->status, ['Pending', 'pending', 'For Assessment']))
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
@@ -195,6 +212,8 @@
                                             </span>
                                         @endif
                                     </td>
+
+                                    {{-- ACTION --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <a href="{{ route('admission.show', $app->id) }}" class="text-indigo-600 hover:text-white border border-indigo-600 hover:bg-indigo-600 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center inline-flex items-center transition">
                                             <i class='bx bx-show mr-1'></i> Review

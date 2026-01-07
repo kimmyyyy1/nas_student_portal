@@ -2,110 +2,104 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Grade;
-use App\Models\Student;  // Import
-use App\Models\Schedule; // Import
+use App\Models\Section;
+use App\Models\Staff;
+use App\Models\Student;
 use Illuminate\Http\Request;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 class GradeController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * STEP 1: Selection Page (Mamimili ng Section)
      */
-    public function index(): View
+    public function index()
     {
-        // Eager load ang relationships para mas mabilis
-        $grades = Grade::with('student', 'schedule.subject')->latest()->get();
+        $user = Auth::user();
         
-        return view('grades.index', compact('grades'));
+        // --- 1. ADMIN / REGISTRAR ACCESS ---
+        // Kung Admin o Registrar, ipakita ang LAHAT ng sections
+        if ($user->role === 'admin' || $user->role === 'registrar') {
+            $sections = Section::with('adviser') // Optional: Isama ang adviser info
+                               ->orderBy('grade_level')
+                               ->orderBy('section_name')
+                               ->get();
+            
+            return view('grades.index', compact('sections'));
+        }
+
+        // --- 2. TEACHER ACCESS ---
+        // Kung Teacher, hanapin lang ang hawak niya
+        $staff = Staff::where('email', $user->email)->first();
+
+        if (!$staff) {
+            // FIX SA ERROR: Gumamit ng collect() para empty Collection, hindi Array []
+            // Para gumana ang $sections->isEmpty() sa view
+            $sections = collect(); 
+        } else {
+            // Hanapin ang Advisory Class
+            $sections = Section::where('adviser_id', $staff->id)->get();
+        }
+
+        return view('grades.index', compact('sections'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * STEP 2: The Grading Sheet (Dito na mag-eencode)
      */
-    public function create(): View
+    public function show($id)
     {
-        // Kunin lahat ng data para sa dropdowns
-        $students = Student::orderBy('last_name')->get();
-        $schedules = Schedule::with('subject', 'section')->get();
-        
-        return view('grades.create', compact('students', 'schedules'));
+        // Security Check: Pwede mong dagdagan dito kung allowed ba si user i-access to.
+        // Pero sa ngayon, hayaan nating open para sa Admin at Adviser.
+
+        // Hanapin ang section at ang mga estudyante nito
+        $section = Section::with(['students' => function($query) {
+                        $query->orderBy('last_name')->orderBy('first_name');
+                    }])->findOrFail($id);
+
+        return view('grades.show', compact('section'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * STEP 3: Save Logic (Walang pagbabago dito)
      */
-    public function store(Request $request): RedirectResponse
+    public function bulkUpdate(Request $request)
     {
-        // I-validate
-        $validatedData = $request->validate([
-            'student_id' => 'required|exists:students,id',
-            'schedule_id' => 'required|exists:schedules,id',
-            'mark' => 'required|numeric|min:0|max:100',
-            // INAYOS ANG VALIDATION: 4th Quarter lang
-            'grading_period' => 'required|in:1st Quarter,2nd Quarter,3rd Quarter,4th Quarter',
-        ]);
+        $grades = $request->input('grades');
 
-        // I-create
-        Grade::create($validatedData);
+        if ($grades) {
+            foreach ($grades as $studentId => $data) {
+                $student = Student::find($studentId);
+                
+                if ($student) {
+                    $q1 = isset($data['q1']) && $data['q1'] !== '' ? floatval($data['q1']) : null;
+                    $q2 = isset($data['q2']) && $data['q2'] !== '' ? floatval($data['q2']) : null;
+                    $q3 = isset($data['q3']) && $data['q3'] !== '' ? floatval($data['q3']) : null;
+                    $q4 = isset($data['q4']) && $data['q4'] !== '' ? floatval($data['q4']) : null;
+                    
+                    $gradesArray = [];
+                    if (!is_null($q1)) $gradesArray[] = $q1;
+                    if (!is_null($q2)) $gradesArray[] = $q2;
+                    if (!is_null($q3)) $gradesArray[] = $q3;
+                    if (!is_null($q4)) $gradesArray[] = $q4;
+                    
+                    $average = null;
+                    if (count($gradesArray) > 0) {
+                        $divisor = (count($gradesArray) === 4) ? 4 : count($gradesArray);
+                        $average = array_sum($gradesArray) / $divisor;
+                    }
 
-        // I-redirect
-        return redirect()->route('grades.index')->with('success', 'Grade added successfully.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Grade $grade)
-    {
-        abort(404);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Grade $grade): View
-    {
-        // Kunin lahat ng data para sa dropdowns
-        $students = Student::orderBy('last_name')->get();
-        $schedules = Schedule::with('subject', 'section')->get();
-        
-        // Ipasa ang $grade at ang dropdown data
-        return view('grades.edit', compact('grade', 'students', 'schedules'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Grade $grade): RedirectResponse
-    {
-        // I-validate
-        $validatedData = $request->validate([
-            'student_id' => 'required|exists:students,id',
-            'schedule_id' => 'required|exists:schedules,id',
-            'mark' => 'required|numeric|min:0|max:100',
-            // INAYOS ANG VALIDATION: 4th Quarter lang
-            'grading_period' => 'required|in:1st Quarter,2nd Quarter,3rd Quarter,4th Quarter',
-        ]);
-
-        // I-update
-        $grade->update($validatedData);
-
-        // I-redirect
-        return redirect()->route('grades.index')->with('success', 'Grade updated successfully.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Grade $grade): RedirectResponse
-    {
-        // I-delete
-        $grade->delete();
-
-        // I-redirect
-        return redirect()->route('grades.index')->with('success', 'Grade deleted successfully.');
+                    $student->update([
+                        'q1' => $q1, 
+                        'q2' => $q2, 
+                        'q3' => $q3, 
+                        'q4' => $q4,
+                        'general_average' => $average,
+                        'promotion_status' => $data['status'] ?? null,
+                    ]);
+                }
+            }
+        }
+        return redirect()->back()->with('success', 'Grades updated successfully!');
     }
 }

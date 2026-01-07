@@ -8,18 +8,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Student extends Model
+// 1. IMPORT SPATIE CLASSES
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+
+// 2. IMPLEMENT HASMEDIA INTERFACE
+class Student extends Model implements HasMedia
 {
     use HasFactory;
+    use InteractsWithMedia; // 3. USE THE TRAIT
 
-    /**
-     * The attributes that are mass assignable.
-     */
     protected $fillable = [
-        // --- Identifiers & Media ---
+        // --- Identifiers ---
         'nas_student_id',
         'lrn',
-        'photo', 
+        // TANGGALIN NA ANG 'photo' DITO. 
+        // Ang Spatie na ang bahala sa 'media' table. 
+        // Hindi natin ise-save ang file path sa students table directy.
 
         // --- Personal Info ---
         'first_name',
@@ -40,8 +45,15 @@ class Student extends Model
         'entry_year',
         'grade_level',
         'status',           // New, Continuing, Transfer out, Graduate, Enrolled
-        'promotion_status', // Promoted, Conditional, Retained (New Field)
-        'general_average',  // For Grading (New Field)
+        'promotion_status', // Promoted, Conditional, Retained
+        'general_average',  // Final Grade
+        
+        // --- ADDED: Quarterly Grades ---
+        'q1',
+        'q2',
+        'q3',
+        'q4',
+        
         'section_id',
         'team_id',
         
@@ -77,6 +89,11 @@ class Student extends Model
         'is_4ps' => 'boolean',
         'birthdate' => 'date',
         'enrollment_date' => 'date',
+        'q1' => 'double',
+        'q2' => 'double',
+        'q3' => 'double',
+        'q4' => 'double',
+        'general_average' => 'double',
     ];
 
     // --- RELATIONSHIPS ---
@@ -91,31 +108,26 @@ class Student extends Model
         return $this->belongsTo(Team::class);
     }
 
-    // Grades (Detailed Subject Grades)
     public function grades(): HasMany
     {
         return $this->hasMany(Grade::class);
     }
 
-    // Attendance
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
     }
 
-    // Awards Received (New Relationship)
     public function awards(): HasMany
     {
         return $this->hasMany(Award::class);
     }
 
-    // Medical Records (Physical Evaluation)
     public function medicalRecords(): HasMany
     {
         return $this->hasMany(MedicalRecord::class);
     }
 
-    // Link sa User Account (Login)
     public function user(): HasOne
     {
         return $this->hasOne(User::class);

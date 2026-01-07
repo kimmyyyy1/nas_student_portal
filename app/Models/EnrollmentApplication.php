@@ -9,15 +9,8 @@ class EnrollmentApplication extends Model
 {
     use HasFactory;
 
-    /**
-     * Siguraduhin natin na ang table name ay tama.
-     */
     protected $table = 'enrollment_applications';
 
-    /**
-     * Idinagdag natin ang mga bagong checkbox columns dito sa $fillable.
-     * Kapag wala sila rito, "is-snob" o ibabalewala sila ni Laravel kapag nag-save ka.
-     */
     protected $fillable = [
         'user_id',
         'lrn',
@@ -38,7 +31,7 @@ class EnrollmentApplication extends Model
         'is_others',  
         'others_specify',
 
-        // MGA DATING STRING COLUMNS (Panatilihin natin para sa compatibility)
+        // MGA DATING STRING COLUMNS
         'special_categories',      
         'other_category_details',  
 
@@ -62,15 +55,16 @@ class EnrollmentApplication extends Model
         'status',
         'assessment_score',
         'rejection_reason',
+
+        // --- IDAGDAG ITO SA DULO ---
+        'date_checked', // <--- IMPORTANTE: Ito ang kulang kaya hindi nagse-save ang date!
     ];
 
-    /**
-     * Dito sa $casts, ginagawa nating 'boolean' ang mga is_ columns.
-     * Para kapag kinuha mo sa code, automatic silang true o false.
-     */
     protected $casts = [
         'uploaded_files' => 'array',
         'date_of_birth' => 'date',
+        // Idagdag din natin ang date_checked sa casts para automatic na Carbon instance siya
+        'date_checked' => 'datetime', 
         'has_palaro_participation' => 'boolean',
         'is_ip' => 'boolean',
         'is_pwd' => 'boolean',
@@ -78,9 +72,6 @@ class EnrollmentApplication extends Model
         'is_others' => 'boolean',
     ];
 
-    /**
-     * Relationship to the User model.
-     */
     public function user()
     {
         return $this->belongsTo(User::class);

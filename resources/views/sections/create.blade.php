@@ -37,17 +37,20 @@
                             <input type="text" name="section_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required placeholder="e.g. Emerald">
                         </div>
 
+                        {{-- FIX: Adviser Selection gamit ang ID --}}
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700">Class Adviser</label>
-                            <select name="adviser_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            {{-- Binago ang name attribute --}}
+                            <select name="adviser_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="">-- Select Teacher --</option>
                                 @foreach($teachers as $teacher)
-                                    <option value="{{ $teacher->first_name }} {{ $teacher->last_name }}">
+                                    {{-- Binago ang value attribute para maging ID --}}
+                                    <option value="{{ $teacher->id }}">
                                         {{ $teacher->last_name }}, {{ $teacher->first_name }}
                                     </option>
                                 @endforeach
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">Select from registered teachers.</p>
+                            <p class="text-xs text-gray-500 mt-1">Select from registered teachers (Staff).</p>
                         </div>
 
                         <div class="mb-6">

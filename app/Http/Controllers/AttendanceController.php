@@ -3,105 +3,92 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
-use App\Models\Student;  // Import
-use App\Models\Schedule; // Import
+use App\Models\Section;
+use App\Models\Staff;
 use Illuminate\Http\Request;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): View
+    // STEP 1: Listahan ng Sections (Modified for Admin View)
+    public function index()
     {
-        // Eager load ang relationships
-        $attendances = Attendance::with('student', 'schedule.subject', 'schedule.section')->latest()->get();
-        
-        return view('attendances.index', compact('attendances'));
+        $user = Auth::user();
+
+        // --- 1. ADMIN / REGISTRAR CHECK ---
+        // Kung Admin, kunin lahat ng sections + Adviser Info + Student Count
+        if ($user->role === 'admin' || $user->role === 'registrar') {
+            $sections = Section::with(['adviser', 'students']) // Eager load para mabilis
+                               ->orderBy('grade_level')
+                               ->orderBy('section_name')
+                               ->get();
+            
+            return view('attendances.index', compact('sections'));
+        }
+
+        // --- 2. TEACHER CHECK ---
+        $staff = Staff::where('email', $user->email)->first();
+
+        if (!$staff) {
+            $sections = collect(); // Empty collection para walang error
+        } else {
+            // Kunin ang advisory section ng teacher
+            $sections = Section::with('students')
+                               ->where('adviser_id', $staff->id)
+                               ->get();
+        }
+
+        return view('attendances.index', compact('sections'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): View
+    // STEP 2: Ipakita ang Attendance Sheet
+    public function show(Request $request, $sectionId)
     {
-        // Kunin lahat ng data para sa dropdowns
-        $students = Student::orderBy('last_name')->get();
-        // Kukunin natin ang subject, section, at staff para sa malinaw na dropdown
-        $schedules = Schedule::with('subject', 'section', 'staff')->get(); 
-        
-        return view('attendances.create', compact('students', 'schedules'));
+        $date = $request->query('date', Carbon::now()->format('Y-m-d'));
+
+        // Load students sorted by Last Name
+        $section = Section::with(['students' => function($query) {
+            $query->orderBy('last_name')->orderBy('first_name');
+        }])->findOrFail($sectionId);
+
+        // Kunin ang mga records para sa date na ito
+        $attendanceRecords = Attendance::where('section_id', $sectionId)
+                                       ->whereDate('date', $date)
+                                       ->get()
+                                       ->keyBy('student_id');
+
+        return view('attendances.show', compact('section', 'date', 'attendanceRecords'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
+    // STEP 3: Save Logic
+    public function bulkStore(Request $request)
     {
-        // I-validate
-        $validatedData = $request->validate([
-            'student_id' => 'required|exists:students,id',
-            'schedule_id' => 'required|exists:schedules,id',
-            'date' => 'required|date',
-            'status' => 'required|in:Present,Absent,Late,Excused',
-        ]);
+        $sectionId = $request->input('section_id');
+        $date      = $request->input('date');
+        $inputs    = $request->input('attendance');
 
-        // I-create
-        Attendance::create($validatedData);
+        if ($inputs) {
+            foreach ($inputs as $studentId => $data) {
+                
+                $status = $data['status'] ?? 'Present'; 
+                $remarks = $data['remarks'] ?? null;
 
-        // I-redirect
-        return redirect()->route('attendances.index')->with('success', 'Attendance recorded successfully.');
-    }
+                Attendance::updateOrCreate(
+                    [
+                        'student_id' => $studentId,
+                        'section_id' => $sectionId,
+                        'date'       => $date,
+                    ],
+                    [
+                        'schedule_id' => null, // Keep existing fix
+                        'status'      => $status,
+                        'remarks'     => $remarks,
+                    ]
+                );
+            }
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Attendance $attendance): View
-    {
-        // Kunin lahat ng data para sa dropdowns
-        $schedules = Schedule::with('subject', 'section', 'staff')->get(); 
-        
-        // Ipasa ang $attendance at ang dropdown data
-        return view('attendances.edit', compact('attendance', 'schedules'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Attendance $attendance): RedirectResponse
-    {
-        // I-validate
-        $validatedData = $request->validate([
-            // Student ID ay nanggagaling sa hidden field (tingnan ang edit.blade.php)
-            'student_id' => 'required|exists:students,id', 
-            'schedule_id' => 'required|exists:schedules,id',
-            'date' => 'required|date',
-            'status' => 'required|in:Present,Absent,Late,Excused',
-        ]);
-
-        // I-update
-        $attendance->update($validatedData);
-
-        // I-redirect
-        return redirect()->route('attendances.index')->with('success', 'Attendance record updated successfully.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Attendance $attendance): RedirectResponse
-    {
-        // I-delete
-        $attendance->delete();
-
-        // I-redirect
-        return redirect()->route('attendances.index')->with('success', 'Attendance record deleted successfully.');
-    }
-    
-    public function show(Attendance $attendance)
-    {
-        abort(404);
+        return redirect()->back()->with('success', 'Attendance saved successfully for ' . $date);
     }
 }

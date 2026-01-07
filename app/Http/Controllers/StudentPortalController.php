@@ -25,7 +25,8 @@ class StudentPortalController extends Controller
                               'team',                       // Para sa Sports info
                               'grades.schedule.subject',    // Para sa Grades table
                               'attendances.schedule.subject', // Para sa Attendance log
-                              'awards'                      // Para sa Awards & Recognition
+                              'awards',                     // Para sa Awards & Recognition
+                              'media'                       // <--- IMPORTANT: Para makuha ang Spatie Picture
                           ])
                           ->first();
 
@@ -34,7 +35,7 @@ class StudentPortalController extends Controller
             return redirect()->route('login')->with('error', 'No student record found linked to this account.');
         }
 
-        // TANDAAN: Ito ay tumuturo sa 'resources/views/student-portal/dashboard.blade.php'
+        // Return view
         return view('student-portal.dashboard', compact('student'));
     }
 }

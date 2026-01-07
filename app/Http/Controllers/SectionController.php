@@ -15,7 +15,8 @@ class SectionController extends Controller
      */
     public function index(): View
     {
-        $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
+        // Eager load 'adviser' relationship para hindi mabagal ang loading ng table
+        $sections = Section::with('adviser')->orderBy('grade_level')->orderBy('section_name')->get();
         return view('sections.index', compact('sections'));
     }
 
@@ -24,8 +25,10 @@ class SectionController extends Controller
      */
     public function create(): View
     {
-        // Kunin lang ang mga Staff na may role na 'teacher'
-        $teachers = Staff::where('role', 'teacher')->orderBy('last_name')->get();
+        // KUNIN ANG STAFF (TEACHERS)
+        // Siguraduhin na 'teacher' ang role
+        // Kung may 'user' relationship ang Staff, pwede ring ->with('user')
+        $teachers = Staff::where('role', 'teacher')->get();
         
         return view('sections.create', compact('teachers'));
     }
@@ -35,12 +38,16 @@ class SectionController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // FIX: Pinalitan ang validation para sa adviser_id
         $validated = $request->validate([
             'grade_level' => 'required|string',
             'section_name' => 'required|string|max:255',
-            'adviser_name' => 'nullable|string|max:255', // Saving as String Name
+            
+            // IMPORTANT: Validate na ang ID ay exist sa 'staff' table
+            'adviser_id' => 'required|exists:staff,id', 
+            
             'room_number' => 'nullable|string|max:255',
-            'schedule' => 'nullable|string|max:255',
+            'schedule' => 'nullable|string|max:255', // Optional: Kung ginagamit mo pa ito
         ]);
 
         Section::create($validated);
@@ -54,7 +61,7 @@ class SectionController extends Controller
     public function edit(Section $section): View
     {
         // Kunin ulit ang teachers para sa edit dropdown
-        $teachers = Staff::where('role', 'teacher')->orderBy('last_name')->get();
+        $teachers = Staff::where('role', 'teacher')->get();
 
         return view('sections.edit', compact('section', 'teachers'));
     }
@@ -64,10 +71,14 @@ class SectionController extends Controller
      */
     public function update(Request $request, Section $section): RedirectResponse
     {
+        // FIX: Pinalitan din dito ang validation
         $validated = $request->validate([
             'grade_level' => 'required|string',
             'section_name' => 'required|string|max:255',
-            'adviser_name' => 'nullable|string|max:255',
+            
+            // IMPORTANT: Validate na ang ID ay exist sa 'staff' table
+            'adviser_id' => 'required|exists:staff,id',
+            
             'room_number' => 'nullable|string|max:255',
             'schedule' => 'nullable|string|max:255',
         ]);

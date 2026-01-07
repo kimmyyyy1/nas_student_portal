@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Barryvdh\DomPDF\Facade\Pdf; 
+use Carbon\Carbon; // Added for date handling
 
 class EnrollmentController extends Controller
 {
@@ -63,7 +64,7 @@ class EnrollmentController extends Controller
 
         return view('admission.index', compact(
             'applications', 
-            'totalSubmitted', // Ipapasa natin ito sa view
+            'totalSubmitted', 
             'countPending', 
             'countQualified', 
             'countWaitlisted', 
@@ -71,18 +72,34 @@ class EnrollmentController extends Controller
         ));
     }
 
-    // ... (Show, Process, and GeneratePDF functions remain the same)
     public function show($id): View {
         $application = EnrollmentApplication::findOrFail($id);
+        // Update timestamp if created matches updated (fresh record)
         if ($application->created_at == $application->updated_at) $application->touch(); 
         return view('admission.show', compact('application'));
     }
     
+    // --- UPDATED PROCESS FUNCTION (WITH DATE FIX) ---
     public function process(Request $request, $id): RedirectResponse {
         $application = EnrollmentApplication::findOrFail($id);
-        $validated = $request->validate(['status' => 'required|string', 'assessment_score' => 'nullable|string', 'rejection_reason' => 'nullable|string']);
-        if ($validated['status'] !== 'Not Qualified') $validated['rejection_reason'] = null;
+        
+        $validated = $request->validate([
+            'status' => 'required|string', 
+            'assessment_score' => 'nullable|string', 
+            'rejection_reason' => 'nullable|string'
+        ]);
+
+        // Logic para sa rejection reason
+        if ($validated['status'] !== 'Not Qualified') {
+            $validated['rejection_reason'] = null;
+        }
+
+        // FIX: I-save ang current date/time sa 'date_checked'
+        // Ito ang solusyon para mawala ang "-- Pending --" sa date column
+        $validated['date_checked'] = now(); 
+
         $application->update($validated);
+        
         return back()->with('success', "Status updated successfully.");
     }
 
