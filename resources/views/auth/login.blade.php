@@ -12,17 +12,17 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        /* SAFEGUARD CSS: Ito ang magsisigurong may design kahit masira ang Tailwind */
+        /* SAFEGUARD CSS */
         body {
             margin: 0;
             padding: 0;
             height: 100vh;
             width: 100%;
-            overflow: hidden;
+            overflow: hidden; /* Bawal mag-scroll ang background */
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #111827; /* Dark Gray */
+            background-color: #111827;
             font-family: 'Figtree', sans-serif;
         }
 
@@ -33,7 +33,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -10; /* Nasa likod */
+            z-index: -10;
         }
         
         .bg-image {
@@ -56,23 +56,34 @@
         /* Login Card */
         .login-card {
             position: relative;
-            z-index: 50; /* Siguradong nasa harap */
+            z-index: 50;
             background-color: white;
             width: 100%;
-            max-width: 400px; /* Liit ng card */
+            max-width: 400px;
             border-radius: 16px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            border-top: 6px solid #facc15; /* Yellow border */
-            overflow: hidden;
+            border-top: 6px solid #facc15;
+            overflow: hidden; /* Importante ito para sa rounded corners */
             display: flex;
             flex-direction: column;
-            margin: 0 20px; /* Para di dikit sa gilid sa mobile */
+            margin: 0 20px;
+            max-height: 90vh; /* Limitahan ang height ng card */
         }
 
+        /* --- MAGIC CSS: SCROLLABLE PERO WALANG BAR --- */
         .card-content {
             padding: 2rem;
-            overflow-y: auto;
-            max-height: 90vh;
+            overflow-y: auto; /* Pwede mag-scroll */
+            
+            /* Tago Scrollbar sa Firefox */
+            scrollbar-width: none; 
+            /* Tago Scrollbar sa IE/Edge */
+            -ms-overflow-style: none; 
+        }
+
+        /* Tago Scrollbar sa Chrome, Safari, Edge, Opera */
+        .card-content::-webkit-scrollbar {
+            display: none;
         }
 
         /* Inputs */
@@ -92,12 +103,12 @@
         .form-input {
             display: block;
             width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem; /* with icon padding */
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
             font-size: 0.875rem;
             border-radius: 0.5rem;
             border: 1px solid #d1d5db;
             background-color: #f9fafb;
-            box-sizing: border-box; /* Importante para di lumagpas */
+            box-sizing: border-box;
         }
 
         .form-input:focus {
@@ -147,15 +158,15 @@
 </head>
 <body>
 
-    {{-- 1. BACKGROUND (Fixed Position) --}}
+    {{-- 1. BACKGROUND --}}
     <div class="bg-container">
         <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="bg-image" alt="Background"> 
         <div class="bg-overlay"></div>
     </div>
     
-    {{-- 2. LOGIN CARD (Relative Position) --}}
+    {{-- 2. LOGIN CARD --}}
     <div class="login-card">
-        <div class="card-content custom-scrollbar">
+        <div class="card-content">
             
             {{-- Logo Section --}}
             <div class="text-center" style="margin-bottom: 1.5rem;">
