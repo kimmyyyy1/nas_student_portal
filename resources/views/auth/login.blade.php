@@ -20,19 +20,26 @@
 </head>
 <body class="bg-gray-900 h-screen w-full overflow-hidden relative flex items-center justify-center">
 
-    <div class="absolute inset-0 z-0">
-        <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover opacity-60" alt="Background"
+    {{-- 1. BACKGROUND IMAGE (Pure CSS: z-index -100) --}}
+    {{-- Ginawa nating 'fixed' at 'z-index: -100' para siguradong nasa pinakalikod --}}
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -100; pointer-events: none;">
+        <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" 
+             style="width: 100%; height: 100%; object-fit: cover; opacity: 0.6;" 
+             alt="Background"
              onerror="this.style.display='none';"> 
+         {{-- Gradient Overlay --}}
+         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom right, rgba(30, 58, 138, 0.8), rgba(30, 58, 138, 0.6), rgba(0, 0, 0, 0.7)); backdrop-filter: blur(1px);"></div>
     </div>
     
-    <div class="absolute inset-0 z-0 bg-gradient-to-br from-blue-900/80 via-blue-900/60 to-black/70 backdrop-blur-[1px]"></div>
-
-    <div class="relative z-10 w-full h-full flex flex-col justify-center px-4 sm:px-0">
+    {{-- 2. LOGIN CARD CONTAINER (Pure CSS: z-index 10) --}}
+    {{-- Ginawa nating 'relative' at 'z-index: 10' para lumutang sa ibabaw --}}
+    <div style="position: relative; z-index: 10; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; padding-left: 1rem; padding-right: 1rem;">
         
         <div class="w-full max-w-sm mx-auto bg-white rounded-2xl shadow-2xl border-t-[6px] border-yellow-400 overflow-hidden flex flex-col max-h-[90vh]">
             
             <div class="overflow-y-auto px-6 py-6 custom-scrollbar">
                 
+                {{-- Logo Section --}}
                 <div class="text-center mb-6">
                     <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" class="h-16 w-auto mx-auto mb-3 drop-shadow-md" alt="NAS Logo">
                     <h1 class="text-2xl font-extrabold text-blue-900 tracking-tight">NAS SAIS</h1>
@@ -49,6 +56,7 @@
 
                 <form method="POST" action="{{ route('login') }}" class="space-y-4">
                     @csrf 
+                    {{-- Email Input --}}
                     <div>
                         <label class="block font-bold text-[10px] text-gray-500 uppercase mb-1 ml-1">Email Address</label>
                         <div class="relative">
@@ -62,6 +70,7 @@
                         <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs" />
                     </div>
 
+                    {{-- Password Input --}}
                     <div x-data="{ show: false }">
                         <label class="block font-bold text-[10px] text-gray-500 uppercase mb-1 ml-1">Password</label>
                         <div class="relative">
@@ -84,6 +93,7 @@
                         <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs" />
                     </div>
 
+                    {{-- Remember & Forgot Password --}}
                     <div class="flex items-center justify-between text-xs">
                         <label class="inline-flex items-center cursor-pointer">
                             <input type="checkbox" name="remember" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
@@ -94,11 +104,13 @@
                         @endif
                     </div>
 
+                    {{-- Submit Button --}}
                     <button type="submit" class="w-full py-3 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg shadow-md transition transform hover:scale-[1.02] text-sm uppercase tracking-wider">
                         LOG IN
                     </button>
                 </form>
 
+                {{-- Register Link --}}
                 <div class="mt-5 pt-4 border-t border-gray-100 text-center">
                     <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">No account yet?</p>
                     <a href="{{ route('register') }}" class="inline-block text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 py-2 px-6 rounded-full transition uppercase tracking-wide">
@@ -109,6 +121,7 @@
             </div>
         </div>
         
+        {{-- Footer --}}
         <div class="mt-4 text-center pb-2">
              <p class="text-gray-300 text-[10px] opacity-80 uppercase tracking-widest font-medium drop-shadow-md">
                 &copy; {{ date('Y') }} National Academy of Sports
