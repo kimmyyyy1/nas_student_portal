@@ -11,13 +11,11 @@
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
         <style>
-            /* Custom Scrollbar */
             .custom-scrollbar::-webkit-scrollbar { width: 5px; }
             .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
             .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 5px; }
@@ -26,27 +24,26 @@
     </head>
     <body class="font-sans antialiased">
         
-        {{-- 1. GLOBAL BACKGROUND IMAGE (FIXED) --}}
-        {{-- Added style="z-index: -50" para sigurdong nasa likod --}}
-        <div class="fixed inset-0 w-full h-full pointer-events-none" style="z-index: -50;">
-            {{-- Changed opacity-80 to opacity-20 para hindi matapang ang image --}}
-            <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover opacity-20" alt="NAS Background">
-            <div class="absolute inset-0 bg-white/50"></div>
+        {{-- 1. BACKGROUND IMAGE (Pure CSS Fix) --}}
+        {{-- Ito ang magsisigurong nasa likod siya dahil sa z-index: -100 --}}
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -100; pointer-events: none;">
+            <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" 
+                 style="width: 100%; height: 100%; object-fit: cover; opacity: 0.2;" 
+                 alt="NAS Background">
+            {{-- White Overlay para mabasa ang text --}}
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.5);"></div>
         </div>
 
-        {{-- 2. SIDEBAR WHITE BACKGROUND FIX --}}
-        <div class="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 hidden md:block" style="z-index: 0;"></div>
-
-        {{-- 3. MAIN CONTENT WRAPPER --}}
-        {{-- Added relative and higher z-index to ensure content is on top --}}
-        <div class="min-h-screen bg-transparent relative" style="z-index: 10;">
+        {{-- 2. MAIN CONTENT WRAPPER --}}
+        {{-- Ito naman ang magsisigurong nasa harap ang dashboard dahil sa z-index: 10 --}}
+        <div style="position: relative; z-index: 10; min-height: 100vh;">
             
             {{-- Navigation Sidebar --}}
             @include('layouts.navigation')
 
             {{-- Page Header --}}
             @if (isset($header))
-                <header class="bg-white/90 shadow backdrop-blur-sm relative z-30 md:ml-64"> 
+                <header class="bg-white/90 shadow backdrop-blur-sm relative md:ml-64"> 
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
@@ -54,7 +51,7 @@
             @endif
 
             {{-- Page Content --}}
-            <main class="md:ml-64 pt-6 px-4 relative z-20"> 
+            <main class="md:ml-64 pt-6 px-4"> 
                 {{ $slot }}
             </main>
         </div>
