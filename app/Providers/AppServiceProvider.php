@@ -3,9 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View; // Importante para sa View Composer
-use Illuminate\Support\Facades\URL;  // <--- Idinagdag natin ito para sa HTTPS fix
-use App\Models\EnrollmentApplication; // Importante para sa Database Query
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Schema;
+use App\Models\EnrollmentApplication;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,26 +23,26 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // --- START NG FIX SA VERCEL STYLING ---
-        // Kung nasa production (live site), pilitin na gumamit ng HTTPS
-        if ($this->app->environment('production')) {
-            URL::forceScheme('https');
-        }
-        // --- END NG FIX ---
+        // ==========================================
+        // VERCEL CSS/ASSETS FIX (IMPORTANT)
+        // ==========================================
+        // Pilitin ang HTTPS para gumana ang styles sa Vercel.
+        // Paalala: Kung nag-e-error ito sa Local XAMPP, i-comment out muna (lagyan ng // sa unahan).
+        URL::forceScheme('https');
 
-
-        // I-share ang variable na $pendingAdmissionsCount sa 'layouts.navigation' view
+        // ==========================================
+        // SIDEBAR BADGE COUNTER (Shared Logic)
+        // ==========================================
         View::composer('layouts.navigation', function ($view) {
             $count = 0;
             
             try {
-                // Bilangin ang mga may status na 'Pending'
-                // Check muna kung existing ang table para di mag-error sa fresh migration
-                if (\Schema::hasTable('enrollment_applications')) {
+                // Check kung existing ang table bago mag-query para iwas error sa migration
+                if (Schema::hasTable('enrollment_applications')) {
                      $count = EnrollmentApplication::where('status', 'Pending')->count();
                 }
             } catch (\Exception $e) {
-                // Iwas error kapag may problema sa DB connection o migration
+                // Silent fail kapag may database connection error
                 $count = 0;
             }
 
