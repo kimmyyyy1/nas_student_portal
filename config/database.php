@@ -57,17 +57,17 @@ return [
             // =====================================================================
             // HYBRID SSL CONFIGURATION (Final Fix for TiDB)
             // =====================================================================
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                // Logic:
-                // 1. Kung Vercel (Production): Gamitin ang system certs ng Linux (/etc/pki/...).
-                // 2. Kung Local (Windows): Gamitin ang dinownload mong 'cacert.pem' sa project root.
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA') ?? (
-                    env('APP_ENV') === 'production' 
-                        ? '/etc/pki/tls/certs/ca-bundle.crt' 
-                        : base_path('cacert.pem')
-                ),
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-            ]) : [],
+            // 'options' => extension_loaded('pdo_mysql') ? array_filter([
+            //     // Logic:
+            //     // 1. Kung Vercel (Production): Gamitin ang system certs ng Linux (/etc/pki/...).
+            //     // 2. Kung Local (Windows): Gamitin ang dinownload mong 'cacert.pem' sa project root.
+            //     PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA') ?? (
+            //         env('APP_ENV') === 'production' 
+            //             ? '/etc/pki/tls/certs/ca-bundle.crt' 
+            //             : base_path('cacert.pem')
+            //     ),
+            //     PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            // ]) : [],
         ],
 
         'mariadb' => [

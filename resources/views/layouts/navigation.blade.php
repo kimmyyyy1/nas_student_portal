@@ -221,7 +221,7 @@
             const pos = localStorage.getItem('sidebar-scroll-pos');
             if (pos) sidebar.scrollTop = pos;
 
-            // Save scroll position when leaving page
+            // Save scroll position when leaving pages
             window.addEventListener('beforeunload', () => {
                 localStorage.setItem('sidebar-scroll-pos', sidebar.scrollTop);
             });

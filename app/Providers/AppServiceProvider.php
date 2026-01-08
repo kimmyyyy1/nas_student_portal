@@ -3,10 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\URL; // <--- Importante!
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Schema;
-use App\Models\EnrollmentApplication;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,26 +21,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // ==========================================
-        // 1. FORCE HTTPS (FIX FOR BROKEN STYLES)
-        // ==========================================
-        // Ito ang mag-aayos ng "text-only" na itsura sa Vercel.
-        // Pinipilit natin ang Laravel na gamitin ang 'https://' sa lahat ng links.
-        URL::forceScheme('https');
+        // Fix para sa "Key too long" error sa ibang database versions
+        Schema::defaultStringLength(191);
 
-        // ==========================================
-        // 2. SIDEBAR BADGE LOGIC
-        // ==========================================
-        View::composer('layouts.navigation', function ($view) {
-            $count = 0;
-            try {
-                if (Schema::hasTable('enrollment_applications')) {
-                     $count = EnrollmentApplication::where('status', 'Pending')->count();
-                }
-            } catch (\Exception $e) {
-                $count = 0;
-            }
-            $view->with('pendingAdmissionsCount', $count);
-        });
+        // LOGIC:
+        // Kapag nasa Vercel (Production), pilitin mag-HTTPS para secure at gumana ang CSS.
+        // Kapag nasa Local, huwag pilitin para hindi mag-error ang 127.0.0.1.
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }
