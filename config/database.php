@@ -55,10 +55,10 @@ return [
             'strict' => true,
             'engine' => null,
             // IMPORTANT: Ito ang pipilit sa Vercel na gamitin ang cacert.pem para sa SSL
-            // 'options' => extension_loaded('pdo_mysql') ? array_filter([
-            //     PDO::MYSQL_ATTR_SSL_CA => base_path('cacert.pem'),
-            //     PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-            // ]) : [],
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => base_path('cacert.pem'),
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            ]) : [],
         ],
 
         'mariadb' => [
