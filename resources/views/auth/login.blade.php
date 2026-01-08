@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login | NAS SAIS</title>
+    <title>NAS SAIS</title>
     
     <link rel="icon" type="image/jpeg" href="/images/nas/favicon.jpg">
     <link rel="preconnect" href="https://fonts.bunny.net">
