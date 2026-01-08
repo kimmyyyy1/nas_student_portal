@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan; // <-- ADDED THIS IMPORT
 
 // --- CONTROLLER IMPORTS ---
 use App\Http\Controllers\ProfileController;
@@ -40,6 +41,19 @@ Route::get('/', function () {
         return redirect()->route('dashboard');
     }
     return view('auth.login');
+});
+
+// --- PANSAMANTALANG ROUTE: FORCE CLEAR CACHE ---
+Route::get('/clear-all', function() {
+    try {
+        Artisan::call('view:clear');
+        Artisan::call('config:clear');
+        Artisan::call('route:clear');
+        Artisan::call('cache:clear');
+        return '<h1>Cache Cleared Successfully!</h1> <br> <a href="/dashboard">Go back to Dashboard</a>';
+    } catch (\Exception $e) {
+        return 'Error clearing cache: ' . $e->getMessage();
+    }
 });
 
 // --- AUTHENTICATED ROUTES GROUP ---
@@ -96,23 +110,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('schedules', ScheduleController::class);
     Route::get('/my-schedules', [ScheduleController::class, 'mySchedules'])->name('schedules.my');
     
-    // --- GRADES MANAGEMENT (BULK / EXCEL STYLE) ---
-    // 1. Bulk Update Logic
+    // --- GRADES MANAGEMENT ---
     Route::patch('/grades/bulk-update', [GradeController::class, 'bulkUpdate'])->name('grades.bulk_update'); 
-    // 2. View Grading Sheet (Show)
     Route::get('/grades/{section}', [GradeController::class, 'show'])->name('grades.show');
-    // 3. Class Selector (Index)
     Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
 
-
-    // --- ATTENDANCE MANAGEMENT (BULK / EXCEL STYLE) ---
-    // 1. Bulk Store Logic
+    // --- ATTENDANCE MANAGEMENT ---
     Route::post('/attendances/bulk-store', [AttendanceController::class, 'bulkStore'])->name('attendances.bulk_store');
-    // 2. View Attendance Sheet (Show)
     Route::get('/attendances/{section}', [AttendanceController::class, 'show'])->name('attendances.show');
-    // 3. Class Selector (Index)
     Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances.index');
-
 
     // ==========================================
     //  SPORTS & MEDICAL MODULES
@@ -126,15 +132,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     Route::resource('staff', StaffController::class);
 
-    // --- REPORTS MANAGEMENT (FIXED ORDER) ---
-    // IMPORTANT: Ang mga specific routes na ito ay dapat NAUUNA kaysa sa Route::resource('reports')
+    // --- REPORTS MANAGEMENT ---
     Route::get('/reports/grade-sheets', [ReportController::class, 'gradeSheets'])->name('reports.grade_sheets');
     Route::get('/reports/report-cards', [ReportController::class, 'reportCards'])->name('reports.report_cards');
     Route::get('/reports/school-forms', [ReportController::class, 'schoolForms'])->name('reports.school_forms');
     Route::get('/reports/awardees', [ReportController::class, 'awardees'])->name('reports.awardees');
     Route::get('/reports/ranking', [ReportController::class, 'ranking'])->name('reports.ranking');
     
-    // Resource route (NASA HULI DAPAT)
     Route::resource('reports', ReportController::class);
 
 });
