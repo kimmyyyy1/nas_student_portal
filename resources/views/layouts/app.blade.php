@@ -22,21 +22,12 @@
             .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
         </style>
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased bg-gray-100">
         
-        {{-- 1. BACKGROUND IMAGE (Pure CSS Fix) --}}
-        {{-- Ito ang magsisigurong nasa likod siya dahil sa z-index: -100 --}}
-        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -100; pointer-events: none;">
-            <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" 
-                 style="width: 100%; height: 100%; object-fit: cover; opacity: 0.2;" 
-                 alt="NAS Background">
-            {{-- White Overlay para mabasa ang text --}}
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.5);"></div>
-        </div>
+        {{-- BACKGROUND IMAGE REMOVED FOR TESTING --}}
 
-        {{-- 2. MAIN CONTENT WRAPPER --}}
-        {{-- Ito naman ang magsisigurong nasa harap ang dashboard dahil sa z-index: 10 --}}
-        <div style="position: relative; z-index: 10; min-height: 100vh;">
+        {{-- MAIN CONTENT WRAPPER --}}
+        <div style="position: relative; min-height: 100vh;">
             
             {{-- Navigation Sidebar --}}
             @include('layouts.navigation')
