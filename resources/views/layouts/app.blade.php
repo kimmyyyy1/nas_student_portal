@@ -28,19 +28,21 @@
         
         {{-- 1. GLOBAL BACKGROUND IMAGE (Pinaka-likod) --}}
         <div class="fixed inset-0 -z-50 w-full h-full pointer-events-none">
+            {{-- Siguraduhin na tama ang path ng image --}}
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover opacity-80" alt="NAS Background">
             <div class="absolute inset-0 bg-white/30"></div>
         </div>
 
-        {{-- 2. SIDEBAR WHITE BACKGROUND FIX (Para hindi transparent ang sidebar area) --}}
+        {{-- 2. SIDEBAR WHITE BACKGROUND FIX (Para hindi transparent ang sidebar area sa likod) --}}
         <div class="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 z-0 hidden md:block"></div>
 
         {{-- 3. MAIN CONTENT WRAPPER --}}
         <div class="min-h-screen bg-transparent relative z-10">
             
-            {{-- Navigation Sidebar --}}
+            {{-- Navigation Sidebar (DITO NAKALAGAY ANG MENU AT SIGN OUT) --}}
             @include('layouts.navigation')
 
+            {{-- Page Header --}}
             @if (isset($header))
                 <header class="bg-white/90 shadow backdrop-blur-sm relative z-30 md:ml-64"> 
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -49,6 +51,7 @@
                 </header>
             @endif
 
+            {{-- Page Content --}}
             <main class="md:ml-64 pt-6 px-4"> 
                 {{ $slot }}
             </main>

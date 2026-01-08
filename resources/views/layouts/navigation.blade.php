@@ -168,25 +168,47 @@
 
     </div>
 
-    {{-- 3. USER PROFILE / LOGOUT --}}
+    {{-- 3. USER PROFILE & LOGOUT --}}
     <div class="p-4 border-t border-gray-200 bg-gray-50 shrink-0">
-        <div class="flex items-center">
+        
+        {{-- User Info --}}
+        <div class="flex items-center mb-3">
             <div class="flex-shrink-0">
                 <div class="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
                     {{ substr(Auth::user()->name, 0, 1) }}
                 </div>
             </div>
             <div class="ml-3 w-full min-w-0">
-                <p class="text-sm font-bold text-gray-900 truncate">{{ Auth::user()->name }}</p>
-                <p class="text-xs text-gray-500 truncate capitalize">{{ Auth::user()->role }}</p>
+                <p class="text-sm font-bold text-gray-900 truncate" title="{{ Auth::user()->name }}">
+                    {{ Auth::user()->name }}
+                </p>
+                <p class="text-xs text-gray-500 truncate capitalize">
+                    {{ Auth::user()->role }}
+                </p>
             </div>
         </div>
-        <form method="POST" action="{{ route('logout') }}" class="mt-3">
-            @csrf
-            <button type="submit" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
-                <i class='bx bx-log-out mr-2'></i> Sign Out
-            </button>
-        </form>
+
+        {{-- Action Buttons Grid --}}
+        <div class="grid grid-cols-2 gap-2">
+            
+            {{-- Profile Button --}}
+            <a href="{{ route('profile.edit') }}" 
+               class="flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-xs font-bold rounded-md text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <i class='bx bx-user mr-1 text-sm'></i>
+                Profile
+            </a>
+
+            {{-- Sign Out Button --}}
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" 
+                        class="w-full flex items-center justify-center px-3 py-2 border border-transparent shadow-sm text-xs font-bold rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
+                    <i class='bx bx-log-out mr-1 text-sm'></i>
+                    Sign Out
+                </button>
+            </form>
+
+        </div>
     </div>
 </nav>
 
