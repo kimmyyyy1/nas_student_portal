@@ -11,10 +11,34 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
+     * DITO NATIN ILALAGAY ANG CONFIG PARA UNAHAN ANG CLOUDINARY.
      */
     public function register(): void
     {
-        //
+        // 🚀 SUPER NUCLEAR FIX (Moved to register)
+        // Set config BEFORE the package boots up.
+        
+        // 1. Force Cloudinary Main Config (Para sa Error: "Undefined array key cloud")
+        Config::set('cloudinary.cloud_url', 'cloudinary://452544782214523:Dew-wu6KDw8HNKzO473L5P5tpqo@dqkzofruk');
+        Config::set('cloudinary.cloud', [
+            'cloud_name' => 'dqkzofruk',
+            'api_key'    => '452544782214523',
+            'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+            'key'        => '452544782214523', 
+            'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+        ]);
+
+        // 2. Force Filesystem Config (Para sa Error: "TypeError")
+        Config::set('filesystems.disks.cloudinary', [
+            'driver'     => 'cloudinary',
+            'cloud_name' => 'dqkzofruk',
+            'api_key'    => '452544782214523',
+            'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+            'key'        => '452544782214523',
+            'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+            'cloud_url'  => 'cloudinary://452544782214523:Dew-wu6KDw8HNKzO473L5P5tpqo@dqkzofruk',
+            'throw'      => false,
+        ]);
     }
 
     /**
@@ -27,31 +51,5 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
-
-        // ☢️ NUCLEAR FIX: RUNTIME INJECTION ☢️
-        // Pinipilit natin ang settings sa memory ng Laravel.
-        // Kahit hindi niya mabasa ang file, nandito ang backup.
-
-        // 1. Force set the main Cloudinary config
-        Config::set('cloudinary.cloud_url', 'cloudinary://452544782214523:Dew-wu6KDw8HNKzO473L5P5tpqo@dqkzofruk');
-        Config::set('cloudinary.cloud', [
-            'cloud_name' => 'dqkzofruk',
-            'api_key'    => '452544782214523',
-            'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
-            'key'        => '452544782214523', 
-            'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
-        ]);
-
-        // 2. Force set the Filesystem config (Flat structure)
-        Config::set('filesystems.disks.cloudinary', [
-            'driver'     => 'cloudinary',
-            'cloud_name' => 'dqkzofruk',
-            'api_key'    => '452544782214523',
-            'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
-            'key'        => '452544782214523',
-            'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
-            'cloud_url'  => 'cloudinary://452544782214523:Dew-wu6KDw8HNKzO473L5P5tpqo@dqkzofruk',
-            'throw'      => false,
-        ]);
     }
 }
