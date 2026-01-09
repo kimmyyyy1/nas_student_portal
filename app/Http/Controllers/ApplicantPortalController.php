@@ -5,15 +5,34 @@ namespace App\Http\Controllers;
 use App\Models\EnrollmentApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage; // Ensure this is imported
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
+// 👇 IMPORTANT IMPORTS PARA SA MANUAL UPLOAD
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\UploadApi;
+
 class ApplicantPortalController extends Controller
 {
-    // ... (keep index, create, edit methods as they are) ...
+    // --- CONSTRUCTOR: INITIALIZE CLOUDINARY ---
+    public function __construct()
+    {
+        // Sine-set natin ang configuration tuwing gagamitin ang controller na ito.
+        // Siguradong walang "Undefined array key" dahil nandito na mismo ang credentials.
+        Configuration::instance([
+            'cloud' => [
+                'cloud_name' => 'dqkzofruk', 
+                'api_key'    => '452544782214523', 
+                'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo'
+            ],
+            'url' => [
+                'secure' => true
+            ]
+        ]);
+    }
+
     public function index(): View
     {
         $application = EnrollmentApplication::where('user_id', Auth::id())->first();
@@ -79,7 +98,7 @@ class ApplicantPortalController extends Controller
         return redirect()->route('applicant.dashboard')->with('success', 'Application updated successfully!');
     }
 
-    // ... (keep submitRequirements logic, just updated below) ...
+    // --- UPDATED: MANUAL UPLOAD FOR REQUIREMENTS ---
     public function submitRequirements(Request $request): RedirectResponse
     {
         $application = EnrollmentApplication::where('user_id', Auth::id())->first();
@@ -98,15 +117,19 @@ class ApplicantPortalController extends Controller
                     $field => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
                 ]);
 
-                // ✅ FIX: Use store() with 'cloudinary' disk
-                // This returns the path (public ID) on Cloudinary
-                $path = $request->file($field)->store('requirements', 'cloudinary');
-                
-                // Get the Full URL
-                $url = Storage::disk('cloudinary')->url($path);
-
-                $currentFiles[$field] = $url;
-                $hasChanges = true;
+                // ✅ MANUAL FIX: Direct Cloudinary Upload
+                try {
+                    $upload = (new UploadApi())->upload($request->file($field)->getRealPath(), [
+                        'folder' => 'requirements',
+                        'resource_type' => 'auto'
+                    ]);
+                    
+                    // Kuhanin diretso ang URL galing sa response
+                    $currentFiles[$field] = $upload['secure_url'];
+                    $hasChanges = true;
+                } catch (\Exception $e) {
+                    return back()->withErrors(['msg' => 'Upload failed for ' . $field . ': ' . $e->getMessage()]);
+                }
             }
         }
 
@@ -130,21 +153,36 @@ class ApplicantPortalController extends Controller
 
         $currentFiles = $existingApp ? ($existingApp->uploaded_files ?? []) : [];
 
-        // ✅ FIX 1: ID Picture Upload
+        // ✅ FIX 1: ID Picture Upload (MANUAL)
         if ($request->hasFile('id_picture')) {
-            // Upload using the standard Laravel storage facade with 'cloudinary' disk
-            $path = $request->file('id_picture')->store('applicants/photos', 'cloudinary');
-            
-            // Get the secure URL to save in the database
-            $data['id_picture_url'] = Storage::disk('cloudinary')->url($path); // Optional: if you save URL separately
-            $currentFiles['id_picture'] = Storage::disk('cloudinary')->url($path);
+            try {
+                $upload = (new UploadApi())->upload($request->file('id_picture')->getRealPath(), [
+                    'folder' => 'applicants/photos',
+                    'resource_type' => 'auto'
+                ]);
+
+                // Save secure URL directly
+                $url = $upload['secure_url'];
+                $data['id_picture_url'] = $url;
+                $currentFiles['id_picture'] = $url;
+            } catch (\Exception $e) {
+                // Log error or handle gracefully
+            }
         }
 
-        // ✅ FIX 2: Document Files Upload Loop
+        // ✅ FIX 2: Document Files Upload Loop (MANUAL)
         if ($request->has('files')) {
             foreach ($request->file('files') as $key => $file) {
-                $path = $file->store("applicants/docs/{$key}", 'cloudinary');
-                $currentFiles[$key] = Storage::disk('cloudinary')->url($path);
+                try {
+                    $upload = (new UploadApi())->upload($file->getRealPath(), [
+                        'folder' => "applicants/docs/{$key}",
+                        'resource_type' => 'auto'
+                    ]);
+
+                    $currentFiles[$key] = $upload['secure_url'];
+                } catch (\Exception $e) {
+                    // Continue uploading other files even if one fails
+                }
             }
         }
         
@@ -156,7 +194,7 @@ class ApplicantPortalController extends Controller
         return $data;
     }
 
-    // ... (keep validateApplication, processCategories, checkCategory exactly as they were) ...
+    // ... (Validation & Logic helpers retained below) ...
     private function validateApplication(Request $request, $isUpdate = false)
     {
         $rules = [
