@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EnrollmentApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Storage; // You can keep this for checking mostly
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
@@ -117,15 +117,17 @@ class ApplicantPortalController extends Controller
                     $field => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
                 ]);
 
-                // Kung may dating file, burahin muna sa storage para hindi kalat
-                if (isset($currentFiles[$field]) && Storage::disk('public')->exists($currentFiles[$field])) {
-                    Storage::disk('public')->delete($currentFiles[$field]);
-                }
-
-                // I-save ang bagong file
-                // Path format: requirements/sf10_user123.pdf
-                $filename = "{$field}_" . Auth::id() . '_' . time() . '.' . $request->file($field)->extension();
-                $path = $request->file($field)->storeAs('requirements', $filename, 'public');
+                // NOTE: Cloudinary doesn't strictly require deleting old files, 
+                // but if you want to save storage, you'd need the Public ID.
+                // For simplicity in Vercel/Cloudinary setup, we often overwrite the URL 
+                // or just let the old file persist unless specifically managed.
+                
+                // I-save ang bagong file sa Cloudinary
+                // Folder: requirements
+                $uploadedFile = $request->file($field)->storeOnCloudinary('requirements');
+                
+                // Kunin ang Secure URL
+                $path = $uploadedFile->getSecurePath();
 
                 // I-update ang array key
                 $currentFiles[$field] = $path;
@@ -202,15 +204,16 @@ class ApplicantPortalController extends Controller
         // Handle Files
         $currentFiles = $existingApp ? ($existingApp->uploaded_files ?? []) : [];
 
+        // FIXED FOR VERCEL: Use storeOnCloudinary
         if ($request->hasFile('id_picture')) {
-            if (isset($currentFiles['id_picture'])) Storage::disk('public')->delete($currentFiles['id_picture']);
-            $currentFiles['id_picture'] = $request->file('id_picture')->store('applicants/photos', 'public');
+            $uploadedFile = $request->file('id_picture')->storeOnCloudinary('applicants/photos');
+            $currentFiles['id_picture'] = $uploadedFile->getSecurePath();
         }
 
         if ($request->has('files')) {
             foreach ($request->file('files') as $key => $file) {
-                if (isset($currentFiles[$key])) Storage::disk('public')->delete($currentFiles[$key]);
-                $currentFiles[$key] = $file->store("applicants/docs/{$key}", 'public');
+                $uploadedFile = $file->storeOnCloudinary("applicants/docs/{$key}");
+                $currentFiles[$key] = $uploadedFile->getSecurePath();
             }
         }
         
