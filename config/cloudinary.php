@@ -2,9 +2,10 @@
 
 /*
 |--------------------------------------------------------------------------
-| Cloudinary Configuration (Hardcoded for Vercel)
+| Cloudinary Configuration (Hardcoded Fix)
 |--------------------------------------------------------------------------
-| We are manually defining the 'cloud' array key to stop the error.
+| Ito ang file na hinahanap ng error. Hardcoded na ang credentials
+| para siguradong mabasa ng system.
 */
 
 return [
@@ -14,14 +15,13 @@ return [
     | Cloud URL
     |--------------------------------------------------------------------------
     */
-    'cloud_url' => env('CLOUDINARY_URL'),
+    'cloud_url' => 'cloudinary://452544782214523:Dew-wu6KDw8HNKzO473L5P5tpqo@dqkzofruk',
 
     /*
     |--------------------------------------------------------------------------
-    | Cloud Settings (ITO ANG FIX)
+    | Cloud Settings (ITO ANG HINAHANAP NG ERROR!)
     |--------------------------------------------------------------------------
-    | Hardcoded credentials para sigurado.
-    | NOTE: Base ito sa screenshot mo ng "Root" key.
+    | Manual setting ng credentials para mawala ang error.
     */
     'cloud' => [
         'cloud_name' => 'dqkzofruk',
@@ -34,8 +34,8 @@ return [
     | Other Settings
     |--------------------------------------------------------------------------
     */
-    'notification_url' => env('CLOUDINARY_NOTIFICATION_URL'),
-    'upload_preset' => env('CLOUDINARY_UPLOAD_PRESET'),
-    'upload_route' => env('CLOUDINARY_UPLOAD_ROUTE'),
-    'upload_action' => env('CLOUDINARY_UPLOAD_ACTION'),
+    'notification_url' => null,
+    'upload_preset' => null,
+    'upload_route' => null,
+    'upload_action' => null,
 ];
