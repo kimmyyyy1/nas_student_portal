@@ -4,17 +4,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Cloudinary Configuration (Hardcoded "Untitled" Key)
+    | Cloudinary Configuration (Hardcoded Root)
     |--------------------------------------------------------------------------
     */
 
-    // Iwanan itong blanko dahil iha-hardcode natin sa baba
     'cloud_url' => env('CLOUDINARY_URL'),
 
+    // 👇 ITO ANG MAHALAGA. Hardcoded credentials para siguradong mabasa.
     'cloud' => [
         'cloud_name' => 'dqkzofruk', 
-        'api_key'    => '452544782214523', // Ito ang API Key ng "Untitled"
-        'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo', // 👈 COPY-PASTE MO DITO YUNG SECRET NG "UNTITLED"
+        'api_key'    => '452544782214523', 
+        'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
     ],
 
     'notification_url' => env('CLOUDINARY_NOTIFICATION_URL'),
