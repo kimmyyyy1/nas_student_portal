@@ -2,10 +2,8 @@
 
 /*
 |--------------------------------------------------------------------------
-| Cloudinary Configuration (REQUIRED FIX)
+| Cloudinary Configuration (FINAL FIX)
 |--------------------------------------------------------------------------
-| Ito ang file na hinahanap ng error na "Undefined array key cloud".
-| Hiwalay ito sa filesystems.php. Dito, KAILANGAN ng 'cloud' array.
 */
 
 return [
@@ -19,14 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Cloud Settings (ITO ANG KULANG!)
+    | Cloud Settings
     |--------------------------------------------------------------------------
-    | Dito sa file na ito, REQUIRED na naka-loob sa 'cloud' array ang settings.
+    | UPDATED: Naglagay tayo ng 'key' at 'secret' aliases dito.
+    | Ito ang kulang kaya ayaw gumana kahit okay na yung filesystems.
     */
     'cloud' => [
         'cloud_name' => 'dqkzofruk',
         'api_key'    => '452544782214523',
         'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+        
+        // 👇 ADD THESE ALIASES (Para sa "Undefined array key 'key'" error)
+        'key'        => '452544782214523',
+        'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
     ],
 
     /*
