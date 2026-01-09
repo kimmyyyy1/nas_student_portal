@@ -6,6 +6,11 @@ return [
     |--------------------------------------------------------------------------
     | Default Filesystem Disk
     |--------------------------------------------------------------------------
+    |
+    | Here you may specify the default filesystem disk that should be used
+    | by the framework. The "local" disk, as well as a variety of cloud
+    | based disks are available to your application. Just store away!
+    |
     */
 
     'default' => env('FILESYSTEM_DISK', 'local'),
@@ -14,6 +19,13 @@ return [
     |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
+    |
+    | Here you may configure as many filesystem "disks" as you wish, and you
+    | may even configure multiple disks of the same driver. Defaults have
+    | been set up for each driver as an example of the required values.
+    |
+    | Supported Drivers: "local", "ftp", "sftp", "s3"
+    |
     */
 
     'disks' => [
@@ -48,29 +60,24 @@ return [
             'report' => false,
         ],
 
-        // 👇 DITO TAYO MAG-FOCUS: "KITCHEN SINK" CONFIG 👇
+        // 👇 ITO ANG FINAL FIX NA WALANG CONFLICT 👇
         'cloudinary' => [
             'driver' => 'cloudinary',
             
-            // 1. URL Backup
+            // 1. Cloud URL (Backup)
             'cloud_url' => 'cloudinary://452544782214523:Dew-wu6KDw8HNKzO473L5P5tpqo@dqkzofruk',
 
-            // 2. Standard Names (Ito ang karaniwan)
-            'cloud_name' => 'dqkzofruk',
-            'api_key'    => '452544782214523',
-            'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
-
-            // 3. FIX SA "UNDEFINED ARRAY KEY 'key'" ERROR
-            // Minsan, ang package ay naghahanap ng "key" at "secret" (gaya sa S3)
-            'key'        => '452544782214523', 
-            'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
-
-            // 4. FIX SA "UNDEFINED ARRAY KEY 'cloud'" ERROR
-            // Ito naman ang para sa dating error, nested sa loob ng 'cloud' array
+            // 2. NESTED CONFIG (Ito ang hinahanap ng system)
+            // Tinanggal natin yung credentials sa labas para iwas TypeError.
+            // Nilagay natin lahat sa loob ng 'cloud' array.
             'cloud' => [
                 'cloud_name' => 'dqkzofruk',
                 'api_key'    => '452544782214523',
                 'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+                
+                // ADDED ALIASES: Para sa "Undefined array key 'key'" error
+                'key'        => '452544782214523', 
+                'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
             ],
             
             'throw' => false,
@@ -82,6 +89,11 @@ return [
     |--------------------------------------------------------------------------
     | Symbolic Links
     |--------------------------------------------------------------------------
+    |
+    | Here you may configure the symbolic links that will be created when the
+    | `storage:link` Artisan command is executed. The array keys should be
+    | the locations of the links and the values should be their targets.
+    |
     */
 
     'links' => [
