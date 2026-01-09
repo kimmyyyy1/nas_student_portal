@@ -2,28 +2,39 @@
 
 /*
 |--------------------------------------------------------------------------
-| Cloudinary Configuration (Manual Setup)
+| Cloudinary Configuration (Auto-Parsing)
 |--------------------------------------------------------------------------
 |
-| Ang script na ito ay automatic na magpa-parse ng CLOUDINARY_URL
-| para hindi na tayo mag-set ng hiwalay na API keys.
+| Ang script na ito ang bahalang kumuha ng API Key, Secret, at Cloud Name
+| mula sa CLOUDINARY_URL na nasa Vercel environment variables mo.
 |
 */
 
 $cloudUrl = env('CLOUDINARY_URL');
 
-// Default values
+// Default values (kung sakaling wala)
 $cloudName = null;
 $apiKey = null;
 $apiSecret = null;
 
-// Kung may URL, i-breakdown natin
-if ($cloudUrl && str_starts_with($cloudUrl, 'cloudinary://')) {
-    $parsed = parse_url($cloudUrl);
-    if ($parsed) {
-        $cloudName = $parsed['host'] ?? null;
-        $apiKey = $parsed['user'] ?? null;
-        $apiSecret = $parsed['pass'] ?? null;
+// Logic: Hatiin ang URL para makuha ang credentials
+// Format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+if ($cloudUrl && str_contains($cloudUrl, 'cloudinary://')) {
+    // Tanggalin ang "cloudinary://" prefix
+    $cleanUrl = str_replace('cloudinary://', '', $cloudUrl);
+    
+    // Hatiin sa "@" para makuha ang Cloud Name (nasa kanan)
+    $parts = explode('@', $cleanUrl);
+    
+    if (count($parts) === 2) {
+        $cloudName = $parts[1]; // dqkzofruk
+        
+        // Hatiin ang kaliwang parte sa ":" para makuha ang Key at Secret
+        $creds = explode(':', $parts[0]);
+        if (count($creds) === 2) {
+            $apiKey = $creds[0];    // 452544782214523
+            $apiSecret = $creds[1]; // Dew-wu6KDw8HNKzO473L5P5tpqo
+        }
     }
 }
 
@@ -38,9 +49,9 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Cloud Settings (ITO ANG HINAHANAP NG ERROR MO!)
+    | Cloud Settings (ITO ANG SOLUSYON SA ERROR MO)
     |--------------------------------------------------------------------------
-    | Dito natin ipapasa ang na-parse na data.
+    | Dito natin ipapasa ang mga nakuha nating detalye sa itaas.
     */
     'cloud' => [
         'cloud_name' => $cloudName,
