@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Artisan; // <-- ADDED THIS IMPORT
+use Illuminate\Support\Facades\Artisan;
 
 // --- CONTROLLER IMPORTS ---
 use App\Http\Controllers\ProfileController;
@@ -43,16 +43,40 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-// --- PANSAMANTALANG ROUTE: FORCE CLEAR CACHE ---
+// --- DEBUG ROUTE: FORCE CLEAR CACHE & CHECK CONFIG ---
+// Ito ang binago natin para makita ang laman ng settings mo
 Route::get('/clear-all', function() {
     try {
-        Artisan::call('view:clear');
+        // 1. Clear Cache
         Artisan::call('config:clear');
-        Artisan::call('route:clear');
         Artisan::call('cache:clear');
-        return '<h1>Cache Cleared Successfully!</h1> <br> <a href="/dashboard">Go back to Dashboard</a>';
+        
+        // 2. Basahin ang Config pagkatapos i-clear
+        $config = config('cloudinary');
+        $fileSystem = config('filesystems.disks.cloudinary');
+
+        // 3. I-return ang resulta bilang JSON para madaling basahin
+        return response()->json([
+            'message' => 'Cache Cleared Successfully!',
+            
+            // Check 1: Nababasa ba ang Cloudinary Config File?
+            'cloudinary_config_found' => !is_null($config),
+            
+            // Check 2: Meron bang 'cloud' key sa loob? (Ito ang error mo)
+            'has_cloud_key' => isset($config['cloud']),
+            
+            // Check 3: Ano ang laman ng config? (Para makita natin kung nested)
+            'cloudinary_config_content' => $config,
+            
+            // Check 4: Check ang Filesystem Disk settings
+            'filesystem_disk_config' => $fileSystem,
+            
+            // Check 5: Nababasa ba ang ENV variable?
+            'env_url_check' => env('CLOUDINARY_URL'),
+        ]);
+
     } catch (\Exception $e) {
-        return 'Error clearing cache: ' . $e->getMessage();
+        return response()->json(['error' => $e->getMessage()], 500);
     }
 });
 
