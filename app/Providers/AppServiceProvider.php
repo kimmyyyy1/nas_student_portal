@@ -13,7 +13,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // 👇 NUCLEAR FIX: Dito natin ipinapasok ang Cloudinary Config sa memory ng Laravel.
+        // Talo nito ang anumang config file. Siguradong babasahin ito.
+        
+        config([
+            'cloudinary.cloud_url' => env('CLOUDINARY_URL'),
+            'cloudinary.cloud' => [
+                'cloud_name' => 'dqkzofruk', 
+                'api_key'    => '681411283875527', // Ito ang "Untitled" key mo
+                'api_secret' => 'Q6SMPHbhLkJaKtzGZ7atZmXRwGE', // 👈 PAKI-PASTE DITO YUNG SECRET!
+            ],
+            'cloudinary.notification_url' => env('CLOUDINARY_NOTIFICATION_URL'),
+            'cloudinary.upload_preset' => env('CLOUDINARY_UPLOAD_PRESET'),
+            'cloudinary.upload_route' => env('CLOUDINARY_UPLOAD_ROUTE'),
+            'cloudinary.upload_action' => env('CLOUDINARY_UPLOAD_ACTION'),
+        ]);
     }
 
     /**
