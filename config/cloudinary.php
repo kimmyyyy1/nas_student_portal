@@ -13,8 +13,8 @@ return [
 
     'cloud' => [
         'cloud_name' => 'dqkzofruk', 
-        'api_key'    => '681411283875527', // Ito ang API Key ng "Untitled"
-        'api_secret' => 'Q6SMPHbhLkJaKtzGZ7atZmXRwGE', // 👈 COPY-PASTE MO DITO YUNG SECRET NG "UNTITLED"
+        'api_key'    => '452544782214523', // Ito ang API Key ng "Untitled"
+        'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo', // 👈 COPY-PASTE MO DITO YUNG SECRET NG "UNTITLED"
     ],
 
     'notification_url' => env('CLOUDINARY_NOTIFICATION_URL'),
