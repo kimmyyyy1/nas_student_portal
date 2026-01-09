@@ -122,8 +122,9 @@
                     </div>
                     <div class="p-6 text-center">
                         <div class="inline-block relative">
+                            {{-- 👇 FIXED IMAGE SOURCE: REMOVED 'asset/storage' --}}
                             @if(isset($application->uploaded_files['id_picture']))
-                                <img src="{{ asset('storage/' . $application->uploaded_files['id_picture']) }}" class="h-32 w-32 rounded-full object-cover border-4 border-indigo-100 shadow-md mx-auto">
+                                <img src="{{ $application->uploaded_files['id_picture'] }}" class="h-32 w-32 rounded-full object-cover border-4 border-indigo-100 shadow-md mx-auto" alt="Student Photo">
                             @else
                                 <div class="h-32 w-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-100 mx-auto">
                                     <span class="text-gray-400 text-3xl font-bold">{{ substr($application->first_name, 0, 1) }}</span>
@@ -236,7 +237,8 @@
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4 text-center">
-                                                    <a href="{{ asset('storage/' . $path) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold uppercase hover:underline">
+                                                    {{-- 👇 FIXED LINK: REMOVED 'asset/storage' since it's now a full URL --}}
+                                                    <a href="{{ $path }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold uppercase hover:underline">
                                                         View File
                                                     </a>
                                                 </td>
@@ -277,7 +279,7 @@
                                         // Uploaded Files List
                                         $uploaded = $application->uploaded_files ?? [];
                                         
-                                           // Required Fields Keys
+                                         // Required Fields Keys
                                         $requiredFields = ['sf10', 'good_moral', 'psa_birth_cert', 'medical_cert', 'coach_reco'];
                                         $allFilesUploaded = true; // Checker flag for completion
                                     @endphp
@@ -319,7 +321,8 @@
                                                     <span class="text-xs text-green-700 font-bold italic">
                                                         File has been uploaded.
                                                     </span>
-                                                    <a href="{{ asset('storage/' . $currentPath) }}" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">
+                                                    {{-- 👇 FIXED LINK: REMOVED 'asset/storage' --}}
+                                                    <a href="{{ $currentPath }}" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">
                                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                         VIEW
                                                     </a>
