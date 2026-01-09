@@ -60,6 +60,11 @@ return [
             'report' => false,
         ],
 
+        // 👇 ITO ANG IDINAGDAG NATIN 👇
+        'cloudinary' => [
+            'driver' => 'cloudinary',
+        ],
+
     ],
 
     /*
