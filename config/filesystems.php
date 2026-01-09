@@ -6,6 +6,11 @@ return [
     |--------------------------------------------------------------------------
     | Default Filesystem Disk
     |--------------------------------------------------------------------------
+    |
+    | Here you may specify the default filesystem disk that should be used
+    | by the framework. The "local" disk, as well as a variety of cloud
+    | based disks are available to your application. Just store away!
+    |
     */
 
     'default' => env('FILESYSTEM_DISK', 'local'),
@@ -14,6 +19,13 @@ return [
     |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
+    |
+    | Here you may configure as many filesystem "disks" as you wish, and you
+    | may even configure multiple disks of the same driver. Defaults have
+    | been set up for each driver as an example of the required values.
+    |
+    | Supported Drivers: "local", "ftp", "sftp", "s3"
+    |
     */
 
     'disks' => [
@@ -48,10 +60,22 @@ return [
             'report' => false,
         ],
 
-        // 👇 ITO ANG BINAGO NATIN 👇
+        // 👇 DITO ANG FIX: CLOUDINARY CONFIGURATION 👇
         'cloudinary' => [
             'driver' => 'cloudinary',
-            'cloud_url' => env('CLOUDINARY_URL'), // 👈 ITO ANG KULANG KANINA!
+            
+            // 1. Gamitin ang ENV variable kung meron
+            'cloud_url' => env('CLOUDINARY_URL'),
+
+            // 2. HARDCODED CREDENTIALS (BACKUP)
+            // Ito ang solusyon sa "Undefined array key 'cloud'" error.
+            // Kahit hindi mabasa ang external config, nandito na ang data.
+            'cloud' => [
+                'cloud_name' => 'dqkzofruk',
+                'api_key'    => '452544782214523',
+                'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+            ],
+            
             'throw' => false,
         ],
 
@@ -61,6 +85,11 @@ return [
     |--------------------------------------------------------------------------
     | Symbolic Links
     |--------------------------------------------------------------------------
+    |
+    | Here you may configure the symbolic links that will be created when the
+    | `storage:link` Artisan command is executed. The array keys should be
+    | the locations of the links and the values should be their targets.
+    |
     */
 
     'links' => [
