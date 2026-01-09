@@ -13,20 +13,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // 👇 NUCLEAR FIX: Dito natin ipinapasok ang Cloudinary Config sa memory ng Laravel.
-        // Talo nito ang anumang config file. Siguradong babasahin ito.
+        // 👇 ITO ANG FIX: Pwersahang i-inject ang Cloudinary Config
+        // Ito ang tatapos sa error na "Undefined array key 'cloud'"
         
         config([
-            'cloudinary.cloud_url' => env('CLOUDINARY_URL'),
-            'cloudinary.cloud' => [
-                'cloud_name' => 'dqkzofruk', 
-                'api_key'    => '681411283875527', // Ito ang "Untitled" key mo
-                'api_secret' => 'Q6SMPHbhLkJaKtzGZ7atZmXRwGE', // 👈 PAKI-PASTE DITO YUNG SECRET!
-            ],
-            'cloudinary.notification_url' => env('CLOUDINARY_NOTIFICATION_URL'),
-            'cloudinary.upload_preset' => env('CLOUDINARY_UPLOAD_PRESET'),
-            'cloudinary.upload_route' => env('CLOUDINARY_UPLOAD_ROUTE'),
-            'cloudinary.upload_action' => env('CLOUDINARY_UPLOAD_ACTION'),
+            'cloudinary' => [
+                'cloud_url' => env('CLOUDINARY_URL'),
+                'cloud' => [
+                    'cloud_name' => 'dqkzofruk', 
+                    'api_key'    => '452544782214523', // Root API Key
+                    'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo', // Root API Secret
+                ],
+                'notification_url' => env('CLOUDINARY_NOTIFICATION_URL'),
+                'upload_preset' => env('CLOUDINARY_UPLOAD_PRESET'),
+                'upload_route' => env('CLOUDINARY_UPLOAD_ROUTE'),
+                'upload_action' => env('CLOUDINARY_UPLOAD_ACTION'),
+            ]
         ]);
     }
 
@@ -35,12 +37,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Fix para sa "Key too long" error sa ibang database versions
         Schema::defaultStringLength(191);
 
-        // LOGIC:
-        // Kapag nasa Vercel (Production), pilitin mag-HTTPS para secure at gumana ang CSS.
-        // Kapag nasa Local, huwag pilitin para hindi mag-error ang 127.0.0.1.
+        // Force HTTPS sa Production (Vercel)
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
