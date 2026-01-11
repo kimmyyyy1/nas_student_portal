@@ -54,10 +54,9 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            // FIX: Enable SSL options for TiDB (Vercel)
-            // Gumagamit ng array_filter para kung walang value sa Local, hindi mag-error.
+            // 👇 FIXED: Direct path to the SSL Certificate for TiDB Cloud
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_SSL_CA => base_path('database/cacert.pem'),
             ]) : [],
         ],
 
