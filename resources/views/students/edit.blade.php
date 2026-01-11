@@ -26,7 +26,20 @@
                         {{-- PHOTO UPLOAD LOGIC --}}
                         <div class="mb-10 flex flex-col items-center justify-center border-b border-gray-100 pb-8">
                             <label class="block text-gray-700 font-bold mb-3 text-lg">Student 2x2 ID Picture</label>
-                            @php $avatarUrl = $student->getFirstMediaUrl('avatar'); $hasAvatar = !empty($avatarUrl); @endphp
+                            
+                            {{-- 👇 FIXED: Check directly for 'id_picture' column first --}}
+                            @php 
+                                // 1. Check direct Cloudinary URL from database
+                                $avatarUrl = $student->id_picture ?? $student->photo ?? null;
+
+                                // 2. Fallback to Spatie Media Library (if used)
+                                if (empty($avatarUrl) && method_exists($student, 'getFirstMediaUrl')) {
+                                    $avatarUrl = $student->getFirstMediaUrl('avatar');
+                                }
+
+                                $hasAvatar = !empty($avatarUrl); 
+                            @endphp
+
                             <div class="relative group w-48 h-48"> 
                                 <div id="placeholder-icon" class="w-full h-full border-4 border-gray-300 border-dashed rounded-lg bg-gray-50 flex flex-col items-center justify-center text-gray-400 hover:bg-gray-100 transition cursor-pointer {{ $hasAvatar ? 'hidden' : '' }}" onclick="document.getElementById('photo-input').click()">
                                     <i class='bx bxs-user-rectangle text-7xl mb-2'></i>
@@ -61,7 +74,7 @@
                                 </div>
                             </div>
 
-                            {{-- PERSONAL INFO (Shortened for brevity, keep your full fields here) --}}
+                            {{-- PERSONAL INFO --}}
                             <div class="md:col-span-2">
                                 <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex items-center"><i class='bx bx-user mr-2'></i> Personal Information</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -81,7 +94,7 @@
                                 </div>
                             </div>
 
-                            {{-- ADDRESS (Standard Fields) --}}
+                            {{-- ADDRESS --}}
                             <div class="md:col-span-2">
                                 <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex items-center"><i class='bx bx-map mr-2'></i> Complete Address</h3>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -93,12 +106,10 @@
                                 <div class="mt-3"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Street</label><input type="text" name="street_address" value="{{ old('street_address', $student->street_address) }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm"></div>
                             </div>
 
-                            {{-- ACADEMIC & SPORTS (RESTRICTED GRADE LEVELS) --}}
+                            {{-- ACADEMIC & SPORTS --}}
                             <div class="md:col-span-2 bg-gray-50 p-6 rounded-lg border border-gray-200">
                                 <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i class='bx bx-trophy mr-2 text-yellow-600'></i> Academic & Sports</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    
-                                    {{-- RESTRICTED GRADE LEVEL --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Grade Level</label>
                                         <select name="grade_level" class="w-full border-gray-300 rounded-md shadow-sm">
@@ -107,7 +118,6 @@
                                             @endforeach
                                         </select>
                                     </div>
-
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Section Assignment</label>
                                         <select name="section_id" class="w-full border-gray-300 rounded-md shadow-sm">
@@ -139,7 +149,7 @@
                                 </div>
                             </div>
 
-                            {{-- ENROLLMENT & GUARDIAN (Retained standard logic) --}}
+                            {{-- ENROLLMENT & GUARDIAN --}}
                             <div class="md:col-span-2 bg-blue-50 p-4 rounded border border-blue-100">
                                 <h3 class="text-lg font-bold text-blue-800 mb-4">Enrollment System Fields</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
@@ -206,7 +216,7 @@
                 var age = today.getFullYear() - birthDate.getFullYear();
                 var m = today.getMonth() - birthDate.getMonth();
                 if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-                document.getElementById('age').value = age;
+                document.getElementById('age').value = age; // NOTE: Make sure you have an input with id='age' if you want this to work, otherwise you can remove this func.
             }
         }
     </script>
