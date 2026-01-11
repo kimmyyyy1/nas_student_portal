@@ -50,9 +50,12 @@ class OfficialEnrollmentController extends Controller
         $generatedStudentId = date('Y') . '-' . str_pad($application->id, 4, '0', STR_PAD_LEFT);
         
         // 3. Photo Logic: Kunin ang path ng uploaded ID picture
+        // Mas pinalakas na logic: Check both array key and object property access style
         $photoPath = null;
         if (isset($application->uploaded_files['id_picture'])) {
             $photoPath = $application->uploaded_files['id_picture'];
+        } elseif (isset($application->uploaded_files->id_picture)) {
+            $photoPath = $application->uploaded_files->id_picture;
         }
 
         // 4. Save to Students Table
@@ -71,8 +74,8 @@ class OfficialEnrollmentController extends Controller
                 'religion' => $application->religion,
                 'email_address' => $application->email_address,
                 
-                // IMPORTANT: Photo Transfer
-                'photo' => $photoPath, 
+                // 👇 FIXED: Changed 'photo' to 'id_picture' to match database column
+                'id_picture' => $photoPath, 
 
                 // Address
                 'region' => $application->region,

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-// 1. IMPORT SPATIE CLASSES
+// 1. IMPORT SPATIE CLASSES (Pwede mo itong tanggalin kung hindi mo na gagamitin, pero okay lang na nandyan)
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -16,15 +16,15 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class Student extends Model implements HasMedia
 {
     use HasFactory;
-    use InteractsWithMedia; // 3. USE THE TRAIT
+    use InteractsWithMedia; 
 
     protected $fillable = [
         // --- Identifiers ---
         'nas_student_id',
         'lrn',
-        // TANGGALIN NA ANG 'photo' DITO. 
-        // Ang Spatie na ang bahala sa 'media' table. 
-        // Hindi natin ise-save ang file path sa students table directy.
+        
+        // 👇👇👇 IMPORTANT: DAPAT NANDITO ITO! 👇👇👇
+        'id_picture', 
 
         // --- Personal Info ---
         'first_name',
