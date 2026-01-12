@@ -1,11 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{-- 👇 LIVE BADGE ADDED HERE --}}
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
                 {{ __('Student Directory') }}
+                <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
+                    <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
+                </span>
             </h2>
             
-            {{-- 👇 ADDED BUTTON GROUP --}}
             <div class="flex gap-3">
                 <a href="{{ route('students.bulk-upload') }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center shadow transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
@@ -42,7 +45,6 @@
                 </div>
             @endif
 
-            {{-- Warning Message for Bulk Upload Failures --}}
             @if(session('warning'))
                 <div class="mb-6 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-6 rounded shadow-lg relative">
                     <div class="flex items-start">
@@ -83,12 +85,13 @@
                                 <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        
+                        {{-- 👇 ADDED ID="student-list" HERE --}}
+                        <tbody id="student-list" class="bg-white divide-y divide-gray-200">
                             @forelse($students as $student)
                                 <tr class="hover:bg-gray-50 transition">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            {{-- Thumbnail Picture --}}
                                             <div class="flex-shrink-0 h-10 w-10 mr-3">
                                                 @if($student->id_picture)
                                                     <img class="h-10 w-10 rounded-full object-cover border border-gray-300" src="{{ $student->id_picture }}" alt="">
@@ -144,4 +147,29 @@
             </div>
         </div>
     </div>
+
+    {{-- 👇 LIVE UPDATE SCRIPT --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Refresh table every 5 seconds
+            setInterval(function() {
+                updateTable();
+            }, 5000);
+        });
+
+        function updateTable() {
+            const url = window.location.href;
+
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newBody = doc.getElementById('student-list').innerHTML;
+                    
+                    document.getElementById('student-list').innerHTML = newBody;
+                })
+                .catch(error => console.error('Error updating table:', error));
+        }
+    </script>
 </x-app-layout>
