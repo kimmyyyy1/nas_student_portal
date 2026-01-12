@@ -35,14 +35,14 @@ return [
     | Cloudinary Credentials
     |--------------------------------------------------------------------------
     |
-    | 👇👇👇 ITO ANG KULANG KAYA NAG-EERROR 👇👇👇
+    | 👇👇👇 ITO ANG NAWAWALA KAYA NAG-EERROR 👇👇👇
     | The following keys are used if you are not using the CLOUDINARY_URL configuration.
     |
     */
     'cloud' => [
-        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
-        'api_key'    => env('CLOUDINARY_API_KEY'),
-        'api_secret' => env('CLOUDINARY_API_SECRET'),
+        'cloud_name' => env('dqkzofruk'),
+        'api_key'    => env('452544782214523'),
+        'api_secret' => env('Dew-wu6KDw8HNKzO473L5P5tpqo'),
     ],
 
     /*
