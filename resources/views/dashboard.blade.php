@@ -1,8 +1,12 @@
 <x-app-layout>
     
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
             {{ __('Dashboard') }}
+            {{-- LIVE INDICATOR --}}
+            <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
+                <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
+            </span>
         </h2>
     </x-slot>
 
@@ -154,7 +158,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-blue-600 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Students</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $totalStudents ?? 0 }}</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1" id="stat-students">{{ $totalStudents ?? 0 }}</p>
                         </div>
                         <div class="p-3 rounded-full bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
                             <i class='bx bx-user-pin text-3xl'></i>
@@ -165,7 +169,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-green-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Sections</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $totalSections ?? 0 }}</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1" id="stat-sections">{{ $totalSections ?? 0 }}</p>
                         </div>
                         <div class="p-3 rounded-full bg-green-100 text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
                             <i class='bx bx-chalkboard text-3xl'></i>
@@ -176,7 +180,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-yellow-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Sports Teams</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $totalTeams ?? 0 }}</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1" id="stat-teams">{{ $totalTeams ?? 0 }}</p>
                         </div>
                         <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 group-hover:bg-yellow-600 group-hover:text-white transition">
                             <i class='bx bx-trophy text-3xl'></i>
@@ -187,7 +191,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-red-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Upcoming Plans</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $upcomingPlansCount ?? 0 }}</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1" id="stat-plans">{{ $upcomingPlansCount ?? 0 }}</p>
                         </div>
                         <div class="p-3 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
                             <i class='bx bx-run text-3xl'></i>
@@ -301,4 +305,48 @@
 
         </div>
     </div>
+
+    {{-- 👇 LIVE UPDATE SCRIPT FOR ADMIN DASHBOARD --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check if user is admin (based on presence of stat-students element)
+            if(document.getElementById('stat-students')) {
+                setInterval(function() {
+                    updateDashboardStats();
+                }, 5000); // 5 seconds interval
+            }
+        });
+
+        function updateDashboardStats() {
+            const url = window.location.href;
+
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    updateElement(doc, 'stat-students');
+                    updateElement(doc, 'stat-sections');
+                    updateElement(doc, 'stat-teams');
+                    updateElement(doc, 'stat-plans');
+                })
+                .catch(error => console.error('Error updating dashboard stats:', error));
+        }
+
+        function updateElement(doc, id) {
+            const newEl = doc.getElementById(id);
+            const currentEl = document.getElementById(id);
+            if (newEl && currentEl) {
+                // If value changed, update and animate
+                if(newEl.innerText !== currentEl.innerText) {
+                    currentEl.innerText = newEl.innerText;
+                    currentEl.classList.add('text-green-600', 'scale-110'); // Highlight effect
+                    setTimeout(() => {
+                        currentEl.classList.remove('text-green-600', 'scale-110');
+                    }, 500);
+                }
+            }
+        }
+    </script>
 </x-app-layout>
