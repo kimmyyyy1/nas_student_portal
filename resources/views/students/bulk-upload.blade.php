@@ -21,12 +21,12 @@
                             <div class="ml-3">
                                 <h3 class="text-sm font-bold text-blue-800 uppercase">IMPORTANT INSTRUCTION</h3>
                                 <div class="mt-2 text-sm text-blue-700">
-                                    <p class="mb-2">To automatically match photos to students, you must <strong>RENAME</strong> the image files using the student's <strong>LRN</strong>.</p>
+                                    <p class="mb-2">To automatically match photos to students, you must <strong>RENAME</strong> the image files using the <strong>STUDENT ID</strong>.</p>
                                     <ul class="list-disc list-inside ml-2">
-                                        <li>Correct: <strong>123456789012.jpg</strong></li>
-                                        <li>Correct: <strong>100020003000.png</strong></li>
+                                        <li>Correct: <strong>2026-0001.jpg</strong></li>
+                                        <li>Correct: <strong>2025-0150.png</strong></li>
                                         <li><span class="text-red-600">Wrong:</span> juan_cruz.jpg</li>
-                                        <li><span class="text-red-600">Wrong:</span> photo(1).jpg</li>
+                                        <li><span class="text-red-600">Wrong:</span> 123456789012.jpg (LRN - Do not use yet)</li>
                                     </ul>
                                 </div>
                             </div>
@@ -51,7 +51,6 @@
                             <h3 class="text-lg font-medium text-gray-900">Select Multiple Photos</h3>
                             <p class="text-sm text-gray-500 mb-6">Drag and drop or click to browse</p>
                             
-                            {{-- IMPORTANT: 'multiple' attribute allows selecting many files --}}
                             <input type="file" name="photos[]" id="photos" multiple accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer text-center" required>
                         </div>
 
@@ -62,7 +61,7 @@
                                 START UPLOAD
                             </button>
                         </div>
-                        <p class="text-xs text-gray-400 mt-4 text-center italic">Note: Large batches (50+) may take time. Please wait until the process completes.</p>
+                        <p class="text-xs text-gray-400 mt-4 text-center italic">Note: Ensure filenames match the Student ID exactly (e.g., 2026-0001.jpg)</p>
                     </form>
 
                 </div>

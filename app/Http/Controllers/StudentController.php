@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\AdmissionAccepted;
 use Illuminate\Support\Facades\Auth;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary; // Make sure to import Cloudinary
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary; 
 
 class StudentController extends Controller
 {
@@ -28,7 +28,6 @@ class StudentController extends Controller
      */
     public function index(Request $request): View
     {
-        // Removed 'media' eager loading as we use direct URL (id_picture)
         $query = Student::with(['section', 'team']);
 
         // Search Logic
@@ -120,7 +119,6 @@ class StudentController extends Controller
         }
 
         // 3. PREPARE DATA FOR DB
-        // Remove 'photo' (file object) and replace with 'id_picture' (URL string)
         $studentData = collect($validatedData)->except(['photo'])->toArray();
         if ($photoUrl) {
             $studentData['id_picture'] = $photoUrl;
@@ -207,7 +205,6 @@ class StudentController extends Controller
         $photoUrl = null;
         if ($request->hasFile('photo')) {
             try {
-                // Upload to Cloudinary
                 $result = Cloudinary::upload($request->file('photo')->getRealPath(), [
                     'folder' => 'students/photos'
                 ]);
@@ -220,14 +217,12 @@ class StudentController extends Controller
         // 3. PREPARE DATA & UPDATE DB
         $studentData = collect($validatedData)->except(['photo'])->toArray();
         
-        // If there's a new photo, update the id_picture column
         if ($photoUrl) {
             $studentData['id_picture'] = $photoUrl;
         }
 
         $student->update($studentData);
 
-        // Update User Email if changed
         if($student->user) {
             $student->user->update(['email' => $student->email_address]);
         }
@@ -243,7 +238,6 @@ class StudentController extends Controller
     }
 
     public function show(Student $student) { 
-        // Reuse edit view or create a separate show view
         return view('students.edit', compact('student')); 
     }
 
@@ -260,7 +254,7 @@ class StudentController extends Controller
     }
 
     /**
-     * Process multiple photos based on LRN filename.
+     * Process multiple photos based on STUDENT ID filename.
      */
     public function processBulkUpload(Request $request): RedirectResponse
     {
@@ -280,17 +274,17 @@ class StudentController extends Controller
         $errors = [];
 
         foreach ($files as $file) {
-            // 2. GET FILENAME (This should be the LRN)
-            // Example: "123456789012.jpg" -> "123456789012"
+            // 2. KUNIN ANG FILENAME (Dapat ito ay ang STUDENT ID)
+            // Halimbawa: "2026-0001.jpg" -> "2026-0001"
             $filenameWithExt = $file->getClientOriginalName();
-            $lrn = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $studentId = pathinfo($filenameWithExt, PATHINFO_FILENAME);
 
-            // 3. FIND STUDENT BY LRN
-            $student = Student::where('lrn', $lrn)->first();
+            // 3. HANAPIN ANG STUDENT GAMIT ANG STUDENT ID (nas_student_id)
+            $student = Student::where('nas_student_id', $studentId)->first();
 
             if ($student) {
                 try {
-                    // 4. UPLOAD TO CLOUDINARY
+                    // 4. UPLOAD SA CLOUDINARY
                     $result = Cloudinary::upload($file->getRealPath(), [
                         'folder' => 'students/photos'
                     ]);
@@ -302,12 +296,12 @@ class StudentController extends Controller
                     $successCount++;
                 } catch (\Exception $e) {
                     $failCount++;
-                    $errors[] = "Error uploading for LRN $lrn: " . $e->getMessage();
+                    $errors[] = "Error uploading for ID $studentId: " . $e->getMessage();
                 }
             } else {
-                // If no student found with that LRN
+                // Kapag walang student na may ganung ID
                 $failCount++;
-                $errors[] = "No student found with LRN: $lrn (Filename: $filenameWithExt)";
+                $errors[] = "No student found with ID: $studentId (Filename: $filenameWithExt)";
             }
         }
 
@@ -343,7 +337,6 @@ class StudentController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have an assigned advisory class.');
         }
 
-        // Updated query to use id_picture instead of media
         $students = Student::where('section_id', $section->id)
             ->orderBy('sex', 'desc') 
             ->orderBy('last_name')
@@ -383,7 +376,6 @@ class StudentController extends Controller
                                     ->orderBy('updated_at', 'desc')
                                     ->get();
 
-        // Updated query to remove 'media'
         $students = Student::whereIn('status', ['Enrolled', 'New', 'Continuing'])
             ->orderBy('last_name')
             ->get();
