@@ -21,6 +21,12 @@
             .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 5px; }
             .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
         </style>
+
+        <!-- Vercel Web Analytics -->
+        <script>
+            window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+        </script>
+        <script defer src="/_vercel/insights/script.js"></script>
     </head>
     <body class="font-sans antialiased bg-gray-100">
         
