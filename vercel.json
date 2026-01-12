@@ -10,14 +10,14 @@
             "src": "/api/index.php",
             "use": "vercel-php@0.7.2",
             "config": {
-                "phpIniFile": "api/php.ini"
+                "phpIniFile": "php.ini"
             }
         },
         {
             "src": "/public/index.php",
             "use": "vercel-php@0.7.2",
             "config": {
-                "phpIniFile": "api/php.ini"
+                "phpIniFile": "php.ini"
             }
         }
     ],
