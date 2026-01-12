@@ -26,12 +26,14 @@
                     @csrf 
                     @method('PATCH')
 
+                    {{-- ID PICTURE UPLOAD SECTION --}}
                     <div class="mb-10 bg-indigo-50 p-8 rounded-xl border border-indigo-100 flex flex-col md:flex-row items-center gap-8">
                         <div class="flex-shrink-0 text-center">
                             <div style="width: 200px; height: 200px;" class="bg-white border-4 border-dashed border-indigo-300 flex items-center justify-center text-indigo-400 rounded-lg overflow-hidden relative shadow-sm mx-auto">
                                 
+                                {{-- 👇 FIXED IMAGE PREVIEW: REMOVED asset('storage/') --}}
                                 @if(isset($application->uploaded_files['id_picture']))
-                                    <img src="{{ asset('storage/' . $application->uploaded_files['id_picture']) }}" class="absolute inset-0 w-full h-full object-cover z-10" id="current-preview">
+                                    <img src="{{ $application->uploaded_files['id_picture'] }}" class="absolute inset-0 w-full h-full object-cover z-10" id="current-preview">
                                 @else
                                     <div id="preview-text" class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
                                         <span class="text-xs text-center px-2 font-bold uppercase tracking-wider">2x2 Photo<br>Preview</span>
@@ -114,20 +116,16 @@
                     </div>
 
                     @php
-                        // 1. Tukuyin kung saan kukunin ang data: sa Old Input (kung nag-error) o sa Database
                         $categoriesData = [];
                         $otherDetailsValue = '';
 
                         if (old('_token')) { 
-                            // Kung galing sa submit (validation error), gamitin ang old input
                             $categoriesData = old('categories', []);
                             $otherDetailsValue = old('other_category_details', '');
                         } else { 
-                            // Kung kakabukas lang ng page, gamitin ang database
                             $rawString = $application->special_categories ?? '';
                             $categoriesData = array_map('trim', explode(',', $rawString));
                             
-                            // Hanapin ang 'Others' details sa database string
                             foreach($categoriesData as $cat) {
                                 if (Illuminate\Support\Str::startsWith(strtolower($cat), 'others')) {
                                     if (str_contains($cat, ':')) {
@@ -140,11 +138,9 @@
                             }
                         }
 
-                        // Helper function para malaman kung checked ang isang category
                         $isChecked = function($label) use ($categoriesData) {
                             if (!is_array($categoriesData)) return false;
                             foreach($categoriesData as $item) {
-                                // Check kung match, o kung nagsisimula sa label (para sa "Others: ...")
                                 if (Illuminate\Support\Str::startsWith(strtolower($item), strtolower($label))) {
                                     return true;
                                 }
