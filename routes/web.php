@@ -43,35 +43,21 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-// --- DEBUG ROUTE: FORCE CLEAR CACHE & CHECK CONFIG ---
-// Ito ang binago natin para makita ang laman ng settings mo
+// --- DEBUG ROUTE ---
 Route::get('/clear-all', function() {
     try {
-        // 1. Clear Cache
         Artisan::call('config:clear');
         Artisan::call('cache:clear');
         
-        // 2. Basahin ang Config pagkatapos i-clear
         $config = config('cloudinary');
         $fileSystem = config('filesystems.disks.cloudinary');
 
-        // 3. I-return ang resulta bilang JSON para madaling basahin
         return response()->json([
             'message' => 'Cache Cleared Successfully!',
-            
-            // Check 1: Nababasa ba ang Cloudinary Config File?
             'cloudinary_config_found' => !is_null($config),
-            
-            // Check 2: Meron bang 'cloud' key sa loob? (Ito ang error mo)
             'has_cloud_key' => isset($config['cloud']),
-            
-            // Check 3: Ano ang laman ng config? (Para makita natin kung nested)
             'cloudinary_config_content' => $config,
-            
-            // Check 4: Check ang Filesystem Disk settings
             'filesystem_disk_config' => $fileSystem,
-            
-            // Check 5: Nababasa ba ang ENV variable?
             'env_url_check' => env('CLOUDINARY_URL'),
         ]);
 
@@ -125,6 +111,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     //  ACADEMIC RESOURCES (CRUD)
     // ==========================================
+    
+    // 👇 ADDED BULK UPLOAD ROUTES (Dapat mauna ito bago ang resource)
+    Route::get('/students/bulk-upload', [StudentController::class, 'bulkUploadForm'])->name('students.bulk-upload');
+    Route::post('/students/bulk-upload', [StudentController::class, 'processBulkUpload'])->name('students.process-bulk-upload');
+
     Route::resource('students', StudentController::class);
     Route::get('/students-enrollment-list', [StudentController::class, 'enrollmentList'])->name('students.enrollment'); 
 
@@ -167,4 +158,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-require __DIR__.'/auth.php';    
+require __DIR__.'/auth.php';

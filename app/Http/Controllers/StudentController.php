@@ -28,7 +28,7 @@ class StudentController extends Controller
      */
     public function index(Request $request): View
     {
-        // Tinanggal ang 'media' dahil direct URL na ang gamit natin (id_picture)
+        // Removed 'media' eager loading as we use direct URL (id_picture)
         $query = Student::with(['section', 'team']);
 
         // Search Logic
@@ -120,7 +120,7 @@ class StudentController extends Controller
         }
 
         // 3. PREPARE DATA FOR DB
-        // Tanggalin ang 'photo' (file object) at ipalit ang 'id_picture' (URL string)
+        // Remove 'photo' (file object) and replace with 'id_picture' (URL string)
         $studentData = collect($validatedData)->except(['photo'])->toArray();
         if ($photoUrl) {
             $studentData['id_picture'] = $photoUrl;
@@ -220,7 +220,7 @@ class StudentController extends Controller
         // 3. PREPARE DATA & UPDATE DB
         $studentData = collect($validatedData)->except(['photo'])->toArray();
         
-        // Kung may bagong photo, i-update ang id_picture column
+        // If there's a new photo, update the id_picture column
         if ($photoUrl) {
             $studentData['id_picture'] = $photoUrl;
         }
@@ -245,6 +245,82 @@ class StudentController extends Controller
     public function show(Student $student) { 
         // Reuse edit view or create a separate show view
         return view('students.edit', compact('student')); 
+    }
+
+    // ==========================================
+    // BULK UPLOAD FEATURE
+    // ==========================================
+
+    /**
+     * Show the bulk upload form.
+     */
+    public function bulkUploadForm(): View
+    {
+        return view('students.bulk-upload');
+    }
+
+    /**
+     * Process multiple photos based on LRN filename.
+     */
+    public function processBulkUpload(Request $request): RedirectResponse
+    {
+        // 1. Validation
+        $request->validate([
+            'photos' => 'required',
+            'photos.*' => 'image|mimes:jpg,jpeg,png|max:5120', // Max 5MB per file
+        ]);
+
+        if (!$request->hasFile('photos')) {
+            return back()->with('error', 'No photos selected.');
+        }
+
+        $files = $request->file('photos');
+        $successCount = 0;
+        $failCount = 0;
+        $errors = [];
+
+        foreach ($files as $file) {
+            // 2. GET FILENAME (This should be the LRN)
+            // Example: "123456789012.jpg" -> "123456789012"
+            $filenameWithExt = $file->getClientOriginalName();
+            $lrn = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+
+            // 3. FIND STUDENT BY LRN
+            $student = Student::where('lrn', $lrn)->first();
+
+            if ($student) {
+                try {
+                    // 4. UPLOAD TO CLOUDINARY
+                    $result = Cloudinary::upload($file->getRealPath(), [
+                        'folder' => 'students/photos'
+                    ]);
+                    $photoUrl = $result->getSecurePath();
+
+                    // 5. UPDATE DATABASE (id_picture column)
+                    $student->update(['id_picture' => $photoUrl]);
+                    
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $failCount++;
+                    $errors[] = "Error uploading for LRN $lrn: " . $e->getMessage();
+                }
+            } else {
+                // If no student found with that LRN
+                $failCount++;
+                $errors[] = "No student found with LRN: $lrn (Filename: $filenameWithExt)";
+            }
+        }
+
+        // 6. RESULT MESSAGE
+        $message = "Process Complete. Success: $successCount. Failed: $failCount.";
+        
+        if ($failCount > 0) {
+            return redirect()->route('students.index')
+                             ->with('warning', $message . " Some photos were not matched (Check filenames).")
+                             ->withErrors($errors);
+        }
+
+        return redirect()->route('students.index')->with('success', $message);
     }
 
     // ==========================================
