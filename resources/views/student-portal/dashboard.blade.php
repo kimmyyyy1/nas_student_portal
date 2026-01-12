@@ -13,24 +13,21 @@
                 <div class="p-6 md:flex items-start justify-between">
                     <div class="flex items-center mb-4 md:mb-0">
                         
-                        {{-- === PROFILE PICTURE LOGIC (SPATIE) === --}}
+                        {{-- === UPDATED PROFILE PICTURE LOGIC (CLOUDINARY) === --}}
                         <div class="h-24 w-24 rounded-full bg-gray-200 border-4 border-indigo-500 shadow-sm overflow-hidden mr-6 flex-shrink-0 relative group">
-                            @php
-                                // Kunin ang URL galing sa Spatie Media Library ('avatar' collection)
-                                $avatarUrl = $student->getFirstMediaUrl('avatar');
-                            @endphp
-
-                            @if($avatarUrl)
-                                {{-- Kung may in-upload na picture --}}
-                                <img src="{{ $avatarUrl }}" alt="Profile" class="h-full w-full object-cover">
+                            
+                            {{-- Check kung may laman ang id_picture column --}}
+                            @if($student->id_picture)
+                                <img src="{{ $student->id_picture }}" alt="Profile" class="h-full w-full object-cover">
                             @else
                                 {{-- Kung wala, ipakita ang Initials (Fallback) --}}
                                 <div class="h-full w-full flex items-center justify-center bg-indigo-100 text-indigo-700 text-2xl font-bold">
                                     {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}
                                 </div>
                             @endif
+
                         </div>
-                        {{-- ====================================== --}}
+                        {{-- ================================================= --}}
 
                         <div>
                             <h1 class="text-2xl font-bold text-gray-800">{{ $student->last_name }}, {{ $student->first_name }}</h1>
