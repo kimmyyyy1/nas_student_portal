@@ -80,7 +80,6 @@
         
         {{-- Header --}}
         <div class="header-section">
-            {{-- Use absolute path or base64 for logo if needed, sticking to text/simple img for safety --}}
             <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" alt="NAS Logo" class="h-20 mx-auto mb-2 object-contain">
             <h1 class="text-2xl font-bold text-gray-900 uppercase">National Academy of Sports</h1>
             <p class="text-sm text-gray-600 font-semibold uppercase tracking-wider">Student-Athlete Admission Application Form</p>
@@ -165,6 +164,31 @@
         </table>
 
         {{-- Special Categories --}}
+        @php
+            // Logic to check for "Others" category
+            $categoriesData = [];
+            $otherDetails = '';
+            
+            if ($application->special_categories) {
+                $categoriesData = array_map('trim', explode(',', $application->special_categories));
+            }
+
+            $is_others = false;
+            foreach($categoriesData as $cat) {
+                if (\Illuminate\Support\Str::startsWith(strtolower($cat), 'others')) {
+                    $is_others = true;
+                    // Extract details if stored in the string "Others: details" or separate column
+                    if (str_contains($cat, ':')) {
+                        $parts = explode(':', $cat, 2);
+                        $otherDetails = trim($parts[1]);
+                    } elseif (!empty($application->other_category_details)) {
+                        $otherDetails = $application->other_category_details;
+                    }
+                    break;
+                }
+            }
+        @endphp
+
         <div class="mb-6 border border-gray-300 p-2 text-sm bg-gray-50">
             <span class="font-bold uppercase text-xs text-gray-500 mr-2">Special Categories:</span>
             <span class="inline-flex items-center mr-4">
@@ -173,8 +197,14 @@
             <span class="inline-flex items-center mr-4">
                 <span class="w-4 h-4 border border-black flex items-center justify-center mr-1 text-xs font-bold">{{ $application->is_pwd ? '✓' : '' }}</span> PWD
             </span>
-            <span class="inline-flex items-center">
+            <span class="inline-flex items-center mr-4">
                 <span class="w-4 h-4 border border-black flex items-center justify-center mr-1 text-xs font-bold">{{ $application->is_4ps ? '✓' : '' }}</span> 4Ps
+            </span>
+            
+            {{-- Added OTHERS Checkbox --}}
+            <span class="inline-flex items-center">
+                <span class="w-4 h-4 border border-black flex items-center justify-center mr-1 text-xs font-bold">{{ $is_others ? '✓' : '' }}</span> 
+                Others {{ $is_others && $otherDetails ? ': ' . $otherDetails : '' }}
             </span>
         </div>
 
