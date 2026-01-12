@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\AdmissionAccepted;
 use Illuminate\Support\Facades\Auth;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary; // Make sure to import Cloudinary
 
 class StudentController extends Controller
 {
@@ -27,8 +28,8 @@ class StudentController extends Controller
      */
     public function index(Request $request): View
     {
-        // Eager load 'media' para mabilis mag-load ang pictures sa listahan
-        $query = Student::with(['section', 'team', 'media']);
+        // Tinanggal ang 'media' dahil direct URL na ang gamit natin (id_picture)
+        $query = Student::with(['section', 'team']);
 
         // Search Logic
         if ($request->has('search') && !empty($request->search)) {
@@ -63,7 +64,6 @@ class StudentController extends Controller
         $validatedData = $request->validate([
             'nas_student_id' => 'required|string|unique:students|max:255',
             'lrn' => 'required|string|unique:students|max:20',
-            // Photo: Optional, Image file only, Max 5MB
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
             
             'last_name' => 'required|string|max:255',
@@ -101,23 +101,32 @@ class StudentController extends Controller
             'enrollment_remarks' => 'nullable|string',
         ]);
 
-        // Checkbox handling
         $validatedData['is_ip'] = $request->has('is_ip');
         $validatedData['is_pwd'] = $request->has('is_pwd');
         $validatedData['is_4ps'] = $request->has('is_4ps');
         
-        // 2. CREATE STUDENT RECORD
-        // Gumamit ng except(['photo']) para hindi isama ang image file sa database insert command.
-        // Ang database table ay walang column na 'photo' na kayang humawak ng file object.
+        // 2. CLOUDINARY UPLOAD LOGIC
+        $photoUrl = null;
+        if ($request->hasFile('photo')) {
+            try {
+                // Upload to Cloudinary folder 'students/photos'
+                $result = Cloudinary::upload($request->file('photo')->getRealPath(), [
+                    'folder' => 'students/photos'
+                ]);
+                $photoUrl = $result->getSecurePath();
+            } catch (\Exception $e) {
+                // Fallback or Log error
+            }
+        }
+
+        // 3. PREPARE DATA FOR DB
+        // Tanggalin ang 'photo' (file object) at ipalit ang 'id_picture' (URL string)
         $studentData = collect($validatedData)->except(['photo'])->toArray();
+        if ($photoUrl) {
+            $studentData['id_picture'] = $photoUrl;
+        }
         
         $student = Student::create($studentData);
-
-        // 3. SPATIE MEDIA LIBRARY: Save Photo
-        if ($request->hasFile('photo')) {
-            $student->addMediaFromRequest('photo')
-                    ->toMediaCollection('avatar'); 
-        }
 
         // 4. AUTO-CREATE USER ACCOUNT
         $tempPassword = 'NAS-' . date('Y') . '-' . Str::upper(Str::random(6));
@@ -135,7 +144,6 @@ class StudentController extends Controller
             'model_id' => $student->id
         ]);
 
-        // Send Email if applicable
         if ($student->email_address) {
             try {
                 Mail::to($student->email_address)->send(new AdmissionAccepted($student, $tempPassword));
@@ -154,7 +162,7 @@ class StudentController extends Controller
 
     public function update(Request $request, Student $student): RedirectResponse
     {
-        // 1. VALIDATION (Unique fields ignore current ID)
+        // 1. VALIDATION
         $validatedData = $request->validate([
             'nas_student_id' => ['required', 'string', 'max:255', Rule::unique('students')->ignore($student->id)],
             'lrn' => ['required', 'string', 'max:255', Rule::unique('students')->ignore($student->id)],
@@ -195,17 +203,29 @@ class StudentController extends Controller
         $validatedData['is_pwd'] = $request->has('is_pwd');
         $validatedData['is_4ps'] = $request->has('is_4ps');
 
-        // 2. UPDATE TEXT DATA
-        $studentData = collect($validatedData)->except(['photo'])->toArray();
-        $student->update($studentData);
-
-        // 3. SPATIE MEDIA LIBRARY: Update Photo
+        // 2. CLOUDINARY UPDATE LOGIC
+        $photoUrl = null;
         if ($request->hasFile('photo')) {
-            // Burahin ang lumang picture sa collection na 'avatar'
-            $student->clearMediaCollection('avatar'); 
-            // I-upload ang bagong picture
-            $student->addMediaFromRequest('photo')->toMediaCollection('avatar');
+            try {
+                // Upload to Cloudinary
+                $result = Cloudinary::upload($request->file('photo')->getRealPath(), [
+                    'folder' => 'students/photos'
+                ]);
+                $photoUrl = $result->getSecurePath();
+            } catch (\Exception $e) {
+                // Log error if needed
+            }
         }
+
+        // 3. PREPARE DATA & UPDATE DB
+        $studentData = collect($validatedData)->except(['photo'])->toArray();
+        
+        // Kung may bagong photo, i-update ang id_picture column
+        if ($photoUrl) {
+            $studentData['id_picture'] = $photoUrl;
+        }
+
+        $student->update($studentData);
 
         // Update User Email if changed
         if($student->user) {
@@ -218,10 +238,7 @@ class StudentController extends Controller
     public function destroy(Student $student): RedirectResponse
     {
         if($student->user) $student->user->delete();
-        
-        // Spatie automatically deletes associated media files when model is deleted.
         $student->delete();
-        
         return redirect()->route('students.index')->with('success', 'Student record deleted.');
     }
 
@@ -250,8 +267,8 @@ class StudentController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have an assigned advisory class.');
         }
 
-        $students = Student::with('media')
-            ->where('section_id', $section->id)
+        // Updated query to use id_picture instead of media
+        $students = Student::where('section_id', $section->id)
             ->orderBy('sex', 'desc') 
             ->orderBy('last_name')
             ->get();
@@ -278,20 +295,20 @@ class StudentController extends Controller
     public function enrollmentList()
     {
         $qualifiedApplicants = EnrollmentApplication::where('status', 'Qualified')
-                                ->orderBy('last_name', 'asc')
-                                ->get();
+                                        ->orderBy('last_name', 'asc')
+                                        ->get();
         return view('students.enrollment', compact('qualifiedApplicants'));
     }
 
     public function enrollmentManager(): View
     {
         $pendingEnrollees = EnrollmentApplication::where('status', 'Qualified')
-                            ->where('enrollment_status', 'Submitted')
-                            ->orderBy('updated_at', 'desc')
-                            ->get();
+                                    ->where('enrollment_status', 'Submitted')
+                                    ->orderBy('updated_at', 'desc')
+                                    ->get();
 
-        $students = Student::with('media')
-            ->whereIn('status', ['Enrolled', 'New', 'Continuing'])
+        // Updated query to remove 'media'
+        $students = Student::whereIn('status', ['Enrolled', 'New', 'Continuing'])
             ->orderBy('last_name')
             ->get();
 
