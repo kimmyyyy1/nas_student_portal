@@ -1,5 +1,6 @@
 <x-applicant-layout>
-    <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    {{-- WRAPPER ID FOR AJAX UPDATES --}}
+    <div id="dashboard-content" class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         
         {{-- Header Section --}}
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -41,8 +42,8 @@
 
         @if($application)
             
-            {{-- Status Card --}}
-            <div class="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200 mb-8">
+            {{-- Status Card (ID added for targeted updates) --}}
+            <div id="status-section" class="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200 mb-8">
                 <div class="p-6 md:p-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                         <div>
@@ -55,11 +56,13 @@
                                 'Qualified', 'Enrolled' => 'bg-green-100 text-green-800 border-green-200',
                                 'Not Qualified' => 'bg-red-100 text-red-800 border-red-200',
                                 'Waitlisted' => 'bg-orange-100 text-orange-800 border-orange-200',
-                                'For Assessment' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                'For Assessment', 'Pending' => 'bg-blue-100 text-blue-800 border-blue-200',
                                 default => 'bg-gray-100 text-gray-800 border-gray-200'
                             };
                         @endphp
-                        <span class="mt-4 md:mt-0 px-6 py-2 rounded-full text-sm font-bold border uppercase tracking-wide shadow-sm {{ $statusColor }}">
+                        
+                        {{-- LIVE STATUS BADGE --}}
+                        <span id="live-status-badge" class="mt-4 md:mt-0 px-6 py-2 rounded-full text-sm font-bold border uppercase tracking-wide shadow-sm {{ $statusColor }}">
                             {{ $application->status }}
                         </span>
                     </div>
@@ -81,13 +84,13 @@
                                 $progress = match($application->status) {
                                     'Enrolled' => 100,
                                     'Qualified' => 90,
-                                    'For Assessment', 'Waitlisted' => 50,
+                                    'For Assessment', 'Waitlisted', 'Pending' => 50,
                                     'Not Qualified' => 100,
                                     default => 25
                                 };
                                 $barColor = $application->status == 'Not Qualified' ? 'bg-red-500' : 'bg-indigo-500';
                             @endphp
-                            <div style="width:{{ $progress }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center {{ $barColor }}"></div>
+                            <div style="width:{{ $progress }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center {{ $barColor }} transition-all duration-1000 ease-in-out"></div>
                         </div>
                     </div>
 
@@ -122,7 +125,6 @@
                     </div>
                     <div class="p-6 text-center">
                         <div class="inline-block relative">
-                            {{-- 👇 FIXED IMAGE SOURCE: REMOVED 'asset/storage' --}}
                             @if(isset($application->uploaded_files['id_picture']))
                                 <img src="{{ $application->uploaded_files['id_picture'] }}" class="h-32 w-32 rounded-full object-cover border-4 border-indigo-100 shadow-md mx-auto" alt="Student Photo">
                             @else
@@ -237,7 +239,6 @@
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4 text-center">
-                                                    {{-- 👇 FIXED LINK: REMOVED 'asset/storage' since it's now a full URL --}}
                                                     <a href="{{ $path }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold uppercase hover:underline">
                                                         View File
                                                     </a>
@@ -316,19 +317,16 @@
                                             </div>
                                             
                                             @if($isUploaded)
-                                                {{-- KUNG UPLOADED NA: Wala nang input, View button na lang --}}
                                                 <div class="flex items-center justify-between bg-white p-3 rounded border border-green-200 shadow-sm">
                                                     <span class="text-xs text-green-700 font-bold italic">
                                                         File has been uploaded.
                                                     </span>
-                                                    {{-- 👇 FIXED LINK: REMOVED 'asset/storage' --}}
                                                     <a href="{{ $currentPath }}" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">
                                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                         VIEW
                                                     </a>
                                                 </div>
                                             @else
-                                                {{-- KUNG WALA PA: Dito lang lalabas ang upload button --}}
                                                 <div class="bg-white p-2 rounded border border-red-200">
                                                     <p class="text-[10px] text-red-500 font-bold mb-1 uppercase tracking-wide">Select file to upload:</p>
                                                     <input type="file" name="{{ $field }}" required
@@ -419,10 +417,15 @@
 
     </div>
 
-    {{-- Script for Loading State and Auto-Dismiss Alert --}}
+    {{-- 👇 LIVE UPDATE SCRIPT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Loading Spinner Logic
+            // 1. LIVE UPDATE (POLLING)
+            setInterval(function() {
+                updateDashboard();
+            }, 5000); // 5 seconds interval
+
+            // 2. Loading Spinner Logic
             const form = document.getElementById('uploadForm');
             if (form) {
                 form.addEventListener('submit', function() {
@@ -439,7 +442,7 @@
                 });
             }
 
-            // Auto-hide success alert
+            // 3. Auto-hide success alert
             const alert = document.getElementById('success-alert');
             if (alert) {
                 setTimeout(function() {
@@ -448,5 +451,34 @@
                 }, 5000);
             }
         });
+
+        // Fetch new content
+        function updateDashboard() {
+            const url = window.location.href;
+
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Replace main content if changed
+                    const newContent = doc.getElementById('dashboard-content').innerHTML;
+                    const currentContent = document.getElementById('dashboard-content');
+                    
+                    // Simple check to avoid replacing if user is interacting (optional improvement: check active element)
+                    // For now, we update the dashboard-content directly.
+                    // To prevent flicker, we could target specific parts, but replacing the wrapper ensures all conditional logic (if status changes to Qualified) renders correctly.
+                    
+                    if(document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "SELECT") {
+                         // Only replace if content is different to avoid cursor jump issues if inputting
+                         // Since this page is mostly read-only except file upload, this is safe.
+                         if(currentContent.innerHTML !== newContent) {
+                             currentContent.innerHTML = newContent;
+                         }
+                    }
+                })
+                .catch(error => console.error('Error updating dashboard:', error));
+        }
     </script>
 </x-applicant-layout>
