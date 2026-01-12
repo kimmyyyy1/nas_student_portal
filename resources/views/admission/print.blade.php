@@ -21,25 +21,28 @@
             min-height: 296mm; /* A4 Height */
             background: white;
             margin: 20px auto;
-            padding: 10mm 15mm; /* Mas maliit na padding */
+            padding: 10mm 15mm; 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            /* 👇 IMPORTANT: Flex Column para gumana ang mt-auto sa footer */
+            display: flex;
+            flex-direction: column;
         }
 
         /* Compact Header styling */
         .section-title {
             background-color: #e5e7eb; 
             color: #1f2937; 
-            padding: 4px 8px; /* Compact padding */
+            padding: 4px 8px; 
             font-weight: 800;
             text-transform: uppercase;
-            font-size: 0.75rem; /* Mas maliit na font */
+            font-size: 0.75rem; 
             border: 1px solid #d1d5db;
             margin-bottom: 0.5rem;
             margin-top: 0.75rem;
         }
 
         .label {
-            font-size: 0.6rem; /* 10px approx */
+            font-size: 0.6rem; 
             color: #6b7280; 
             text-transform: uppercase;
             font-weight: 700;
@@ -49,7 +52,7 @@
         }
 
         .value {
-            font-size: 0.75rem; /* 12px approx */
+            font-size: 0.75rem; 
             color: #111827; 
             font-weight: 600;
             border-bottom: 1px solid #e5e7eb;
@@ -70,14 +73,14 @@
             /* A4 Size Override */
             @page { 
                 size: A4 portrait; 
-                margin: 5mm; /* Sobrang liit na margin para di urong */
+                margin: 0; /* Zero margin sa page, handle sa .paper padding */
             }
             .paper { 
                 box-shadow: none; 
                 margin: 0; 
                 width: 100%; 
-                padding: 5mm 10mm; /* Adjusted print padding */
-                min-height: auto;
+                height: 297mm; /* Force full height */
+                padding: 10mm 15mm; 
             }
         }
     </style>
@@ -271,7 +274,7 @@
         </div>
 
         {{-- SIGNATURES --}}
-        <div class="flex justify-between gap-10 mt-8">
+        <div class="flex justify-between gap-10 mt-8 mb-4"> {{-- Added mb-4 para safe --}}
             <div class="w-1/2 text-center">
                 <div class="border-b border-black mb-1"></div>
                 <p class="font-bold uppercase text-xs">{{ $application->first_name }} {{ $application->last_name }}</p>
@@ -284,8 +287,8 @@
             </div>
         </div>
 
-        {{-- FOOTER --}}
-        <div class="mt-auto pt-4 text-center text-[9px] text-gray-400 border-t border-gray-200">
+        {{-- FOOTER (Ngayon ay nasa ilalim na talaga dahil sa mt-auto at flex container) --}}
+        <div class="mt-auto pt-2 text-center text-[9px] text-gray-400 border-t border-gray-200">
             <p>System Generated Form | Date Printed: {{ now()->format('Y-m-d H:i') }} | NAS Admission System</p>
         </div>
 
