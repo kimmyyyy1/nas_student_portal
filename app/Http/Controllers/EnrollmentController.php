@@ -6,8 +6,8 @@ use App\Models\EnrollmentApplication;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Barryvdh\DomPDF\Facade\Pdf; 
-use Carbon\Carbon; // Added for date handling
+// use Barryvdh\DomPDF\Facade\Pdf; // Removed as we are switching to view-based printing
+use Carbon\Carbon;
 
 class EnrollmentController extends Controller
 {
@@ -103,10 +103,12 @@ class EnrollmentController extends Controller
         return back()->with('success', "Status updated successfully.");
     }
 
+    // --- REPLACED PDF GENERATION WITH PRINT VIEW ---
     public function generatePdf($id) {
         $application = EnrollmentApplication::findOrFail($id);
-        $pdf = Pdf::loadView('admission.pdf', compact('application'));
-        $pdf->setPaper('letter', 'portrait');
-        return $pdf->stream('NAS_Application_' . $application->lrn . '.pdf');
+        
+        // Instead of using DomPDF which requires GD extension, we return a blade view
+        // designed for printing. This shifts the rendering to the client's browser.
+        return view('admission.print', compact('application'));
     }
 }
