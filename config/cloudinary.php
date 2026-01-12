@@ -35,8 +35,8 @@ return [
     | Cloudinary Credentials
     |--------------------------------------------------------------------------
     |
+    | 👇👇👇 ITO ANG KULANG KAYA NAG-EERROR 👇👇👇
     | The following keys are used if you are not using the CLOUDINARY_URL configuration.
-    | Ito ang hinahanap ng system kaya nag-eerror kanina.
     |
     */
     'cloud' => [
