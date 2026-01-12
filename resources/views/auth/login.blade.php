@@ -168,11 +168,14 @@
     <div class="login-card">
         <div class="card-content">
             
-            {{-- Logo Section --}}
-            <div class="text-center" style="margin-bottom: 1.5rem;">
-                <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" style="height: 4rem; width: auto; margin: 0 auto 0.75rem auto;" alt="NAS Logo">
-                <h1 style="font-size: 1.5rem; font-weight: 800; color: #1e3a8a; margin: 0; line-height: 1;">NAS SAIS</h1>
-                <p style="font-size: 0.625rem; color: #6b7280; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.25rem;">Student-Athlete Information System</p>
+            {{-- Logo Section (UPDATED: Changed image to stack.png) --}}
+            <div class="text-center" style="margin-bottom: 2rem;">
+                <a href="/">
+                    {{-- 👇 DITO ANG PAGBABAGO 👇 --}}
+                    <img src="{{ asset('images/nas/stack.png') }}" 
+                         style="height: 8rem; width: auto; margin: 0 auto; display: block; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.07));" 
+                         alt="NAS Logo">
+                </a>
             </div>
 
             <x-auth-session-status class="mb-4" :status="session('status')" />
