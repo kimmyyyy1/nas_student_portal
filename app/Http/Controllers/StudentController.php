@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\AdmissionAccepted;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator; // Added Validator Facade
 
 // 👇 GAMITIN ANG NATIVE CLOUDINARY SDK (Bypass Config)
 use Cloudinary\Configuration\Configuration;
@@ -242,7 +243,7 @@ class StudentController extends Controller
     }
 
     // ==========================================
-    // BULK UPLOAD FEATURE
+    // BULK UPLOAD FEATURE (UPDATED FOR VERCEL FIX)
     // ==========================================
 
     public function bulkUploadForm(): View
@@ -250,15 +251,21 @@ class StudentController extends Controller
         return view('students.bulk-upload');
     }
 
-    public function processBulkUpload(Request $request): RedirectResponse
+    // 👇 ITO ANG NA-UPDATE PARA SA SEQUENTIAL UPLOAD
+    public function processBulkUpload(Request $request)
     {
-        $request->validate([
+        // 1. Validation using Validator Facade for manual error handling
+        $validator = Validator::make($request->all(), [
             'photos' => 'required',
-            'photos.*' => 'image|mimes:jpg,jpeg,png|max:5120',
+            'photos.*' => 'image|mimes:jpg,jpeg,png|max:4500', // 4.5MB limit per file
         ]);
 
-        if (!$request->hasFile('photos')) {
-            return back()->with('error', 'No photos selected.');
+        if ($validator->fails()) {
+            // IF AJAX REQUEST (galing sa JavaScript), return JSON error
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
+            }
+            return back()->with('error', $validator->errors()->first());
         }
 
         $files = $request->file('photos');
@@ -266,38 +273,50 @@ class StudentController extends Controller
         $failCount = 0;
         $errors = [];
 
-        // 👇 SET CLOUDINARY CREDENTIALS ONCE
+        // Setup Cloudinary
         $this->configureCloudinary();
         $uploadApi = new UploadApi();
 
         foreach ($files as $file) {
-            // Filename = Student ID
             $filenameWithExt = $file->getClientOriginalName();
-            $studentId = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $studentId = pathinfo($filenameWithExt, PATHINFO_FILENAME); // Student ID
 
             $student = Student::where('nas_student_id', $studentId)->first();
 
             if ($student) {
                 try {
-                    // 👇 DIRECT UPLOAD
                     $result = $uploadApi->upload($file->getRealPath(), [
                         'folder' => 'students/photos'
                     ]);
-                    $photoUrl = $result['secure_url']; // Native SDK uses array access
+                    $photoUrl = $result['secure_url'];
 
                     $student->update(['id_picture' => $photoUrl]);
-                    
                     $successCount++;
                 } catch (\Exception $e) {
                     $failCount++;
-                    $errors[] = "Error uploading for ID $studentId: " . $e->getMessage();
+                    $errors[] = "Error ID $studentId: " . $e->getMessage();
                 }
             } else {
                 $failCount++;
-                $errors[] = "No student found with ID: $studentId (Filename: $filenameWithExt)";
+                $errors[] = "ID not found: $studentId";
             }
         }
 
+        // 👇 HANDLE JSON RESPONSE FOR JAVASCRIPT
+        if ($request->wantsJson()) {
+            if ($failCount > 0) {
+                return response()->json([
+                    'status' => 'partial_error',
+                    'message' => $errors[0] // Return first error message
+                ], 422);
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Uploaded successfully'
+            ]);
+        }
+
+        // 👇 HANDLE STANDARD REDIRECT (Fallback)
         $message = "Process Complete. Success: $successCount. Failed: $failCount.";
         
         if ($failCount > 0) {
