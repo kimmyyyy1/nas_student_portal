@@ -168,12 +168,12 @@
     <div class="login-card">
         <div class="card-content">
             
-            {{-- Logo Section (UPDATED: Changed image to stack.png & Increased Size) --}}
+            {{-- Logo Section (UPDATED: Changed image to stack.png) --}}
             <div class="text-center" style="margin-bottom: 2rem;">
                 <a href="/">
-                    {{-- 👇 DITO ANG PAGBABAGO: height: 12rem (mas malaki) 👇 --}}
+                    {{-- 👇 DITO ANG PAGBABAGO 👇 --}}
                     <img src="{{ asset('images/nas/stack.png') }}" 
-                         style="height: 12rem; width: auto; margin: 0 auto; display: block; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.07));" 
+                         style="height: 8rem; width: auto; margin: 0 auto; display: block; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.07));" 
                          alt="NAS Logo">
                 </a>
             </div>
