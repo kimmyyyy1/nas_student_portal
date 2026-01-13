@@ -404,13 +404,9 @@
             @endif
 
         @else
-            {{-- No Application Found State (UPDATED: Changed logo to stack.png) --}}
+            {{-- No Application Found State --}}
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 text-center p-16">
-                {{-- 👇 DITO ANG PAGBABAGO 👇 --}}
-                <img src="{{ asset('images/nas/stack.png') }}" 
-                     class="h-24 w-auto mx-auto mb-6 opacity-90 drop-shadow-sm hover:scale-105 transition-transform" 
-                     alt="NAS Logo">
-                
+                <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-20 w-20 mx-auto mb-6 opacity-80 grayscale hover:grayscale-0 transition">
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">No Application Found</h2>
                 <p class="text-gray-500 mb-8 max-w-md mx-auto">It looks like you haven't started your admission process yet. Click the button below to begin.</p>
                 <a href="{{ route('applicant.create') }}" class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg transform transition hover:-translate-y-1">
