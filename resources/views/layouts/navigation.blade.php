@@ -1,18 +1,13 @@
 <nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 z-50 flex flex-col shadow-xl no-print">
     
-    {{-- 1. SIDEBAR HEADER (Blue Gradient Style) --}}
-    <div class="h-16 flex items-center justify-center bg-gradient-to-r from-blue-900 to-indigo-800 border-b border-blue-900 shadow-sm shrink-0 overflow-visible">
-        <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" class="flex items-center space-x-2">
-            {{-- Logo Image (Circular) --}}
-            <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" 
-                 class="h-10 w-10 bg-white rounded-full p-0.5 object-cover shadow-sm" 
-                 alt="NAS Logo">
-            
-            {{-- Text Content --}}
-            <div class="flex flex-col">
-                <span class="text-white font-black text-lg leading-tight tracking-wide">NAS SAIS</span>
-                <span class="text-blue-200 text-[10px] uppercase tracking-wider">{{ ucfirst(Auth::user()->role ?? 'Portal') }}</span>
-            </div>
+    {{-- 1. SIDEBAR HEADER (Updated: Horizontal Logo Only) --}}
+    <div class="h-16 flex items-center justify-center bg-gradient-to-r from-blue-900 to-indigo-800 border-b border-blue-900 shadow-sm shrink-0 overflow-hidden">
+        <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" class="flex items-center justify-center w-full px-4">
+            {{-- Horizontal Logo Image --}}
+            {{-- Added bg-white/10 rounded para lumitaw ang logo kung dark ang text nito --}}
+            <img src="{{ asset('images/nas/horizontal.png') }}" 
+                 alt="NAS Logo" 
+                 class="h-10 w-auto object-contain bg-white rounded px-2 py-1 shadow-sm"> 
         </a>
     </div>
 
