@@ -7,7 +7,8 @@
 
         <title>{{ config('app.name', 'NAS SAIS') }}</title>
 
-        <link rel="icon" type="image/jpeg" href="/images/nas/favicon.jpg"> 
+        {{-- 👇 DITO ANG PAGBABAGO: Updated favicon path --}}
+        <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
