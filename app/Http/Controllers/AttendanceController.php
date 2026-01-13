@@ -8,18 +8,19 @@ use App\Models\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\ActivityLog; // 👈 1. ADDED IMPORT
 
 class AttendanceController extends Controller
 {
-    // STEP 1: Listahan ng Sections (Modified for Admin View)
+    // STEP 1: List Sections (Modified for Admin View)
     public function index()
     {
         $user = Auth::user();
 
         // --- 1. ADMIN / REGISTRAR CHECK ---
-        // Kung Admin, kunin lahat ng sections + Adviser Info + Student Count
+        // If Admin, get all sections + Adviser Info + Student Count
         if ($user->role === 'admin' || $user->role === 'registrar') {
-            $sections = Section::with(['adviser', 'students']) // Eager load para mabilis
+            $sections = Section::with(['adviser', 'students']) // Eager load for performance
                                ->orderBy('grade_level')
                                ->orderBy('section_name')
                                ->get();
@@ -31,9 +32,9 @@ class AttendanceController extends Controller
         $staff = Staff::where('email', $user->email)->first();
 
         if (!$staff) {
-            $sections = collect(); // Empty collection para walang error
+            $sections = collect(); // Empty collection to avoid errors
         } else {
-            // Kunin ang advisory section ng teacher
+            // Get teacher's advisory section
             $sections = Section::with('students')
                                ->where('adviser_id', $staff->id)
                                ->get();
@@ -42,7 +43,7 @@ class AttendanceController extends Controller
         return view('attendances.index', compact('sections'));
     }
 
-    // STEP 2: Ipakita ang Attendance Sheet
+    // STEP 2: Show Attendance Sheet
     public function show(Request $request, $sectionId)
     {
         $date = $request->query('date', Carbon::now()->format('Y-m-d'));
@@ -52,7 +53,7 @@ class AttendanceController extends Controller
             $query->orderBy('last_name')->orderBy('first_name');
         }])->findOrFail($sectionId);
 
-        // Kunin ang mga records para sa date na ito
+        // Get records for this date
         $attendanceRecords = Attendance::where('section_id', $sectionId)
                                        ->whereDate('date', $date)
                                        ->get()
@@ -61,7 +62,7 @@ class AttendanceController extends Controller
         return view('attendances.show', compact('section', 'date', 'attendanceRecords'));
     }
 
-    // STEP 3: Save Logic
+    // STEP 3: Save Logic (Updated with Logging)
     public function bulkStore(Request $request)
     {
         $sectionId = $request->input('section_id');
@@ -87,6 +88,23 @@ class AttendanceController extends Controller
                     ]
                 );
             }
+
+            // 👇 2. ADDED ACTIVITY LOGGING HERE
+            $user = Auth::user();
+            $role = ucfirst($user->role);
+            
+            // Get Section Name for the log
+            $section = Section::find($sectionId);
+            $sectionName = $section ? ($section->grade_level . ' - ' . $section->section_name) : 'Unknown Section';
+            
+            // Format date for better readability (e.g., "Jan 13, 2026")
+            $formattedDate = Carbon::parse($date)->format('M d, Y');
+
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'action' => 'Attendance Check',
+                'description' => "<strong>{$role}</strong> {$user->name} checked attendance for <strong>{$sectionName}</strong> on {$formattedDate}.",
+            ]);
         }
 
         return redirect()->back()->with('success', 'Attendance saved successfully for ' . $date);
