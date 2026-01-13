@@ -1,21 +1,23 @@
 <x-app-layout>
     
+    {{-- 👇 IBINALIK KO ITO PARA MAY WHITE BACKGROUND ANG HEADER --}}
+    <x-slot name="header">
+        <div class="flex items-center justify-between">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                {{ __('Dashboard') }}
+            </h2>
+            
+            {{-- LIVE INDICATOR --}}
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
+                <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
+            </span>
+        </div>
+    </x-slot>
+
     {{-- Main Content Wrapper --}}
-    <div class="py-8">
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- DASHBOARD TITLE --}}
-            <div class="mb-6 flex items-center">
-                <h2 class="font-bold text-2xl text-white leading-tight">
-                    {{ __('Dashboard') }}
-                </h2>
-                
-                {{-- LIVE INDICATOR --}}
-                <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
-                    <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
-                </span>
-            </div>
-
             {{-- ======================================================= --}}
             {{-- LOGIC: TEACHER VIEW                                     --}}
             {{-- ======================================================= --}}
@@ -201,7 +203,6 @@
                                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
                                     <i class='bx bx-history mr-2 text-gray-500'></i> Recent System Activity
                                 </h3>
-                                {{-- Removed "Auto-updates" label as requested --}}
                             </div>
                             
                             {{-- ID="activity-list" FOR AJAX --}}
@@ -310,7 +311,6 @@
             }
 
             // 2. ACTIVITY LOG UPDATER (New)
-            // Check if activity list exists to prevent errors on teacher dashboard
             if(document.getElementById('activity-list')) {
                 setInterval(fetchActivities, 3000); // Poll every 3 seconds
             }
@@ -351,7 +351,6 @@
                             `;
                         });
 
-                        // Only update DOM if content changed
                         if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
                             listContainer.innerHTML = htmlContent;
                         }
