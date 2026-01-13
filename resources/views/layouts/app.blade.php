@@ -23,22 +23,19 @@
         {{-- Custom Scrollbar Style --}}
         <style>
             .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-            .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-            .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 5px; }
-            .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+            .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+            .custom-scrollbar::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 5px; }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
         </style>
     </head>
     
-    {{-- Inalis ko ang bg-gray-100 para lumitaw ang image sa likod --}}
-    <body class="font-sans antialiased text-gray-900">
+    {{-- 👇 PAGBABAGO 1: Ginawang 'text-gray-100' (White Text) ang default color ng body --}}
+    <body class="font-sans antialiased text-gray-100">
         
-        {{-- ================================================================= --}}
-        {{-- 1. FIXED BACKGROUND IMAGE (IBINALIK)                              --}}
-        {{-- Ito ang maglalagay ng background sa LAHAT ng pages                --}}
-        {{-- ================================================================= --}}
+        {{-- GLOBAL BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Dark Blue Overlay para mabasa ang text sa dashboard cards --}}
+            {{-- Dark Blue Overlay --}}
             <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-900/60 to-black/70 backdrop-blur-[2px]"></div>
         </div>
 
@@ -50,16 +47,16 @@
 
             {{-- Page Header --}}
             @if (isset($header))
-                {{-- Added md:ml-64 para hindi matakpan ng sidebar --}}
-                <header class="bg-white/90 shadow backdrop-blur-sm relative md:ml-64"> 
+                {{-- 👇 PAGBABAGO 2: Inalis ang 'bg-white shadow' para maging transparent ang header --}}
+                <header class="relative md:ml-64"> 
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        {{-- Ang text dito ay magiging white na dahil sa body class --}}
                         {{ $header }}
                     </div>
                 </header>
             @endif
 
             {{-- Page Content --}}
-            {{-- Added md:ml-64 para sa spacing ng sidebar --}}
             <main class="md:ml-64 pt-6 px-4"> 
                 {{ $slot }}
             </main>
