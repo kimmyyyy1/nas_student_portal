@@ -239,6 +239,7 @@
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4 text-center">
+                                                    {{-- STANDARD VIEW LINK (No Google Docs) --}}
                                                     <a href="{{ $path }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold uppercase hover:underline">
                                                         View File
                                                     </a>
@@ -404,11 +405,11 @@
             @endif
 
         @else
-            {{-- No Application Found State --}}
+            {{-- No Application Found State (UPDATED) --}}
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 text-center p-16">
-                {{-- 👇 DITO ANG PAGBABAGO: Image is updated, but styling/effect is preserved --}}
+                {{-- 👇 LOGO CHANGED TO FAVICON1.PNG AS REQUESTED --}}
                 <img src="{{ asset('images/nas/favicon1.png') }}" 
-                     class="h-20 w-20 mx-auto mb-6 opacity-80 grayscale hover:grayscale-0 transition" 
+                     class="h-24 w-auto mx-auto mb-6 opacity-90 drop-shadow-sm hover:scale-105 transition-transform" 
                      alt="NAS Logo">
                 
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">No Application Found</h2>
