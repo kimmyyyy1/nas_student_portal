@@ -8,7 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use App\Models\ActivityLog; // 👈 1. ADDED THIS IMPORT
+use App\Models\ActivityLog; 
 
 class AuthenticatedSessionController extends Controller
 {
@@ -22,16 +22,18 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
-        // 👇 2. ADDED ACTIVITY LOGGING HERE
-        // Ito ang magsasave sa database kung sino ang nag-login
+        // 👇 1. KUNIN MUNA ANG ROLE
+        $role = $request->user()->role;
+
+        // 👇 2. UPDATED LOGGING (May kasama nang Role)
         ActivityLog::create([
             'user_id' => Auth::id(),
             'action' => 'Login',
-            'description' => Auth::user()->name . ' has logged in.',
+            // Output: "<strong>Admin</strong> Juan Dela Cruz has logged in."
+            'description' => '<strong>' . ucfirst($role) . '</strong> ' . Auth::user()->name . ' has logged in.',
         ]);
 
-        $role = $request->user()->role;
-
+        // 👇 3. REDIRECTION LOGIC
         if ($role === 'student') return redirect()->route('student.dashboard');
         if ($role === 'applicant') return redirect()->route('applicant.dashboard');
 

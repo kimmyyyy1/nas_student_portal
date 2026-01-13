@@ -7,6 +7,7 @@ use App\Models\Staff;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ActivityLog; // 👈 1. ADDED IMPORT
 
 class GradeController extends Controller
 {
@@ -61,11 +62,12 @@ class GradeController extends Controller
     }
 
     /**
-     * STEP 3: Save Logic (Walang pagbabago dito)
+     * STEP 3: Save Logic (Updated with Logging)
      */
     public function bulkUpdate(Request $request)
     {
         $grades = $request->input('grades');
+        $updatedCount = 0; // Pang-track kung may nabago
 
         if ($grades) {
             foreach ($grades as $studentId => $data) {
@@ -97,9 +99,24 @@ class GradeController extends Controller
                         'general_average' => $average,
                         'promotion_status' => $data['status'] ?? null,
                     ]);
+                    
+                    $updatedCount++;
                 }
             }
         }
+
+        // 👇 2. ADDED ACTIVITY LOGGING HERE
+        if ($updatedCount > 0) {
+            $user = Auth::user();
+            $role = ucfirst($user->role);
+            
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'action' => 'Grade Update',
+                'description' => "<strong>{$role}</strong> {$user->name} updated the grades/status of {$updatedCount} student(s).",
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Grades updated successfully!');
     }
 }

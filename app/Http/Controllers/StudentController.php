@@ -6,7 +6,7 @@ use App\Models\Student;
 use App\Models\Section;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\ActivityLog;
+use App\Models\ActivityLog; // 👈 1. ADDED IMPORT
 use App\Models\EnrollmentApplication;
 use App\Models\Staff;
 use Illuminate\Http\Request;
@@ -18,15 +18,13 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\AdmissionAccepted;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator; // Added Validator Facade
+use Illuminate\Support\Facades\Validator; 
 
-// 👇 GAMITIN ANG NATIVE CLOUDINARY SDK (Bypass Config)
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
 
 class StudentController extends Controller
 {
-    // 👇 HELPER FUNCTION: Para i-setup ang Cloudinary credentials
     private function configureCloudinary()
     {
         Configuration::instance([
@@ -107,19 +105,17 @@ class StudentController extends Controller
         $validatedData['is_pwd'] = $request->has('is_pwd');
         $validatedData['is_4ps'] = $request->has('is_4ps');
         
-        // 2. MANUAL CLOUDINARY UPLOAD
+        // MANUAL CLOUDINARY UPLOAD
         $photoUrl = null;
         if ($request->hasFile('photo')) {
             try {
-                $this->configureCloudinary(); // Set credentials
+                $this->configureCloudinary(); 
                 $uploadApi = new UploadApi();
                 $result = $uploadApi->upload($request->file('photo')->getRealPath(), [
                     'folder' => 'students/photos'
                 ]);
-                $photoUrl = $result['secure_url']; // Native SDK returns array
-            } catch (\Exception $e) {
-                // Log error
-            }
+                $photoUrl = $result['secure_url']; 
+            } catch (\Exception $e) { }
         }
 
         $studentData = collect($validatedData)->except(['photo'])->toArray();
@@ -138,10 +134,14 @@ class StudentController extends Controller
             'student_id' => $student->id,
         ]);
 
+        // 👇 2. UPDATED LOGGING (With Role)
+        $user = Auth::user();
+        $role = ucfirst($user->role);
+        
         ActivityLog::create([
-            'description' => "Student manually added: <strong>{$student->last_name}</strong>.",
-            'model_type' => 'Student',
-            'model_id' => $student->id
+            'user_id' => $user->id,
+            'action' => 'Registration',
+            'description' => "<strong>{$role}</strong> {$user->name} registered new student: <strong>{$student->last_name}, {$student->first_name}</strong>.",
         ]);
 
         if ($student->email_address) {
@@ -202,19 +202,17 @@ class StudentController extends Controller
         $validatedData['is_pwd'] = $request->has('is_pwd');
         $validatedData['is_4ps'] = $request->has('is_4ps');
 
-        // 2. MANUAL CLOUDINARY UPLOAD
+        // MANUAL CLOUDINARY UPLOAD
         $photoUrl = null;
         if ($request->hasFile('photo')) {
             try {
-                $this->configureCloudinary(); // Set credentials
+                $this->configureCloudinary(); 
                 $uploadApi = new UploadApi();
                 $result = $uploadApi->upload($request->file('photo')->getRealPath(), [
                     'folder' => 'students/photos'
                 ]);
                 $photoUrl = $result['secure_url'];
-            } catch (\Exception $e) {
-                // Log error
-            }
+            } catch (\Exception $e) { }
         }
 
         $studentData = collect($validatedData)->except(['photo'])->toArray();
@@ -227,6 +225,16 @@ class StudentController extends Controller
         if($student->user) {
             $student->user->update(['email' => $student->email_address]);
         }
+
+        // 👇 3. LOGGING FOR UPDATE (Optional but good)
+        $user = Auth::user();
+        $role = ucfirst($user->role);
+        
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'action' => 'Update Student',
+            'description' => "<strong>{$role}</strong> {$user->name} updated info of <strong>{$student->last_name}, {$student->first_name}</strong>.",
+        ]);
 
         return redirect()->route('students.index')->with('success', 'Student record updated successfully.');
     }
@@ -243,7 +251,7 @@ class StudentController extends Controller
     }
 
     // ==========================================
-    // BULK UPLOAD FEATURE (UPDATED FOR VERCEL FIX)
+    // BULK UPLOAD FEATURE
     // ==========================================
 
     public function bulkUploadForm(): View
@@ -251,17 +259,15 @@ class StudentController extends Controller
         return view('students.bulk-upload');
     }
 
-    // 👇 ITO ANG NA-UPDATE PARA SA SEQUENTIAL UPLOAD
     public function processBulkUpload(Request $request)
     {
-        // 1. Validation using Validator Facade for manual error handling
+        // 1. Validation
         $validator = Validator::make($request->all(), [
             'photos' => 'required',
-            'photos.*' => 'image|mimes:jpg,jpeg,png|max:4500', // 4.5MB limit per file
+            'photos.*' => 'image|mimes:jpg,jpeg,png|max:4500', 
         ]);
 
         if ($validator->fails()) {
-            // IF AJAX REQUEST (galing sa JavaScript), return JSON error
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
             }
@@ -273,13 +279,12 @@ class StudentController extends Controller
         $failCount = 0;
         $errors = [];
 
-        // Setup Cloudinary
         $this->configureCloudinary();
         $uploadApi = new UploadApi();
 
         foreach ($files as $file) {
             $filenameWithExt = $file->getClientOriginalName();
-            $studentId = pathinfo($filenameWithExt, PATHINFO_FILENAME); // Student ID
+            $studentId = pathinfo($filenameWithExt, PATHINFO_FILENAME); 
 
             $student = Student::where('nas_student_id', $studentId)->first();
 
@@ -302,12 +307,11 @@ class StudentController extends Controller
             }
         }
 
-        // 👇 HANDLE JSON RESPONSE FOR JAVASCRIPT
         if ($request->wantsJson()) {
             if ($failCount > 0) {
                 return response()->json([
                     'status' => 'partial_error',
-                    'message' => $errors[0] // Return first error message
+                    'message' => $errors[0] 
                 ], 422);
             }
             return response()->json([
@@ -316,7 +320,6 @@ class StudentController extends Controller
             ]);
         }
 
-        // 👇 HANDLE STANDARD REDIRECT (Fallback)
         $message = "Process Complete. Success: $successCount. Failed: $failCount.";
         
         if ($failCount > 0) {
@@ -328,7 +331,6 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', $message);
     }
 
-    // ... (Keep Teacher & Registrar modules same as before)
     public function myAdvisoryClass()
     {
         $user = Auth::user();
