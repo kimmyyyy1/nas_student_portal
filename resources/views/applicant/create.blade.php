@@ -2,12 +2,13 @@
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         
         <div class="text-center mb-10">
-            {{-- 👇 DITO ANG PAGBABAGO: Updated Logo to stack.png --}}
-            <img src="{{ asset('images/nas/stack.png') }}" class="h-24 mx-auto mb-4 drop-shadow-sm" alt="NAS Logo">
+            {{-- 👇 DITO ANG PAGBABAGO: --}}
+            {{-- 1. Pinalitan ang src ng horizontal.png --}}
+            {{-- 2. Tinaasan ang height (h-32 md:h-40) para lumaki dahil wala ng text --}}
+            {{-- 3. Tinanggal ang text titles --}}
+            <img src="{{ asset('images/nas/horizontal.png') }}" class="h-32 md:h-40 mx-auto mb-6 drop-shadow-sm object-contain" alt="NAS Logo">
             
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">National Academy of Sports</h1>
-            <p class="text-lg text-gray-600 mt-1 font-medium">Student-Athlete Admission Application</p>
-            <p class="text-sm text-gray-500 mt-1">Based on SAIS Guidelines</p>
+            <p class="text-sm text-gray-500 mt-1 uppercase tracking-widest font-bold">Based on SAIS Guidelines</p>
         </div>
 
         <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
