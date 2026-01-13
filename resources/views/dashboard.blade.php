@@ -1,25 +1,27 @@
 <x-app-layout>
     
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
-            {{ __('Dashboard') }}
-            {{-- LIVE INDICATOR --}}
-            <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
-                <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
-            </span>
-        </h2>
-    </x-slot>
-
     {{-- Main Content Wrapper --}}
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
+            {{-- DASHBOARD TITLE --}}
+            <div class="mb-6 flex items-center">
+                <h2 class="font-bold text-2xl text-white leading-tight">
+                    {{ __('Dashboard') }}
+                </h2>
+                
+                {{-- LIVE INDICATOR --}}
+                <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
+                    <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
+                </span>
+            </div>
+
             {{-- ======================================================= --}}
             {{-- LOGIC: TEACHER VIEW                                     --}}
             {{-- ======================================================= --}}
             @if(Auth::user()->role === 'teacher')
                 
-                {{-- 1. ERROR ALERT (Kung walang Staff Profile) --}}
+                {{-- 1. ERROR ALERT --}}
                 @if(isset($staffError))
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm flex items-center">
                         <i class='bx bx-error-circle text-2xl mr-3'></i>
@@ -42,13 +44,11 @@
                                 <p class="text-xl font-semibold drop-shadow-md">{{ date('F d, Y') }}</p>
                             </div>
                         </div>
-                        {{-- Decorative Overlay --}}
                         <div class="absolute right-0 top-0 h-full w-1/3 bg-white opacity-10 skew-x-12 transform origin-bottom-right"></div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        
-                        {{-- 3. ADVISORY CLASS CARD (Left Side - Wider) --}}
+                        {{-- 3. ADVISORY CLASS CARD --}}
                         <div class="md:col-span-2">
                             <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200 h-full flex flex-col">
                                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
@@ -56,7 +56,6 @@
                                         <i class='bx bx-chalkboard text-xl mr-2 text-indigo-600'></i>
                                         My Advisory Class
                                     </h4>
-                                    {{-- Student Count Badge --}}
                                     @if(isset($advisorySection) && $advisorySection)
                                         <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200">
                                             {{ $advisoryCount ?? 0 }} Students
@@ -74,8 +73,6 @@
                                                 <i class='bx bx-building-house mr-1'></i> Room: {{ $advisorySection->room_number ?? 'TBA' }}
                                             </p>
                                         </div>
-                                        
-                                        {{-- Action Buttons --}}
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-auto">
                                             <a href="{{ route('teacher.advisory') }}" class="block p-4 bg-indigo-50 border border-indigo-100 rounded-lg hover:bg-indigo-100 transition text-center group shadow-sm hover:shadow-md">
                                                 <i class='bx bx-list-ul text-3xl text-indigo-600 mb-2 group-hover:scale-110 transition block'></i>
@@ -87,7 +84,6 @@
                                             </a>
                                         </div>
                                     @else
-                                        {{-- Empty State --}}
                                         <div class="text-center py-10 text-gray-400">
                                             <i class='bx bx-folder-minus text-6xl mb-3 opacity-50'></i>
                                             <p class="font-medium text-lg">No advisory class assigned yet.</p>
@@ -98,10 +94,8 @@
                             </div>
                         </div>
 
-                        {{-- 4. MY LOADS / SCHEDULE (Right Side - Narrower) --}}
+                        {{-- 4. MY LOADS / SCHEDULE --}}
                         <div class="md:col-span-1 space-y-6">
-                            
-                            {{-- Schedule List --}}
                             <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase flex justify-between items-center">
                                     <span><i class='bx bx-book-open mr-1'></i> My Loads</span>
@@ -131,7 +125,6 @@
                                 </div>
                             </div>
 
-                            {{-- Grading Button --}}
                             <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md text-white overflow-hidden group">
                                 <div class="p-5 text-center">
                                     <i class='bx bx-edit text-4xl mb-2 text-white opacity-90 group-hover:scale-110 transition duration-300'></i>
@@ -153,7 +146,6 @@
                 
                 {{-- 1. STATISTICS CARDS --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    
                     {{-- Students --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-blue-600 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
@@ -202,16 +194,18 @@
                 {{-- 2. BOTTOM SECTION: ACTIVITY & SPOTLIGHT --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
-                    {{-- Recent Activity --}}
+                    {{-- 👇 RECENT ACTIVITY (WITH AJAX ID) --}}
                     <div class="md:col-span-2 bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-6 text-gray-900">
                             <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2">
                                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
                                     <i class='bx bx-history mr-2 text-gray-500'></i> Recent System Activity
                                 </h3>
-                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Latest Updates</span>
+                                {{-- Removed "Auto-updates" label as requested --}}
                             </div>
-                            <div class="space-y-6">
+                            
+                            {{-- ID="activity-list" FOR AJAX --}}
+                            <div class="space-y-6" id="activity-list">
                                 @php 
                                     $safeActivities = $activities ?? collect([]); 
                                 @endphp
@@ -245,7 +239,6 @@
                             <h3 class="text-lg font-bold text-gray-800 mb-2">Campus Spotlight</h3>
                             <p class="text-xs text-gray-500 mb-4 uppercase tracking-wide">National Academy of Sports</p>
                             
-                            {{-- THUMBNAIL --}}
                             <div @click="showModal = true" class="bg-gray-100 h-48 rounded-lg flex items-center justify-center overflow-hidden mb-4 border border-gray-300 relative group cursor-pointer hover:shadow-lg transition-all duration-300">
                                 <img src="{{ asset('images/nas/NAS.png') }}" 
                                      class="h-full w-full object-cover transition duration-500 group-hover:scale-110" 
@@ -264,7 +257,6 @@
                             </div>
                         </div>
                         
-                        {{-- MODAL --}}
                         <template x-teleport="body">
                             <div x-show="showModal" 
                                  style="display: none;"
@@ -285,8 +277,8 @@
 
                                     <div class="flex-1 bg-gray-100 flex items-center justify-center min-h-0 p-1 overflow-hidden">
                                         <img src="{{ asset('images/nas/NAS.png') }}" 
-                                             class="max-w-full max-h-full w-auto h-auto object-contain rounded shadow-sm" 
-                                             alt="NAS Campus Large">
+                                            class="max-w-full max-h-full w-auto h-auto object-contain rounded shadow-sm" 
+                                            alt="NAS Campus Large">
                                     </div>
                                     
                                     <div class="p-4 bg-white border-t border-gray-100 text-center shrink-0">
@@ -306,47 +298,103 @@
         </div>
     </div>
 
-    {{-- 👇 LIVE UPDATE SCRIPT FOR ADMIN DASHBOARD --}}
+    {{-- 👇 LIVE UPDATE SCRIPT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Check if user is admin (based on presence of stat-students element)
+            
+            // 1. STATS UPDATER (Existing)
             if(document.getElementById('stat-students')) {
                 setInterval(function() {
                     updateDashboardStats();
-                }, 5000); // 5 seconds interval
+                }, 5000); 
             }
-        });
 
-        function updateDashboardStats() {
-            const url = window.location.href;
+            // 2. ACTIVITY LOG UPDATER (New)
+            // Check if activity list exists to prevent errors on teacher dashboard
+            if(document.getElementById('activity-list')) {
+                setInterval(fetchActivities, 3000); // Poll every 3 seconds
+            }
 
-            fetch(url)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
+            // Function to fetch activities via AJAX
+            function fetchActivities() {
+                fetch("{{ route('recent.activity') }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        const listContainer = document.getElementById('activity-list');
+                        
+                        if (data.length === 0) {
+                            listContainer.innerHTML = `
+                                <div class="text-center py-8">
+                                    <i class='bx bx-sleep-y text-4xl text-gray-300 mb-2'></i>
+                                    <p class="text-sm text-gray-400 italic">No recent activities logged.</p>
+                                </div>
+                            `;
+                            return;
+                        }
 
-                    updateElement(doc, 'stat-students');
-                    updateElement(doc, 'stat-sections');
-                    updateElement(doc, 'stat-teams');
-                    updateElement(doc, 'stat-plans');
-                })
-                .catch(error => console.error('Error updating dashboard stats:', error));
-        }
+                        let htmlContent = '';
+                        
+                        data.forEach(activity => {
+                            htmlContent += `
+                                <div class="flex items-start animate-fade-in">
+                                    <div class="flex-shrink-0 mr-3">
+                                        <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 ring-4 ring-blue-50"></div>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-800 font-medium">${activity.description}</p>
+                                        <p class="text-xs text-gray-400 flex items-center mt-1">
+                                            <i class='bx bx-time-five mr-1'></i>
+                                            ${activity.time_ago}
+                                        </p>
+                                    </div>
+                                </div>
+                            `;
+                        });
 
-        function updateElement(doc, id) {
-            const newEl = doc.getElementById(id);
-            const currentEl = document.getElementById(id);
-            if (newEl && currentEl) {
-                // If value changed, update and animate
-                if(newEl.innerText !== currentEl.innerText) {
+                        // Only update DOM if content changed
+                        if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
+                            listContainer.innerHTML = htmlContent;
+                        }
+                    })
+                    .catch(error => console.error('Error fetching activities:', error));
+            }
+
+            function updateDashboardStats() {
+                const url = window.location.href;
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        updateElement(doc, 'stat-students');
+                        updateElement(doc, 'stat-sections');
+                        updateElement(doc, 'stat-teams');
+                        updateElement(doc, 'stat-plans');
+                    })
+                    .catch(error => console.error('Error updating stats:', error));
+            }
+
+            function updateElement(doc, id) {
+                const newEl = doc.getElementById(id);
+                const currentEl = document.getElementById(id);
+                if (newEl && currentEl && newEl.innerText !== currentEl.innerText) {
                     currentEl.innerText = newEl.innerText;
-                    currentEl.classList.add('text-green-600', 'scale-110'); // Highlight effect
+                    currentEl.classList.add('text-green-600', 'scale-110');
                     setTimeout(() => {
                         currentEl.classList.remove('text-green-600', 'scale-110');
                     }, 500);
                 }
             }
-        }
+        });
     </script>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+    </style>
 </x-app-layout>

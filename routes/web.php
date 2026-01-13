@@ -72,6 +72,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- MAIN DASHBOARD ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // 👇 ADDED THIS ROUTE FOR LIVE ACTIVITY LOGS
+    Route::get('/recent-activity', [DashboardController::class, 'getRecentActivity'])->name('recent.activity');
+
     // --- USER PROFILE ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -112,7 +115,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //  ACADEMIC RESOURCES (CRUD)
     // ==========================================
     
-    // 👇 ADDED BULK UPLOAD ROUTES (Dapat mauna ito bago ang resource)
+    // 👇 BULK UPLOAD ROUTES
     Route::get('/students/bulk-upload', [StudentController::class, 'bulkUploadForm'])->name('students.bulk-upload');
     Route::post('/students/bulk-upload', [StudentController::class, 'processBulkUpload'])->name('students.process-bulk-upload');
 

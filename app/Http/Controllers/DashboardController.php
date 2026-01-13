@@ -11,7 +11,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Models\Staff;
 use App\Models\Schedule;
-use App\Models\ActivityLog; // 👈 1. ADDED IMPORT
+use App\Models\ActivityLog; // 👈 1. IMPORTED ACTIVITY LOG
 
 class DashboardController extends Controller
 {
@@ -82,10 +82,10 @@ class DashboardController extends Controller
         // Extra variables para sa Admin Dashboard view
         $upcomingPlansCount = 0; 
 
-        // 👇 2. GET RECENT ACTIVITIES (REAL DATA FROM DB)
-        $activities = ActivityLog::with('user') // Isama ang user details
-                        ->latest()              // Pinakabago muna
-                        ->take(5)               // Limit sa 5
+        // 👇 2. GET RECENT ACTIVITIES (INITIAL LOAD)
+        $activities = ActivityLog::with('user')
+                        ->latest()
+                        ->take(5)
                         ->get();
 
         // Ipasa ang admin variables sa view
@@ -97,5 +97,24 @@ class DashboardController extends Controller
             'upcomingPlansCount',
             'activities' // 👈 Passed real data to view
         ));
+    }
+
+    // 👇 3. ADDED THIS FUNCTION FOR LIVE AJAX UPDATES
+    public function getRecentActivity()
+    {
+        // Kunin ang latest 5 activities
+        $activities = ActivityLog::with('user')
+                        ->latest()
+                        ->take(5)
+                        ->get()
+                        ->map(function ($activity) {
+                            return [
+                                'description' => $activity->description,
+                                // Kinoconvert natin ang time (e.g. "1 minute ago") para ready na sa JS
+                                'time_ago' => $activity->created_at->diffForHumans(),
+                            ];
+                        });
+
+        return response()->json($activities);
     }
 }
