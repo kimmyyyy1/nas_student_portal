@@ -1,12 +1,12 @@
-<nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-md border-r border-white/20 z-50 flex flex-col shadow-2xl no-print">
+<nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 z-50 flex flex-col shadow-xl no-print">
     
-    {{-- 1. SIDEBAR HEADER (Glass Effect + Horizontal Logo) --}}
-    <div class="h-16 flex items-center justify-center border-b border-gray-200/50 shadow-sm shrink-0">
-        <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" class="flex items-center justify-center w-full px-4">
+    {{-- 1. SIDEBAR HEADER (White Background) --}}
+    <div class="h-16 flex items-center justify-center bg-white border-b border-gray-200 shadow-sm shrink-0 px-4">
+        <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" class="flex items-center justify-center w-full">
             {{-- Horizontal Logo Image --}}
             <img src="{{ asset('images/nas/horizontal.png') }}" 
                  alt="NAS Logo" 
-                 class="h-10 w-auto object-contain drop-shadow-md hover:scale-105 transition-transform duration-300"> 
+                 class="h-10 w-auto object-contain">
         </a>
     </div>
 
@@ -168,7 +168,7 @@
     </div>
 
     {{-- 3. USER PROFILE & LOGOUT --}}
-    <div class="p-4 border-t border-gray-200/50 bg-gray-50/80 shrink-0 backdrop-blur-sm">
+    <div class="p-4 border-t border-gray-200 bg-gray-50 shrink-0">
         
         {{-- User Info --}}
         <div class="flex items-center mb-3">
