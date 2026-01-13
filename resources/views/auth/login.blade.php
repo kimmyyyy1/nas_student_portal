@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>NAS SAIS</title>
         
-    <link rel="icon" type="image/jpeg" href="/images/nas/favicon.jpg">
+    {{-- 👇 DITO ANG PAGBABAGO: Pinalitan ang favicon.jpg ng favicon1.png --}}
+    <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
+    
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
     
@@ -168,12 +170,11 @@
     <div class="login-card">
         <div class="card-content">
             
-            {{-- Logo Section (UPDATED: Changed image to stack.png) --}}
+            {{-- Logo Section --}}
             <div class="text-center" style="margin-bottom: 2rem;">
                 <a href="/">
-                    {{-- 👇 DITO ANG PAGBABAGO 👇 --}}
                     <img src="{{ asset('images/nas/stack.png') }}" 
-                         style="height: 8rem; width: auto; margin: 0 auto; display: block; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.07));" 
+                         style="height: 12rem; width: auto; margin: 0 auto; display: block; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.07));" 
                          alt="NAS Logo">
                 </a>
             </div>
