@@ -1,24 +1,19 @@
 <x-app-layout>
     
-    {{-- ❌ INALIS NA ANG <x-slot name="header"> PARA WALANG WHITE BAR SA TAAS --}}
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+            {{ __('Dashboard') }}
+            {{-- LIVE INDICATOR --}}
+            <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
+                <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
+            </span>
+        </h2>
+    </x-slot>
 
     {{-- Main Content Wrapper --}}
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- 👇 DITO NILIPAT ANG TITLE --}}
-            <div class="mb-6 flex items-center">
-                {{-- Changed text-gray-800 to text-white --}}
-                <h2 class="font-bold text-2xl text-white leading-tight">
-                    {{ __('Dashboard') }}
-                </h2>
-                
-                {{-- LIVE INDICATOR --}}
-                <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
-                    <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
-                </span>
-            </div>
-
             {{-- ======================================================= --}}
             {{-- LOGIC: TEACHER VIEW                                     --}}
             {{-- ======================================================= --}}
@@ -290,8 +285,8 @@
 
                                     <div class="flex-1 bg-gray-100 flex items-center justify-center min-h-0 p-1 overflow-hidden">
                                         <img src="{{ asset('images/nas/NAS.png') }}" 
-                                            class="max-w-full max-h-full w-auto h-auto object-contain rounded shadow-sm" 
-                                            alt="NAS Campus Large">
+                                             class="max-w-full max-h-full w-auto h-auto object-contain rounded shadow-sm" 
+                                             alt="NAS Campus Large">
                                     </div>
                                     
                                     <div class="p-4 bg-white border-t border-gray-100 text-center shrink-0">
