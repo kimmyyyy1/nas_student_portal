@@ -126,7 +126,10 @@
                                             {{ $student->status }}
                                         </span>
                                     </td>
+                                    
+                                    {{-- 👇 UPDATED ACTION COLUMN --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a href="{{ route('students.show', $student->id) }}" class="text-blue-600 hover:text-blue-900 mr-3 font-bold">View</a>
                                         <a href="{{ route('students.edit', $student->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold">Edit</a>
                                     </td>
                                 </tr>

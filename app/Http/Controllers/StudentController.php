@@ -6,7 +6,7 @@ use App\Models\Student;
 use App\Models\Section;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\ActivityLog; // 👈 1. ADDED IMPORT
+use App\Models\ActivityLog; 
 use App\Models\EnrollmentApplication;
 use App\Models\Staff;
 use Illuminate\Http\Request;
@@ -134,7 +134,7 @@ class StudentController extends Controller
             'student_id' => $student->id,
         ]);
 
-        // 👇 2. UPDATED LOGGING (With Role)
+        // LOGGING
         $user = Auth::user();
         $role = ucfirst($user->role);
         
@@ -226,7 +226,7 @@ class StudentController extends Controller
             $student->user->update(['email' => $student->email_address]);
         }
 
-        // 👇 3. LOGGING FOR UPDATE (Optional but good)
+        // LOGGING
         $user = Auth::user();
         $role = ucfirst($user->role);
         
@@ -246,8 +246,14 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student record deleted.');
     }
 
-    public function show(Student $student) { 
-        return view('students.edit', compact('student')); 
+    // 👇 UPDATED: THIS IS THE NEW SHOW FUNCTION
+    public function show(Student $student) 
+    { 
+        // Load the Section and Adviser details for the profile view
+        $student->load(['section.adviser', 'team']);
+        
+        // Return the Profile View instead of Edit
+        return view('students.show', compact('student')); 
     }
 
     // ==========================================
