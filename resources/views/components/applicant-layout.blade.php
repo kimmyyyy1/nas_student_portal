@@ -7,6 +7,9 @@
 
         <title>NAS Applicant Portal</title>
 
+        {{-- 👇 1. UPDATED FAVICON --}}
+        <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
+
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
@@ -15,6 +18,7 @@
     <body class="font-sans antialiased bg-gray-100">
         <div class="min-h-screen">
             
+            {{-- NAVIGATION BAR --}}
             <nav x-data="{ open: false }" class="bg-white border-b border-gray-200 shadow-sm">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
@@ -22,12 +26,14 @@
                         <div class="flex">
                             <div class="shrink-0 flex items-center">
                                 <a href="{{ route('applicant.dashboard') }}">
-                                    <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="block h-10 w-auto rounded-full" alt="NAS Logo" />
+                                    {{-- 👇 2. UPDATED NAVBAR LOGO --}}
+                                    <img src="{{ asset('images/nas/favicon1.png') }}" class="block h-10 w-auto" alt="NAS Logo" />
                                 </a>
                                 <span class="ml-3 font-bold text-gray-700 hidden md:block">Applicant Portal</span>
                             </div>
                         </div>
 
+                        {{-- Settings Dropdown --}}
                         <div class="hidden sm:flex sm:items-center sm:ml-6">
                             <div class="relative" x-data="{ dropdownOpen: false }">
                                 <button @click="dropdownOpen = ! dropdownOpen" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
@@ -48,6 +54,7 @@
                             </div>
                         </div>
                         
+                        {{-- Hamburger --}}
                         <div class="-mr-2 flex items-center sm:hidden">
                             <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
                                 <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -59,6 +66,7 @@
                     </div>
                 </div>
                 
+                {{-- Responsive Menu --}}
                 <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-200">
                     <div class="pt-4 pb-1 border-t border-gray-200">
                         <div class="px-4">
@@ -77,6 +85,7 @@
                 </div>
             </nav>
 
+            {{-- Page Content --}}
             <main>
                 {{ $slot }}
             </main>
