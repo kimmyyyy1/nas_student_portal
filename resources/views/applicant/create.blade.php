@@ -2,7 +2,9 @@
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         
         <div class="text-center mb-10">
-            <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-24 mx-auto mb-4 drop-shadow-sm rounded-full" alt="NAS Logo">
+            {{-- 👇 DITO ANG PAGBABAGO: Updated Logo to stack.png --}}
+            <img src="{{ asset('images/nas/stack.png') }}" class="h-24 mx-auto mb-4 drop-shadow-sm" alt="NAS Logo">
+            
             <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">National Academy of Sports</h1>
             <p class="text-lg text-gray-600 mt-1 font-medium">Student-Athlete Admission Application</p>
             <p class="text-sm text-gray-500 mt-1">Based on SAIS Guidelines</p>
