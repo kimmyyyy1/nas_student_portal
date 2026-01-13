@@ -1,13 +1,13 @@
 <nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 z-50 flex flex-col shadow-xl no-print">
     
-    {{-- 1. SIDEBAR HEADER (Updated: Horizontal Logo Only) --}}
+    {{-- 1. SIDEBAR HEADER (Blue Gradient + Transparent Horizontal Logo) --}}
     <div class="h-16 flex items-center justify-center bg-gradient-to-r from-blue-900 to-indigo-800 border-b border-blue-900 shadow-sm shrink-0 overflow-hidden">
         <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" class="flex items-center justify-center w-full px-4">
             {{-- Horizontal Logo Image --}}
-            {{-- Added bg-white/10 rounded para lumitaw ang logo kung dark ang text nito --}}
+            {{-- 👇 REMOVED: bg-white, rounded, px-2, py-1 --}}
             <img src="{{ asset('images/nas/horizontal.png') }}" 
                  alt="NAS Logo" 
-                 class="h-10 w-auto object-contain bg-white rounded px-2 py-1 shadow-sm"> 
+                 class="h-10 w-auto object-contain drop-shadow-md"> 
         </a>
     </div>
 
