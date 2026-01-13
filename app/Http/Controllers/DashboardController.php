@@ -9,8 +9,9 @@ use App\Models\EnrollmentApplication;
 use App\Models\Section;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\Staff;     // Added
-use App\Models\Schedule;  // Added
+use App\Models\Staff;
+use App\Models\Schedule;
+use App\Models\ActivityLog; // 👈 1. ADDED IMPORT
 
 class DashboardController extends Controller
 {
@@ -46,7 +47,6 @@ class DashboardController extends Controller
 
                 // C. Bilangin ang estudyante kung may advisory class
                 if ($advisorySection) {
-                    // Dito pwede nating bilangin lahat ng nasa section, enrolled man o hindi
                     $advisoryCount = Student::where('section_id', $advisorySection->id)->count();
                 }
 
@@ -74,17 +74,19 @@ class DashboardController extends Controller
         // =========================================================
         
         // KUNIN ANG COUNTS
-        
-        // FIX: Binago ko ito para bilangin LAHAT ng students (hindi lang Enrolled)
         $totalStudents = Student::count(); 
-
         $totalApplicants = EnrollmentApplication::where('status', 'Pending')->count(); 
         $totalSections = Section::count();
         $totalTeams = Team::count();
         
         // Extra variables para sa Admin Dashboard view
         $upcomingPlansCount = 0; 
-        $activities = collect([]); 
+
+        // 👇 2. GET RECENT ACTIVITIES (REAL DATA FROM DB)
+        $activities = ActivityLog::with('user') // Isama ang user details
+                        ->latest()              // Pinakabago muna
+                        ->take(5)               // Limit sa 5
+                        ->get();
 
         // Ipasa ang admin variables sa view
         return view('dashboard', compact(
@@ -93,7 +95,7 @@ class DashboardController extends Controller
             'totalSections', 
             'totalTeams',
             'upcomingPlansCount',
-            'activities'
+            'activities' // 👈 Passed real data to view
         ));
     }
 }
