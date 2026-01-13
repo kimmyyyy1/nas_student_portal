@@ -1,15 +1,19 @@
 <aside class="w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col z-50 no-print transition-all duration-300">
     
-    <div class="h-20 flex items-center justify-center border-b border-gray-100 bg-white shrink-0">
-        <div class="flex items-center">
-            <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" alt="NAS Logo" class="h-10 w-auto mr-3">
-            <div class="flex flex-col">
-                <h1 class="font-extrabold text-xl text-blue-900 tracking-tight leading-none">NAS SAIS</h1>
-                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
-                    {{ ucfirst(Auth::user()->role) }}
-                </span>
-            </div>
-        </div>
+    {{-- 👇 Updated Header Section with Horizontal Logo --}}
+    <div class="h-24 flex items-center justify-center border-b border-gray-100 bg-white shrink-0 px-4">
+        {{-- Link to Dashboard --}}
+        <a href="{{ route('dashboard') }}" class="flex flex-col items-center">
+            {{-- Horizontal Logo Image --}}
+            <img src="{{ asset('images/nas/horizontal.png') }}" 
+                 alt="NAS Logo" 
+                 class="h-12 w-auto object-contain mb-1"> {{-- Adjusted height to fit --}}
+            
+            {{-- User Role Badge below logo --}}
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
+                {{ ucfirst(Auth::user()->role) }}
+            </span>
+        </a>
     </div>
 
     <nav class="flex-1 overflow-y-auto px-3 py-6 custom-scrollbar">
@@ -137,4 +141,4 @@
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
-</style>    
+</style>
