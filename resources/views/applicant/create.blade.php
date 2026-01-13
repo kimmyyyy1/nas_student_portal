@@ -2,11 +2,11 @@
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         
         <div class="text-center mb-10">
-            {{-- 👇 DITO ANG PAGBABAGO: --}}
-            {{-- 1. Pinalitan ang src ng horizontal.png --}}
-            {{-- 2. Tinaasan ang height (h-32 md:h-40) para lumaki dahil wala ng text --}}
-            {{-- 3. Tinanggal ang text titles --}}
-            <img src="{{ asset('images/nas/horizontal.png') }}" class="h-32 md:h-40 mx-auto mb-6 drop-shadow-sm object-contain" alt="NAS Logo">
+            {{-- 👇 UPDATED HEADER SECTION --}}
+            {{-- 1. Changed image to horizontal.png --}}
+            {{-- 2. Adjusted height to h-12 md:h-16 so it's not too big --}}
+            {{-- 3. Removed the text titles --}}
+            <img src="{{ asset('images/nas/horizontal.png') }}" class="h-12 md:h-16 mx-auto mb-4 drop-shadow-sm object-contain" alt="NAS Logo">
             
             <p class="text-sm text-gray-500 mt-1 uppercase tracking-widest font-bold">Based on SAIS Guidelines</p>
         </div>
