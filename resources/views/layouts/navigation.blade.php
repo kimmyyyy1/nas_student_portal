@@ -1,17 +1,22 @@
-<nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 z-50 flex flex-col shadow-xl">
+<nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 z-50 flex flex-col shadow-xl no-print">
     
-    {{-- 1. SIDEBAR HEADER --}}
+    {{-- 1. SIDEBAR HEADER (Blue Gradient Style) --}}
     <div class="h-16 flex items-center justify-center bg-gradient-to-r from-blue-900 to-indigo-800 border-b border-blue-900 shadow-sm shrink-0 overflow-visible">
         <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" class="flex items-center space-x-2">
-            <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-10 w-10 bg-white rounded-full p-0.5 object-cover shadow-sm" alt="NAS Logo">
+            {{-- Logo Image (Circular) --}}
+            <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" 
+                 class="h-10 w-10 bg-white rounded-full p-0.5 object-cover shadow-sm" 
+                 alt="NAS Logo">
+            
+            {{-- Text Content --}}
             <div class="flex flex-col">
                 <span class="text-white font-black text-lg leading-tight tracking-wide">NAS SAIS</span>
-                <span class="text-blue-200 text-[10px] uppercase tracking-wider">{{ Auth::user()->role ?? 'Portal' }}</span>
+                <span class="text-blue-200 text-[10px] uppercase tracking-wider">{{ ucfirst(Auth::user()->role ?? 'Portal') }}</span>
             </div>
         </a>
     </div>
 
-    {{-- 2. SCROLLABLE MENU AREA (Nilagyan ng ID: sidebar-menu) --}}
+    {{-- 2. SCROLLABLE MENU AREA --}}
     <div id="sidebar-menu" class="flex-1 overflow-y-auto custom-scrollbar py-4 px-3 space-y-1">
 
         {{-- ROLE: STUDENT --}}
