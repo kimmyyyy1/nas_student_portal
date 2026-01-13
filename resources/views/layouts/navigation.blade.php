@@ -1,17 +1,13 @@
-<nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 z-50 flex flex-col shadow-xl no-print">
+<nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 z-50 flex flex-col shadow-xl">
     
-    {{-- 1. SIDEBAR HEADER (UPDATED with Horizontal Logo) --}}
-    <div class="h-24 flex items-center justify-center bg-white border-b border-gray-100 shadow-sm shrink-0 px-4">
-        <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" class="flex flex-col items-center w-full">
-            {{-- Horizontal Logo Image --}}
-            <img src="{{ asset('images/nas/horizontal.png') }}" 
-                 alt="NAS Logo" 
-                 class="h-12 w-auto object-contain mb-1">
-            
-            {{-- User Role Badge --}}
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
-                {{ ucfirst(Auth::user()->role ?? 'Portal') }}
-            </span>
+    {{-- 1. SIDEBAR HEADER --}}
+    <div class="h-16 flex items-center justify-center bg-gradient-to-r from-blue-900 to-indigo-800 border-b border-blue-900 shadow-sm shrink-0 overflow-visible">
+        <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" class="flex items-center space-x-2">
+            <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-10 w-10 bg-white rounded-full p-0.5 object-cover shadow-sm" alt="NAS Logo">
+            <div class="flex flex-col">
+                <span class="text-white font-black text-lg leading-tight tracking-wide">NAS SAIS</span>
+                <span class="text-blue-200 text-[10px] uppercase tracking-wider">{{ Auth::user()->role ?? 'Portal' }}</span>
+            </div>
         </a>
     </div>
 
