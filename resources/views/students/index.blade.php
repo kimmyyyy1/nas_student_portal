@@ -23,7 +23,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8"> {{-- Reduced top padding --}}
+    <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             {{-- ALERTS --}}
@@ -47,9 +47,8 @@
             </div>
 
             <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200 overflow-hidden">
-                {{-- REMOVED overflow-x-auto to force fit, added w-full --}}
                 <div class="w-full"> 
-                    <table class="w-full divide-y divide-gray-200 table-fixed"> {{-- Added table-fixed --}}
+                    <table class="w-full divide-y divide-gray-200 table-fixed">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/6">Student ID</th>
@@ -82,7 +81,7 @@
                                         </div>
                                     </td>
 
-                                    {{-- NAME (With wrapping) --}}
+                                    {{-- NAME --}}
                                     <td class="px-4 py-3">
                                         <div class="text-sm font-bold text-gray-900 leading-tight">{{ $student->last_name }}, {{ $student->first_name }}</div>
                                         <div class="text-xs text-gray-500 truncate">{{ $student->email_address }}</div>
@@ -96,10 +95,10 @@
                                         </div>
                                     </td>
 
-                                    {{-- SPORT --}}
+                                    {{-- FIXED: SPORT COLUMN (Using 'sport' or 'sport_type') --}}
                                     <td class="px-4 py-3 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 truncate max-w-[100px]">
-                                            {{ $student->team ? $student->team->team_name : 'No Team' }}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 truncate max-w-[120px]">
+                                            {{ $student->team ? ($student->team->sport ?? $student->team->sport_type ?? 'No Sport') : 'No Team' }}
                                         </span>
                                     </td>
 
