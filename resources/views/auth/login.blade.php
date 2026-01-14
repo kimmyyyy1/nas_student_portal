@@ -3,9 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>NAS SAIS</title>
+    <title>NAS SAIS - Login</title>
         
-    {{-- 👇 DITO ANG PAGBABAGO: Pinalitan ang favicon.jpg ng favicon1.png --}}
     <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
     
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -20,12 +19,25 @@
             padding: 0;
             height: 100vh;
             width: 100%;
-            overflow: hidden; /* Bawal mag-scroll ang background */
+            overflow: hidden; 
             display: flex;
             align-items: center;
             justify-content: center;
             background-color: #111827;
             font-family: 'Figtree', sans-serif;
+        }
+
+        /* 👇 FIX: Hide default browser password toggle to prevent double icons */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
+        input[type="password"]::-webkit-contacts-auto-fill-button,
+        input[type="password"]::-webkit-credentials-auto-fill-button {
+            visibility: hidden;
+            pointer-events: none;
+            position: absolute;
+            right: 0;
         }
 
         /* Background Image Container */
@@ -65,25 +77,21 @@
             border-radius: 16px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             border-top: 6px solid #facc15;
-            overflow: hidden; /* Importante ito para sa rounded corners */
+            overflow: hidden; 
             display: flex;
             flex-direction: column;
             margin: 0 20px;
-            max-height: 90vh; /* Limitahan ang height ng card */
+            max-height: 90vh; 
         }
 
-        /* --- MAGIC CSS: SCROLLABLE PERO WALANG BAR --- */
+        /* Custom Scrollbar */
         .card-content {
             padding: 2rem;
-            overflow-y: auto; /* Pwede mag-scroll */
-            
-            /* Tago Scrollbar sa Firefox */
+            overflow-y: auto; 
             scrollbar-width: none; 
-            /* Tago Scrollbar sa IE/Edge */
             -ms-overflow-style: none; 
         }
 
-        /* Tago Scrollbar sa Chrome, Safari, Edge, Opera */
         .card-content::-webkit-scrollbar {
             display: none;
         }
@@ -156,6 +164,8 @@
         .flex-between { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; }
         .relative { position: relative; }
         .icon { position: absolute; top: 50%; left: 0.75rem; transform: translateY(-50%); width: 16px; height: 16px; color: #9ca3af; }
+        
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 <body>
@@ -216,7 +226,7 @@
                                style="padding-right: 2.5rem;" 
                                placeholder="Enter password">
 
-                        <button type="button" @click="show = !show" style="position: absolute; top: 0; bottom: 0; right: 0; padding-right: 0.75rem; display: flex; align-items: center; background: none; border: none; cursor: pointer; color: #9ca3af;">
+                        <button type="button" @click="show = !show" style="position: absolute; top: 0; bottom: 0; right: 0; padding-right: 0.75rem; display: flex; align-items: center; background: none; border: none; cursor: pointer; color: #9ca3af; z-index: 10;">
                             <svg x-show="!show" style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                             <svg x-show="show" x-cloak style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.572-2.872m2.197-2.197A10.05 10.05 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-1.572 2.872M9 9l3 3m0 0l3 3m-3-3a3 3 0 01-3 3m3-3a3 3 0 013-3m3-3l3 3" /></svg>
                         </button>
