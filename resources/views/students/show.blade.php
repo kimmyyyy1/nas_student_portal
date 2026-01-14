@@ -13,18 +13,16 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- MAIN PROFILE CARD --}}
             <div class="bg-white overflow-hidden shadow-lg sm:rounded-xl border border-gray-200 relative">
                 
-                {{-- COVER HEADER --}}
+                {{-- COVER --}}
                 <div class="bg-gradient-to-r from-blue-900 to-indigo-800 h-40 relative z-0">
-                    {{-- Decorative pattern overlay --}}
                     <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                 </div>
                 
                 <div class="px-8 pb-8 relative z-10">
                     
-                    {{-- 👇 FIXED: EDIT BUTTON (ADDED z-50 para ma-click) --}}
+                    {{-- EDIT BUTTON --}}
                     <div class="absolute top-4 right-6 sm:top-6 sm:right-8 z-50">
                         <a href="{{ route('students.edit', $student->id) }}" 
                            class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer relative">
@@ -32,25 +30,20 @@
                         </a>
                     </div>
 
-                    {{-- PROFILE HEADER SECTION --}}
+                    {{-- PROFILE HEADER --}}
                     <div class="relative flex flex-col sm:flex-row items-end -mt-16 mb-6">
-                        
-                        {{-- PROFILE PICTURE --}}
                         <div class="relative group z-20">
                             <img src="{{ $student->id_picture ?? 'https://ui-avatars.com/api/?name=' . urlencode($student->first_name . ' ' . $student->last_name) . '&background=random&size=256' }}" 
                                  class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-xl object-cover bg-white" 
                                  alt="Profile">
-                            {{-- Status Indicator --}}
                             <div class="absolute bottom-2 right-2 w-5 h-5 rounded-full border-2 border-white {{ $student->status === 'Enrolled' ? 'bg-green-500' : 'bg-gray-400' }}" title="{{ $student->status }}"></div>
                         </div>
                         
-                        {{-- NAME & ID --}}
                         <div class="mt-4 sm:mt-0 sm:ml-6 mb-2 text-center sm:text-left w-full sm:w-auto z-10">
                             <h1 class="text-3xl font-extrabold text-gray-900 leading-tight">
                                 {{ $student->last_name }}, {{ $student->first_name }} 
                                 <span class="text-gray-500 font-normal text-xl block sm:inline">{{ $student->middle_name }}</span>
                             </h1>
-                            
                             <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-2 text-sm text-gray-600">
                                 <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-mono font-bold border border-blue-100 flex items-center shadow-sm">
                                     <i class='bx bx-id-card mr-1'></i> {{ $student->nas_student_id }}
@@ -65,9 +58,8 @@
                     {{-- DETAILS GRID --}}
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 border-t border-gray-100 pt-8 relative z-0">
                         
-                        {{-- LEFT COLUMN: ACADEMIC & SPORTS --}}
+                        {{-- LEFT: ACADEMIC & SPORTS --}}
                         <div class="space-y-6">
-                            {{-- Academic Card --}}
                             <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
                                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2 flex items-center">
                                     <i class='bx bx-book-reader mr-2 text-indigo-500 text-lg'></i> Academic Info
@@ -100,7 +92,6 @@
                                 </div>
                             </div>
 
-                            {{-- Sports Card --}}
                             <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
                                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2 flex items-center">
                                     <i class='bx bx-trophy mr-2 text-yellow-500 text-lg'></i> Sports Info
@@ -118,10 +109,8 @@
                             </div>
                         </div>
 
-                        {{-- RIGHT COLUMN: PERSONAL DETAILS --}}
+                        {{-- RIGHT: PERSONAL DETAILS --}}
                         <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm md:col-span-2">
-                            
-                            {{-- Personal Info Header --}}
                             <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center pb-2 border-b border-gray-100">
                                 <span class="bg-indigo-100 p-2 rounded-lg mr-3 text-indigo-600">
                                     <i class='bx bx-user'></i>
@@ -149,6 +138,30 @@
                                     <p class="text-xs uppercase tracking-wide text-gray-500 font-bold mb-1">Religion</p>
                                     <p class="font-medium text-gray-900">{{ $student->religion }}</p>
                                 </div>
+
+                                {{-- 👇 NEW SECTION: IP, PWD, 4Ps, OTHERS (Added here) --}}
+                                <div class="sm:col-span-2 mt-2 pt-4 border-t border-gray-100 border-dashed">
+                                    <div class="flex flex-wrap gap-y-3 gap-x-6">
+                                        <label class="flex items-center space-x-2">
+                                            <input type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" disabled {{ $student->is_ip ? 'checked' : '' }}>
+                                            <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2">
+                                            <input type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" disabled {{ $student->is_pwd ? 'checked' : '' }}>
+                                            <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2">
+                                            <input type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" disabled {{ $student->is_4ps ? 'checked' : '' }}>
+                                            <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
+                                        </label>
+                                        {{-- OTHERS FIELD (Static UI as requested) --}}
+                                        <div class="flex items-center space-x-2 ml-auto sm:ml-0">
+                                            <span class="text-xs font-bold text-gray-600 uppercase">Others:</span>
+                                            <span class="border-b border-gray-400 w-32 inline-block h-4"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="sm:col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-100 mt-2">
                                     <p class="text-xs uppercase tracking-wide text-gray-500 font-bold mb-1 flex items-center">
                                         <i class='bx bx-map mr-1'></i> Home Address
@@ -160,7 +173,6 @@
                                 </div>
                             </div>
 
-                            {{-- Contact & Guardian Header --}}
                             <h3 class="text-lg font-bold text-gray-800 mt-10 mb-6 flex items-center pb-2 border-b border-gray-100">
                                 <span class="bg-blue-100 p-2 rounded-lg mr-3 text-blue-600">
                                     <i class='bx bx-phone-call'></i>
