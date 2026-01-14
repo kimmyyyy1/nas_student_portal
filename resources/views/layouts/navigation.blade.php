@@ -2,7 +2,7 @@
     
     {{-- 1. SIDEBAR HEADER (Glass Effect + Horizontal Logo) --}}
     <div class="h-16 flex items-center justify-center border-b border-gray-200/50 shadow-sm shrink-0">
-        {{-- Added wire:navigate to logo link as well --}}
+        {{-- Logo Link with wire:navigate --}}
         <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" wire:navigate class="flex items-center justify-center w-full px-4">
             <img src="{{ asset('images/nas/horizontal.png') }}" 
                  alt="NAS Logo" 
@@ -11,7 +11,6 @@
     </div>
 
     {{-- 2. SCROLLABLE MENU AREA --}}
-    {{-- Note: The javascript at the bottom is no longer strictly needed with wire:navigate as scroll state is preserved, but keeping it does no harm. --}}
     <div id="sidebar-menu" class="flex-1 overflow-y-auto custom-scrollbar py-4 px-3 space-y-1">
 
         {{-- ROLE: STUDENT --}}
@@ -198,7 +197,7 @@
                 Profile
             </a>
 
-            {{-- Sign Out Button (NO WIRE:NAVIGATE for POST forms) --}}
+            {{-- Sign Out Button --}}
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" 
@@ -212,17 +211,28 @@
     </div>
 </nav>
 
-{{-- SCROLL PRESERVATION SCRIPT (Backup for page refreshes) --}}
+{{-- IMPROVED SCROLL PRESERVATION SCRIPT --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    function initSidebarScroll() {
         const sidebar = document.getElementById('sidebar-menu');
+        
         if (sidebar) {
-            const pos = localStorage.getItem('sidebar-scroll-pos');
-            if (pos) sidebar.scrollTop = pos;
+            // 1. Ibalik ang dating pwesto (RESTORE)
+            const savedPos = localStorage.getItem('sidebar-scroll-pos');
+            if (savedPos) {
+                sidebar.scrollTop = savedPos;
+            }
 
-            window.addEventListener('beforeunload', () => {
+            // 2. I-save ang pwesto tuwing mag-i-scroll (SAVE)
+            sidebar.addEventListener('scroll', function() {
                 localStorage.setItem('sidebar-scroll-pos', sidebar.scrollTop);
-            });
+            }, { passive: true });
         }
-    });
+    }
+
+    // Pagana sa unang load ng page (Hard Refresh/First Visit)
+    document.addEventListener('DOMContentLoaded', initSidebarScroll);
+
+    // Pagana sa bawat lipat ng page gamit ang wire:navigate
+    document.addEventListener('livewire:navigated', initSidebarScroll);
 </script>
