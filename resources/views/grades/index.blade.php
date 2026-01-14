@@ -23,7 +23,7 @@
                                 <div class="p-6 flex-grow">
                                     <div class="flex items-center justify-between mb-4">
                                         <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full">
-                                            <i class='bx bx-save text-2xl'></i> {{-- Changed icon to Save/Floppy for Grades --}}
+                                            <i class='bx bx-save text-2xl'></i> {{-- Keep Save Icon for Grades --}}
                                         </div>
                                         
                                         {{-- ADVISER BADGE --}}
@@ -42,16 +42,14 @@
                                         {{ $section->grade_level }} - {{ $section->section_name }}
                                     </h3>
 
-                                    {{-- 👇 NEW: STUDENT COUNT DISPLAY --}}
-                                    <div class="flex items-center text-sm text-gray-500 mb-1">
-                                        <i class='bx bx-user mr-2 text-lg'></i>
-                                        <span>Students: {{ $section->students_count }}</span>
-                                    </div>
+                                    {{-- 👇 STUDENT COUNT (Matched with Attendance View) --}}
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        <i class='bx bx-user'></i> Students: {{ $section->students_count }}
+                                    </p>
 
-                                    <div class="flex items-center text-sm text-gray-500">
-                                        <i class='bx bx-map mr-2 text-lg'></i>
-                                        <span>Room: {{ $section->room_number ?? 'TBA' }}</span>
-                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        <i class='bx bx-map'></i> Room: {{ $section->room_number ?? 'TBA' }}
+                                    </p>
                                 </div>
 
                                 <div class="bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center mt-auto">
