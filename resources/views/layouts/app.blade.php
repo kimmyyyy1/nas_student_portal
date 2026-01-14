@@ -10,9 +10,10 @@
         {{-- Favicon --}}
         <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-        {{-- Fonts --}}
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        {{-- 👇 1. UPDATE: POPPINS FONT (Google Fonts) --}}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         
         {{-- Icons --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -23,8 +24,14 @@
         {{-- Livewire Styles --}}
         @livewireStyles
 
-        {{-- Custom Scrollbar Style --}}
+        {{-- Custom Styles --}}
         <style>
+            /* 👇 2. APPLY GLOBAL FONT: POPPINS */
+            body, html {
+                font-family: 'Poppins', sans-serif !important;
+            }
+
+            /* Custom Scrollbar Style */
             .custom-scrollbar::-webkit-scrollbar { width: 5px; }
             .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
             .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 5px; }
@@ -44,7 +51,7 @@
         {{-- MAIN CONTENT WRAPPER --}}
         <div class="min-h-screen relative">
             
-            {{-- 👇 UPDATED: TINANGGAL NA ANG @persist PARA GUMANA ANG ACTIVE LINK COLOR --}}
+            {{-- NAVIGATION --}}
             @include('layouts.navigation')
 
             {{-- PAGE HEADER --}}

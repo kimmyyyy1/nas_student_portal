@@ -7,17 +7,23 @@
         
     <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
+    {{-- 👇 1. ADDED POPPINS FONT --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    {{-- 👇 1. IMPORTANTE: ALPINE.JS SCRIPT (Idinagdag para gumana ang Eye Icon) --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    {{-- 👇 TINANGGAL KO NA ANG ALPINE CDN (Gagamitin na nito ang app.js) --}}
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         /* SAFEGUARD CSS */
-        /* 👇 2. FIX: Hide default browser password toggle */
+        /* 👇 2. APPLIED POPPINS FONT TO BODY */
+        body {
+            font-family: 'Poppins', sans-serif !important;
+        }
+
+        /* 👇 FIX: Hide default browser password toggle */
         input[type="password"]::-ms-reveal,
         input[type="password"]::-ms-clear {
             display: none;
