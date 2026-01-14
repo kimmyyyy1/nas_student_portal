@@ -4,7 +4,8 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Student Profile') }}
             </h2>
-            <a href="{{ route('students.index') }}" class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
+            {{-- 👇 Added wire:navigate --}}
+            <a href="{{ route('students.index') }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
                 <i class='bx bx-arrow-back mr-1'></i> Back to Directory
             </a>
         </div>
@@ -24,7 +25,8 @@
                     
                     {{-- EDIT BUTTON --}}
                     <div class="absolute top-4 right-6 sm:top-6 sm:right-8 z-50">
-                        <a href="{{ route('students.edit', $student->id) }}" 
+                        {{-- 👇 Added wire:navigate --}}
+                        <a href="{{ route('students.edit', $student->id) }}" wire:navigate
                            class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer relative">
                             <i class='bx bx-edit text-lg mr-2'></i> Edit Profile
                         </a>
@@ -39,9 +41,7 @@
                             <div class="absolute bottom-2 right-2 w-5 h-5 rounded-full border-2 border-white {{ $student->status === 'Enrolled' ? 'bg-green-500' : 'bg-gray-400' }}" title="{{ $student->status }}"></div>
                         </div>
                         
-                        {{-- 👇 FIXED: Added 'sm:pr-40' to prevent overlap with the button --}}
                         <div class="mt-4 sm:mt-0 sm:ml-6 mb-2 text-center sm:text-left w-full sm:w-auto z-10 sm:pr-40">
-                            {{-- 👇 FIXED: Added 'break-words' to wrap long names --}}
                             <h1 class="text-3xl font-extrabold text-gray-900 leading-tight break-words">
                                 {{ $student->last_name }}, {{ $student->first_name }} 
                                 <span class="text-gray-500 font-normal text-xl block sm:inline">{{ $student->middle_name }}</span>
@@ -57,7 +57,7 @@
                         </div>
                     </div>
 
-                    {{-- DETAILS GRID (Unchanged) --}}
+                    {{-- DETAILS GRID --}}
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 border-t border-gray-100 pt-8 relative z-0">
                         
                         {{-- LEFT: ACADEMIC & SPORTS --}}

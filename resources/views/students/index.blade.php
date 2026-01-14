@@ -10,12 +10,14 @@
             </h2>
             
             <div class="flex gap-3">
-                <a href="{{ route('students.bulk-upload') }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center shadow transition">
+                {{-- 👇 Added wire:navigate --}}
+                <a href="{{ route('students.bulk-upload') }}" wire:navigate class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center shadow transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     Bulk Upload
                 </a>
 
-                <a href="{{ route('students.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center shadow transition">
+                {{-- 👇 Added wire:navigate --}}
+                <a href="{{ route('students.create') }}" wire:navigate class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center shadow transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     New Student
                 </a>
@@ -95,7 +97,7 @@
                                         </div>
                                     </td>
 
-                                    {{-- FIXED: SPORT COLUMN (Using 'sport' or 'sport_type') --}}
+                                    {{-- SPORT --}}
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 truncate max-w-[120px]">
                                             {{ $student->team ? ($student->team->sport ?? $student->team->sport_type ?? 'No Sport') : 'No Team' }}
@@ -111,8 +113,10 @@
                                     
                                     {{-- ACTION --}}
                                     <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="{{ route('students.show', $student->id) }}" class="text-blue-600 hover:text-blue-900 mr-2 font-bold">View</a>
-                                        <a href="{{ route('students.edit', $student->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold">Edit</a>
+                                        {{-- 👇 Added wire:navigate --}}
+                                        <a href="{{ route('students.show', $student->id) }}" wire:navigate class="text-blue-600 hover:text-blue-900 mr-2 font-bold">View</a>
+                                        {{-- 👇 Added wire:navigate --}}
+                                        <a href="{{ route('students.edit', $student->id) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold">Edit</a>
                                     </td>
                                 </tr>
                             @empty

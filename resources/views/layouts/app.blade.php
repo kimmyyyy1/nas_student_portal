@@ -20,6 +20,9 @@
         {{-- Scripts --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
+        {{-- 👇 1. ADD LIVEWIRE STYLES HERE --}}
+        @livewireStyles
+
         {{-- Custom Scrollbar Style --}}
         <style>
             .custom-scrollbar::-webkit-scrollbar { width: 5px; }
@@ -29,41 +32,36 @@
         </style>
     </head>
     
-    {{-- Ibinalik ang text-gray-900 (Dark Text) dahil white na ulit ang containers --}}
     <body class="font-sans antialiased text-gray-900">
         
-        {{-- ================================================================= --}}
-        {{-- 1. FIXED BACKGROUND IMAGE                                         --}}
-        {{-- Ito ang wallpaper sa likod ng buong system                        --}}
-        {{-- ================================================================= --}}
+        {{-- BACKGROUND --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Dark Blue Overlay para mabasa ang content --}}
             <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-900/60 to-black/70 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- MAIN CONTENT WRAPPER --}}
+        {{-- MAIN WRAPPER --}}
         <div class="min-h-screen relative">
             
-            {{-- 2. NAVIGATION SIDEBAR --}}
+            {{-- NAVIGATION SIDEBAR --}}
             @include('layouts.navigation')
 
-            {{-- 3. PAGE HEADER (Updated: Solid White Background) --}}
+            {{-- PAGE HEADER --}}
             @if (isset($header))
-                {{-- Added 'bg-white shadow' at 'md:ml-64' para sa layout --}}
                 <header class="bg-white shadow relative md:ml-64 transition-all duration-300"> 
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{-- Ang kulay ng text dito ay defined na sa dashboard view (gray-800) --}}
                         {{ $header }}
                     </div>
                 </header>
             @endif
 
-            {{-- 4. PAGE CONTENT --}}
-            {{-- Added 'md:ml-64' para hindi matakpan ng sidebar --}}
+            {{-- PAGE CONTENT --}}
             <main class="md:ml-64 pt-6 px-4 transition-all duration-300"> 
                 {{ $slot }}
             </main>
         </div>
+
+        {{-- 👇 2. ADD LIVEWIRE SCRIPTS HERE --}}
+        @livewireScripts
     </body>
 </html>

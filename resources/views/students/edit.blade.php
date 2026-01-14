@@ -79,7 +79,7 @@
                                     <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthplace</label><input type="text" name="birthplace" value="{{ old('birthplace', $student->birthplace) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Religion</label><input type="text" name="religion" value="{{ old('religion', $student->religion) }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                     
-                                    {{-- 👇 FIXED: UPDATED CHECKBOX LAYOUT (MATCHING ADMISSION FORM) --}}
+                                    {{-- UPDATED CHECKBOX LAYOUT --}}
                                     <div class="md:col-span-3 mt-2 pt-4 border-t border-gray-100 border-dashed">
                                         <div class="flex flex-wrap gap-y-3 gap-x-6 items-center">
                                             <label class="flex items-center space-x-2 cursor-pointer">
@@ -193,7 +193,8 @@
                         </div> 
                         
                         <div class="mt-10 flex justify-end gap-4 border-t border-gray-100 pt-6">
-                            <a href="{{ route('students.index') }}" class="px-6 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">Cancel</a>
+                            {{-- 👇 ADDED wire:navigate TO CANCEL BUTTON --}}
+                            <a href="{{ route('students.index') }}" wire:navigate class="px-6 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">Cancel</a>
                             <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center">
                                 <i class='bx bx-save mr-2'></i> Update Record
                             </button>
@@ -227,7 +228,7 @@
                 var age = today.getFullYear() - birthDate.getFullYear();
                 var m = today.getMonth() - birthDate.getMonth();
                 if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-                // Note: Ensure you have an element with ID 'age' if you want to display it.
+                // Note: Ensure you have an element with ID 'age' if you want this to work, otherwise you can remove this func.
             }
         }
     </script>
