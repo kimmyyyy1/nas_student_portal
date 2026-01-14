@@ -1,6 +1,6 @@
 <x-app-layout>
     
-    {{-- 👇 IBINALIK KO ITO PARA MAY WHITE BACKGROUND ANG HEADER --}}
+    {{-- HEADER --}}
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
@@ -278,8 +278,8 @@
 
                                     <div class="flex-1 bg-gray-100 flex items-center justify-center min-h-0 p-1 overflow-hidden">
                                         <img src="{{ asset('images/nas/NAS.png') }}" 
-                                            class="max-w-full max-h-full w-auto h-auto object-contain rounded shadow-sm" 
-                                            alt="NAS Campus Large">
+                                             class="max-w-full max-h-full w-auto h-auto object-contain rounded shadow-sm" 
+                                             alt="NAS Campus Large">
                                     </div>
                                     
                                     <div class="p-4 bg-white border-t border-gray-100 text-center shrink-0">
@@ -299,20 +299,20 @@
         </div>
     </div>
 
-    {{-- 👇 LIVE UPDATE SCRIPT --}}
+    {{-- 👇 LIVE UPDATE SCRIPT (Fixed Flickering) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
-            // 1. STATS UPDATER (Existing)
+            // 1. STATS UPDATER (Every 10 seconds)
             if(document.getElementById('stat-students')) {
                 setInterval(function() {
                     updateDashboardStats();
-                }, 5000); 
+                }, 10000); 
             }
 
-            // 2. ACTIVITY LOG UPDATER (New)
+            // 2. ACTIVITY LOG UPDATER (Every 5 seconds)
             if(document.getElementById('activity-list')) {
-                setInterval(fetchActivities, 3000); // Poll every 3 seconds
+                setInterval(fetchActivities, 5000); 
             }
 
             // Function to fetch activities via AJAX
@@ -335,8 +335,9 @@
                         let htmlContent = '';
                         
                         data.forEach(activity => {
+                            // REMOVED 'animate-fade-in' class to prevent flicker
                             htmlContent += `
-                                <div class="flex items-start animate-fade-in">
+                                <div class="flex items-start">
                                     <div class="flex-shrink-0 mr-3">
                                         <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 ring-4 ring-blue-50"></div>
                                     </div>
@@ -351,6 +352,7 @@
                             `;
                         });
 
+                        // Update only if content actually changed (prevents unnecessary repaints)
                         if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
                             listContainer.innerHTML = htmlContent;
                         }
@@ -378,22 +380,12 @@
                 const currentEl = document.getElementById(id);
                 if (newEl && currentEl && newEl.innerText !== currentEl.innerText) {
                     currentEl.innerText = newEl.innerText;
-                    currentEl.classList.add('text-green-600', 'scale-110');
+                    currentEl.classList.add('text-green-600', 'transition-colors', 'duration-300');
                     setTimeout(() => {
-                        currentEl.classList.remove('text-green-600', 'scale-110');
-                    }, 500);
+                        currentEl.classList.remove('text-green-600');
+                    }, 1000);
                 }
             }
         });
     </script>
-
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0.5; }
-            to { opacity: 1; }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-    </style>
 </x-app-layout>
