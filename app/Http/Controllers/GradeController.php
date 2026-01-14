@@ -7,7 +7,7 @@ use App\Models\Staff;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\ActivityLog; // 👈 1. ADDED IMPORT
+use App\Models\ActivityLog; // ✅ Imported
 
 class GradeController extends Controller
 {
@@ -19,27 +19,26 @@ class GradeController extends Controller
         $user = Auth::user();
         
         // --- 1. ADMIN / REGISTRAR ACCESS ---
-        // Kung Admin o Registrar, ipakita ang LAHAT ng sections
         if ($user->role === 'admin' || $user->role === 'registrar') {
-            $sections = Section::with('adviser') // Optional: Isama ang adviser info
-                               ->orderBy('grade_level')
-                               ->orderBy('section_name')
-                               ->get();
+            $sections = Section::with('adviser')
+                ->withCount('students') // 👈 IMPORTANT: Para sa bilang ng students sa card
+                ->orderBy('grade_level')
+                ->orderBy('section_name')
+                ->get();
             
             return view('grades.index', compact('sections'));
         }
 
         // --- 2. TEACHER ACCESS ---
-        // Kung Teacher, hanapin lang ang hawak niya
         $staff = Staff::where('email', $user->email)->first();
 
         if (!$staff) {
-            // FIX SA ERROR: Gumamit ng collect() para empty Collection, hindi Array []
-            // Para gumana ang $sections->isEmpty() sa view
             $sections = collect(); 
         } else {
-            // Hanapin ang Advisory Class
-            $sections = Section::where('adviser_id', $staff->id)->get();
+            // Hanapin ang Advisory Class (Added withCount here too)
+            $sections = Section::where('adviser_id', $staff->id)
+                ->withCount('students') // 👈 Added here as well for consistency
+                ->get();
         }
 
         return view('grades.index', compact('sections'));
@@ -50,9 +49,6 @@ class GradeController extends Controller
      */
     public function show($id)
     {
-        // Security Check: Pwede mong dagdagan dito kung allowed ba si user i-access to.
-        // Pero sa ngayon, hayaan nating open para sa Admin at Adviser.
-
         // Hanapin ang section at ang mga estudyante nito
         $section = Section::with(['students' => function($query) {
                         $query->orderBy('last_name')->orderBy('first_name');
@@ -62,23 +58,25 @@ class GradeController extends Controller
     }
 
     /**
-     * STEP 3: Save Logic (Updated with Logging)
+     * STEP 3: Save Logic (With Activity Logging)
      */
     public function bulkUpdate(Request $request)
     {
         $grades = $request->input('grades');
-        $updatedCount = 0; // Pang-track kung may nabago
+        $updatedCount = 0;
 
         if ($grades) {
             foreach ($grades as $studentId => $data) {
                 $student = Student::find($studentId);
                 
                 if ($student) {
+                    // Normalize inputs (empty string becomes null)
                     $q1 = isset($data['q1']) && $data['q1'] !== '' ? floatval($data['q1']) : null;
                     $q2 = isset($data['q2']) && $data['q2'] !== '' ? floatval($data['q2']) : null;
                     $q3 = isset($data['q3']) && $data['q3'] !== '' ? floatval($data['q3']) : null;
                     $q4 = isset($data['q4']) && $data['q4'] !== '' ? floatval($data['q4']) : null;
                     
+                    // Compute Average dynamically based on input count
                     $gradesArray = [];
                     if (!is_null($q1)) $gradesArray[] = $q1;
                     if (!is_null($q2)) $gradesArray[] = $q2;
@@ -87,6 +85,7 @@ class GradeController extends Controller
                     
                     $average = null;
                     if (count($gradesArray) > 0) {
+                        // Standard DepEd averaging (usually divide by 4, but let's keep it dynamic if that's preferred)
                         $divisor = (count($gradesArray) === 4) ? 4 : count($gradesArray);
                         $average = array_sum($gradesArray) / $divisor;
                     }
@@ -105,7 +104,7 @@ class GradeController extends Controller
             }
         }
 
-        // 👇 2. ADDED ACTIVITY LOGGING HERE
+        // ✅ ACTIVITY LOGGING
         if ($updatedCount > 0) {
             $user = Auth::user();
             $role = ucfirst($user->role);

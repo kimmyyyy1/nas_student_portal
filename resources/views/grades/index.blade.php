@@ -8,7 +8,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- FIX: Ginamit ang count() == 0 para safe kahit Array o Collection ang data --}}
+            {{-- CHECK IF THERE ARE SECTIONS --}}
             @if(count($sections) == 0)
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-10 text-center">
                     <i class='bx bx-folder-open text-6xl text-gray-300 mb-4'></i>
@@ -19,16 +19,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($sections as $section)
                         <a href="{{ route('grades.show', $section->id) }}" class="block group">
-                            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition duration-300 border border-gray-200 h-full">
-                                <div class="p-6">
+                            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition duration-300 border border-gray-200 h-full flex flex-col">
+                                <div class="p-6 flex-grow">
                                     <div class="flex items-center justify-between mb-4">
                                         <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full">
-                                            <i class='bx bx-book-bookmark text-2xl'></i>
+                                            <i class='bx bx-save text-2xl'></i> {{-- Changed icon to Save/Floppy for Grades --}}
                                         </div>
                                         
-                                        {{-- UI UPDATE: Kung Admin/Registrar, ipakita ang pangalan ng Adviser --}}
+                                        {{-- ADVISER BADGE --}}
                                         @if(Auth::user()->role === 'admin' || Auth::user()->role === 'registrar')
-                                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full uppercase" title="Adviser">
+                                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full uppercase truncate max-w-[150px]" title="Adviser: {{ $section->adviser->last_name ?? 'None' }}">
                                                 <i class='bx bx-user'></i> {{ $section->adviser->last_name ?? 'No Adviser' }}
                                             </span>
                                         @else
@@ -37,16 +37,26 @@
                                             </span>
                                         @endif
                                     </div>
-                                    <h3 class="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition">
+
+                                    <h3 class="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition mb-2">
                                         {{ $section->grade_level }} - {{ $section->section_name }}
                                     </h3>
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        <i class='bx bx-map'></i> Room: {{ $section->room_number ?? 'TBA' }}
-                                    </p>
+
+                                    {{-- 👇 NEW: STUDENT COUNT DISPLAY --}}
+                                    <div class="flex items-center text-sm text-gray-500 mb-1">
+                                        <i class='bx bx-user mr-2 text-lg'></i>
+                                        <span>Students: {{ $section->students_count }}</span>
+                                    </div>
+
+                                    <div class="flex items-center text-sm text-gray-500">
+                                        <i class='bx bx-map mr-2 text-lg'></i>
+                                        <span>Room: {{ $section->room_number ?? 'TBA' }}</span>
+                                    </div>
                                 </div>
-                                <div class="bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center">
-                                    <span class="text-xs text-gray-500 font-medium">OPEN GRADING SHEET</span>
-                                    <i class='bx bx-right-arrow-alt text-indigo-600 transform group-hover:translate-x-1 transition'></i>
+
+                                <div class="bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center mt-auto">
+                                    <span class="text-xs text-gray-500 font-bold uppercase tracking-wider">OPEN GRADING SHEET</span>
+                                    <i class='bx bx-right-arrow-alt text-indigo-600 transform group-hover:translate-x-1 transition text-lg'></i>
                                 </div>
                             </div>
                         </a>
