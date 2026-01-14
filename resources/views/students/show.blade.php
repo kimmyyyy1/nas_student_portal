@@ -13,19 +13,15 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- MAIN PROFILE CARD --}}
             <div class="bg-white overflow-hidden shadow-lg sm:rounded-xl border border-gray-200 relative">
                 
-                {{-- COVER HEADER --}}
                 <div class="bg-gradient-to-r from-blue-900 to-indigo-800 h-40 relative">
-                    {{-- Decorative pattern overlay (optional) --}}
                     <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                 </div>
                 
                 <div class="px-8 pb-8 relative">
                     
-                    {{-- 👇 FIXED: EDIT BUTTON (ABSOLUTE POSITION) --}}
-                    {{-- Nakapwesto na ito sa kanang taas ng white area, hindi na didikit sa pangalan --}}
+                    {{-- EDIT BUTTON --}}
                     <div class="absolute top-4 right-6 sm:top-6 sm:right-8">
                         <a href="{{ route('students.edit', $student->id) }}" 
                            class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">
@@ -33,19 +29,15 @@
                         </a>
                     </div>
 
-                    {{-- PROFILE HEADER SECTION --}}
+                    {{-- PROFILE HEADER --}}
                     <div class="relative flex flex-col sm:flex-row items-end -mt-16 mb-6">
-                        
-                        {{-- PROFILE PICTURE --}}
                         <div class="relative group">
                             <img src="{{ $student->id_picture ?? 'https://ui-avatars.com/api/?name=' . urlencode($student->first_name . ' ' . $student->last_name) . '&background=random&size=256' }}" 
                                  class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-xl object-cover bg-white" 
                                  alt="Profile">
-                            {{-- Status Indicator --}}
                             <div class="absolute bottom-2 right-2 w-5 h-5 rounded-full border-2 border-white {{ $student->status === 'Enrolled' ? 'bg-green-500' : 'bg-gray-400' }}" title="{{ $student->status }}"></div>
                         </div>
                         
-                        {{-- NAME & ID --}}
                         <div class="mt-4 sm:mt-0 sm:ml-6 mb-2 text-center sm:text-left w-full sm:w-auto">
                             <h1 class="text-3xl font-extrabold text-gray-900 leading-tight">
                                 {{ $student->last_name }}, {{ $student->first_name }} 
@@ -66,7 +58,7 @@
                     {{-- DETAILS GRID --}}
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 border-t border-gray-100 pt-8">
                         
-                        {{-- LEFT COLUMN: ACADEMIC & SPORTS --}}
+                        {{-- LEFT COLUMN --}}
                         <div class="space-y-6">
                             {{-- Academic Card --}}
                             <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
@@ -84,7 +76,14 @@
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <span class="text-sm text-gray-500">Adviser</span>
-                                        <span class="text-sm font-medium text-indigo-600 text-right">{{ $student->section->adviser->name ?? 'N/A' }}</span>
+                                        {{-- 👇 FIXED LINE: COMBINING FIRST AND LAST NAME --}}
+                                        <span class="text-sm font-medium text-indigo-600 text-right">
+                                            @if($student->section && $student->section->adviser)
+                                                {{ $student->section->adviser->first_name }} {{ $student->section->adviser->last_name }}
+                                            @else
+                                                N/A
+                                            @endif
+                                        </span>
                                     </div>
                                     <div class="flex justify-between items-center pt-2">
                                         <span class="text-sm text-gray-500">Status</span>
@@ -113,10 +112,8 @@
                             </div>
                         </div>
 
-                        {{-- RIGHT COLUMN: PERSONAL DETAILS (Wider) --}}
+                        {{-- RIGHT COLUMN --}}
                         <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm md:col-span-2">
-                            
-                            {{-- Personal Info Header --}}
                             <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center pb-2 border-b border-gray-100">
                                 <span class="bg-indigo-100 p-2 rounded-lg mr-3 text-indigo-600">
                                     <i class='bx bx-user'></i>
@@ -155,7 +152,6 @@
                                 </div>
                             </div>
 
-                            {{-- Contact & Guardian Header --}}
                             <h3 class="text-lg font-bold text-gray-800 mt-10 mb-6 flex items-center pb-2 border-b border-gray-100">
                                 <span class="bg-blue-100 p-2 rounded-lg mr-3 text-blue-600">
                                     <i class='bx bx-phone-call'></i>
