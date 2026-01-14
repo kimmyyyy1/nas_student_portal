@@ -7,12 +7,12 @@
         
     <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
     
-    {{-- 👇 1. ADDED POPPINS FONT --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    {{-- 👇 TINANGGAL KO NA ANG ALPINE CDN DITO --}}
+    {{-- 👇 1. IBINALIK ANG ALPINE.JS SCRIPT (Kailangan ito para gumana ang click sa mata) --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -28,11 +28,10 @@
             align-items: center;
             justify-content: center;
             background-color: #111827;
-            /* 👇 2. APPLIED POPPINS FONT */
             font-family: 'Poppins', sans-serif !important;
         }
 
-        /* 👇 FIX: Hide default browser password toggle */
+        /* 👇 FIX: Ito ang nagtatago ng default browser eye icon para HINDI mag-doble */
         input[type="password"]::-ms-reveal,
         input[type="password"]::-ms-clear {
             display: none;
@@ -223,7 +222,7 @@
                     <div class="relative">
                         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                         
-                        {{-- DYNAMIC TYPE BINDING --}}
+                        {{-- Password Field --}}
                         <input :type="show ? 'text' : 'password'" 
                                name="password" 
                                required 

@@ -7,18 +7,17 @@
         
     <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-    {{-- 👇 1. ADDED POPPINS FONT --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    {{-- 👇 TINANGGAL KO NA ANG ALPINE CDN (Gagamitin na nito ang app.js) --}}
+    {{-- 👇 1. IBINALIK ANG ALPINE.JS SCRIPT DITO RIN --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         /* SAFEGUARD CSS */
-        /* 👇 2. APPLIED POPPINS FONT TO BODY */
         body {
             font-family: 'Poppins', sans-serif !important;
         }
@@ -100,7 +99,6 @@
                         <div x-data="{ show: false }">
                             <label class="block font-bold text-[10px] text-gray-500 uppercase mb-1 ml-1 tracking-tight">Password *</label>
                             <div class="relative">
-                                {{-- 👇 Added dynamic type binding --}}
                                 <input :type="show ? 'text' : 'password'" name="password" required autocomplete="new-password"
                                        class="block w-full rounded-lg border-gray-300 bg-gray-50 p-2.5 pr-8 text-sm focus:ring-blue-500 focus:border-blue-500 transition" 
                                        placeholder="******">
@@ -117,7 +115,6 @@
                         <div x-data="{ showConfirm: false }">
                             <label class="block font-bold text-[10px] text-gray-500 uppercase mb-1 ml-1 tracking-tight">Confirm Password *</label>
                             <div class="relative">
-                                {{-- 👇 Added dynamic type binding --}}
                                 <input :type="showConfirm ? 'text' : 'password'" name="password_confirmation" required 
                                        class="block w-full rounded-lg border-gray-300 bg-gray-50 p-2.5 pr-8 text-sm focus:ring-blue-500 focus:border-blue-500 transition" 
                                        placeholder="******">
