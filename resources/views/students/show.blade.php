@@ -39,8 +39,10 @@
                             <div class="absolute bottom-2 right-2 w-5 h-5 rounded-full border-2 border-white {{ $student->status === 'Enrolled' ? 'bg-green-500' : 'bg-gray-400' }}" title="{{ $student->status }}"></div>
                         </div>
                         
-                        <div class="mt-4 sm:mt-0 sm:ml-6 mb-2 text-center sm:text-left w-full sm:w-auto z-10">
-                            <h1 class="text-3xl font-extrabold text-gray-900 leading-tight">
+                        {{-- 👇 FIXED: Added 'sm:pr-40' to prevent overlap with the button --}}
+                        <div class="mt-4 sm:mt-0 sm:ml-6 mb-2 text-center sm:text-left w-full sm:w-auto z-10 sm:pr-40">
+                            {{-- 👇 FIXED: Added 'break-words' to wrap long names --}}
+                            <h1 class="text-3xl font-extrabold text-gray-900 leading-tight break-words">
                                 {{ $student->last_name }}, {{ $student->first_name }} 
                                 <span class="text-gray-500 font-normal text-xl block sm:inline">{{ $student->middle_name }}</span>
                             </h1>
@@ -55,7 +57,7 @@
                         </div>
                     </div>
 
-                    {{-- DETAILS GRID --}}
+                    {{-- DETAILS GRID (Unchanged) --}}
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 border-t border-gray-100 pt-8 relative z-0">
                         
                         {{-- LEFT: ACADEMIC & SPORTS --}}
@@ -139,7 +141,7 @@
                                     <p class="font-medium text-gray-900">{{ $student->religion }}</p>
                                 </div>
 
-                                {{-- 👇 NEW SECTION: IP, PWD, 4Ps, OTHERS (Added here) --}}
+                                {{-- IP, PWD, 4Ps SECTION --}}
                                 <div class="sm:col-span-2 mt-2 pt-4 border-t border-gray-100 border-dashed">
                                     <div class="flex flex-wrap gap-y-3 gap-x-6">
                                         <label class="flex items-center space-x-2">
@@ -154,7 +156,6 @@
                                             <input type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" disabled {{ $student->is_4ps ? 'checked' : '' }}>
                                             <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
                                         </label>
-                                        {{-- OTHERS FIELD (Static UI as requested) --}}
                                         <div class="flex items-center space-x-2 ml-auto sm:ml-0">
                                             <span class="text-xs font-bold text-gray-600 uppercase">Others:</span>
                                             <span class="border-b border-gray-400 w-32 inline-block h-4"></span>
