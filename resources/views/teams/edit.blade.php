@@ -44,11 +44,21 @@
 
                         </div>
 
-                        <div class="mt-6 flex justify-end">
-                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">
+                        {{-- BUTTONS GROUP --}}
+                        <div class="flex justify-end items-center gap-4 mt-6 pt-4 border-t border-gray-100">
+                            
+                            {{-- 👇 CANCEL BUTTON --}}
+                            <a href="{{ route('teams.index') }}" 
+                               class="px-6 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition shadow-sm border border-gray-300">
+                                Cancel
+                            </a>
+
+                            {{-- UPDATE BUTTON (Existing) --}}
+                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5">
                                 Update Team
                             </button>
                         </div>
+
                     </form>
 
                 </div>
