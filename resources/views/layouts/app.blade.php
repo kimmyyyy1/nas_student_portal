@@ -20,7 +20,7 @@
         {{-- Scripts (Vite) --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
-        {{-- 👇 1. LIVEWIRE STYLES (Ibinalik natin para sigurado) --}}
+        {{-- Livewire Styles --}}
         @livewireStyles
 
         {{-- Custom Scrollbar Style --}}
@@ -44,10 +44,8 @@
         {{-- MAIN CONTENT WRAPPER --}}
         <div class="min-h-screen relative">
             
-            {{-- 👇 2. SIDEBAR WITH PERSIST (Ito ang pipigil sa flickering) --}}
-            @persist('sidebar')
-                @include('layouts.navigation')
-            @endpersist
+            {{-- 👇 UPDATED: TINANGGAL NA ANG @persist PARA GUMANA ANG ACTIVE LINK COLOR --}}
+            @include('layouts.navigation')
 
             {{-- PAGE HEADER --}}
             @if (isset($header))
@@ -64,7 +62,7 @@
             </main>
         </div>
 
-        {{-- 👇 3. LIVEWIRE SCRIPTS (Ibinalik natin para gumana ang wire:navigate) --}}
+        {{-- Livewire Scripts --}}
         @livewireScripts
     </body>
 </html>
