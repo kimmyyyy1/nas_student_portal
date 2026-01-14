@@ -10,6 +10,9 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
     
+    {{-- 👇 1. IMPORTANTE: ALPINE.JS SCRIPT (Idinagdag ko ito para gumana ang Eye Icon) --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -218,6 +221,7 @@
                     <div class="relative">
                         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                         
+                        {{-- 👇 2. GAGANA NA ANG :type LOGIC DAHIL MAY SCRIPT NA SA TAAS --}}
                         <input :type="show ? 'text' : 'password'" 
                                name="password" 
                                required 
