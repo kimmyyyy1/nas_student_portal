@@ -7,16 +7,22 @@
 
         <title>{{ config('app.name', 'NAS SAIS') }}</title>
 
+        {{-- Favicon --}}
         <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-        {{-- Fonts & Icons --}}
+        {{-- Fonts --}}
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        
+        {{-- Icons --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-        {{-- Scripts --}}
+        {{-- Scripts (Vite) --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
+        {{-- 👇 1. LIVEWIRE STYLES (Ibinalik natin para sigurado) --}}
+        @livewireStyles
+
         {{-- Custom Scrollbar Style --}}
         <style>
             .custom-scrollbar::-webkit-scrollbar { width: 5px; }
@@ -28,16 +34,17 @@
     
     <body class="font-sans antialiased text-gray-900">
         
-        {{-- BACKGROUND --}}
+        {{-- BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
+            {{-- Overlay --}}
             <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-900/60 to-black/70 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- MAIN WRAPPER --}}
+        {{-- MAIN CONTENT WRAPPER --}}
         <div class="min-h-screen relative">
             
-            {{-- 👇 STEP 1: GAMITAN NG @persist PARA HINDI KUMURAP ANG SIDEBAR --}}
+            {{-- 👇 2. SIDEBAR WITH PERSIST (Ito ang pipigil sa flickering) --}}
             @persist('sidebar')
                 @include('layouts.navigation')
             @endpersist
@@ -57,6 +64,7 @@
             </main>
         </div>
 
-        {{-- Note: Tinanggal ko na ang manual @livewireScripts dahil automatic na ito sa v3 --}}
+        {{-- 👇 3. LIVEWIRE SCRIPTS (Ibinalik natin para gumana ang wire:navigate) --}}
+        @livewireScripts
     </body>
 </html>
