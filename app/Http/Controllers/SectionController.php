@@ -15,12 +15,15 @@ class SectionController extends Controller
      */
     public function index(): View
     {
-        // 👇 FIXED SORTING: Inuna ko ang 'section_name' para maging Alphabetical (A-Z)
-        // Dati: orderBy('grade_level')->orderBy('section_name')
+        // 👇 FINAL SORTING LOGIC:
+        // 1. Unahin ang haba ng text (Para ang Grade 7 ay mauna sa Grade 10)
+        // 2. Sunod ang Grade Level mismo (7, 8, 9...)
+        // 3. Huli ang Section Name (A-Z sa loob ng Grade)
         
         $sections = Section::with('adviser')
-                           ->orderBy('section_name', 'asc') // A-Z Arrangement (Achievement -> Fortitude)
-                           ->orderBy('grade_level', 'asc')  // Secondary sort lang ang Grade Level
+                           ->orderByRaw('LENGTH(grade_level) ASC') 
+                           ->orderBy('grade_level', 'asc')
+                           ->orderBy('section_name', 'asc') 
                            ->get();
 
         return view('sections.index', compact('sections'));
