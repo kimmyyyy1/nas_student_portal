@@ -19,6 +19,7 @@
                         </div>
                     @endif
 
+                    {{-- 👇 NOTE: We pass queryParams in the action if needed, but usually controller redirect handles success state. --}}
                     <form method="POST" action="{{ route('students.update', $student->id) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -193,8 +194,9 @@
                         </div> 
                         
                         <div class="mt-10 flex justify-end gap-4 border-t border-gray-100 pt-6">
-                            {{-- 👇 ADDED wire:navigate TO CANCEL BUTTON --}}
-                            <a href="{{ route('students.index') }}" wire:navigate class="px-6 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">Cancel</a>
+                            {{-- 👇 UPDATED CANCEL BUTTON: Uses queryParams to return to the correct page --}}
+                            <a href="{{ route('students.index', $queryParams ?? []) }}" wire:navigate class="px-6 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">Cancel</a>
+                            
                             <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center">
                                 <i class='bx bx-save mr-2'></i> Update Record
                             </button>

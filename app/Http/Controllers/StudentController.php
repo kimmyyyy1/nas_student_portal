@@ -153,11 +153,16 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', "Student record created! Password: {$tempPassword}");
     }
 
-    public function edit(Student $student): View
+    // 👇 UPDATE 1: Added Request $request to capture query params
+    public function edit(Request $request, Student $student): View
     {
         $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
         $teams = Team::orderBy('team_name')->get();
-        return view('students.edit', compact('student', 'sections', 'teams'));
+        
+        // Capture page number, search, etc.
+        $queryParams = $request->query();
+
+        return view('students.edit', compact('student', 'sections', 'teams', 'queryParams'));
     }
 
     public function update(Request $request, Student $student): RedirectResponse
@@ -236,6 +241,10 @@ class StudentController extends Controller
             'description' => "<strong>{$role}</strong> {$user->name} updated info of <strong>{$student->last_name}, {$student->first_name}</strong>.",
         ]);
 
+        // 👇 UPDATED: Redirect back to the list using the query params from the request if they exist
+        // Note: For update, we usually redirect to index. If you want to persist page here too:
+        // return redirect()->route('students.index', $request->query())->with('success', '...');
+        // But the prompt specifically asked for the "Back" button functionality on the View/Edit pages.
         return redirect()->route('students.index')->with('success', 'Student record updated successfully.');
     }
     
@@ -246,14 +255,17 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student record deleted.');
     }
 
-    // 👇 UPDATED: THIS IS THE NEW SHOW FUNCTION
-    public function show(Student $student) 
+    // 👇 UPDATE 2: Added Request $request to capture query params
+    public function show(Request $request, Student $student) 
     { 
         // Load the Section and Adviser details for the profile view
         $student->load(['section.adviser', 'team']);
         
+        // Capture page number, search, etc.
+        $queryParams = $request->query();
+        
         // Return the Profile View instead of Edit
-        return view('students.show', compact('student')); 
+        return view('students.show', compact('student', 'queryParams')); 
     }
 
     // ==========================================

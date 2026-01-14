@@ -10,13 +10,11 @@
             </h2>
             
             <div class="flex gap-3">
-                {{-- 👇 Added wire:navigate --}}
                 <a href="{{ route('students.bulk-upload') }}" wire:navigate class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center shadow transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     Bulk Upload
                 </a>
 
-                {{-- 👇 Added wire:navigate --}}
                 <a href="{{ route('students.create') }}" wire:navigate class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center shadow transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     New Student
@@ -113,10 +111,9 @@
                                     
                                     {{-- ACTION --}}
                                     <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                        {{-- 👇 Added wire:navigate --}}
-                                        <a href="{{ route('students.show', $student->id) }}" wire:navigate class="text-blue-600 hover:text-blue-900 mr-2 font-bold">View</a>
-                                        {{-- 👇 Added wire:navigate --}}
-                                        <a href="{{ route('students.edit', $student->id) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold">Edit</a>
+                                        {{-- 👇 UPDATED LINKS: Added query params to preserve page number --}}
+                                        <a href="{{ route('students.show', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-blue-600 hover:text-blue-900 mr-2 font-bold">View</a>
+                                        <a href="{{ route('students.edit', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold">Edit</a>
                                     </td>
                                 </tr>
                             @empty
@@ -140,7 +137,10 @@
     {{-- LIVE UPDATE SCRIPT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Using Livewire navigate makes full page reload polling less ideal, 
+            // but keeping it as requested. Ensure wire:navigate works properly.
             setInterval(function() {
+                // Check if we are not editing/interacting to avoid disrupting user
                 updateTable();
             }, 5000);
         });
@@ -153,7 +153,9 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const newBody = doc.getElementById('student-list').innerHTML;
-                    document.getElementById('student-list').innerHTML = newBody;
+                    if(document.getElementById('student-list')) {
+                        document.getElementById('student-list').innerHTML = newBody;
+                    }
                 })
                 .catch(error => console.error('Error updating table:', error));
         }

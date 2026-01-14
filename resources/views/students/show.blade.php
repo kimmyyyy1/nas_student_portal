@@ -4,8 +4,8 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Student Profile') }}
             </h2>
-            {{-- 👇 Added wire:navigate --}}
-            <a href="{{ route('students.index') }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
+            {{-- 👇 UPDATED BACK BUTTON: Uses queryParams to return to correct page --}}
+            <a href="{{ route('students.index', $queryParams ?? []) }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
                 <i class='bx bx-arrow-back mr-1'></i> Back to Directory
             </a>
         </div>
@@ -25,8 +25,8 @@
                     
                     {{-- EDIT BUTTON --}}
                     <div class="absolute top-4 right-6 sm:top-6 sm:right-8 z-50">
-                        {{-- 👇 Added wire:navigate --}}
-                        <a href="{{ route('students.edit', $student->id) }}" wire:navigate
+                        {{-- 👇 UPDATED EDIT BUTTON: Carries over queryParams --}}
+                        <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
                            class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer relative">
                             <i class='bx bx-edit text-lg mr-2'></i> Edit Profile
                         </a>
