@@ -7,22 +7,16 @@
 
         <title>{{ config('app.name', 'NAS SAIS') }}</title>
 
-        {{-- Favicon --}}
         <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-        {{-- Fonts --}}
+        {{-- Fonts & Icons --}}
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-        
-        {{-- Icons --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
         {{-- Scripts --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
-        {{-- 👇 1. ADD LIVEWIRE STYLES HERE --}}
-        @livewireStyles
-
         {{-- Custom Scrollbar Style --}}
         <style>
             .custom-scrollbar::-webkit-scrollbar { width: 5px; }
@@ -43,8 +37,10 @@
         {{-- MAIN WRAPPER --}}
         <div class="min-h-screen relative">
             
-            {{-- NAVIGATION SIDEBAR --}}
-            @include('layouts.navigation')
+            {{-- 👇 STEP 1: GAMITAN NG @persist PARA HINDI KUMURAP ANG SIDEBAR --}}
+            @persist('sidebar')
+                @include('layouts.navigation')
+            @endpersist
 
             {{-- PAGE HEADER --}}
             @if (isset($header))
@@ -61,7 +57,6 @@
             </main>
         </div>
 
-        {{-- 👇 2. ADD LIVEWIRE SCRIPTS HERE --}}
-        @livewireScripts
+        {{-- Note: Tinanggal ko na ang manual @livewireScripts dahil automatic na ito sa v3 --}}
     </body>
 </html>
