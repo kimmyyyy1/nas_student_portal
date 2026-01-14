@@ -27,16 +27,8 @@
                         <div class="mb-10 flex flex-col items-center justify-center border-b border-gray-100 pb-8">
                             <label class="block text-gray-700 font-bold mb-3 text-lg">Student 2x2 ID Picture</label>
                             
-                            {{-- 👇 FIXED: Check directly for 'id_picture' column first --}}
                             @php 
-                                // 1. Check direct Cloudinary URL from database
                                 $avatarUrl = $student->id_picture ?? $student->photo ?? null;
-
-                                // 2. Fallback to Spatie Media Library (if used)
-                                if (empty($avatarUrl) && method_exists($student, 'getFirstMediaUrl')) {
-                                    $avatarUrl = $student->getFirstMediaUrl('avatar');
-                                }
-
                                 $hasAvatar = !empty($avatarUrl); 
                             @endphp
 
@@ -86,11 +78,30 @@
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthdate</label><input type="date" id="birthdate" name="birthdate" value="{{ old('birthdate', $student->birthdate ? $student->birthdate->format('Y-m-d') : '') }}" class="w-full border-gray-300 rounded-md shadow-sm" required onchange="calculateAge()"></div>
                                     <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthplace</label><input type="text" name="birthplace" value="{{ old('birthplace', $student->birthplace) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Religion</label><input type="text" name="religion" value="{{ old('religion', $student->religion) }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
-                                    <div class="flex space-x-6 mt-4 p-4 bg-gray-50 rounded-md md:col-span-3">
-                                        <label class="flex items-center"><input type="checkbox" name="is_ip" value="1" class="rounded text-indigo-600 shadow-sm" {{ $student->is_ip ? 'checked' : '' }}> <span class="ml-2 text-sm">IP</span></label>
-                                        <label class="flex items-center"><input type="checkbox" name="is_pwd" value="1" class="rounded text-indigo-600 shadow-sm" {{ $student->is_pwd ? 'checked' : '' }}> <span class="ml-2 text-sm">PWD</span></label>
-                                        <label class="flex items-center"><input type="checkbox" name="is_4ps" value="1" class="rounded text-indigo-600 shadow-sm" {{ $student->is_4ps ? 'checked' : '' }}> <span class="ml-2 text-sm">4Ps</span></label>
+                                    
+                                    {{-- 👇 FIXED: UPDATED CHECKBOX LAYOUT (MATCHING ADMISSION FORM) --}}
+                                    <div class="md:col-span-3 mt-2 pt-4 border-t border-gray-100 border-dashed">
+                                        <div class="flex flex-wrap gap-y-3 gap-x-6 items-center">
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                <input type="checkbox" name="is_ip" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip', $student->is_ip) ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                <input type="checkbox" name="is_pwd" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd', $student->is_pwd) ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                <input type="checkbox" name="is_4ps" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps', $student->is_4ps) ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
+                                            </label>
+                                            {{-- OTHERS FIELD (Visual only if no column in DB yet) --}}
+                                            <div class="flex items-center space-x-2 ml-auto sm:ml-0">
+                                                <span class="text-xs font-bold text-gray-600 uppercase">Others:</span>
+                                                <input type="text" class="border-0 border-b border-gray-400 focus:ring-0 focus:border-indigo-600 text-sm w-40 placeholder-gray-300" placeholder="(Optional)">
+                                            </div>
+                                        </div>
                                     </div>
+
                                 </div>
                             </div>
 
@@ -216,7 +227,7 @@
                 var age = today.getFullYear() - birthDate.getFullYear();
                 var m = today.getMonth() - birthDate.getMonth();
                 if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-                document.getElementById('age').value = age; // NOTE: Make sure you have an input with id='age' if you want this to work, otherwise you can remove this func.
+                // Note: Ensure you have an element with ID 'age' if you want to display it.
             }
         }
     </script>
