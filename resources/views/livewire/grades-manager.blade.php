@@ -6,8 +6,14 @@
     @if($view == 'grid')
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in items-stretch">
             @forelse($sections as $section)
-                {{-- CARD CONTAINER: Added 'group' for hover effects --}}
-                <div class="group bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition duration-200 overflow-hidden flex flex-col h-full">
+                {{-- 
+                    CARD CONTAINER UPDATE:
+                    1. Added wire:click="openGradingSheet(...)" sa buong div
+                    2. Added 'cursor-pointer' para maging hand icon ang mouse
+                    3. Kept 'group' para sa hover effects
+                --}}
+                <div wire:click="openGradingSheet({{ $section->id }})" 
+                     class="group bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition duration-200 overflow-hidden flex flex-col h-full cursor-pointer relative">
                     
                     <div class="p-6 flex flex-col h-full">
                         {{-- UPPER CONTENT --}}
@@ -25,7 +31,6 @@
                             </div>
 
                             {{-- Section Info with Hover Effect --}}
-                            {{-- 👇 Dito ko nilagay ang 'group-hover:text-indigo-600' --}}
                             <h3 class="text-xl font-bold text-gray-800 mb-1 group-hover:text-indigo-600 transition">
                                 {{ $section->grade_level }} - {{ $section->section_name }}
                             </h3>
@@ -42,13 +47,12 @@
                             </div>
                         </div>
 
-                        {{-- ACTION LINK (Always at bottom) --}}
+                        {{-- ACTION LINK (Visual na lang ito, pero clickable pa rin dahil nasa loob ng card) --}}
                         <div class="pt-4 border-t border-gray-100 mt-auto">
-                            <button wire:click="openGradingSheet({{ $section->id }})" 
-                                    class="w-full flex justify-between items-center text-sm font-bold text-indigo-600 group-hover:text-indigo-800 transition">
+                            <div class="w-full flex justify-between items-center text-sm font-bold text-indigo-600 group-hover:text-indigo-800 transition">
                                 OPEN GRADING SHEET
                                 <i class='bx bx-right-arrow-alt text-lg transform group-hover:translate-x-1 transition'></i>
-                            </button>
+                            </div>
                         </div>
                     </div>
                 </div>
