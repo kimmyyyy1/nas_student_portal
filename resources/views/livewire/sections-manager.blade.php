@@ -1,13 +1,6 @@
 <div>
-    {{-- 👇 TELEPORT MAGIC: Ilalagay nito ang button sa Header sa taas --}}
-    @teleport('#header-actions')
-        {{-- Ipakita lang ang button kapag HINDI nag-aadd at HINDI nag-eedit --}}
-        @if(!$isCreating && !$isEditing)
-            <button wire:click="create" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out">
-                Add Section
-            </button>
-        @endif
-    @endteleport
+    {{-- 👇 HIDDEN BUTTON: Ito ang pipindutin ng button sa taas gamit ang Javascript --}}
+    <button id="hidden-create-btn" wire:click="create" style="display: none;"></button>
 
     {{-- SUCCESS MESSAGE --}}
     @if (session()->has('success'))
@@ -31,7 +24,7 @@
                 </div>
             @endif
 
-            {{-- VIEW 1: TABLE LIST --}}
+            {{-- TABLE VIEW --}}
             @if(!$isCreating && !$isEditing)
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -63,10 +56,13 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $section->room_number ?? 'TBA' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button wire:click="edit({{ $section->id }})" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3">Edit</button>
-                                        <button wire:click="delete({{ $section->id }})" 
+                                        {{-- EDIT BUTTON (Direct wire:click) --}}
+                                        <button type="button" wire:click="edit({{ $section->id }})" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 cursor-pointer">Edit</button>
+                                        
+                                        {{-- DELETE BUTTON --}}
+                                        <button type="button" wire:click="delete({{ $section->id }})" 
                                                 wire:confirm="Are you sure you want to delete this section?"
-                                                class="text-red-600 hover:text-red-900 font-bold">
+                                                class="text-red-600 hover:text-red-900 font-bold cursor-pointer">
                                             Delete
                                         </button>
                                     </td>
@@ -85,7 +81,7 @@
                     </table>
                 </div>
 
-            {{-- VIEW 2: FORM (Create or Edit) --}}
+            {{-- FORM VIEW --}}
             @else
                 <form wire:submit.prevent="{{ $isCreating ? 'store' : 'update' }}">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -127,10 +123,10 @@
                     </div>
 
                     <div class="mt-6 flex justify-end gap-2">
-                        <button type="button" wire:click="cancel" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out">
+                        <button type="button" wire:click="cancel" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out cursor-pointer">
                             Cancel
                         </button>
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out">
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out cursor-pointer">
                             {{ $isCreating ? 'Save Section' : 'Update Section' }}
                         </button>
                     </div>

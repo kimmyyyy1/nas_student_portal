@@ -1,16 +1,29 @@
 <x-app-layout>
-    {{-- Font Style Override --}}
+    {{-- Global Styles --}}
     <style>
         .font-poppins-override * { font-family: 'Poppins', sans-serif !important; }
+        [x-cloak] { display: none !important; }
     </style>
 
+    {{-- HEADER --}}
     <x-slot name="header">
-        <div class="flex justify-between items-center font-poppins-override">
+        {{-- x-data: Dito tayo makikinig sa signal ng Livewire --}}
+        <div class="flex justify-between items-center font-poppins-override"
+             x-data="{ showButton: true }"
+             @toggle-add-button.window="showButton = $event.detail.show">
+            
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Sections & Classes') }}
             </h2>
-            {{-- 👇 DITO NATIN ITETELEPORT ANG BUTTON GALING SA LIVEWIRE --}}
-            <div id="header-actions"></div>
+
+            {{-- 👇 MANUAL ADD BUTTON --}}
+            {{-- Kapag pinindot ito, hahanapin niya ang button na may ID na 'hidden-create-btn' at pipindutin yun --}}
+            <button x-show="showButton"
+                    x-cloak
+                    onclick="document.getElementById('hidden-create-btn').click()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer">
+                Add Section
+            </button>
         </div>
     </x-slot>
 

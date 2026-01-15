@@ -4,36 +4,30 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Section;
-use App\Models\Staff; // Siguraduhin na tama ang model name mo para sa Teachers/Staff
+use App\Models\Staff;
 
 class SectionsManager extends Component
 {
-    // Variables para sa Form Inputs
     public $section_id;
     public $grade_level;
     public $section_name;
     public $adviser_id;
     public $room_number;
 
-    // Variable para kontrolin kung Table ba o Form ang nakikita
     public $isEditing = false;
     public $isCreating = false;
 
-    // Validation Rules
     protected $rules = [
         'grade_level' => 'required',
         'section_name' => 'required|string|max:255',
-        'adviser_id' => 'nullable|exists:staff,id', // Palitan ang 'staff' kung iba ang table name
+        'adviser_id' => 'nullable|exists:staff,id',
         'room_number' => 'nullable|string|max:255',
     ];
 
-    // 👇 1. RENDER (Ito ang nagpapakita ng listahan)
     public function render()
     {
-        // Kunin ang lahat ng Sections at Teachers
         $sections = Section::with('adviser')->latest()->get();
-        // Assuming na ang role ng teacher ay 'Teacher' o kunin lahat ng staff
-        $teachers = Staff::all(); 
+        $teachers = Staff::all();
 
         return view('livewire.sections-manager', [
             'sections' => $sections,
@@ -41,15 +35,16 @@ class SectionsManager extends Component
         ]);
     }
 
-    // 👇 2. SHOW CREATE FORM
+    // 👇 SIGNAL: Hide button kapag nag-create
     public function create()
     {
         $this->resetInputFields();
         $this->isCreating = true;
         $this->isEditing = false;
+        $this->dispatch('toggle-add-button', show: false); 
     }
 
-    // 👇 3. STORE NEW SECTION
+    // 👇 SIGNAL: Show button kapag tapos na mag-save
     public function store()
     {
         $this->validate();
@@ -61,12 +56,13 @@ class SectionsManager extends Component
             'room_number' => $this->room_number,
         ]);
 
-        session()->flash('message', 'Section created successfully.');
+        session()->flash('success', 'Section created successfully.');
         $this->resetInputFields();
-        $this->isCreating = false; // Balik sa Table
+        $this->isCreating = false;
+        $this->dispatch('toggle-add-button', show: true); 
     }
 
-    // 👇 4. SHOW EDIT FORM
+    // 👇 SIGNAL: Hide button kapag nag-edit
     public function edit($id)
     {
         $section = Section::findOrFail($id);
@@ -79,9 +75,10 @@ class SectionsManager extends Component
 
         $this->isEditing = true;
         $this->isCreating = false;
+        $this->dispatch('toggle-add-button', show: false); 
     }
 
-    // 👇 5. UPDATE SECTION
+    // 👇 SIGNAL: Show button kapag tapos na mag-update
     public function update()
     {
         $this->validate();
@@ -94,27 +91,27 @@ class SectionsManager extends Component
             'room_number' => $this->room_number,
         ]);
 
-        session()->flash('message', 'Section updated successfully.');
+        session()->flash('success', 'Section updated successfully.');
         $this->resetInputFields();
-        $this->isEditing = false; // Balik sa Table
+        $this->isEditing = false;
+        $this->dispatch('toggle-add-button', show: true);
     }
 
-    // 👇 6. DELETE SECTION
     public function delete($id)
     {
         Section::find($id)->delete();
-        session()->flash('message', 'Section deleted successfully.');
+        session()->flash('success', 'Section deleted successfully.');
     }
 
-    // 👇 7. CANCEL / BACK
+    // 👇 SIGNAL: Show button kapag nag-cancel
     public function cancel()
     {
         $this->resetInputFields();
         $this->isCreating = false;
         $this->isEditing = false;
+        $this->dispatch('toggle-add-button', show: true);
     }
 
-    // Helper para linisin ang inputs
     private function resetInputFields()
     {
         $this->grade_level = '';
@@ -122,5 +119,6 @@ class SectionsManager extends Component
         $this->adviser_id = '';
         $this->room_number = '';
         $this->section_id = null;
+        $this->resetErrorBag();
     }
 }
