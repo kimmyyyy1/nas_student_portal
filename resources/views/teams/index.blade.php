@@ -1,59 +1,78 @@
 <x-app-layout>
+    {{-- 👇 1. DIRECT INJECTION: Force Poppins on this page --}}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Force Poppins on everything in this view */
+        * { font-family: 'Poppins', sans-serif !important; }
+    </style>
+
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Sports and Teams') }}
             </h2>
-            <a href="{{ route('teams.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Team</a>
+            <a href="{{ route('teams.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm">
+                Add Team
+            </a>
         </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
                 <div class="p-6 text-gray-900">
                     
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team Name</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sport</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coach</th>
-                                <th scope="col" class="relative px-6 py-3">
-                                    <span class="sr-only">Actions</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($teams as $team)
+                    <div class="overflow-x-auto"> {{-- Added overflow wrapper --}}
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $team->team_name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $team->sport }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $team->coach_name ?? 'N/A' }}</td>
-                                    
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Team Name</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Sport</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Coach</th>
+                                    <th scope="col" class="relative px-6 py-3">
+                                        <span class="sr-only">Actions</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse ($teams as $team)
+                                    <tr class="hover:bg-gray-50 transition">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $team->team_name }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                {{ $team->sport }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $team->coach_name ?? 'N/A' }}</td>
                                         
-                                        <a href="{{ route('teams.edit', $team->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                        
-                                        <form class="inline-block ml-4" method="POST" action="{{ route('teams.destroy', $team->id) }}" onsubmit="return confirm('Sigurado ka bang gusto mong burahin ang team na ito?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
-                                                Delete
-                                            </button>
-                                        </form>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            
+                                            <a href="{{ route('teams.edit', $team->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3">Edit</a>
+                                            
+                                            <form class="inline-block" method="POST" action="{{ route('teams.destroy', $team->id) }}" onsubmit="return confirm('Sigurado ka bang gusto mong burahin ang team na ito?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 font-bold">
+                                                    Delete
+                                                </button>
+                                            </form>
 
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
-                                        No teams found.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-10 whitespace-nowrap text-center text-gray-500">
+                                            <div class="flex flex-col items-center justify-center">
+                                                <i class='bx bx-trophy text-4xl text-gray-300 mb-2'></i>
+                                                <p class="text-lg font-medium">No teams found.</p>
+                                                <p class="text-sm">Click "Add Team" to get started.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
 
                 </div>
             </div>
