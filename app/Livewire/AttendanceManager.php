@@ -17,12 +17,14 @@ class AttendanceManager extends Component
 
     public function mount()
     {
+        // Default date ay ngayon
         $this->date = now()->format('Y-m-d');
     }
 
     // 👇 1. LOAD THE VIEW
     public function render()
     {
+        // Kunin ang sections kasama ang adviser at bilang ng students
         $sections = Section::with('adviser')->withCount('students')->get();
         
         return view('livewire.attendance-manager', [
@@ -30,7 +32,7 @@ class AttendanceManager extends Component
         ]);
     }
 
-    // 👇 2. OPEN ATTENDANCE SHEET (FIXED: Loads existing data)
+    // 👇 2. OPEN ATTENDANCE SHEET
     public function openAttendanceSheet($sectionId)
     {
         // Eager load students para iwas query loop
@@ -38,7 +40,7 @@ class AttendanceManager extends Component
         
         $this->students = $this->selectedSection->students ?? [];
         
-        // I-load ang data
+        // I-load ang data (Check kung may record na)
         $this->loadAttendanceData();
 
         $this->view = 'sheet';
@@ -50,7 +52,7 @@ class AttendanceManager extends Component
         );
     }
 
-    // 👇 3. HANDLE DATE CHANGE (NEW: Auto-reload pag nagbago ang date)
+    // 👇 3. HANDLE DATE CHANGE (Auto-reload pag nagbago ang date sa picker)
     public function updatedDate()
     {
         // Kung nasa 'sheet' view tayo at may selected section, i-reload ang data
@@ -108,13 +110,18 @@ class AttendanceManager extends Component
         foreach ($this->attendance as $studentId => $status) {
             Attendance::updateOrCreate(
                 [
+                    // Search criteria (Unique combination)
                     'student_id' => $studentId,
                     'section_id' => $this->selectedSection->id,
                     'date' => $this->date,
                 ],
                 [
+                    // Values to update or create
                     'status' => $status,
-                    'recorded_by' => auth()->id(), // Siguraduhing naka-login ang user
+                    
+                    // 👇 NOTE: Naka-comment out muna ito para mawala ang error.
+                    // Kung nag-run ka na ng migration (Option 1), pwede mo itong tanggalan ng comment.
+                    // 'recorded_by' => auth()->id(), 
                 ]
             );
         }
