@@ -151,7 +151,8 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {{-- ========================== --}}
-                {{-- 4. ACADEMIC RECORDS (GRADES)--}}
+                {{-- 4. ACADEMIC RECORDS (GRADES) --}}
+                {{-- 👇 REPLACED TABLE STRUCTURE --}}
                 {{-- ========================== --}}
                 <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-indigo-50">
@@ -161,22 +162,34 @@
                         @if($student->grades && $student->grades->count() > 0)
                             <div class="overflow-x-auto">
                                 <table class="min-w-full text-sm">
-                                    <thead>
-                                        <tr class="bg-white border-b text-gray-600">
-                                            <th class="p-3 text-left pl-4">Subject</th>
-                                            <th class="p-3 text-center">Period</th>
-                                            <th class="p-3 text-right pr-4">Mark</th>
+                                    <thead class="bg-gray-50 text-gray-600 font-bold uppercase text-xs">
+                                        <tr>
+                                            <th class="p-3 pl-4 text-left">Subject</th>
+                                            <th class="p-3 text-center">Q1</th>
+                                            <th class="p-3 text-center">Q2</th>
+                                            <th class="p-3 text-center">Q3</th>
+                                            <th class="p-3 text-center">Q4</th>
+                                            <th class="p-3 text-center text-indigo-700 bg-indigo-50">Final</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="divide-y divide-gray-100">
                                         @foreach($student->grades as $grade)
-                                            <tr class="border-b hover:bg-gray-50">
-                                                <td class="p-3 pl-4 font-medium">
+                                            <tr class="hover:bg-gray-50 transition">
+                                                {{-- Subject Name --}}
+                                                <td class="p-3 pl-4 font-medium text-gray-800">
                                                     {{ $grade->schedule->subject->subject_name ?? 'Subject' }}
                                                 </td>
-                                                <td class="p-3 text-center text-gray-500">{{ $grade->grading_period }}</td>
-                                                <td class="p-3 pr-4 text-right font-bold {{ $grade->mark < 75 ? 'text-red-600' : 'text-green-600' }}">
-                                                    {{ $grade->mark }}
+
+                                                {{-- Quarter Grades (Display '-' if null) --}}
+                                                <td class="p-3 text-center text-gray-600">{{ $grade->first_quarter ?? '-' }}</td>
+                                                <td class="p-3 text-center text-gray-600">{{ $grade->second_quarter ?? '-' }}</td>
+                                                <td class="p-3 text-center text-gray-600">{{ $grade->third_quarter ?? '-' }}</td>
+                                                <td class="p-3 text-center text-gray-600">{{ $grade->fourth_quarter ?? '-' }}</td>
+
+                                                {{-- Final Grade (Dynamic Color) --}}
+                                                <td class="p-3 text-center font-bold bg-indigo-50/50 
+                                                    {{ ($grade->final_grade && $grade->final_grade < 75) ? 'text-red-600' : 'text-green-600' }}">
+                                                    {{ $grade->final_grade ?? '-' }}
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -223,7 +236,7 @@
                                 <div class="space-y-2">
                                     @foreach($student->attendances->sortByDesc('date')->take(5) as $att)
                                         
-                                        {{-- 👇 COLOR MATCHING LOGIC --}}
+                                        {{-- COLOR MATCHING LOGIC --}}
                                         @php
                                             $statusColor = match(strtolower($att->status)) {
                                                 'present' => 'bg-green-100 text-green-700',
@@ -249,7 +262,7 @@
                                                 </span>
                                             </div>
 
-                                            {{-- 👇 SHOW REMARKS IF EXCUSED (AND NOT EMPTY) --}}
+                                            {{-- SHOW REMARKS IF EXCUSED (AND NOT EMPTY) --}}
                                             @if(strtolower($att->status) == 'excused' && !empty($att->remarks))
                                                 <div class="mt-1 text-right">
                                                     <span class="text-[10px] italic text-blue-500">
