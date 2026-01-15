@@ -6,36 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
 
-            // Sino ang inatendan?
+            // 👇 GINAMIT NATIN AY SECTION ID PARA TUMUGMA SA UI MO
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
+            $table->foreignId('section_id')->constrained()->onDelete('cascade'); 
 
-            // Anong klase (schedule) ang inatendan?
-            $table->foreignId('schedule_id')->constrained()->onDelete('cascade');
-
-            // Kailan ito?
             $table->date('date');
+            $table->string('status'); // Present, Late, Absent, Excused
 
-            // Ano ang status?
-            $table->string('status'); // e.g., Present, Absent, Late, Excused
-
-            // Para maiwasan ang duplicate entries (bawal ang isang student twice sa isang klase sa isang araw)
-            $table->unique(['student_id', 'schedule_id', 'date']);
+            // Bawal ang duplicate attendance para sa isang student sa isang section sa iisang araw
+            $table->unique(['student_id', 'section_id', 'date']);
             
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('attendances');
