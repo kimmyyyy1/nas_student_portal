@@ -1,7 +1,13 @@
 <x-app-layout>
     {{-- Global Styles --}}
     <style>
-        .font-poppins-override * { font-family: 'Poppins', sans-serif !important; }
+        /* FIX: Apply Poppins sa lahat EXCEPT sa mga icons (.bx).
+           Ito ang solusyon para bumalik ang floppy disk at user icons.
+        */
+        .font-poppins-override *:not(.bx) { 
+            font-family: 'Poppins', sans-serif !important; 
+        }
+        
         [x-cloak] { display: none !important; }
         .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
