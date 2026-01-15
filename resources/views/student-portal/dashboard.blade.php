@@ -13,7 +13,7 @@
                 <div class="p-6 md:flex items-start justify-between">
                     <div class="flex items-center mb-4 md:mb-0">
                         
-                        {{-- === UPDATED PROFILE PICTURE LOGIC === --}}
+                        {{-- === PROFILE PICTURE === --}}
                         <div class="h-24 w-24 rounded-full bg-gray-200 border-4 border-indigo-500 shadow-sm overflow-hidden mr-6 flex-shrink-0 relative group">
                             @if($student->id_picture)
                                 <img src="{{ $student->id_picture }}" alt="Profile" class="h-full w-full object-cover">
@@ -23,7 +23,6 @@
                                 </div>
                             @endif
                         </div>
-                        {{-- =================================== --}}
 
                         <div>
                             <h1 class="text-2xl font-bold text-gray-800">{{ $student->last_name }}, {{ $student->first_name }}</h1>
@@ -201,7 +200,7 @@
                         </div>
                     </div>
 
-                    {{-- ATTENDANCE (FIXED SECTION) --}}
+                    {{-- ATTENDANCE (UPDATED WITH CORRECT COLORS) --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                         <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-green-50">
                             <h3 class="text-lg font-bold text-green-800">Attendance Log</h3>
@@ -210,15 +209,27 @@
                              @if($student->attendances && $student->attendances->count() > 0)
                                 <div class="space-y-2">
                                     @foreach($student->attendances->sortByDesc('date')->take(5) as $att)
+                                        
+                                        {{-- 👇 COLOR LOGIC START --}}
+                                        @php
+                                            $statusColor = match(strtolower($att->status)) {
+                                                'present' => 'bg-green-100 text-green-700',
+                                                'late'    => 'bg-yellow-100 text-yellow-700',
+                                                'absent'  => 'bg-red-100 text-red-700',
+                                                'excused' => 'bg-blue-100 text-blue-700',
+                                                default   => 'bg-gray-100 text-gray-700',
+                                            };
+                                        @endphp
+                                        {{-- 👆 COLOR LOGIC END --}}
+
                                         <div class="flex justify-between items-center p-2 rounded border border-gray-100 text-sm bg-white">
                                             <div class="flex items-center">
                                                 <span class="text-gray-700 font-medium mr-2">{{ date('M d', strtotime($att->date)) }}</span>
-                                                
-                                                {{-- 👇 REPLACED: Tinanggal ang Subject Code, Pinalitan ng Day Name --}}
                                                 <span class="text-xs text-gray-400">({{ date('D', strtotime($att->date)) }})</span>
-                                                
                                             </div>
-                                            <span class="font-bold text-[10px] px-2 py-1 rounded uppercase {{ $att->status == 'Present' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                            
+                                            {{-- 👇 APPLIED COLOR HERE --}}
+                                            <span class="font-bold text-[10px] px-2 py-1 rounded uppercase {{ $statusColor }}">
                                                 {{ $att->status }}
                                             </span>
                                         </div>
