@@ -10,7 +10,7 @@
         {{-- Favicon --}}
         <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-        {{-- 👇 1. UPDATE: POPPINS FONT (Google Fonts) --}}
+        {{-- 👇 1. POPPINS FONT (Google Fonts) --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,8 +26,13 @@
 
         {{-- Custom Styles --}}
         <style>
-            /* 👇 2. APPLY GLOBAL FONT: POPPINS */
-            body, html {
+            /* 👇 2. FORCE APPLY POPPINS TO EVERYTHING */
+            /* Tinitarget nito pati ang mga matitigas na ulo na elements (Inputs, Tables, Buttons) */
+            body, html, :root,
+            h1, h2, h3, h4, h5, h6,
+            p, span, a, li, div,
+            table, th, td, tr,
+            input, textarea, select, button, label {
                 font-family: 'Poppins', sans-serif !important;
             }
 
