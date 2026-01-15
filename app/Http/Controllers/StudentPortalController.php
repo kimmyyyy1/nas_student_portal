@@ -24,9 +24,12 @@ class StudentPortalController extends Controller
                               'section.schedules.staff',    // Para sa Teacher info
                               'team',                       // Para sa Sports info
                               'grades.schedule.subject',    // Para sa Grades table
-                              'attendances.schedule.subject', // Para sa Attendance log
+                              
+                              // 👇 FIX: Tinanggal ang '.schedule.subject' kasi per-day ang attendance natin
+                              'attendances',                // Load lang ang attendance records
+                              
                               'awards',                     // Para sa Awards & Recognition
-                              'media'                       // <--- IMPORTANT: Para makuha ang Spatie Picture
+                              'media'                       // Para makuha ang Spatie Picture
                           ])
                           ->first();
 

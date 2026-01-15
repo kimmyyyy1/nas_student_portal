@@ -13,21 +13,17 @@
                 <div class="p-6 md:flex items-start justify-between">
                     <div class="flex items-center mb-4 md:mb-0">
                         
-                        {{-- === UPDATED PROFILE PICTURE LOGIC (CLOUDINARY) === --}}
+                        {{-- === UPDATED PROFILE PICTURE LOGIC === --}}
                         <div class="h-24 w-24 rounded-full bg-gray-200 border-4 border-indigo-500 shadow-sm overflow-hidden mr-6 flex-shrink-0 relative group">
-                            
-                            {{-- Check kung may laman ang id_picture column --}}
                             @if($student->id_picture)
                                 <img src="{{ $student->id_picture }}" alt="Profile" class="h-full w-full object-cover">
                             @else
-                                {{-- Kung wala, ipakita ang Initials (Fallback) --}}
                                 <div class="h-full w-full flex items-center justify-center bg-indigo-100 text-indigo-700 text-2xl font-bold">
                                     {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}
                                 </div>
                             @endif
-
                         </div>
-                        {{-- ================================================= --}}
+                        {{-- =================================== --}}
 
                         <div>
                             <h1 class="text-2xl font-bold text-gray-800">{{ $student->last_name }}, {{ $student->first_name }}</h1>
@@ -205,7 +201,7 @@
                         </div>
                     </div>
 
-                    {{-- ATTENDANCE --}}
+                    {{-- ATTENDANCE (FIXED SECTION) --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                         <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-green-50">
                             <h3 class="text-lg font-bold text-green-800">Attendance Log</h3>
@@ -217,7 +213,10 @@
                                         <div class="flex justify-between items-center p-2 rounded border border-gray-100 text-sm bg-white">
                                             <div class="flex items-center">
                                                 <span class="text-gray-700 font-medium mr-2">{{ date('M d', strtotime($att->date)) }}</span>
-                                                <span class="text-xs text-gray-400">({{ $att->schedule->subject->subject_code ?? '' }})</span>
+                                                
+                                                {{-- 👇 REPLACED: Tinanggal ang Subject Code, Pinalitan ng Day Name --}}
+                                                <span class="text-xs text-gray-400">({{ date('D', strtotime($att->date)) }})</span>
+                                                
                                             </div>
                                             <span class="font-bold text-[10px] px-2 py-1 rounded uppercase {{ $att->status == 'Present' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                                                 {{ $att->status }}
