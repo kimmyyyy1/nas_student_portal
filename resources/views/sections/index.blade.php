@@ -1,6 +1,15 @@
 <x-app-layout>
+    {{-- 👇 1. ADDED EXPLICIT STYLE BLOCK FOR THIS VIEW --}}
+    <style>
+        /* Force Poppins on everything in this view */
+        .font-poppins-override, 
+        .font-poppins-override * {
+            font-family: 'Poppins', sans-serif !important;
+        }
+    </style>
+
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center font-poppins-override"> {{-- Added class here --}}
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Sections & Classes') }}
             </h2>
@@ -10,7 +19,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 font-poppins-override"> {{-- Added class here to cover the main content --}}
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             {{-- Success Message --}}
