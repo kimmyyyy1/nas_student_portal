@@ -1,74 +1,41 @@
 <x-app-layout>
+    {{-- Global Styles --}}
+    <style>
+        .font-poppins-override * { font-family: 'Poppins', sans-serif !important; }
+        [x-cloak] { display: none !important; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+
+    {{-- HEADER --}}
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Select Class to Grade') }}
-        </h2>
+        <div class="flex justify-between items-center font-poppins-override"
+             x-data="{ 
+                 title: 'Select Class to Grade', 
+                 showBack: false 
+             }"
+             @update-header.window="title = $event.detail.title; showBack = $event.detail.showBack">
+            
+            {{-- DYNAMIC TITLE --}}
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight" x-text="title">
+                {{ __('Select Class to Grade') }}
+            </h2>
+
+            {{-- DYNAMIC BACK BUTTON --}}
+            <button x-show="showBack"
+                    x-cloak
+                    x-transition
+                    onclick="document.getElementById('hidden-back-btn').click()"
+                    class="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer">
+                <i class='bx bx-arrow-back'></i> Back to Classes
+            </button>
+        </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 font-poppins-override">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-            {{-- SAFE CHECK --}}
-            @if(count($sections) == 0)
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-10 text-center">
-                    <i class='bx bx-folder-open text-6xl text-gray-300 mb-4'></i>
-                    <h3 class="text-lg font-medium text-gray-900">No Classes Assigned</h3>
-                    <p class="text-gray-500">You do not have any advisory class or subject loads assigned yet.</p>
-                </div>
-            @else
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($sections as $section)
-                        <a href="{{ route('grades.show', $section->id) }}" class="block group">
-                            {{-- CARD CONTAINER: Same classes as Attendance --}}
-                            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition duration-300 border border-gray-200 h-full">
-                                
-                                {{-- CARD BODY: Exact padding structure --}}
-                                <div class="p-6">
-                                    <div class="flex items-center justify-between mb-4">
-                                        {{-- Icon: Indigo for Grades --}}
-                                        <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full">
-                                            <i class='bx bx-save text-2xl'></i>
-                                        </div>
-                                        
-                                        {{-- ADVISER BADGE --}}
-                                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'registrar')
-                                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full uppercase truncate max-w-[120px]" title="Adviser">
-                                                <i class='bx bx-user'></i> {{ $section->adviser->last_name ?? 'No Adviser' }}
-                                            </span>
-                                        @else
-                                            <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full uppercase">
-                                                Advisory
-                                            </span>
-                                        @endif
-                                    </div>
-
-                                    {{-- TITLE --}}
-                                    <h3 class="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition">
-                                        {{ $section->grade_level }} - {{ $section->section_name }}
-                                    </h3>
-
-                                    {{-- STUDENTS COUNT: Exact margin/size as Attendance --}}
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        <i class='bx bx-user'></i> Students: {{ $section->students_count }}
-                                    </p>
-
-                                    {{-- ROOM: Exact margin/size as Attendance --}}
-                                    <p class="text-sm text-gray-500">
-                                        <i class='bx bx-map'></i> Room: {{ $section->room_number ?? 'TBA' }}
-                                    </p>
-                                </div>
-
-                                {{-- FOOTER: Exact padding/size as Attendance --}}
-                                <div class="bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center">
-                                    <span class="text-xs text-gray-500 font-medium">OPEN GRADING SHEET</span>
-                                    <i class='bx bx-right-arrow-alt text-indigo-600 transform group-hover:translate-x-1 transition'></i>
-                                </div>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-            @endif
-
+            {{-- Livewire Component --}}
+            @livewire('grades-manager')
         </div>
     </div>
 </x-app-layout>
