@@ -7,20 +7,23 @@
     </style>
 
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center font-poppins-override"> 
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Schedules') }}
             </h2>
-            <a href="{{ route('schedules.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Schedule</a>
+            {{-- 👇 UPDATED BUTTON STYLE --}}
+            <a href="{{ route('schedules.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out">
+                Add Schedule
+            </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 font-poppins-override">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
                 <div class="p-6 text-gray-900">
                     
-                    <div class="overflow-x-auto"> {{-- Added overflow wrapper for safety --}}
+                    <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
@@ -66,7 +69,8 @@
                                         <td colspan="6" class="px-6 py-10 whitespace-nowrap text-center text-gray-500">
                                             <div class="flex flex-col items-center justify-center">
                                                 <i class='bx bx-calendar-x text-4xl text-gray-300 mb-2'></i>
-                                                <p>No schedules found.</p>
+                                                <p class="text-lg font-medium">No schedules found.</p>
+                                                <p class="text-sm">Click "Add Schedule" to create one.</p>
                                             </div>
                                         </td>
                                     </tr>
