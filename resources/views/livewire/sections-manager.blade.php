@@ -1,6 +1,13 @@
 <div>
-    {{-- 👇 1. HIDDEN BUTTON: Ito ang sasalo ng click galing sa Header Button sa taas --}}
-    <button id="trigger-create-hidden" wire:click="create" style="display: none;"></button>
+    {{-- 👇 TELEPORT MAGIC: Ilalagay nito ang button sa Header sa taas --}}
+    @teleport('#header-actions')
+        {{-- Ipakita lang ang button kapag HINDI nag-aadd at HINDI nag-eedit --}}
+        @if(!$isCreating && !$isEditing)
+            <button wire:click="create" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out">
+                Add Section
+            </button>
+        @endif
+    @endteleport
 
     {{-- SUCCESS MESSAGE --}}
     @if (session()->has('success'))
@@ -13,18 +20,18 @@
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
         <div class="p-6 text-gray-900">
 
-            {{-- 👇 DYNAMIC TITLE SA LOOB NG CARD --}}
+            {{-- DYNAMIC TITLE --}}
             @if($isCreating)
-                <div class="mb-4 pb-2 border-b border-gray-100 flex justify-between items-center">
+                <div class="mb-4 pb-2 border-b border-gray-100">
                     <h3 class="text-lg font-bold text-gray-700">Create New Section</h3>
                 </div>
             @elseif($isEditing)
-                <div class="mb-4 pb-2 border-b border-gray-100 flex justify-between items-center">
+                <div class="mb-4 pb-2 border-b border-gray-100">
                     <h3 class="text-lg font-bold text-gray-700">Edit Section</h3>
                 </div>
             @endif
 
-            {{-- 👇 VIEW 1: TABLE LIST (Default) --}}
+            {{-- VIEW 1: TABLE LIST --}}
             @if(!$isCreating && !$isEditing)
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -78,7 +85,7 @@
                     </table>
                 </div>
 
-            {{-- 👇 VIEW 2: FORM (Create or Edit) --}}
+            {{-- VIEW 2: FORM (Create or Edit) --}}
             @else
                 <form wire:submit.prevent="{{ $isCreating ? 'store' : 'update' }}">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
