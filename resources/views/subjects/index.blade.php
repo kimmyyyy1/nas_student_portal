@@ -1,66 +1,69 @@
 <x-app-layout>
-    {{-- 👇 1. ADDED EXPLICIT STYLE BLOCK FOR THIS VIEW --}}
+    {{-- 👇 1. DIRECT INJECTION: Ilagay ito sa taas ng file --}}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Force Poppins on everything in this view */
-        .font-poppins-override, 
-        .font-poppins-override * {
-            font-family: 'Poppins', sans-serif !important;
-        }
+        /* Pilitin ang lahat ng elements sa page na ito na mag-Poppins */
+        * { font-family: 'Poppins', sans-serif !important; }
     </style>
 
     <x-slot name="header">
-        <div class="flex justify-between items-center font-poppins-override"> {{-- Added override class --}}
+        <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Subjects') }}
             </h2>
-            <a href="{{ route('subjects.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Subject</a>
+            <a href="{{ route('subjects.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm">
+                Add Subject
+            </a>
         </div>
     </x-slot>
 
-    <div class="py-12 font-poppins-override"> {{-- Added override class --}}
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
                 <div class="p-6 text-gray-900">
                     
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject Code</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject Name</th>
-                                <th scope="col" class="relative px-6 py-3">
-                                    <span class="sr-only">Actions</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($subjects as $subject)
+                    <div class="overflow-x-auto"> {{-- Added overflow wrapper for safety --}}
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $subject->subject_code }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $subject->subject_name }}</td>
-                                    
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        
-                                        <a href="{{ route('subjects.edit', $subject->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                        
-                                        <form class="inline-block ml-4" method="POST" action="{{ route('subjects.destroy', $subject->id) }}" onsubmit="return confirm('Sigurado ka bang gusto mong burahin ang subject na ito?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
-                                                Delete
-                                            </button>
-                                        </form>
-
-                                    </td>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Subject Code</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Subject Name</th>
+                                    <th scope="col" class="relative px-6 py-3">
+                                        <span class="sr-only">Actions</span>
+                                    </th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
-                                        No subjects found.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse ($subjects as $subject)
+                                    <tr class="hover:bg-gray-50 transition">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $subject->subject_code }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $subject->subject_name }}</td>
+                                        
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <a href="{{ route('subjects.edit', $subject->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3">Edit</a>
+                                            
+                                            <form class="inline-block" method="POST" action="{{ route('subjects.destroy', $subject->id) }}" onsubmit="return confirm('Sigurado ka bang gusto mong burahin ang subject na ito?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 font-bold">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="px-6 py-10 whitespace-nowrap text-center text-gray-500">
+                                            <div class="flex flex-col items-center justify-center">
+                                                <i class='bx bx-book-open text-4xl text-gray-300 mb-2'></i>
+                                                <p>No subjects found.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
 
                 </div>
             </div>
