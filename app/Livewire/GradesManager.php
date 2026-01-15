@@ -5,49 +5,71 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Section;
 use App\Models\Student;
-use App\Models\Grade; // 👇 Importante: Siguraduhing may Grade Model ka
+use App\Models\Grade;
+use App\Models\Schedule; // 👇 Make sure imported ito
 
 class GradesManager extends Component
 {
-    public $view = 'grid'; // 'grid' or 'sheet'
+    public $view = 'grid'; 
     public $selectedSection = null;
     public $students = [];
+    public $schedules = []; // 👇 Listahan ng subjects ng section
+    public $selectedScheduleId = null; // 👇 Ang pipiliing subject
 
-    // 👇 Dito natin ilalagay ang inputs ng user
-    public $gradesData = []; // [student_id => [q1, q2, q3, q4, final]]
-    public $studentStatus = []; // [student_id => status]
+    public $gradesData = [];
+    public $studentStatus = [];
 
-    // 👇 1. LOAD THE VIEW
     public function render()
     {
         $sections = Section::with('adviser')->withCount('students')->get();
-
-        return view('livewire.grades-manager', [
-            'sections' => $sections
-        ]);
+        return view('livewire.grades-manager', ['sections' => $sections]);
     }
 
-    // 👇 2. OPEN GRADING SHEET (Switch to Table & Load Data)
     public function openGradingSheet($sectionId)
     {
         $this->selectedSection = Section::with('adviser')->findOrFail($sectionId);
-        
-        // Kunin ang students
         $this->students = $this->selectedSection->students ?? []; 
+        
+        // 👇 Load Schedules/Subjects para sa Section na ito
+        // Assuming may 'schedules' relationship ang Section model at may 'subject' relationship ang Schedule
+        $this->schedules = Schedule::with('subject')
+                                   ->where('section_id', $sectionId)
+                                   ->get();
 
-        // 🔄 RESET MUNA ANG ARRAYS
+        // Reset data
+        $this->selectedScheduleId = null; 
         $this->gradesData = [];
         $this->studentStatus = [];
 
-        // 📥 LOAD DATA FROM DATABASE
+        // Note: Hindi muna tayo maglo-load ng grades dito kasi wala pang pinipiling Subject.
+        // Ililipat natin ang loading logic sa 'updatedSelectedScheduleId'.
+
+        $this->view = 'sheet';
+
+        $this->dispatch('update-header', 
+            title: 'Grading: ' . $this->selectedSection->section_name, 
+            showBack: true
+        );
+    }
+
+    // 👇 BAGONG FUNCTION: Tumatakbo pag namili ka ng Subject sa Dropdown
+    public function updatedSelectedScheduleId($scheduleId)
+    {
+        // Reset grades data
+        $this->gradesData = [];
+        $this->studentStatus = [];
+
+        if (!$scheduleId) return;
+
+        // Load Grades for the selected Subject/Schedule
         foreach ($this->students as $student) {
             
-            // A. Load Status (Promoted/Retained) galing sa students table
             $this->studentStatus[$student->id] = $student->promotion_status ?? '';
 
-            // B. Load Grades galing sa grades table
-            // Note: Kung may Subject ID ka, dagdagan mo ng ->where('subject_id', $id)
-            $grade = Grade::where('student_id', $student->id)->first();
+            // 👇 Hanapin ang grade gamit ang Student ID at Schedule ID
+            $grade = Grade::where('student_id', $student->id)
+                          ->where('schedule_id', $scheduleId) // Important fix!
+                          ->first();
 
             if ($grade) {
                 $this->gradesData[$student->id] = [
@@ -58,68 +80,54 @@ class GradesManager extends Component
                     'final' => $grade->final_grade,
                 ];
             } else {
-                // Default values kung wala pang grade
                 $this->gradesData[$student->id] = [
                     'q1' => null, 'q2' => null, 'q3' => null, 'q4' => null, 'final' => null
                 ];
             }
         }
-
-        $this->view = 'sheet';
-
-        // Update Header
-        $this->dispatch('update-header', 
-            title: 'Grading: ' . $this->selectedSection->grade_level . ' - ' . $this->selectedSection->section_name, 
-            showBack: true
-        );
     }
 
-    // 👇 3. AUTO-CALCULATE FINAL GRADE (Real-time)
-    // Ito ang magic function ni Livewire. Automatic itong tumatakbo pag nag-type ka.
     public function updatedGradesData($value, $key)
     {
-        // Ang structure ng $key ay "student_id.q1"
         $parts = explode('.', $key);
         $studentId = $parts[0];
 
-        // Kunin ang current values
         $q1 = $this->gradesData[$studentId]['q1'] ?? 0;
         $q2 = $this->gradesData[$studentId]['q2'] ?? 0;
         $q3 = $this->gradesData[$studentId]['q3'] ?? 0;
         $q4 = $this->gradesData[$studentId]['q4'] ?? 0;
 
-        // Convert to float para safe
         $total = (float)$q1 + (float)$q2 + (float)$q3 + (float)$q4;
         
-        // Mag-compute lang kung may laman na kahit isa, o mas maganda kung kumpleto 4
         if($q1 && $q2 && $q3 && $q4) {
-            $average = $total / 4;
-            // Round off to whole number or decimal (depende sa gusto mo)
-            $this->gradesData[$studentId]['final'] = round($average); 
+            $this->gradesData[$studentId]['final'] = round($total / 4); 
         }
     }
 
-    // 👇 4. SAVE DATA TO DATABASE
     public function saveGrades()
     {
+        // 👇 Validation: Dapat may napiling subject
+        if (!$this->selectedScheduleId) {
+            session()->flash('error', 'Please select a Subject first!');
+            return;
+        }
+
         foreach ($this->students as $student) {
             $sId = $student->id;
             
-            // Siguraduhing may data bago i-save
             if(isset($this->gradesData[$sId])) {
                 $data = $this->gradesData[$sId];
 
-                // A. Update Student Status (Promoted/Retained)
                 if (isset($this->studentStatus[$sId])) {
                     $student->promotion_status = $this->studentStatus[$sId];
                     $student->save();
                 }
 
-                // B. Update Grades Table
                 Grade::updateOrCreate(
                     [
+                        // 👇 Search Criteria: Student + Schedule (Subject)
                         'student_id' => $sId,
-                        // 'subject_id' => 1, // Uncomment at lagyan ng value kung per subject
+                        'schedule_id' => $this->selectedScheduleId, 
                     ],
                     [
                         'first_quarter'  => $data['q1'],
@@ -132,21 +140,18 @@ class GradesManager extends Component
             }
         }
 
-        session()->flash('success', 'Grades and Status saved successfully!');
+        session()->flash('success', 'Grades saved successfully!');
     }
 
-    // 👇 5. GO BACK TO GRID
     public function goBack()
     {
         $this->view = 'grid';
         $this->selectedSection = null;
         $this->students = [];
-        $this->gradesData = []; // Clear memory
-        $this->studentStatus = [];
+        $this->gradesData = [];
+        $this->schedules = [];
+        $this->selectedScheduleId = null;
 
-        $this->dispatch('update-header', 
-            title: 'Select Class to Grade', 
-            showBack: false
-        );
+        $this->dispatch('update-header', title: 'Select Class to Grade', showBack: false);
     }
 }
