@@ -1,124 +1,135 @@
-<?php
+<div>
+    {{-- 👇 1. HIDDEN BUTTON: Ito ang sasalo ng click galing sa Header Button sa taas --}}
+    <button id="trigger-create-hidden" wire:click="create" style="display: none;"></button>
 
-namespace App\Livewire;
+    {{-- SUCCESS MESSAGE --}}
+    @if (session()->has('success'))
+        <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 shadow-sm rounded relative" role="alert">
+            <strong class="font-bold">Success!</strong>
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
 
-use Livewire\Component;
-use App\Models\Section;
-use App\Models\Staff;
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
+        <div class="p-6 text-gray-900">
 
-class SectionsManager extends Component
-{
-    public $section_id;
-    public $grade_level;
-    public $section_name;
-    public $adviser_id;
-    public $room_number;
+            {{-- 👇 DYNAMIC TITLE SA LOOB NG CARD --}}
+            @if($isCreating)
+                <div class="mb-4 pb-2 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-700">Create New Section</h3>
+                </div>
+            @elseif($isEditing)
+                <div class="mb-4 pb-2 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-700">Edit Section</h3>
+                </div>
+            @endif
 
-    public $isEditing = false;
-    public $isCreating = false;
+            {{-- 👇 VIEW 1: TABLE LIST (Default) --}}
+            @if(!$isCreating && !$isEditing)
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Section Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Grade Level</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Adviser</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Room</th>
+                                <th class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse ($sections as $section)
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $section->section_name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            {{ $section->grade_level }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($section->adviser)
+                                            <div class="text-sm font-medium text-gray-900">{{ $section->adviser->last_name }}, {{ $section->adviser->first_name }}</div>
+                                            <div class="text-xs text-gray-500">{{ $section->adviser->email }}</div>
+                                        @else
+                                            <span class="text-sm text-gray-400 italic">No Adviser Assigned</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $section->room_number ?? 'TBA' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button wire:click="edit({{ $section->id }})" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3">Edit</button>
+                                        <button wire:click="delete({{ $section->id }})" 
+                                                wire:confirm="Are you sure you want to delete this section?"
+                                                class="text-red-600 hover:text-red-900 font-bold">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="px-6 py-10 whitespace-nowrap text-center text-gray-500">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <i class='bx bx-chalkboard text-4xl text-gray-300 mb-2'></i>
+                                            <p class="text-lg font-medium">No sections found.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-    protected $rules = [
-        'grade_level' => 'required',
-        'section_name' => 'required|string|max:255',
-        'adviser_id' => 'nullable|exists:staff,id',
-        'room_number' => 'nullable|string|max:255',
-    ];
+            {{-- 👇 VIEW 2: FORM (Create or Edit) --}}
+            @else
+                <form wire:submit.prevent="{{ $isCreating ? 'store' : 'update' }}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Grade Level *</label>
+                            <select wire:model="grade_level" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">-- Select Grade --</option>
+                                <option value="Grade 7">Grade 7</option>
+                                <option value="Grade 8">Grade 8</option>
+                                <option value="Grade 9">Grade 9</option>
+                                <option value="Grade 10">Grade 10</option>
+                                <option value="Grade 11">Grade 11</option>
+                                <option value="Grade 12">Grade 12</option>
+                            </select>
+                            @error('grade_level') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                        </div>
 
-    public function render()
-    {
-        $sections = Section::with('adviser')->latest()->get();
-        $teachers = Staff::all();
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Section Name *</label>
+                            <input type="text" wire:model="section_name" placeholder="e.g. Emerald" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @error('section_name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                        </div>
 
-        return view('livewire.sections-manager', [
-            'sections' => $sections,
-            'teachers' => $teachers,
-        ]);
-    }
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Class Adviser</label>
+                            <select wire:model="adviser_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">-- Select Teacher --</option>
+                                @foreach($teachers as $teacher)
+                                    <option value="{{ $teacher->id }}">{{ $teacher->last_name }}, {{ $teacher->first_name }}</option>
+                                @endforeach
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Select from registered teachers (Staff).</p>
+                        </div>
 
-    // 👇 UPDATED: Nagdadagdag tayo ng dispatch('hide-add-button')
-    public function create()
-    {
-        $this->resetInputFields();
-        $this->isCreating = true;
-        $this->isEditing = false;
-        $this->dispatch('hide-add-button'); // Magtago ang button sa taas
-    }
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Room Number</label>
+                            <input type="text" wire:model="room_number" placeholder="e.g. Rm 101" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                    </div>
 
-    // 👇 UPDATED: Nagdadagdag tayo ng dispatch('show-add-button')
-    public function store()
-    {
-        $this->validate();
+                    <div class="mt-6 flex justify-end gap-2">
+                        <button type="button" wire:click="cancel" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out">
+                            {{ $isCreating ? 'Save Section' : 'Update Section' }}
+                        </button>
+                    </div>
+                </form>
+            @endif
 
-        Section::create([
-            'grade_level' => $this->grade_level,
-            'section_name' => $this->section_name,
-            'adviser_id' => $this->adviser_id,
-            'room_number' => $this->room_number,
-        ]);
-
-        session()->flash('success', 'Section created successfully.');
-        $this->resetInputFields();
-        $this->isCreating = false;
-        $this->dispatch('show-add-button'); // Palabasin ulit ang button
-    }
-
-    // 👇 UPDATED: Hide button pag nag-edit
-    public function edit($id)
-    {
-        $section = Section::findOrFail($id);
-
-        $this->section_id = $id;
-        $this->grade_level = $section->grade_level;
-        $this->section_name = $section->section_name;
-        $this->adviser_id = $section->adviser_id;
-        $this->room_number = $section->room_number;
-
-        $this->isEditing = true;
-        $this->isCreating = false;
-        $this->dispatch('hide-add-button'); // Magtago ang button
-    }
-
-    // 👇 UPDATED: Show button pag tapos na mag-update
-    public function update()
-    {
-        $this->validate();
-
-        $section = Section::findOrFail($this->section_id);
-        $section->update([
-            'grade_level' => $this->grade_level,
-            'section_name' => $this->section_name,
-            'adviser_id' => $this->adviser_id,
-            'room_number' => $this->room_number,
-        ]);
-
-        session()->flash('success', 'Section updated successfully.');
-        $this->resetInputFields();
-        $this->isEditing = false;
-        $this->dispatch('show-add-button'); // Palabasin ulit ang button
-    }
-
-    public function delete($id)
-    {
-        Section::find($id)->delete();
-        session()->flash('success', 'Section deleted successfully.');
-    }
-
-    // 👇 UPDATED: Show button pag nag-cancel
-    public function cancel()
-    {
-        $this->resetInputFields();
-        $this->isCreating = false;
-        $this->isEditing = false;
-        $this->dispatch('show-add-button'); // Palabasin ulit ang button
-    }
-
-    private function resetInputFields()
-    {
-        $this->grade_level = '';
-        $this->section_name = '';
-        $this->adviser_id = '';
-        $this->room_number = '';
-        $this->section_id = null;
-        $this->resetErrorBag();
-    }
-}
+        </div>
+    </div>
+</div>
