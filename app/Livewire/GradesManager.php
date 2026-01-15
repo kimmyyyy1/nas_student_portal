@@ -6,15 +6,18 @@ use Livewire\Component;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\Grade;
-use App\Models\Schedule; // 👇 Make sure imported ito
+use App\Models\Schedule;
+// 👇 1. ADD THESE IMPORTS
+use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Auth;
 
 class GradesManager extends Component
 {
     public $view = 'grid'; 
     public $selectedSection = null;
     public $students = [];
-    public $schedules = []; // 👇 Listahan ng subjects ng section
-    public $selectedScheduleId = null; // 👇 Ang pipiliing subject
+    public $schedules = [];
+    public $selectedScheduleId = null;
 
     public $gradesData = [];
     public $studentStatus = [];
@@ -30,19 +33,13 @@ class GradesManager extends Component
         $this->selectedSection = Section::with('adviser')->findOrFail($sectionId);
         $this->students = $this->selectedSection->students ?? []; 
         
-        // 👇 Load Schedules/Subjects para sa Section na ito
-        // Assuming may 'schedules' relationship ang Section model at may 'subject' relationship ang Schedule
         $this->schedules = Schedule::with('subject')
                                    ->where('section_id', $sectionId)
                                    ->get();
 
-        // Reset data
         $this->selectedScheduleId = null; 
         $this->gradesData = [];
         $this->studentStatus = [];
-
-        // Note: Hindi muna tayo maglo-load ng grades dito kasi wala pang pinipiling Subject.
-        // Ililipat natin ang loading logic sa 'updatedSelectedScheduleId'.
 
         $this->view = 'sheet';
 
@@ -52,23 +49,19 @@ class GradesManager extends Component
         );
     }
 
-    // 👇 BAGONG FUNCTION: Tumatakbo pag namili ka ng Subject sa Dropdown
     public function updatedSelectedScheduleId($scheduleId)
     {
-        // Reset grades data
         $this->gradesData = [];
         $this->studentStatus = [];
 
         if (!$scheduleId) return;
 
-        // Load Grades for the selected Subject/Schedule
         foreach ($this->students as $student) {
             
             $this->studentStatus[$student->id] = $student->promotion_status ?? '';
 
-            // 👇 Hanapin ang grade gamit ang Student ID at Schedule ID
             $grade = Grade::where('student_id', $student->id)
-                          ->where('schedule_id', $scheduleId) // Important fix!
+                          ->where('schedule_id', $scheduleId)
                           ->first();
 
             if ($grade) {
@@ -106,7 +99,6 @@ class GradesManager extends Component
 
     public function saveGrades()
     {
-        // 👇 Validation: Dapat may napiling subject
         if (!$this->selectedScheduleId) {
             session()->flash('error', 'Please select a Subject first!');
             return;
@@ -123,22 +115,36 @@ class GradesManager extends Component
                     $student->save();
                 }
 
+                // Logic para i-convert ang empty string sa NULL
                 Grade::updateOrCreate(
                     [
-                        // 👇 Search Criteria: Student + Schedule (Subject)
                         'student_id' => $sId,
                         'schedule_id' => $this->selectedScheduleId, 
                     ],
                     [
-                        'first_quarter'  => $data['q1'],
-                        'second_quarter' => $data['q2'],
-                        'third_quarter'  => $data['q3'],
-                        'fourth_quarter' => $data['q4'],
-                        'final_grade'    => $data['final'],
+                        'first_quarter'  => ($data['q1'] === '' || $data['q1'] === null) ? null : $data['q1'],
+                        'second_quarter' => ($data['q2'] === '' || $data['q2'] === null) ? null : $data['q2'],
+                        'third_quarter'  => ($data['q3'] === '' || $data['q3'] === null) ? null : $data['q3'],
+                        'fourth_quarter' => ($data['q4'] === '' || $data['q4'] === null) ? null : $data['q4'],
+                        'final_grade'    => ($data['final'] === '' || $data['final'] === null) ? null : $data['final'],
                     ]
                 );
             }
         }
+
+        // 👇 2. ADD THIS LOGIC: RECORD TO ACTIVITY LOG
+        $subjectName = 'Unknown Subject';
+        // Hanapin ang subject name para maganda tingnan sa log
+        if($this->selectedScheduleId) {
+            $schedule = Schedule::with('subject')->find($this->selectedScheduleId);
+            $subjectName = $schedule->subject->subject_name ?? 'Subject';
+        }
+
+        ActivityLog::create([
+            'user_id'     => Auth::id(), // Kung sino ang naka-login (Registrar/Teacher)
+            'action'      => 'Updated Grades',
+            'description' => "Updated $subjectName grades for " . $this->selectedSection->section_name,
+        ]);
 
         session()->flash('success', 'Grades saved successfully!');
     }

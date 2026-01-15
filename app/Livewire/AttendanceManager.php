@@ -6,6 +6,9 @@ use Livewire\Component;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\Attendance;
+// 👇 1. ADDED IMPORTS FOR LOGGING
+use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceManager extends Component
 {
@@ -14,7 +17,7 @@ class AttendanceManager extends Component
     public $students = [];
     
     public $attendance = []; // [student_id => status]
-    public $remarks = [];    // [student_id => reason] 👇 NEW: Para sa text box
+    public $remarks = [];    // [student_id => reason]
 
     public $date;
 
@@ -59,29 +62,25 @@ class AttendanceManager extends Component
         }
     }
 
-    // 👇 4. LOAD DATA (UPDATED: Kasama na ang Remarks)
+    // 👇 4. LOAD DATA
     public function loadAttendanceData()
     {
         $this->attendance = [];
         $this->remarks = []; // Reset remarks
 
-        // Kunin ang records (Get instead of Pluck para makuha pati remarks)
         $records = Attendance::where('section_id', $this->selectedSection->id)
                             ->where('date', $this->date)
                             ->get(); 
 
-        // I-map ang database records sa ating public arrays
         foreach ($records as $record) {
             $this->attendance[$record->student_id] = $record->status;
-            $this->remarks[$record->student_id] = $record->remarks; // Load existing remarks
+            $this->remarks[$record->student_id] = $record->remarks; 
         }
 
-        // Set defaults para sa mga walang record
         foreach($this->students as $student) {
             if (!isset($this->attendance[$student->id])) {
                 $this->attendance[$student->id] = 'present';
             }
-            // Siguraduhing may key ang remarks array kahit null
             if (!isset($this->remarks[$student->id])) {
                 $this->remarks[$student->id] = ''; 
             }
@@ -103,13 +102,13 @@ class AttendanceManager extends Component
         );
     }
 
-    // 👇 6. SAVE ATTENDANCE (UPDATED: Saves Remarks)
+    // 👇 6. SAVE ATTENDANCE (WITH LOGGING)
     public function saveAttendance()
     {
         $this->validate([
             'date' => 'required|date',
             'attendance' => 'required|array',
-            'remarks.*' => 'nullable|string|max:255', // Validation para sa remarks
+            'remarks.*' => 'nullable|string|max:255',
         ]);
 
         foreach ($this->attendance as $studentId => $status) {
@@ -121,13 +120,18 @@ class AttendanceManager extends Component
                 ],
                 [
                     'status' => $status,
-                    // I-save ang remarks (o null kung wala)
                     'remarks' => $this->remarks[$studentId] ?? null,
-                    
-                    // 'recorded_by' => auth()->id(), // Pwede mo na i-uncomment ito kung na-fix na ang migration
+                    // 'recorded_by' => auth()->id(), 
                 ]
             );
         }
+
+        // 👇 2. ADDED LOGGING HERE
+        ActivityLog::create([
+            'user_id'     => Auth::id(),
+            'action'      => 'Checked Attendance',
+            'description' => 'Recorded attendance for ' . $this->selectedSection->section_name . ' (' . $this->date . ')',
+        ]);
 
         session()->flash('success', 'Attendance for ' . $this->date . ' saved successfully!');
     }
