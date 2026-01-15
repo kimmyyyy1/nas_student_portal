@@ -12,19 +12,20 @@ class AttendanceManager extends Component
     public $view = 'grid'; // 'grid' or 'sheet'
     public $selectedSection = null;
     public $students = [];
+    
     public $attendance = []; // [student_id => status]
+    public $remarks = [];    // [student_id => reason] 👇 NEW: Para sa text box
+
     public $date;
 
     public function mount()
     {
-        // Default date ay ngayon
         $this->date = now()->format('Y-m-d');
     }
 
     // 👇 1. LOAD THE VIEW
     public function render()
     {
-        // Kunin ang sections kasama ang adviser at bilang ng students
         $sections = Section::with('adviser')->withCount('students')->get();
         
         return view('livewire.attendance-manager', [
@@ -35,93 +36,95 @@ class AttendanceManager extends Component
     // 👇 2. OPEN ATTENDANCE SHEET
     public function openAttendanceSheet($sectionId)
     {
-        // Eager load students para iwas query loop
         $this->selectedSection = Section::with(['adviser', 'students'])->findOrFail($sectionId);
         
         $this->students = $this->selectedSection->students ?? [];
         
-        // I-load ang data (Check kung may record na)
+        // I-load ang data
         $this->loadAttendanceData();
 
         $this->view = 'sheet';
 
-        // Update Header
         $this->dispatch('update-header', 
             title: 'Attendance: ' . $this->selectedSection->section_name, 
             showBack: true
         );
     }
 
-    // 👇 3. HANDLE DATE CHANGE (Auto-reload pag nagbago ang date sa picker)
+    // 👇 3. HANDLE DATE CHANGE
     public function updatedDate()
     {
-        // Kung nasa 'sheet' view tayo at may selected section, i-reload ang data
         if ($this->view === 'sheet' && $this->selectedSection) {
             $this->loadAttendanceData();
         }
     }
 
-    // 👇 4. HELPER: LOGIC TO LOAD ATTENDANCE STATUS
+    // 👇 4. LOAD DATA (UPDATED: Kasama na ang Remarks)
     public function loadAttendanceData()
     {
         $this->attendance = [];
+        $this->remarks = []; // Reset remarks
 
-        // Kunin ang existing records sa DB para sa Section at Date na ito
-        // Gamit ang 'pluck' para maging array na [student_id => status] agad
-        $existingRecords = Attendance::where('section_id', $this->selectedSection->id)
+        // Kunin ang records (Get instead of Pluck para makuha pati remarks)
+        $records = Attendance::where('section_id', $this->selectedSection->id)
                             ->where('date', $this->date)
-                            ->pluck('status', 'student_id');
+                            ->get(); 
 
+        // I-map ang database records sa ating public arrays
+        foreach ($records as $record) {
+            $this->attendance[$record->student_id] = $record->status;
+            $this->remarks[$record->student_id] = $record->remarks; // Load existing remarks
+        }
+
+        // Set defaults para sa mga walang record
         foreach($this->students as $student) {
-            // Check kung may record na sa DB based sa ID ng student
-            if (isset($existingRecords[$student->id])) {
-                // Kung meron, gamitin ang nasa DB
-                $this->attendance[$student->id] = $existingRecords[$student->id];
-            } else {
-                // Kung wala, default to 'present'
+            if (!isset($this->attendance[$student->id])) {
                 $this->attendance[$student->id] = 'present';
+            }
+            // Siguraduhing may key ang remarks array kahit null
+            if (!isset($this->remarks[$student->id])) {
+                $this->remarks[$student->id] = ''; 
             }
         }
     }
 
-    // 👇 5. GO BACK TO GRID
+    // 👇 5. GO BACK
     public function goBack()
     {
         $this->view = 'grid';
         $this->selectedSection = null;
         $this->students = [];
         $this->attendance = [];
+        $this->remarks = [];
 
-        // Reset Header
         $this->dispatch('update-header', 
             title: 'Attendance Checking', 
             showBack: false
         );
     }
 
-    // 👇 6. SAVE ATTENDANCE
+    // 👇 6. SAVE ATTENDANCE (UPDATED: Saves Remarks)
     public function saveAttendance()
     {
         $this->validate([
             'date' => 'required|date',
             'attendance' => 'required|array',
+            'remarks.*' => 'nullable|string|max:255', // Validation para sa remarks
         ]);
 
         foreach ($this->attendance as $studentId => $status) {
             Attendance::updateOrCreate(
                 [
-                    // Search criteria (Unique combination)
                     'student_id' => $studentId,
                     'section_id' => $this->selectedSection->id,
                     'date' => $this->date,
                 ],
                 [
-                    // Values to update or create
                     'status' => $status,
+                    // I-save ang remarks (o null kung wala)
+                    'remarks' => $this->remarks[$studentId] ?? null,
                     
-                    // 👇 NOTE: Naka-comment out muna ito para mawala ang error.
-                    // Kung nag-run ka na ng migration (Option 1), pwede mo itong tanggalan ng comment.
-                    // 'recorded_by' => auth()->id(), 
+                    // 'recorded_by' => auth()->id(), // Pwede mo na i-uncomment ito kung na-fix na ang migration
                 ]
             );
         }

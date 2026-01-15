@@ -76,7 +76,7 @@
                 {{-- Date Picker --}}
                 <div class="mb-6 flex items-center gap-4">
                     <label class="font-bold text-gray-700">Date:</label>
-                    <input type="date" wire:model="date" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <input type="date" wire:model.live="date" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
                 {{-- Attendance Table --}}
@@ -93,25 +93,45 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($students as $student)
-                                <tr class="hover:bg-gray-50 transition">
+                                {{-- Main Row --}}
+                                <tr class="hover:bg-gray-50 transition {{ (isset($attendance[$student->id]) && $attendance[$student->id] === 'excused') ? 'bg-blue-50/30' : '' }}">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                         {{ $student->last_name }}, {{ $student->first_name }}
                                     </td>
                                     
                                     {{-- Radio Buttons for Status --}}
                                     <td class="px-6 py-4 text-center">
-                                        <input type="radio" wire:model="attendance.{{ $student->id }}" value="present" class="text-green-600 focus:ring-green-500 cursor-pointer h-4 w-4">
+                                        <input type="radio" wire:model.live="attendance.{{ $student->id }}" value="present" class="text-green-600 focus:ring-green-500 cursor-pointer h-4 w-4">
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        <input type="radio" wire:model="attendance.{{ $student->id }}" value="late" class="text-yellow-600 focus:ring-yellow-500 cursor-pointer h-4 w-4">
+                                        <input type="radio" wire:model.live="attendance.{{ $student->id }}" value="late" class="text-yellow-600 focus:ring-yellow-500 cursor-pointer h-4 w-4">
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        <input type="radio" wire:model="attendance.{{ $student->id }}" value="absent" class="text-red-600 focus:ring-red-500 cursor-pointer h-4 w-4">
+                                        <input type="radio" wire:model.live="attendance.{{ $student->id }}" value="absent" class="text-red-600 focus:ring-red-500 cursor-pointer h-4 w-4">
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        <input type="radio" wire:model="attendance.{{ $student->id }}" value="excused" class="text-blue-600 focus:ring-blue-500 cursor-pointer h-4 w-4">
+                                        <input type="radio" wire:model.live="attendance.{{ $student->id }}" value="excused" class="text-blue-600 focus:ring-blue-500 cursor-pointer h-4 w-4">
                                     </td>
                                 </tr>
+
+                                {{-- 👇 CONDITIONAL ROW: Remarks (Reason) --}}
+                                {{-- Lumalabas lang kung 'Excused' ang napili --}}
+                                @if(isset($attendance[$student->id]) && $attendance[$student->id] === 'excused')
+                                    <tr class="bg-blue-50 animate-fade-in-down">
+                                        <td colspan="5" class="px-6 py-2 pb-4 border-b border-gray-200">
+                                            <div class="flex items-center gap-3 pl-4">
+                                                <span class="text-xs font-bold text-blue-700 uppercase tracking-wide">
+                                                    <i class='bx bx-info-circle'></i> Reason:
+                                                </span>
+                                                <input type="text" 
+                                                       wire:model="remarks.{{ $student->id }}"
+                                                       class="w-full md:w-1/2 text-sm border-blue-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 placeholder-blue-300"
+                                                       placeholder="Enter reason for excuse (Optional)...">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endif
+
                             @empty
                                 <tr>
                                     <td colspan="5" class="px-6 py-10 text-center text-gray-500">No students enrolled in this class.</td>

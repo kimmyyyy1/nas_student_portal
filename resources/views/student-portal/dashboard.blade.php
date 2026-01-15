@@ -8,12 +8,14 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- PROFILE CARD --}}
+            {{-- ========================== --}}
+            {{-- 1. PROFILE CARD SECTION    --}}
+            {{-- ========================== --}}
             <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 border-l-8 border-indigo-700">
                 <div class="p-6 md:flex items-start justify-between">
                     <div class="flex items-center mb-4 md:mb-0">
                         
-                        {{-- === PROFILE PICTURE === --}}
+                        {{-- Profile Picture Logic --}}
                         <div class="h-24 w-24 rounded-full bg-gray-200 border-4 border-indigo-500 shadow-sm overflow-hidden mr-6 flex-shrink-0 relative group">
                             @if($student->id_picture)
                                 <img src="{{ $student->id_picture }}" alt="Profile" class="h-full w-full object-cover">
@@ -31,6 +33,7 @@
                         </div>
                     </div>
                     
+                    {{-- Status Badges --}}
                     <div class="text-left md:text-right space-y-1">
                         <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
                             {{ $student->grade_level }} - {{ $student->section->section_name ?? 'Unassigned' }}
@@ -42,7 +45,7 @@
                     </div>
                 </div>
                 
-                {{-- EXPANDABLE DETAILS --}}
+                {{-- Expandable Details --}}
                 <div x-data="{ showInfo: false }" class="border-t border-gray-100">
                     <button @click="showInfo = !showInfo" class="w-full text-center py-2 text-xs text-gray-500 hover:bg-gray-50 flex justify-center items-center bg-gray-50 transition">
                         <span x-show="!showInfo">View Full Profile Details</span>
@@ -70,7 +73,9 @@
                 </div>
             </div>
             
-            {{-- PROMOTION STATUS BANNER --}}
+            {{-- ========================== --}}
+            {{-- 2. PROMOTION STATUS        --}}
+            {{-- ========================== --}}
             @if(isset($student->promotion_status) && $student->promotion_status)
                 @php
                     $borderClass = 'border-red-500';
@@ -96,7 +101,9 @@
                 </div>
             @endif
 
-            {{-- CLASS SCHEDULE --}}
+            {{-- ========================== --}}
+            {{-- 3. CLASS SCHEDULE          --}}
+            {{-- ========================== --}}
             <div x-data="{ showSchedule: false }" class="bg-white shadow-md rounded-lg overflow-hidden mb-8 border border-gray-200">
                 <button @click="showSchedule = !showSchedule" class="w-full p-4 bg-blue-50 border-b border-gray-200 flex justify-between items-center hover:bg-blue-100 transition">
                     <div class="flex items-center text-blue-800">
@@ -143,7 +150,9 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
-                {{-- ACADEMIC RECORDS (GRADES) --}}
+                {{-- ========================== --}}
+                {{-- 4. ACADEMIC RECORDS (GRADES)--}}
+                {{-- ========================== --}}
                 <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-indigo-50">
                         <h3 class="text-lg font-bold text-indigo-800">Academic Records</h3>
@@ -181,7 +190,9 @@
                 </div>
 
                 <div class="space-y-6">
-                    {{-- AWARDS --}}
+                    {{-- ========================== --}}
+                    {{-- 5. AWARDS                  --}}
+                    {{-- ========================== --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                         <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-yellow-50">
                             <h3 class="text-lg font-bold text-yellow-800">Awards & Recognition</h3>
@@ -200,7 +211,9 @@
                         </div>
                     </div>
 
-                    {{-- ATTENDANCE (UPDATED WITH CORRECT COLORS) --}}
+                    {{-- ========================== --}}
+                    {{-- 6. ATTENDANCE LOG (UPDATED)--}}
+                    {{-- ========================== --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                         <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-green-50">
                             <h3 class="text-lg font-bold text-green-800">Attendance Log</h3>
@@ -210,7 +223,7 @@
                                 <div class="space-y-2">
                                     @foreach($student->attendances->sortByDesc('date')->take(5) as $att)
                                         
-                                        {{-- 👇 COLOR LOGIC START --}}
+                                        {{-- 👇 COLOR MATCHING LOGIC --}}
                                         @php
                                             $statusColor = match(strtolower($att->status)) {
                                                 'present' => 'bg-green-100 text-green-700',
@@ -220,26 +233,41 @@
                                                 default   => 'bg-gray-100 text-gray-700',
                                             };
                                         @endphp
-                                        {{-- 👆 COLOR LOGIC END --}}
 
-                                        <div class="flex justify-between items-center p-2 rounded border border-gray-100 text-sm bg-white">
-                                            <div class="flex items-center">
-                                                <span class="text-gray-700 font-medium mr-2">{{ date('M d', strtotime($att->date)) }}</span>
-                                                <span class="text-xs text-gray-400">({{ date('D', strtotime($att->date)) }})</span>
+                                        <div class="p-2 rounded border border-gray-100 text-sm bg-white">
+                                            <div class="flex justify-between items-center">
+                                                <div class="flex items-center">
+                                                    {{-- Date --}}
+                                                    <span class="text-gray-700 font-medium mr-2">{{ date('M d', strtotime($att->date)) }}</span>
+                                                    {{-- Day --}}
+                                                    <span class="text-xs text-gray-400">({{ date('D', strtotime($att->date)) }})</span>
+                                                </div>
+                                                
+                                                {{-- Badge --}}
+                                                <span class="font-bold text-[10px] px-2 py-1 rounded uppercase {{ $statusColor }}">
+                                                    {{ $att->status }}
+                                                </span>
                                             </div>
-                                            
-                                            {{-- 👇 APPLIED COLOR HERE --}}
-                                            <span class="font-bold text-[10px] px-2 py-1 rounded uppercase {{ $statusColor }}">
-                                                {{ $att->status }}
-                                            </span>
+
+                                            {{-- 👇 SHOW REMARKS IF EXCUSED (AND NOT EMPTY) --}}
+                                            @if(strtolower($att->status) == 'excused' && !empty($att->remarks))
+                                                <div class="mt-1 text-right">
+                                                    <span class="text-[10px] italic text-blue-500">
+                                                        Note: {{ $att->remarks }}
+                                                    </span>
+                                                </div>
+                                            @endif
                                         </div>
+
                                     @endforeach
                                 </div>
                             @else <p class="text-gray-400 text-center italic text-sm">No attendance records.</p> @endif
                         </div>
                     </div>
 
-                    {{-- EXIT CLEARANCE --}}
+                    {{-- ========================== --}}
+                    {{-- 7. EXIT CLEARANCE          --}}
+                    {{-- ========================== --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-4 flex items-center justify-between">
                             <div><h3 class="text-md font-bold text-gray-800">Exit Clearance</h3><p class="text-xs text-gray-500">Transfer/Graduation</p></div>
