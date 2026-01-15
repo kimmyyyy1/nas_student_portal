@@ -1,17 +1,25 @@
 <x-app-layout>
-    {{-- 👇 DIRECT INJECTION: Fonts & Styles (Global fallback) --}}
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    {{-- Font Style Override --}}
     <style>
-        * { font-family: 'Poppins', sans-serif !important; }
+        .font-poppins-override * { font-family: 'Poppins', sans-serif !important; }
     </style>
 
     <x-slot name="header">
-        {{-- Empty header slot, nasa Livewire component na ang header text --}}
+        <div class="flex justify-between items-center font-poppins-override">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Sections & Classes') }}
+            </h2>
+            {{-- 👇 ITO YUNG MAGIC BUTTON: Nasa header siya, pero kinokontrol niya ang Livewire sa baba --}}
+            <button onclick="document.getElementById('trigger-create-hidden').click()" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer">
+                Add Section
+            </button>
+        </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 font-poppins-override">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            {{-- 👇 TINAWAG NATIN ANG LIVEWIRE COMPONENT DITO --}}
+            {{-- Livewire Component --}}
             @livewire('sections-manager')
         </div>
     </div>
