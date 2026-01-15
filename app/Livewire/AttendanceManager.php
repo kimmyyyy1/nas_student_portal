@@ -5,19 +5,19 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Section;
 use App\Models\Student;
-use App\Models\Attendance; // 👇 Importante: Siguraduhin na na-import ang Attendance Model
+use App\Models\Attendance;
 
 class AttendanceManager extends Component
 {
     public $view = 'grid'; // 'grid' or 'sheet'
     public $selectedSection = null;
     public $students = [];
-    public $attendance = []; // Dito natin isisave ang status [student_id => status]
+    public $attendance = []; // [student_id => status]
     public $date;
 
     public function mount()
     {
-        $this->date = now()->format('Y-m-d'); // Default date is today
+        $this->date = now()->format('Y-m-d');
     }
 
     // 👇 1. LOAD THE VIEW
@@ -30,34 +30,59 @@ class AttendanceManager extends Component
         ]);
     }
 
-    // 👇 2. OPEN ATTENDANCE SHEET
+    // 👇 2. OPEN ATTENDANCE SHEET (FIXED: Loads existing data)
     public function openAttendanceSheet($sectionId)
     {
-        $this->selectedSection = Section::with('adviser')->findOrFail($sectionId);
+        // Eager load students para iwas query loop
+        $this->selectedSection = Section::with(['adviser', 'students'])->findOrFail($sectionId);
         
-        // Kunin ang students ng section
         $this->students = $this->selectedSection->students ?? [];
-
-        // Reset attendance array
-        $this->attendance = [];
-
-        // Initialize default attendance status (Pwede mong baguhin logic nito later para mag-load ng existing data)
-        foreach($this->students as $student) {
-            // Check kung may record na for TODAY, kung wala, default to 'present'
-            // Sa ngayon, i-default muna natin sa 'present' para simple
-            $this->attendance[$student->id] = 'present'; 
-        }
+        
+        // I-load ang data
+        $this->loadAttendanceData();
 
         $this->view = 'sheet';
 
-        // Update Header para magbago ang Title at lumabas ang Back button
+        // Update Header
         $this->dispatch('update-header', 
             title: 'Attendance: ' . $this->selectedSection->section_name, 
             showBack: true
         );
     }
 
-    // 👇 3. GO BACK TO GRID
+    // 👇 3. HANDLE DATE CHANGE (NEW: Auto-reload pag nagbago ang date)
+    public function updatedDate()
+    {
+        // Kung nasa 'sheet' view tayo at may selected section, i-reload ang data
+        if ($this->view === 'sheet' && $this->selectedSection) {
+            $this->loadAttendanceData();
+        }
+    }
+
+    // 👇 4. HELPER: LOGIC TO LOAD ATTENDANCE STATUS
+    public function loadAttendanceData()
+    {
+        $this->attendance = [];
+
+        // Kunin ang existing records sa DB para sa Section at Date na ito
+        // Gamit ang 'pluck' para maging array na [student_id => status] agad
+        $existingRecords = Attendance::where('section_id', $this->selectedSection->id)
+                            ->where('date', $this->date)
+                            ->pluck('status', 'student_id');
+
+        foreach($this->students as $student) {
+            // Check kung may record na sa DB based sa ID ng student
+            if (isset($existingRecords[$student->id])) {
+                // Kung meron, gamitin ang nasa DB
+                $this->attendance[$student->id] = $existingRecords[$student->id];
+            } else {
+                // Kung wala, default to 'present'
+                $this->attendance[$student->id] = 'present';
+            }
+        }
+    }
+
+    // 👇 5. GO BACK TO GRID
     public function goBack()
     {
         $this->view = 'grid';
@@ -72,33 +97,28 @@ class AttendanceManager extends Component
         );
     }
 
-    // 👇 4. SAVE ATTENDANCE (REAL DATABASE LOGIC)
+    // 👇 6. SAVE ATTENDANCE
     public function saveAttendance()
     {
-        // Validation
         $this->validate([
             'date' => 'required|date',
             'attendance' => 'required|array',
         ]);
 
-        // Loop sa lahat ng attendance data at i-save/update sa database
         foreach ($this->attendance as $studentId => $status) {
             Attendance::updateOrCreate(
                 [
-                    // Hanapin ang record gamit ang mga ito (Unique constraint)
                     'student_id' => $studentId,
                     'section_id' => $this->selectedSection->id,
                     'date' => $this->date,
                 ],
                 [
-                    // I-update o i-create gamit ang values na ito
                     'status' => $status,
-                    'recorded_by' => auth()->id(), // Optional: Kung sino ang nag-record
+                    'recorded_by' => auth()->id(), // Siguraduhing naka-login ang user
                 ]
             );
         }
 
-        // Magpakita ng success message
         session()->flash('success', 'Attendance for ' . $this->date . ' saved successfully!');
     }
 }
