@@ -1,5 +1,29 @@
 <x-app-layout>
     
+    {{-- 👇 SIDEBAR LAG FIX (Performance Only, No Visual Changes) --}}
+    <style>
+        /* 1. Force GPU Rendering for the entire Sidebar (Iwas Lag) */
+        aside, .sidebar, nav {
+            transform: translate3d(0, 0, 0) !important; /* Force Hardware Acceleration */
+            -webkit-font-smoothing: antialiased;
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+
+        /* 2. Make Sidebar Scroll Smooth (Momentum Scrolling) */
+        aside .overflow-y-auto {
+            -webkit-overflow-scrolling: touch !important;
+            scroll-behavior: smooth;
+        }
+
+        /* 3. Optimize Hover Effects on Links (Iwas Flicker) */
+        aside a, aside button {
+            transform: translateZ(0);
+            will-change: transform, opacity;
+            transition: all 0.2s ease-out; /* Smooth transition instead of instant */
+        }
+    </style>
+
     {{-- HEADER --}}
     <x-slot name="header">
         <div class="flex items-center justify-between">
