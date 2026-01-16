@@ -1,25 +1,22 @@
-{{-- 👇 CSS OPTIMIZATION: SIDEBAR SCROLL FIXES --}}
+{{-- 👇 CSS OPTIMIZATION: SIDEBAR SCROLL FIXES & GPU ACCELERATION --}}
 <style>
-    /* 1. Force GPU Rendering sa buong Sidebar (Iwas Lag/Flicker) */
+    /* 1. Force GPU Rendering (Iwas Lag/Flicker) */
     nav.fixed {
         transform: translate3d(0, 0, 0);
         will-change: transform;
         backface-visibility: hidden;
         perspective: 1000px;
+        z-index: 50; 
     }
 
-    /* 2. SIDEBAR SCROLL FIX (Ang Solusyon sa "Tagos" na Scroll) */
+    /* 2. SIDEBAR SCROLL FIX (Anti-Tagos at Smooth) */
     #sidebar-menu {
-        /* Ito ang nagkukulong ng scroll sa sidebar lang. 
-           Pag sagad na, hindi dadamay ang main page. */
-        overscroll-behavior: contain; 
-        
-        /* Smooth Momentum Scrolling for Touch/Trackpad */
-        -webkit-overflow-scrolling: touch; 
+        overscroll-behavior: contain; /* Pigilan ang pag-scroll ng body pag sagad na */
+        -webkit-overflow-scrolling: touch; /* Momentum scrolling */
         scroll-behavior: smooth;
     }
 
-    /* 3. Custom Scrollbar Design (Manipis at Modern) */
+    /* 3. Custom Scrollbar (Manipis at Modern) */
     #sidebar-menu::-webkit-scrollbar {
         width: 5px;
     }
@@ -27,20 +24,19 @@
         background: transparent; 
     }
     #sidebar-menu::-webkit-scrollbar-thumb {
-        background: #cbd5e1; /* Light Gray */
+        background: #cbd5e1;
         border-radius: 10px;
         transition: background 0.3s ease;
     }
     #sidebar-menu::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8; /* Darker Gray pag hover */
+        background: #94a3b8;
     }
 </style>
 
 <nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-md border-r border-white/20 z-50 flex flex-col shadow-2xl no-print">
     
-    {{-- 1. SIDEBAR HEADER (Glass Effect + Horizontal Logo) --}}
+    {{-- 1. SIDEBAR HEADER --}}
     <div class="h-16 flex items-center justify-center border-b border-gray-200/50 shadow-sm shrink-0">
-        {{-- Logo Link with wire:navigate --}}
         <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" wire:navigate class="flex items-center justify-center w-full px-4">
             <img src="{{ asset('images/nas/horizontal.png') }}" 
                  alt="NAS Logo" 
@@ -48,8 +44,13 @@
         </a>
     </div>
 
-    {{-- 2. SCROLLABLE MENU AREA (ID applied for Scroll Logic) --}}
-    <div id="sidebar-menu" class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+    {{-- 2. SCROLLABLE MENU AREA --}}
+    {{-- 👇 ANG FIX: AlpineJS x-init para instant ang restore ng scroll position --}}
+    <div id="sidebar-menu" 
+         class="flex-1 overflow-y-auto py-4 px-3 space-y-1"
+         x-data
+         x-init="$el.scrollTop = localStorage.getItem('sidebar-scroll-pos') || 0"
+         @scroll.passive="localStorage.setItem('sidebar-scroll-pos', $el.scrollTop)">
 
         {{-- ROLE: STUDENT --}}
         @if(Auth::user()->role === 'student')
@@ -248,29 +249,3 @@
         </div>
     </div>
 </nav>
-
-{{-- IMPROVED SCROLL PRESERVATION SCRIPT --}}
-<script>
-    function initSidebarScroll() {
-        const sidebar = document.getElementById('sidebar-menu');
-        
-        if (sidebar) {
-            // 1. Ibalik ang dating pwesto (RESTORE)
-            const savedPos = localStorage.getItem('sidebar-scroll-pos');
-            if (savedPos) {
-                sidebar.scrollTop = savedPos;
-            }
-
-            // 2. I-save ang pwesto tuwing mag-i-scroll (SAVE)
-            sidebar.addEventListener('scroll', function() {
-                localStorage.setItem('sidebar-scroll-pos', sidebar.scrollTop);
-            }, { passive: true });
-        }
-    }
-
-    // Pagana sa unang load ng page (Hard Refresh/First Visit)
-    document.addEventListener('DOMContentLoaded', initSidebarScroll);
-
-    // Pagana sa bawat lipat ng page gamit ang wire:navigate
-    document.addEventListener('livewire:navigated', initSidebarScroll);
-</script>
