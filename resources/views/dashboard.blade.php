@@ -196,7 +196,7 @@
                 {{-- 2. BOTTOM SECTION: ACTIVITY & SPOTLIGHT --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
-                    {{-- 👇 RECENT ACTIVITY (WITH AJAX ID) --}}
+                    {{-- 👇 RECENT ACTIVITY (FIXED ALIGNMENT) --}}
                     <div class="md:col-span-2 bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-6 text-gray-900">
                             <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2">
@@ -207,8 +207,8 @@
                             
                             {{-- ID="activity-list" FOR AJAX --}}
                             <div class="space-y-6 relative" id="activity-list">
-                                {{-- Vertical Line (Moved to left-3) --}}
-                                <div class="absolute left-3 top-2 bottom-2 w-0.5 bg-gray-200"></div>
+                                {{-- Vertical Line (Background) --}}
+                                <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>
 
                                 @php 
                                     $safeActivities = $activities ?? collect([]); 
@@ -235,26 +235,31 @@
                                         $name = $activity->user->name ?? 'System';
                                     @endphp
 
-                                    {{-- 👇 FIXED SPACING HERE: Added pl-10 --}}
-                                    <div class="relative pl-10">
-                                        {{-- Dot (Aligned with line) --}}
-                                        <div class="absolute left-1.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white {{ $dotColor }} z-10"></div>
-                                        
-                                        <div class="text-sm text-gray-800">
-                                            @if($role) <span class="font-bold text-indigo-700">{{ $role }}</span> @endif
-                                            <span class="font-bold text-gray-900">{{ $name }}</span>
-                                            <span class="text-gray-600">{{ $actionText }}.</span>
+                                    {{-- 👇 FIXED STRUCTURE: FLEXBOX --}}
+                                    <div class="flex gap-x-3 relative z-10">
+                                        {{-- 1. DOT COLUMN --}}
+                                        <div class="flex-none w-5 flex justify-center mt-1">
+                                            <div class="w-3.5 h-3.5 rounded-full border-2 border-white {{ $dotColor }} shadow-sm"></div>
                                         </div>
+                                        
+                                        {{-- 2. TEXT COLUMN --}}
+                                        <div class="flex-grow">
+                                            <div class="text-sm text-gray-800">
+                                                @if($role) <span class="font-bold text-indigo-700">{{ $role }}</span> @endif
+                                                <span class="font-bold text-gray-900">{{ $name }}</span>
+                                                <span class="text-gray-600">{{ $actionText }}.</span>
+                                            </div>
 
-                                        @if($activity->action != 'Login')
-                                            <p class="text-xs text-gray-500 italic mb-1">
-                                                {{ str_replace(['Updated Grades', 'Checked Attendance'], '', $activity->description) }}
+                                            @if($activity->action != 'Login')
+                                                <p class="text-xs text-gray-500 italic mb-1">
+                                                    {{ str_replace(['Updated Grades', 'Checked Attendance'], '', $activity->description) }}
+                                                </p>
+                                            @endif
+
+                                            <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                                                <i class='bx bx-time'></i> {{ $activity->created_at->diffForHumans() }}
                                             </p>
-                                        @endif
-
-                                        <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                                            <i class='bx bx-time'></i> {{ $activity->created_at->diffForHumans() }}
-                                        </p>
+                                        </div>
                                     </div>
                                 @empty
                                     <div class="text-center py-8 text-gray-400 text-sm">
@@ -331,23 +336,18 @@
         </div>
     </div>
 
-    {{-- 👇 LIVE UPDATE SCRIPT (Fixed Spacing for Live Updates) --}}
+    {{-- 👇 LIVE UPDATE SCRIPT (Fixed with Flexbox) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
-            // 1. STATS UPDATER (Every 10 seconds)
             if(document.getElementById('stat-students')) {
-                setInterval(function() {
-                    updateDashboardStats();
-                }, 10000); 
+                setInterval(function() { updateDashboardStats(); }, 10000); 
             }
 
-            // 2. ACTIVITY LOG UPDATER (Every 5 seconds)
             if(document.getElementById('activity-list')) {
                 setInterval(fetchActivities, 5000); 
             }
 
-            // Function to fetch activities via AJAX
             function fetchActivities() {
                 fetch("{{ route('recent.activity') }}")
                     .then(response => response.json())
@@ -364,17 +364,15 @@
                             return;
                         }
 
-                        // Vertical Line (Updated Position)
-                        let htmlContent = '<div class="absolute left-3 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
+                        // Updated Structure using FLEX
+                        let htmlContent = '<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
                         
                         data.forEach(activity => {
-                            // 1. Color Logic
                             let dotColor = 'bg-gray-400';
                             if (activity.action === 'Updated Grades') dotColor = 'bg-indigo-500';
                             else if (activity.action === 'Checked Attendance') dotColor = 'bg-green-500';
                             else if (activity.action === 'Login') dotColor = 'bg-blue-400';
 
-                            // 2. Sentence Parts
                             let role = activity.user && activity.user.role ? activity.user.role.charAt(0).toUpperCase() + activity.user.role.slice(1) : '';
                             let name = activity.user && activity.user.name ? activity.user.name : 'System';
                             
@@ -388,22 +386,25 @@
                                 desc = desc.replace('Updated Grades', '').replace('Checked Attendance', '').trim();
                             }
 
-                            // 3. Construct HTML (Fixed Padding pl-10)
                             htmlContent += `
-                                <div class="relative pl-10 mb-4 last:mb-0">
-                                    <div class="absolute left-1.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white ${dotColor} z-10"></div>
-                                    
-                                    <div class="text-sm text-gray-800">
-                                        ${role ? `<span class="font-bold text-indigo-700">${role}</span>` : ''}
-                                        <span class="font-bold text-gray-900">${name}</span>
-                                        <span class="text-gray-600">${actionText}.</span>
+                                <div class="flex gap-x-3 relative z-10 mb-4 last:mb-0">
+                                    <div class="flex-none w-5 flex justify-center mt-1">
+                                        <div class="w-3.5 h-3.5 rounded-full border-2 border-white ${dotColor} shadow-sm"></div>
                                     </div>
-
-                                    ${(activity.action !== 'Login') ? `<p class="text-xs text-gray-500 italic mb-1">${desc}</p>` : ''}
                                     
-                                    <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                                        <i class='bx bx-time'></i> ${activity.time_ago || 'Just now'}
-                                    </p>
+                                    <div class="flex-grow">
+                                        <div class="text-sm text-gray-800">
+                                            ${role ? `<span class="font-bold text-indigo-700">${role}</span>` : ''}
+                                            <span class="font-bold text-gray-900">${name}</span>
+                                            <span class="text-gray-600">${actionText}.</span>
+                                        </div>
+
+                                        ${(activity.action !== 'Login') ? `<p class="text-xs text-gray-500 italic mb-1">${desc}</p>` : ''}
+                                        
+                                        <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                                            <i class='bx bx-time'></i> ${activity.time_ago || 'Just now'}
+                                        </p>
+                                    </div>
                                 </div>
                             `;
                         });
