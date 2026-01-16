@@ -196,7 +196,7 @@
                 {{-- 2. BOTTOM SECTION: ACTIVITY & SPOTLIGHT --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
-                    {{-- 👇 RECENT ACTIVITY (FIXED ALIGNMENT) --}}
+                    {{-- 👇 RECENT ACTIVITY (FIXED LAYOUT & TEXT CLEANER) --}}
                     <div class="md:col-span-2 bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-6 text-gray-900">
                             <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2">
@@ -235,14 +235,14 @@
                                         $name = $activity->user->name ?? 'System';
                                     @endphp
 
-                                    {{-- 👇 FIXED STRUCTURE: FLEXBOX --}}
-                                    <div class="flex gap-x-3 relative z-10">
-                                        {{-- 1. DOT COLUMN --}}
+                                    {{-- 👇 FIXED: FLEXBOX (No overlapping) --}}
+                                    <div class="flex gap-x-3 relative z-10 mb-4 last:mb-0">
+                                        {{-- Column 1: Dot --}}
                                         <div class="flex-none w-5 flex justify-center mt-1">
                                             <div class="w-3.5 h-3.5 rounded-full border-2 border-white {{ $dotColor }} shadow-sm"></div>
                                         </div>
                                         
-                                        {{-- 2. TEXT COLUMN --}}
+                                        {{-- Column 2: Content --}}
                                         <div class="flex-grow">
                                             <div class="text-sm text-gray-800">
                                                 @if($role) <span class="font-bold text-indigo-700">{{ $role }}</span> @endif
@@ -250,9 +250,10 @@
                                                 <span class="text-gray-600">{{ $actionText }}.</span>
                                             </div>
 
+                                            {{-- 👇 FIXED: strip_tags removes HTML codes like <strong> --}}
                                             @if($activity->action != 'Login')
                                                 <p class="text-xs text-gray-500 italic mb-1">
-                                                    {{ str_replace(['Updated Grades', 'Checked Attendance'], '', $activity->description) }}
+                                                    {{ strip_tags(str_replace(['Updated Grades', 'Checked Attendance'], '', $activity->description)) }}
                                                 </p>
                                             @endif
 
@@ -336,7 +337,7 @@
         </div>
     </div>
 
-    {{-- 👇 LIVE UPDATE SCRIPT (Fixed with Flexbox) --}}
+    {{-- 👇 LIVE UPDATE SCRIPT (UPDATED: Clean Text & Flexbox) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
@@ -383,7 +384,9 @@
 
                             let desc = activity.description;
                             if (activity.action !== 'Login') {
+                                // 👇 FIXED: Remove Action & Remove HTML tags
                                 desc = desc.replace('Updated Grades', '').replace('Checked Attendance', '').trim();
+                                desc = desc.replace(/(<([^>]+)>)/gi, ""); // Strips <strong> etc.
                             }
 
                             htmlContent += `
