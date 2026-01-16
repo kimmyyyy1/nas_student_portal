@@ -19,8 +19,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Redirect logic (Students & Applicants)
-        // Kung student o applicant ang nag-login, ilipat sa sarili nilang dashboard
+        // =========================================================
+        // 1. REDIRECT LOGIC (Students & Applicants)
+        // =========================================================
         if ($user->role === 'student') {
             return redirect()->route('student.dashboard');
         }
@@ -71,16 +72,15 @@ class DashboardController extends Controller
         // 3. LOGIC FOR ADMIN (Default View)
         // =========================================================
         
-        // Counts para sa Dashboard Cards
+        // Initial Data for Blade View (Page Load)
         $totalStudents = Student::count(); 
-        $totalApplicants = EnrollmentApplication::where('status', 'Pending')->count(); // Optional kung gusto mo ipakita
+        $totalApplicants = EnrollmentApplication::where('status', 'Pending')->count();
         
-        // Ito ang mga variables na tinatawag sa dashboard.blade.php
-        $activeSections = Section::count(); // Renamed from totalSections to match blade if needed, or stick to variable
-        $sportsTeams = Team::count();       // Renamed from totalTeams
-        $upcomingPlans = 0;                 // FIX: Variable name matched to Blade ($upcomingPlans)
+        $activeSections = Section::count(); 
+        $sportsTeams = Team::count();       
+        $upcomingPlans = 0; // Replace with Event::count() later if needed
 
-        // Get activities for initial page load (Latest 5)
+        // Get activities for initial page load
         $activities = ActivityLog::with('user')
                         ->latest()
                         ->take(5)
@@ -91,12 +91,16 @@ class DashboardController extends Controller
             'totalApplicants', 
             'activeSections', 
             'sportsTeams',
-            'upcomingPlans', // Passed correctly now
+            'upcomingPlans',
             'activities'
         ));
     }
 
-    // 👇 AJAX FUNCTION: Tinatawag ito ng JavaScript para sa Live Updates
+    // =========================================================
+    // 4. AJAX ENDPOINTS (For Live Updates)
+    // =========================================================
+
+    // Returns Recent Activity Logs as JSON
     public function getRecentActivity()
     {
         $activities = ActivityLog::with('user')
@@ -105,10 +109,10 @@ class DashboardController extends Controller
                         ->get()
                         ->map(function ($activity) {
                             return [
-                                'action' => $activity->action,       // Para sa kulay (Registration, Login, etc.)
-                                'description' => $activity->description, // Detalye ng ginawa
-                                'time_ago' => $activity->created_at->diffForHumans(), // "2 hours ago"
-                                'user' => $activity->user ? [        // Details ng user na gumawa
+                                'action' => $activity->action,
+                                'description' => $activity->description,
+                                'time_ago' => $activity->created_at->diffForHumans(),
+                                'user' => $activity->user ? [
                                     'name' => $activity->user->name,
                                     'role' => $activity->user->role,
                                 ] : null,
@@ -116,5 +120,16 @@ class DashboardController extends Controller
                         });
 
         return response()->json($activities);
+    }
+
+    // Returns Statistics Counts as JSON
+    public function getStats()
+    {
+        return response()->json([
+            'totalStudents' => Student::count(),
+            'activeSections' => Section::count(),
+            'totalTeams' => Team::count(),
+            'upcomingPlans' => 0, // Update this if you have an Events model
+        ]);
     }
 }

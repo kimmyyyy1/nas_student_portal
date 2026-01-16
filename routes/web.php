@@ -71,8 +71,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- MAIN DASHBOARD ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // 👇 IMPORTANTE: Route para sa Live Activity Log (AJAX)
+    // 👇 AJAX ROUTES (For Live Dashboard Updates)
     Route::get('/recent-activity', [DashboardController::class, 'getRecentActivity'])->name('recent.activity');
+    Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats'); // NEW ROUTE ADDED
 
     // --- USER PROFILE ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

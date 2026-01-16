@@ -150,7 +150,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-blue-600 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Students</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" data-target="{{ $totalStudents ?? 0 }}">0</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-students" data-target="{{ $totalStudents ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
                             <i class='bx bx-user-pin text-3xl'></i>
@@ -161,7 +161,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-green-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Sections</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" data-target="{{ $totalSections ?? 0 }}">0</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-sections" data-target="{{ $activeSections ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-green-100 text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
                             <i class='bx bx-chalkboard text-3xl'></i>
@@ -172,7 +172,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-yellow-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Sports Teams</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" data-target="{{ $totalTeams ?? 0 }}">0</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-teams" data-target="{{ $sportsTeams ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 group-hover:bg-yellow-600 group-hover:text-white transition">
                             <i class='bx bx-trophy text-3xl'></i>
@@ -183,7 +183,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-red-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Upcoming Plans</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" data-target="{{ $upcomingPlansCount ?? 0 }}">0</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-plans" data-target="{{ $upcomingPlans ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
                             <i class='bx bx-run text-3xl'></i>
@@ -278,29 +278,43 @@
         </div>
     </div>
 
-    {{-- 👇 SCRIPT FIX: Handles Initial Load AND Livewire Navigation --}}
+    {{-- 👇 FINAL SCRIPT: Handles Animation on Load & Navigation --}}
     <script>
-        // Global variables for intervals to clear them properly
         let statsInterval = null;
         let activityInterval = null;
 
         function initDashboard() {
-            // 1. CLEAR OLD INTERVALS (Prevents duplicates/memory leaks)
+            // 1. CLEANUP PREVIOUS INTERVALS
             if (statsInterval) clearInterval(statsInterval);
             if (activityInterval) clearInterval(activityInterval);
 
-            // 2. COUNT-UP ANIMATION
+            // 2. RUN INITIAL ANIMATION
+            animateCounters();
+
+            // 3. START POLLING
+            if(document.querySelector('.count-up')) {
+                // Fetch correct stats from server via JSON every 5s to ensure accuracy
+                fetchStats(); 
+                statsInterval = setInterval(fetchStats, 5000); 
+            }
+
+            if(document.getElementById('activity-list')) {
+                fetchActivities();
+                activityInterval = setInterval(fetchActivities, 5000);
+            }
+        }
+
+        function animateCounters() {
             const counters = document.querySelectorAll('.count-up');
             const speed = 200; 
 
             counters.forEach(counter => {
-                // Reset text to 0 first to see the animation again
-                counter.innerText = '0';
+                // Ensure we start from 0 for the animation visual
+                counter.innerText = '0'; 
+                const value = +counter.getAttribute('data-target');
                 
                 const animate = () => {
-                    const value = +counter.getAttribute('data-target');
                     const data = +counter.innerText;
-                    
                     const time = value / speed;
                     if(data < value) {
                         counter.innerText = Math.ceil(data + time);
@@ -311,20 +325,37 @@
                 }
                 animate();
             });
+        }
 
-            // 3. START LIVE POLLING (Only if elements exist)
-            if(document.querySelector('.count-up')) {
-                // Poll every 10 seconds for updated stats
-                statsInterval = setInterval(updateDashboardStats, 10000); 
-            }
+        function fetchStats() {
+            // Using the route we created in DashboardController
+            fetch("{{ route('dashboard.stats') }}")
+                .then(response => response.json())
+                .then(data => {
+                    // Update the data-target attributes and update text if changed
+                    updateStatElement('stat-students', data.totalStudents);
+                    updateStatElement('stat-sections', data.activeSections);
+                    updateStatElement('stat-teams', data.totalTeams);
+                    updateStatElement('stat-plans', data.upcomingPlans);
+                })
+                .catch(error => console.error('Error fetching stats:', error));
+        }
 
-            if(document.getElementById('activity-list')) {
-                fetchActivities(); // Fetch immediately
-                activityInterval = setInterval(fetchActivities, 5000); // Poll every 5s
+        function updateStatElement(id, newValue) {
+            const el = document.getElementById(id);
+            if(el) {
+                // Update attribute for next animation cycle
+                el.setAttribute('data-target', newValue);
+                
+                // If value changed significantly, maybe flash it or just update text
+                // For now, we just update the text to ensure it's correct
+                // Note: animateCounters() runs on nav, but this polling keeps it accurate live
+                if (el.innerText != newValue) {
+                    el.innerText = newValue;
+                }
             }
         }
 
-        // --- FETCH FUNCTIONS ---
         function fetchActivities() {
             fetch("{{ route('recent.activity') }}")
                 .then(response => response.json())
@@ -391,30 +422,10 @@
                 .catch(error => console.error('Error fetching activities:', error));
         }
 
-        function updateDashboardStats() {
-            const url = window.location.href;
-            fetch(url)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    
-                    const updateElement = (id) => {
-                        const newEl = doc.getElementById(id); // NOTE: This assumes IDs exist on count-up elements if you want live updates.
-                        // Currently your count-up elements use classes. If you want LIVE updates for stats without refresh:
-                        // Ideally create a JSON endpoint for stats too. 
-                        // For now, count-up animation handles the "Load" visual.
-                    };
-                })
-                .catch(error => {});
-        }
-
         // --- EVENT LISTENERS ---
-        
-        // 1. Runs on initial Full Page Load
+        // 1. Initial Load
         document.addEventListener('DOMContentLoaded', initDashboard);
-
-        // 2. Runs after Livewire Navigation (The Fix!)
+        // 2. Livewire Navigation (SPA Mode)
         document.addEventListener('livewire:navigated', initDashboard);
 
     </script>
