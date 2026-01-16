@@ -1,36 +1,22 @@
-{{-- 👇 CSS OPTIMIZATION: SIDEBAR SCROLL FIXES & GPU ACCELERATION --}}
+{{-- 👇 CSS OPTIMIZATION --}}
 <style>
-    /* 1. Force GPU Rendering (Iwas Lag/Flicker sa Sidebar) */
     nav.fixed {
         transform: translate3d(0, 0, 0);
         will-change: transform;
-        backface-visibility: hidden;
-        perspective: 1000px;
         z-index: 50; 
     }
 
-    /* 2. SIDEBAR SCROLL FIX (Anti-Tagos at Smooth) */
     #sidebar-menu {
-        overscroll-behavior: contain; /* Ito ang pipigil sa pag-scroll ng main page pag sagad na ang sidebar */
-        -webkit-overflow-scrolling: touch; /* Momentum scrolling */
-        scroll-behavior: smooth;
+        overscroll-behavior: contain; 
+        -webkit-overflow-scrolling: touch; 
+        scroll-behavior: auto; /* IMPORTANT: Auto muna para instant ang restore ng JS */
     }
 
-    /* 3. Custom Scrollbar (Manipis at Modern) */
-    #sidebar-menu::-webkit-scrollbar {
-        width: 5px;
-    }
-    #sidebar-menu::-webkit-scrollbar-track {
-        background: transparent; 
-    }
-    #sidebar-menu::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-        transition: background 0.3s ease;
-    }
-    #sidebar-menu::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
+    /* Custom Scrollbar */
+    #sidebar-menu::-webkit-scrollbar { width: 5px; }
+    #sidebar-menu::-webkit-scrollbar-track { background: transparent; }
+    #sidebar-menu::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    #sidebar-menu::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
 
 <nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-md border-r border-white/20 z-50 flex flex-col shadow-2xl no-print">
@@ -45,7 +31,19 @@
     </div>
 
     {{-- 2. SCROLLABLE MENU AREA --}}
-    <div id="sidebar-menu" class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+    {{-- 👇 ADDED: onscroll attribute para mabilis mag-save --}}
+    <div id="sidebar-menu" 
+         class="flex-1 overflow-y-auto py-4 px-3 space-y-1"
+         onscroll="sessionStorage.setItem('sidebar-scroll', this.scrollTop)">
+
+        {{-- 👇 INSTANT SCROLL RESTORE SCRIPT (Ito ang solusyon sa flicker/talon) --}}
+        <script>
+            var sidebar = document.getElementById('sidebar-menu');
+            var savedScroll = sessionStorage.getItem('sidebar-scroll');
+            if (sidebar && savedScroll) {
+                sidebar.scrollTop = savedScroll;
+            }
+        </script>
 
         {{-- ROLE: STUDENT --}}
         @if(Auth::user()->role === 'student')
@@ -244,23 +242,3 @@
         </div>
     </div>
 </nav>
-
-{{-- 👇 FINAL SCRIPT: LIVEWIRE LIFECYCLE HOOKS PARA SA SCROLL RESTORATION --}}
-<script>
-    // 1. I-save ang pwesto bago umalis (Navigating)
-    document.addEventListener('livewire:navigating', () => {
-        let sidebar = document.getElementById('sidebar-menu');
-        if(sidebar) {
-            sessionStorage.setItem('sidebar-scroll-pos', sidebar.scrollTop);
-        }
-    });
-
-    // 2. Ibalik ang pwesto pagkatapos mag-load (Navigated)
-    document.addEventListener('livewire:navigated', () => {
-        let sidebar = document.getElementById('sidebar-menu');
-        let pos = sessionStorage.getItem('sidebar-scroll-pos');
-        if(sidebar && pos) {
-            sidebar.scrollTop = pos;
-        }
-    });
-</script>
