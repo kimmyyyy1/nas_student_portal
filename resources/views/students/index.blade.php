@@ -44,15 +44,16 @@
                 <form method="GET" action="{{ route('students.index') }}">
                     <div class="flex flex-col md:flex-row md:items-end gap-3">
                         
-                        {{-- 1. SEARCH (Takes up remaining space) --}}
+                        {{-- 1. SEARCH (FIXED VISIBILITY) --}}
                         <div class="flex-grow">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Search Student</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class='bx bx-search text-gray-400'></i>
+                                    <i class='bx bx-search text-gray-400 text-lg'></i>
                                 </div>
+                                {{-- 👇 Added: text-gray-900 bg-white placeholder-gray-500 --}}
                                 <input type="text" name="search" value="{{ request('search') }}" 
-                                    class="pl-9 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2" 
+                                    class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white placeholder-gray-500" 
                                     placeholder="Name, LRN, or ID...">
                             </div>
                         </div>
@@ -60,10 +61,9 @@
                         {{-- 2. GRADE LEVEL --}}
                         <div class="w-full md:w-32">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Grade</label>
-                            <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 cursor-pointer">
+                            <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
                                 <option value="">All</option>
                                 @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
-                                    {{-- 👇 RESTORED FULL NAME: No more 'G7', back to 'Grade 7' --}}
                                     <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ $gl }}</option>
                                 @endforeach
                             </select>
@@ -72,7 +72,7 @@
                         {{-- 3. SECTION --}}
                         <div class="w-full md:w-40">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Section</label>
-                            <select name="section_id" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 cursor-pointer">
+                            <select name="section_id" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
                                 <option value="">All</option>
                                 @foreach($sections->groupBy('grade_level') as $grade => $gradeSections)
                                     <optgroup label="{{ $grade }}">
@@ -89,7 +89,7 @@
                         {{-- 4. STATUS --}}
                         <div class="w-full md:w-36">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
-                            <select name="status" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 cursor-pointer">
+                            <select name="status" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
                                 <option value="">All</option>
                                 @foreach(['New', 'Continuing', 'Enrolled', 'Transfer out', 'Graduate'] as $stat)
                                     <option value="{{ $stat }}" {{ request('status') == $stat ? 'selected' : '' }}>{{ $stat }}</option>
