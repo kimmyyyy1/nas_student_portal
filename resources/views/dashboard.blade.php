@@ -1,30 +1,40 @@
 <x-app-layout>
     
-    {{-- 👇 CSS FIXES: SIDEBAR SCROLL CONTAINMENT (Iwas Scroll Chaining) --}}
+    {{-- 👇 CSS FIXES: STOP SCROLL CHAINING (Anti-Tagos Scroll) --}}
     <style>
-        /* 1. Force GPU Rendering (Iwas Lag) */
-        aside, .sidebar, nav {
-            transform: translate3d(0, 0, 0) !important;
-            -webkit-font-smoothing: antialiased;
-            backface-visibility: hidden;
-            perspective: 1000px;
-        }
-
-        /* 2. SIDEBAR SCROLL FIX (The Solution) */
-        aside .overflow-y-auto {
-            /* Smooth Momentum Scrolling */
-            -webkit-overflow-scrolling: touch !important;
+        /* 1. Global Optimization */
+        html {
             scroll-behavior: smooth;
-            
-            /* 👇 IMPORTANT: Contain scroll within sidebar ONLY */
-            overscroll-behavior: contain; 
         }
 
-        /* 3. Optimize Hover Effects */
-        aside a, aside button {
-            transform: translateZ(0);
-            will-change: transform, opacity;
-            transition: all 0.2s ease-out;
+        /* 2. ULTIMATE FIX: Pigilan ang 'Scroll Chaining' sa LAHAT ng scrollable areas */
+        /* Targetin lahat ng elements na may 'overflow-y-auto' o 'overflow-y-scroll' */
+        [class*="overflow-y-"] {
+            overscroll-behavior: contain !important;  /* Ito ang pipigil sa pag-scroll ng background */
+            -webkit-overflow-scrolling: touch !important; /* Smooth scroll sa touch devices */
+        }
+
+        /* 3. Custom Scrollbar (Manipis at Modern) */
+        ::-webkit-scrollbar {
+            width: 6px; 
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* 4. Force GPU Rendering sa Sidebar elements (Iwas Lag) */
+        aside, nav, .sidebar {
+            transform: translate3d(0, 0, 0); 
+            will-change: transform;
         }
     </style>
 
@@ -231,7 +241,7 @@
                                 </h3>
                             </div>
                             
-                            {{-- SSR Content --}}
+                            {{-- SSR Content (Instant) --}}
                             <div class="space-y-6 relative" id="activity-list">
                                 <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>
                                 
