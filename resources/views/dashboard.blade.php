@@ -206,9 +206,9 @@
                             </div>
                             
                             {{-- ID="activity-list" FOR AJAX --}}
-                            <div class="space-y-6 relative pl-2" id="activity-list">
-                                {{-- Vertical Line --}}
-                                <div class="absolute left-2 top-2 bottom-2 w-0.5 bg-gray-100"></div>
+                            <div class="space-y-6 relative" id="activity-list">
+                                {{-- Vertical Line (Moved to left-3) --}}
+                                <div class="absolute left-3 top-2 bottom-2 w-0.5 bg-gray-200"></div>
 
                                 @php 
                                     $safeActivities = $activities ?? collect([]); 
@@ -235,9 +235,10 @@
                                         $name = $activity->user->name ?? 'System';
                                     @endphp
 
-                                    <div class="relative pl-6">
-                                        {{-- Dot --}}
-                                        <div class="absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-white {{ $dotColor }}"></div>
+                                    {{-- 👇 FIXED SPACING HERE: Added pl-10 --}}
+                                    <div class="relative pl-10">
+                                        {{-- Dot (Aligned with line) --}}
+                                        <div class="absolute left-1.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white {{ $dotColor }} z-10"></div>
                                         
                                         <div class="text-sm text-gray-800">
                                             @if($role) <span class="font-bold text-indigo-700">{{ $role }}</span> @endif
@@ -330,7 +331,7 @@
         </div>
     </div>
 
-    {{-- 👇 LIVE UPDATE SCRIPT (Fixed for New Layout) --}}
+    {{-- 👇 LIVE UPDATE SCRIPT (Fixed Spacing for Live Updates) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
@@ -363,7 +364,8 @@
                             return;
                         }
 
-                        let htmlContent = '<div class="absolute left-2 top-2 bottom-2 w-0.5 bg-gray-100"></div>';
+                        // Vertical Line (Updated Position)
+                        let htmlContent = '<div class="absolute left-3 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
                         
                         data.forEach(activity => {
                             // 1. Color Logic
@@ -373,7 +375,6 @@
                             else if (activity.action === 'Login') dotColor = 'bg-blue-400';
 
                             // 2. Sentence Parts
-                            // Ensure user object exists (handle null users)
                             let role = activity.user && activity.user.role ? activity.user.role.charAt(0).toUpperCase() + activity.user.role.slice(1) : '';
                             let name = activity.user && activity.user.name ? activity.user.name : 'System';
                             
@@ -382,17 +383,15 @@
                             else if (activity.action === 'Checked Attendance') actionText = 'recorded the attendance';
                             else if (activity.action === 'Login') actionText = 'has logged in';
 
-                            // 3. Description cleaning
                             let desc = activity.description;
                             if (activity.action !== 'Login') {
-                                // Remove the action text from description if it's repeated
                                 desc = desc.replace('Updated Grades', '').replace('Checked Attendance', '').trim();
                             }
 
-                            // 4. Construct HTML
+                            // 3. Construct HTML (Fixed Padding pl-10)
                             htmlContent += `
-                                <div class="relative pl-6 mb-4 last:mb-0">
-                                    <div class="absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-white ${dotColor}"></div>
+                                <div class="relative pl-10 mb-4 last:mb-0">
+                                    <div class="absolute left-1.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white ${dotColor} z-10"></div>
                                     
                                     <div class="text-sm text-gray-800">
                                         ${role ? `<span class="font-bold text-indigo-700">${role}</span>` : ''}
