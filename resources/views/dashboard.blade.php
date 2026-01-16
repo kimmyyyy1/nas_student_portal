@@ -1,5 +1,34 @@
 <x-app-layout>
     
+    {{-- 👇 ADDED: CSS FOR SMOOTH SCROLLING & CUSTOM SCROLLBAR --}}
+    <style>
+        html {
+            scroll-behavior: smooth; /* Smooth anchor linking */
+        }
+        
+        /* Custom Scrollbar para sa Webkit Browsers (Chrome, Edge, Safari) */
+        ::-webkit-scrollbar {
+            width: 8px; /* Mas manipis */
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* Light Gray */
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* Darker Gray pag hover */
+        }
+
+        /* Optimization para iwas lag sa text rendering */
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+
     {{-- HEADER --}}
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -14,8 +43,8 @@
         </div>
     </x-slot>
 
-    {{-- Main Content Wrapper --}}
-    <div class="py-12">
+    {{-- Main Content Wrapper (Added 'antialiased' for smoother text) --}}
+    <div class="py-12 antialiased">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- ======================================================= --}}
@@ -33,7 +62,7 @@
                     </div>
                 @else
                     {{-- WELCOME BANNER --}}
-                    <div class="bg-gradient-to-r from-blue-900 to-indigo-800 text-white overflow-hidden shadow-lg sm:rounded-lg mb-6 relative border border-blue-700">
+                    <div class="bg-gradient-to-r from-blue-900 to-indigo-800 text-white overflow-hidden shadow-lg sm:rounded-lg mb-6 relative border border-blue-700 transform transition-all duration-300 hover:shadow-xl">
                         <div class="p-6 relative z-10 flex justify-between items-center">
                             <div>
                                 <h3 class="text-2xl font-bold drop-shadow-md">Welcome, Teacher {{ Auth::user()->name }}!</h3>
@@ -50,7 +79,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {{-- ADVISORY CLASS CARD --}}
                         <div class="md:col-span-2">
-                            <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200 h-full flex flex-col">
+                            <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200 h-full flex flex-col transition hover:shadow-lg">
                                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                                     <h4 class="font-bold text-gray-700 flex items-center uppercase text-sm tracking-wide">
                                         <i class='bx bx-chalkboard text-xl mr-2 text-indigo-600'></i>
@@ -96,7 +125,7 @@
 
                         {{-- MY LOADS / SCHEDULE --}}
                         <div class="md:col-span-1 space-y-6">
-                            <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
+                            <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200 transition hover:shadow-lg">
                                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase flex justify-between items-center">
                                     <span><i class='bx bx-book-open mr-1'></i> My Loads</span>
                                     <a href="{{ route('schedules.my') }}" class="text-xs text-blue-600 hover:text-blue-800 hover:underline">View All</a>
@@ -125,7 +154,7 @@
                                 </div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md text-white overflow-hidden group">
+                            <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md text-white overflow-hidden group hover:shadow-lg transition">
                                 <div class="p-5 text-center">
                                     <i class='bx bx-edit text-4xl mb-2 text-white opacity-90 group-hover:scale-110 transition duration-300'></i>
                                     <h4 class="font-bold mb-1">Grading System</h4>
@@ -194,7 +223,7 @@
                 {{-- 2. BOTTOM SECTION: ACTIVITY & SPOTLIGHT --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
-                    {{-- RECENT ACTIVITY (SERVER-SIDE RENDERED FOR SPEED) --}}
+                    {{-- RECENT ACTIVITY (No Spinner - Instant Load) --}}
                     <div class="md:col-span-2 bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-6 text-gray-900">
                             <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2">
@@ -203,6 +232,7 @@
                                 </h3>
                             </div>
                             
+                            {{-- SSR Content (Instant) --}}
                             <div class="space-y-6 relative" id="activity-list">
                                 <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>
                                 
@@ -337,7 +367,6 @@
             }
 
             if(document.getElementById('activity-list')) {
-                // Polling for updates (initial load already handled by Blade)
                 activityInterval = setInterval(fetchActivities, 30000);
             }
         }
@@ -350,9 +379,7 @@
                 const target = +counter.getAttribute('data-target');
                 const startTime = performance.now();
 
-                // Dynamic Duration: 
-                // Kung maliit ang number, mabilis lang (500ms).
-                // Kung malaki, sakto lang (max 2 seconds).
+                // Dynamic Duration: Small numbers animate fast, big numbers animate slow
                 const duration = Math.min(2000, Math.max(500, target * 50)); 
 
                 counter.innerText = '0'; // Start at 0
@@ -361,7 +388,7 @@
                     const elapsed = currentTime - startTime;
                     const progress = Math.min(elapsed / duration, 1);
 
-                    // Easing Function (Ease Out Quad) - Mas natural na pagbagal
+                    // Easing Function (Ease Out Quad) - Smooth slowdown
                     const ease = 1 - (1 - progress) * (1 - progress);
 
                     const current = Math.floor(ease * target);
@@ -424,7 +451,7 @@
                         return;
                     }
 
-                    // Rebuild HTML for updates
+                    // Rebuild HTML for updates (Updated to match Blade structure)
                     let htmlContent = '<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
                     
                     data.forEach(activity => {
