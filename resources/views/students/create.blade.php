@@ -157,7 +157,7 @@
                                 </h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     
-                                    {{-- GRADE LEVEL DROPDOWN --}}
+                                    {{-- 1. GRADE LEVEL DROPDOWN --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Grade Level <span class="text-red-500">*</span></label>
                                         <select id="grade_level" name="grade_level" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
@@ -171,17 +171,12 @@
                                         </select>
                                     </div>
                                     
-                                    {{-- SECTION DROPDOWN --}}
+                                    {{-- 2. SECTION ASSIGNMENT (EMPTY INITIAL STATE) --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Section Assignment</label>
+                                        {{-- 👇 Note: Empty options initially. JavaScript will populate this. --}}
                                         <select id="section_id" name="section_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">-- No Section Yet --</option>
-                                            @foreach($sections as $section)
-                                                {{-- Ipinapasa ang Grade Level bilang data attribute --}}
-                                                <option value="{{ $section->id }}" data-grade="{{ $section->grade_level }}" {{ old('section_id') == $section->id ? 'selected' : '' }}>
-                                                    {{ $section->section_name }}
-                                                </option>
-                                            @endforeach
+                                            <option value="">-- Select Grade First --</option>
                                         </select>
                                     </div>
 
@@ -233,9 +228,9 @@
         </div>
     </div>
 
-    {{-- SCRIPTS --}}
+    {{-- SCRIPTS (FIXED LOGIC FOR DROPDOWN) --}}
     <script>
-        // 1. Photo Preview Script
+        // 1. Photo Preview
         function previewImage(event) {
             const reader = new FileReader();
             const output = document.getElementById('photo-preview');
@@ -250,50 +245,69 @@
             }
         }
 
-        // 2. Dependent Dropdown Script (Updated Logic)
+        // 2. DEPENDENT DROPDOWN (JSON DATA APPROACH)
         document.addEventListener('DOMContentLoaded', function () {
+            
+            // Kukunin natin ang raw data galing sa Laravel Controller
+            const allSections = @json($sections);
+            const oldSectionId = @json(old('section_id')); // Kung may error, mare-retain ang selection
+
             const gradeSelect = document.getElementById('grade_level');
             const sectionSelect = document.getElementById('section_id');
 
-            // Safety Check
-            if (!gradeSelect || !sectionSelect) return;
-
-            // Store original options immediately
-            const allOptions = Array.from(sectionSelect.options);
-
             function filterSections() {
-                // Get selected value (e.g. "Grade 7") and Normalize it (remove "Grade " and spaces) -> "7"
-                const selectedGradeRaw = gradeSelect.value;
-                const selectedGrade = selectedGradeRaw.replace(/Grade\s*/i, '').trim();
+                // Kunin ang Grade Level (e.g. "Grade 7")
+                const selectedGradeText = gradeSelect.value;
+                
+                // Extract Number Only (Para "Grade 7" -> "7")
+                // Ito ang solusyon para mag-match kahit ano pa format sa database
+                const gradeNumber = selectedGradeText.replace(/[^0-9]/g, '');
 
-                // Clear dropdown (keep placeholder)
+                // Reset Dropdown
                 sectionSelect.innerHTML = '<option value="">-- No Section Yet --</option>';
 
-                if (selectedGrade) {
-                    allOptions.forEach(option => {
-                        // Skip the placeholder in the source list
-                        if (option.value === "") return;
-
-                        // Get option grade (e.g. "7" or "Grade 7") and Normalize it -> "7"
-                        const optionGradeRaw = option.dataset.grade || "";
-                        const optionGrade = optionGradeRaw.replace(/Grade\s*/i, '').trim();
-
-                        // Compare normalized values: "7" == "7"
-                        if (optionGrade === selectedGrade) {
-                            sectionSelect.appendChild(option.cloneNode(true));
-                        }
+                if (gradeNumber) {
+                    // Filter: Hanapin ang sections na may parehong number sa grade_level
+                    const filteredSections = allSections.filter(section => {
+                        // Safety check kung null ang grade_level
+                        if(!section.grade_level) return false;
+                        
+                        // Gawin ding number ang nasa database (e.g. "Grade 7" -> "7" or "7" -> "7")
+                        const sectionGradeNumber = section.grade_level.toString().replace(/[^0-9]/g, '');
+                        
+                        return sectionGradeNumber === gradeNumber;
                     });
-                } 
 
-                // Optional: If you want to show all sections when no grade is selected, remove the 'if' wrapper or add 'else'.
-                // Currently, it keeps it empty if no grade is selected, which is cleaner.
+                    if (filteredSections.length > 0) {
+                        sectionSelect.innerHTML = '<option value="">-- Select Section --</option>';
+                        
+                        filteredSections.forEach(section => {
+                            const option = document.createElement('option');
+                            option.value = section.id;
+                            option.text = section.section_name;
+
+                            // Check if ito yung dating sinelect (old input)
+                            if (oldSectionId && oldSectionId == section.id) {
+                                option.selected = true;
+                            }
+
+                            sectionSelect.appendChild(option);
+                        });
+                    } else {
+                        sectionSelect.innerHTML = '<option value="">-- No Sections Found for ' + selectedGradeText + ' --</option>';
+                    }
+                } else {
+                    sectionSelect.innerHTML = '<option value="">-- Select Grade First --</option>';
+                }
             }
 
             // Listen for changes
             gradeSelect.addEventListener('change', filterSections);
 
-            // Run once on load (to handle "old" input if validation fails)
-            filterSections();
+            // Run once on load (para kung may laman na, mag-load agad)
+            if(gradeSelect.value) {
+                filterSections();
+            }
         });
     </script>
 </x-app-layout>
