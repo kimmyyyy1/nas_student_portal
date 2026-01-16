@@ -132,4 +132,4 @@ class DashboardController extends Controller
             'upcomingPlans' => 0, // Update this if you have an Events model
         ]);
     }
-}
+}   
