@@ -1,26 +1,30 @@
 <x-app-layout>
     
-    {{-- 👇 SIDEBAR LAG FIX (Performance Only, No Visual Changes) --}}
+    {{-- 👇 CSS FIXES: SIDEBAR SCROLL CONTAINMENT (Iwas Scroll Chaining) --}}
     <style>
-        /* 1. Force GPU Rendering for the entire Sidebar (Iwas Lag) */
+        /* 1. Force GPU Rendering (Iwas Lag) */
         aside, .sidebar, nav {
-            transform: translate3d(0, 0, 0) !important; /* Force Hardware Acceleration */
+            transform: translate3d(0, 0, 0) !important;
             -webkit-font-smoothing: antialiased;
             backface-visibility: hidden;
             perspective: 1000px;
         }
 
-        /* 2. Make Sidebar Scroll Smooth (Momentum Scrolling) */
+        /* 2. SIDEBAR SCROLL FIX (The Solution) */
         aside .overflow-y-auto {
+            /* Smooth Momentum Scrolling */
             -webkit-overflow-scrolling: touch !important;
             scroll-behavior: smooth;
+            
+            /* 👇 IMPORTANT: Contain scroll within sidebar ONLY */
+            overscroll-behavior: contain; 
         }
 
-        /* 3. Optimize Hover Effects on Links (Iwas Flicker) */
+        /* 3. Optimize Hover Effects */
         aside a, aside button {
             transform: translateZ(0);
             will-change: transform, opacity;
-            transition: all 0.2s ease-out; /* Smooth transition instead of instant */
+            transition: all 0.2s ease-out;
         }
     </style>
 
@@ -227,7 +231,7 @@
                                 </h3>
                             </div>
                             
-                            {{-- SSR Content (Instant) --}}
+                            {{-- SSR Content --}}
                             <div class="space-y-6 relative" id="activity-list">
                                 <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>
                                 
