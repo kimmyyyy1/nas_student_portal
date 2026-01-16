@@ -278,61 +278,71 @@
         </div>
     </div>
 
-    {{-- 👇 FINAL SCRIPT: Handles Animation on Load & Navigation --}}
+    {{-- 👇 OPTIMIZED SCRIPT: Smooth Animation, Fixed Duration, No Lag --}}
     <script>
         let statsInterval = null;
         let activityInterval = null;
 
         function initDashboard() {
-            // 1. CLEANUP PREVIOUS INTERVALS
+            // 1. CLEANUP (Prevent memory leaks when navigating)
             if (statsInterval) clearInterval(statsInterval);
             if (activityInterval) clearInterval(activityInterval);
 
-            // 2. RUN INITIAL ANIMATION
+            // 2. RUN ANIMATION ON LOAD
             animateCounters();
 
-            // 3. START POLLING
+            // 3. START POLLING (Every 30 seconds to prevent lag)
             if(document.querySelector('.count-up')) {
-                // Fetch correct stats from server via JSON every 5s to ensure accuracy
-                fetchStats(); 
-                statsInterval = setInterval(fetchStats, 5000); 
+                statsInterval = setInterval(fetchStats, 30000); 
             }
 
             if(document.getElementById('activity-list')) {
-                fetchActivities();
-                activityInterval = setInterval(fetchActivities, 5000);
+                activityInterval = setInterval(fetchActivities, 30000);
             }
         }
 
+        // --- SMOOTH ANIMATION (Fixed 2 Second Duration) ---
         function animateCounters() {
             const counters = document.querySelectorAll('.count-up');
-            const speed = 200; 
+            const duration = 2000; // Animation takes exactly 2 seconds
 
             counters.forEach(counter => {
-                // Ensure we start from 0 for the animation visual
-                counter.innerText = '0'; 
-                const value = +counter.getAttribute('data-target');
-                
-                const animate = () => {
-                    const data = +counter.innerText;
-                    const time = value / speed;
-                    if(data < value) {
-                        counter.innerText = Math.ceil(data + time);
-                        setTimeout(animate, 20);
+                const target = +counter.getAttribute('data-target');
+                const startTime = performance.now();
+
+                // Reset text to 0 immediately
+                counter.innerText = '0';
+
+                function update(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1); // Value between 0 and 1
+
+                    // Ease Out Quart Formula (Starts fast, slows down smoothly)
+                    const ease = 1 - Math.pow(1 - progress, 4);
+
+                    // Compute current number
+                    const current = Math.floor(ease * target);
+                    
+                    // Update text with commas (e.g., 1,234)
+                    counter.innerText = current.toLocaleString();
+
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
                     } else {
-                        counter.innerText = value;
+                        // Ensure final number is exact
+                        counter.innerText = target.toLocaleString();
                     }
                 }
-                animate();
+
+                requestAnimationFrame(update);
             });
         }
 
+        // --- FETCH STATS (AJAX) ---
         function fetchStats() {
-            // Using the route we created in DashboardController
             fetch("{{ route('dashboard.stats') }}")
                 .then(response => response.json())
                 .then(data => {
-                    // Update the data-target attributes and update text if changed
                     updateStatElement('stat-students', data.totalStudents);
                     updateStatElement('stat-sections', data.activeSections);
                     updateStatElement('stat-teams', data.totalTeams);
@@ -344,18 +354,22 @@
         function updateStatElement(id, newValue) {
             const el = document.getElementById(id);
             if(el) {
-                // Update attribute for next animation cycle
+                // Get current value without commas to compare
+                const oldValue = parseInt(el.innerText.replace(/,/g, ''));
+                
+                // Update attribute for next animation cycle (if user navigates away and back)
                 el.setAttribute('data-target', newValue);
                 
-                // If value changed significantly, maybe flash it or just update text
-                // For now, we just update the text to ensure it's correct
-                // Note: animateCounters() runs on nav, but this polling keeps it accurate live
-                if (el.innerText != newValue) {
-                    el.innerText = newValue;
+                // Only update visually if value actually changed
+                if (oldValue !== newValue) {
+                    el.innerText = newValue.toLocaleString();
+                    el.classList.add('text-green-600', 'transition-colors', 'duration-500');
+                    setTimeout(() => el.classList.remove('text-green-600'), 1000);
                 }
             }
         }
 
+        // --- FETCH ACTIVITIES (AJAX) ---
         function fetchActivities() {
             fetch("{{ route('recent.activity') }}")
                 .then(response => response.json())
@@ -373,6 +387,7 @@
                         return;
                     }
 
+                    // Build HTML
                     let htmlContent = '<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
                     
                     data.forEach(activity => {
@@ -415,6 +430,7 @@
                         `;
                     });
 
+                    // Only update DOM if content changed to reduce browser load
                     if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
                         listContainer.innerHTML = htmlContent;
                     }
