@@ -23,7 +23,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8">
+    <div class="py-6"> {{-- Reduced padding from py-8 to py-6 --}}
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             {{-- ALERTS --}}
@@ -39,30 +39,30 @@
                 </div>
             @endif
 
-            {{-- FIXED: GRID SYSTEM (HINDI NA MAIIPIT ANG SEARCH BAR) --}}
-            <div class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            {{-- ULTRA-COMPACT FILTER BAR --}}
+            <div class="mb-4 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
                 <form method="GET" action="{{ route('students.index') }}">
                     
-                    {{-- Grid with 12 Columns --}}
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                    {{-- Flex Row on Large Screens, Stack on Mobile --}}
+                    <div class="flex flex-col lg:flex-row lg:items-end gap-2">
                         
-                        {{-- 1. SEARCH STUDENT (Laging 4 columns ang lapad) --}}
-                        <div class="md:col-span-4">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Search Student</label>
+                        {{-- 1. SEARCH (FLEX-1: Takes all available width) --}}
+                        <div class="w-full lg:flex-1">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Search Student</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class='bx bx-search text-gray-400 text-lg'></i>
+                                    <i class='bx bx-search text-gray-400'></i>
                                 </div>
                                 <input type="text" name="search" value="{{ request('search') }}" 
-                                    class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white placeholder-gray-500" 
-                                    placeholder="Enter Name, LRN, or ID...">
+                                    class="pl-9 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900" 
+                                    placeholder="Name, LRN, or ID...">
                             </div>
                         </div>
 
-                        {{-- 2. GRADE LEVEL (2 columns) --}}
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Grade</label>
-                            <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
+                        {{-- 2. GRADE (Fixed Width) --}}
+                        <div class="w-full lg:w-40">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Grade</label>
+                            <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Grades</option>
                                 @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
                                     <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ $gl }}</option>
@@ -70,10 +70,10 @@
                             </select>
                         </div>
 
-                        {{-- 3. SECTION (3 columns - mas malapad konti para sa mahabang names) --}}
-                        <div class="md:col-span-3">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Section</label>
-                            <select name="section_id" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
+                        {{-- 3. SECTION (Fixed Width) --}}
+                        <div class="w-full lg:w-48">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Section</label>
+                            <select name="section_id" onchange="this.form.submit()" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Sections</option>
                                 @foreach($sections->groupBy('grade_level') as $grade => $gradeSections)
                                     <optgroup label="{{ $grade }}">
@@ -87,10 +87,10 @@
                             </select>
                         </div>
 
-                        {{-- 4. STATUS (2 columns) --}}
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
-                            <select name="status" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
+                        {{-- 4. STATUS (Fixed Width) --}}
+                        <div class="w-full lg:w-36">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status</label>
+                            <select name="status" onchange="this.form.submit()" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Statuses</option>
                                 @foreach(['New', 'Continuing', 'Enrolled', 'Transfer out', 'Graduate'] as $stat)
                                     <option value="{{ $stat }}" {{ request('status') == $stat ? 'selected' : '' }}>{{ $stat }}</option>
@@ -98,15 +98,15 @@
                             </select>
                         </div>
 
-                        {{-- 5. BUTTONS (1 column - dulo) --}}
-                        <div class="md:col-span-1 flex gap-2">
-                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-bold shadow transition h-[38px] flex items-center justify-center w-full" title="Filter Records">
-                                <i class='bx bx-filter-alt'></i>
+                        {{-- 5. BUTTONS --}}
+                        <div class="flex gap-2">
+                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1.5 rounded text-sm font-bold shadow transition h-[34px] flex items-center">
+                                <i class='bx bx-filter-alt mr-1'></i> Filter
                             </button>
                             
                             @if(request()->hasAny(['search', 'grade_level', 'section_id', 'status']))
-                                <a href="{{ route('students.index') }}" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-2 rounded-md text-sm font-bold shadow transition h-[38px] flex items-center justify-center w-full" title="Reset Filters">
-                                    <i class='bx bx-x text-xl'></i>
+                                <a href="{{ route('students.index') }}" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded text-sm font-bold shadow transition h-[34px] flex items-center justify-center" title="Reset Filters">
+                                    <i class='bx bx-x text-lg'></i>
                                 </a>
                             @endif
                         </div>
@@ -133,7 +133,7 @@
                             @forelse($students as $student)
                                 <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
                                     
-                                    {{-- 1. STUDENT ID --}}
+                                    {{-- 1. STUDENT ID (With Photo) --}}
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 mr-2 hidden sm:block">
