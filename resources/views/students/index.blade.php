@@ -58,10 +58,10 @@
                             </div>
                         </div>
 
-                        {{-- 2. GRADE --}}
+                        {{-- 2. GRADE (REMOVED ONCHANGE) --}}
                         <div class="w-full lg:w-40">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Grade</label>
-                            <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
+                            <select name="grade_level" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Grades</option>
                                 @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
                                     <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ $gl }}</option>
@@ -69,10 +69,10 @@
                             </select>
                         </div>
 
-                        {{-- 3. SECTION --}}
+                        {{-- 3. SECTION (REMOVED ONCHANGE) --}}
                         <div class="w-full lg:w-48">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Section</label>
-                            <select name="section_id" onchange="this.form.submit()" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
+                            <select name="section_id" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Sections</option>
                                 @foreach($sections->groupBy('grade_level') as $grade => $gradeSections)
                                     <optgroup label="{{ $grade }}">
@@ -86,10 +86,10 @@
                             </select>
                         </div>
 
-                        {{-- 4. STATUS --}}
+                        {{-- 4. STATUS (REMOVED ONCHANGE) --}}
                         <div class="w-full lg:w-36">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status</label>
-                            <select name="status" onchange="this.form.submit()" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
+                            <select name="status" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Statuses</option>
                                 @foreach(['New', 'Continuing', 'Enrolled', 'Transfer out', 'Graduate'] as $stat)
                                     <option value="{{ $stat }}" {{ request('status') == $stat ? 'selected' : '' }}>{{ $stat }}</option>
@@ -99,6 +99,7 @@
 
                         {{-- 5. BUTTONS --}}
                         <div class="flex gap-2">
+                            {{-- FILTER BUTTON (Now triggers the submit) --}}
                             <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1.5 rounded text-sm font-bold shadow transition h-[34px] flex items-center">
                                 <i class='bx bx-filter-alt mr-1'></i> Filter
                             </button>
@@ -178,7 +179,6 @@
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         @if($student->team)
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-100 truncate max-w-[120px]">
-                                                {{-- 👇 PRIORITY: Sport -> Sport Type -> Team Name --}}
                                                 {{ $student->team->sport ?? $student->team->sport_type ?? $student->team->team_name }}
                                             </span>
                                         @else
@@ -234,8 +234,6 @@
     {{-- LIVE UPDATE SCRIPT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Using Livewire navigate makes full page reload polling less ideal, 
-            // but keeping it as requested. Ensure wire:navigate works properly.
             setInterval(function() {
                 updateTable();
             }, 5000);
