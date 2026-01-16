@@ -57,6 +57,7 @@ class StudentController extends Controller
         return view('students.index', compact('students'));
     }
 
+    // 👇 TAMA NA ITO: Ipinapasa niya lahat ng sections para ma-filter ng JavaScript sa View
     public function create(): View
     {
         $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
@@ -153,13 +154,12 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', "Student record created! Password: {$tempPassword}");
     }
 
-    // 👇 UPDATE 1: Added Request $request to capture query params
+    // 👇 TAMA NA RIN ITO
     public function edit(Request $request, Student $student): View
     {
         $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
         $teams = Team::orderBy('team_name')->get();
         
-        // Capture page number, search, etc.
         $queryParams = $request->query();
 
         return view('students.edit', compact('student', 'sections', 'teams', 'queryParams'));
@@ -241,10 +241,6 @@ class StudentController extends Controller
             'description' => "<strong>{$role}</strong> {$user->name} updated info of <strong>{$student->last_name}, {$student->first_name}</strong>.",
         ]);
 
-        // 👇 UPDATED: Redirect back to the list using the query params from the request if they exist
-        // Note: For update, we usually redirect to index. If you want to persist page here too:
-        // return redirect()->route('students.index', $request->query())->with('success', '...');
-        // But the prompt specifically asked for the "Back" button functionality on the View/Edit pages.
         return redirect()->route('students.index')->with('success', 'Student record updated successfully.');
     }
     
@@ -255,16 +251,10 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student record deleted.');
     }
 
-    // 👇 UPDATE 2: Added Request $request to capture query params
     public function show(Request $request, Student $student) 
     { 
-        // Load the Section and Adviser details for the profile view
         $student->load(['section.adviser', 'team']);
-        
-        // Capture page number, search, etc.
         $queryParams = $request->query();
-        
-        // Return the Profile View instead of Edit
         return view('students.show', compact('student', 'queryParams')); 
     }
 
@@ -279,7 +269,6 @@ class StudentController extends Controller
 
     public function processBulkUpload(Request $request)
     {
-        // 1. Validation
         $validator = Validator::make($request->all(), [
             'photos' => 'required',
             'photos.*' => 'image|mimes:jpg,jpeg,png|max:4500', 

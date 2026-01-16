@@ -123,7 +123,6 @@
                                     <i class='bx bx-map mr-2'></i> Complete Address
                                 </h3>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {{-- FIX: Tinanggal ang "value='Region III'" --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Region</label>
                                         <input type="text" name="region" placeholder="Region" class="w-full border-gray-300 rounded-md shadow-sm text-sm" value="{{ old('region') }}" required>
@@ -153,24 +152,34 @@
                                 </h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     
-                                    {{-- GRADE LEVEL: RESTRICTED TO GRADE 7 & 8 ONLY --}}
+                                    {{-- GRADE LEVEL: ADDED ID="grade_level" --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Grade Level <span class="text-red-500">*</span></label>
-                                        <select name="grade_level" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                        <select id="grade_level" name="grade_level" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="" disabled selected>-- Select Grade --</option>
                                             <option value="Grade 7">Grade 7</option>
                                             <option value="Grade 8">Grade 8</option>
+                                            <option value="Grade 9">Grade 9</option>
+                                            <option value="Grade 10">Grade 10</option>
+                                            <option value="Grade 11">Grade 11</option>
+                                            <option value="Grade 12">Grade 12</option>
                                         </select>
                                     </div>
                                     
+                                    {{-- SECTION ASSIGNMENT: ADDED ID="section_id" AND data-grade --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Section Assignment</label>
-                                        <select name="section_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                        <select id="section_id" name="section_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                                             <option value="">-- No Section Yet --</option>
                                             @foreach($sections as $section)
-                                                <option value="{{ $section->id }}">{{ $section->section_name }}</option>
+                                                {{-- 👇 Magic Part: data-grade attribute --}}
+                                                <option value="{{ $section->id }}" data-grade="{{ $section->grade_level }}">
+                                                    {{ $section->section_name }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
+
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Sports Team</label>
                                         <select name="team_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
@@ -218,7 +227,9 @@
         </div>
     </div>
 
+    {{-- SCRIPTS FOR PHOTO PREVIEW & DEPENDENT DROPDOWN --}}
     <script>
+        // Photo Preview
         function previewImage(event) {
             const reader = new FileReader();
             const output = document.getElementById('photo-preview');
@@ -232,5 +243,34 @@
                 reader.readAsDataURL(event.target.files[0]);
             }
         }
+
+        // Dependent Dropdown (Grade Level -> Section)
+        document.addEventListener('DOMContentLoaded', function () {
+            const gradeSelect = document.getElementById('grade_level');
+            const sectionSelect = document.getElementById('section_id');
+            
+            // I-save ang lahat ng options sa memory
+            const allSectionOptions = Array.from(sectionSelect.options);
+
+            function filterSections() {
+                const selectedGrade = gradeSelect.value;
+                
+                // Reset dropdown
+                sectionSelect.innerHTML = '<option value="">-- No Section Yet --</option>';
+
+                if (selectedGrade) {
+                    allSectionOptions.forEach(option => {
+                        // Ibalik lang kung match ang grade level
+                        if (option.dataset.grade === selectedGrade) {
+                            sectionSelect.appendChild(option);
+                        }
+                    });
+                } else {
+                    // Kung walang piniling grade, walang section na lalabas (or show all if you prefer)
+                }
+            }
+
+            gradeSelect.addEventListener('change', filterSections);
+        });
     </script>
 </x-app-layout>
