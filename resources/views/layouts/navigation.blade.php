@@ -1,3 +1,41 @@
+{{-- 👇 CSS OPTIMIZATION: SIDEBAR SCROLL FIXES --}}
+<style>
+    /* 1. Force GPU Rendering sa buong Sidebar (Iwas Lag/Flicker) */
+    nav.fixed {
+        transform: translate3d(0, 0, 0);
+        will-change: transform;
+        backface-visibility: hidden;
+        perspective: 1000px;
+    }
+
+    /* 2. SIDEBAR SCROLL FIX (Ang Solusyon sa "Tagos" na Scroll) */
+    #sidebar-menu {
+        /* Ito ang nagkukulong ng scroll sa sidebar lang. 
+           Pag sagad na, hindi dadamay ang main page. */
+        overscroll-behavior: contain; 
+        
+        /* Smooth Momentum Scrolling for Touch/Trackpad */
+        -webkit-overflow-scrolling: touch; 
+        scroll-behavior: smooth;
+    }
+
+    /* 3. Custom Scrollbar Design (Manipis at Modern) */
+    #sidebar-menu::-webkit-scrollbar {
+        width: 5px;
+    }
+    #sidebar-menu::-webkit-scrollbar-track {
+        background: transparent; 
+    }
+    #sidebar-menu::-webkit-scrollbar-thumb {
+        background: #cbd5e1; /* Light Gray */
+        border-radius: 10px;
+        transition: background 0.3s ease;
+    }
+    #sidebar-menu::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; /* Darker Gray pag hover */
+    }
+</style>
+
 <nav x-data="{ open: false }" class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-md border-r border-white/20 z-50 flex flex-col shadow-2xl no-print">
     
     {{-- 1. SIDEBAR HEADER (Glass Effect + Horizontal Logo) --}}
@@ -10,8 +48,8 @@
         </a>
     </div>
 
-    {{-- 2. SCROLLABLE MENU AREA --}}
-    <div id="sidebar-menu" class="flex-1 overflow-y-auto custom-scrollbar py-4 px-3 space-y-1">
+    {{-- 2. SCROLLABLE MENU AREA (ID applied for Scroll Logic) --}}
+    <div id="sidebar-menu" class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
 
         {{-- ROLE: STUDENT --}}
         @if(Auth::user()->role === 'student')
