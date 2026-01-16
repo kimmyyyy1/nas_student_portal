@@ -39,14 +39,15 @@
                 </div>
             @endif
 
-            {{-- FIXED: COMPACT & WIDE SEARCH TOOLBAR --}}
+            {{-- FIXED: GRID SYSTEM (HINDI NA MAIIPIT ANG SEARCH BAR) --}}
             <div class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                 <form method="GET" action="{{ route('students.index') }}">
-                    {{-- Gamit tayo ng 'flex-wrap' pero pipilitin nating maging row sa malalaking screen --}}
-                    <div class="flex flex-col lg:flex-row lg:items-end gap-3">
+                    
+                    {{-- Grid with 12 Columns --}}
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                         
-                        {{-- 1. SEARCH: 'flex-grow' para sakupin ang natitirang space + 'min-w' para di maipit --}}
-                        <div class="w-full lg:flex-grow lg:min-w-[300px]">
+                        {{-- 1. SEARCH STUDENT (Laging 4 columns ang lapad) --}}
+                        <div class="md:col-span-4">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Search Student</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -54,12 +55,12 @@
                                 </div>
                                 <input type="text" name="search" value="{{ request('search') }}" 
                                     class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white placeholder-gray-500" 
-                                    placeholder="Name, LRN, or ID...">
+                                    placeholder="Enter Name, LRN, or ID...">
                             </div>
                         </div>
 
-                        {{-- 2. GRADE LEVEL: Fixed width, hindi liliit --}}
-                        <div class="w-full lg:w-40 flex-shrink-0">
+                        {{-- 2. GRADE LEVEL (2 columns) --}}
+                        <div class="md:col-span-2">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Grade</label>
                             <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
                                 <option value="">All Grades</option>
@@ -69,8 +70,8 @@
                             </select>
                         </div>
 
-                        {{-- 3. SECTION: Mas malapad konti para sa mahahabang section names --}}
-                        <div class="w-full lg:w-48 flex-shrink-0">
+                        {{-- 3. SECTION (3 columns - mas malapad konti para sa mahabang names) --}}
+                        <div class="md:col-span-3">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Section</label>
                             <select name="section_id" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
                                 <option value="">All Sections</option>
@@ -86,8 +87,8 @@
                             </select>
                         </div>
 
-                        {{-- 4. STATUS --}}
-                        <div class="w-full lg:w-40 flex-shrink-0">
+                        {{-- 4. STATUS (2 columns) --}}
+                        <div class="md:col-span-2">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
                             <select name="status" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
                                 <option value="">All Statuses</option>
@@ -97,14 +98,14 @@
                             </select>
                         </div>
 
-                        {{-- 5. BUTTONS --}}
-                        <div class="w-full lg:w-auto flex flex-row gap-2 flex-shrink-0">
-                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-md text-sm font-bold shadow transition h-[38px] flex items-center justify-center">
-                                <i class='bx bx-filter-alt mr-1'></i> Filter
+                        {{-- 5. BUTTONS (1 column - dulo) --}}
+                        <div class="md:col-span-1 flex gap-2">
+                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-bold shadow transition h-[38px] flex items-center justify-center w-full" title="Filter Records">
+                                <i class='bx bx-filter-alt'></i>
                             </button>
                             
                             @if(request()->hasAny(['search', 'grade_level', 'section_id', 'status']))
-                                <a href="{{ route('students.index') }}" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-2 rounded-md text-sm font-bold shadow transition h-[38px] flex items-center justify-center" title="Reset Filters">
+                                <a href="{{ route('students.index') }}" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-2 rounded-md text-sm font-bold shadow transition h-[38px] flex items-center justify-center w-full" title="Reset Filters">
                                     <i class='bx bx-x text-xl'></i>
                                 </a>
                             @endif
@@ -132,7 +133,7 @@
                             @forelse($students as $student)
                                 <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
                                     
-                                    {{-- 1. STUDENT ID (With Photo) --}}
+                                    {{-- 1. STUDENT ID --}}
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 mr-2 hidden sm:block">
@@ -158,7 +159,7 @@
                                         <div class="text-xs text-gray-500 truncate">{{ $student->email_address }}</div>
                                     </td>
 
-                                    {{-- 3. GRADE & SECTION (FIXED LOGIC FOR GRADUATES) --}}
+                                    {{-- 3. GRADE & SECTION --}}
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         @if($student->status === 'Graduate')
                                             <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
@@ -185,7 +186,7 @@
                                         @endif
                                     </td>
 
-                                    {{-- 5. STATUS (COLOR CODED) --}}
+                                    {{-- 5. STATUS --}}
                                     <td class="px-4 py-3 whitespace-nowrap text-center">
                                         @php
                                             $statusColor = match($student->status) {
