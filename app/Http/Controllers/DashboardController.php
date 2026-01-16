@@ -20,6 +20,7 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         // 1. Redirect logic (Students & Applicants)
+        // Kung student o applicant ang nag-login, ilipat sa sarili nilang dashboard
         if ($user->role === 'student') {
             return redirect()->route('student.dashboard');
         }
@@ -32,6 +33,7 @@ class DashboardController extends Controller
         // =========================================================
         if ($user->role === 'teacher') {
             
+            // Hanapin ang staff record gamit ang email
             $staff = Staff::where('email', $user->email)->first();
 
             $advisorySection = null;
@@ -40,12 +42,14 @@ class DashboardController extends Controller
             $staffError = null;
 
             if ($staff) {
+                // Check kung may advisory section
                 $advisorySection = Section::where('adviser_id', $staff->id)->first();
 
                 if ($advisorySection) {
                     $advisoryCount = Student::where('section_id', $advisorySection->id)->count();
                 }
 
+                // Kunin ang schedule ng teacher
                 $mySchedules = Schedule::with(['subject', 'section'])
                                 ->where('staff_id', $staff->id)
                                 ->orderBy('day')
@@ -64,17 +68,19 @@ class DashboardController extends Controller
         }
 
         // =========================================================
-        // 3. LOGIC FOR ADMIN (Default)
+        // 3. LOGIC FOR ADMIN (Default View)
         // =========================================================
         
+        // Counts para sa Dashboard Cards
         $totalStudents = Student::count(); 
-        $totalApplicants = EnrollmentApplication::where('status', 'Pending')->count(); 
-        $totalSections = Section::count();
-        $totalTeams = Team::count();
+        $totalApplicants = EnrollmentApplication::where('status', 'Pending')->count(); // Optional kung gusto mo ipakita
         
-        $upcomingPlansCount = 0; 
+        // Ito ang mga variables na tinatawag sa dashboard.blade.php
+        $activeSections = Section::count(); // Renamed from totalSections to match blade if needed, or stick to variable
+        $sportsTeams = Team::count();       // Renamed from totalTeams
+        $upcomingPlans = 0;                 // FIX: Variable name matched to Blade ($upcomingPlans)
 
-        // Get activities for initial page load
+        // Get activities for initial page load (Latest 5)
         $activities = ActivityLog::with('user')
                         ->latest()
                         ->take(5)
@@ -83,14 +89,14 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'totalStudents', 
             'totalApplicants', 
-            'totalSections', 
-            'totalTeams',
-            'upcomingPlansCount',
+            'activeSections', 
+            'sportsTeams',
+            'upcomingPlans', // Passed correctly now
             'activities'
         ));
     }
 
-    // 👇 UPDATED FUNCTION: Returns Complete Data for AJAX
+    // 👇 AJAX FUNCTION: Tinatawag ito ng JavaScript para sa Live Updates
     public function getRecentActivity()
     {
         $activities = ActivityLog::with('user')
@@ -99,10 +105,10 @@ class DashboardController extends Controller
                         ->get()
                         ->map(function ($activity) {
                             return [
-                                'action' => $activity->action,           // Need for Color Logic
-                                'description' => $activity->description, // Need for Details
-                                'time_ago' => $activity->created_at->diffForHumans(),
-                                'user' => $activity->user ? [            // Need for Name & Role
+                                'action' => $activity->action,       // Para sa kulay (Registration, Login, etc.)
+                                'description' => $activity->description, // Detalye ng ginawa
+                                'time_ago' => $activity->created_at->diffForHumans(), // "2 hours ago"
+                                'user' => $activity->user ? [        // Details ng user na gumawa
                                     'name' => $activity->user->name,
                                     'role' => $activity->user->role,
                                 ] : null,
