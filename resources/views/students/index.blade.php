@@ -63,7 +63,8 @@
                             <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 cursor-pointer">
                                 <option value="">All</option>
                                 @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
-                                    <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ str_replace('Grade ', 'G', $gl) }}</option>
+                                    {{-- 👇 RESTORED FULL NAME: No more 'G7', back to 'Grade 7' --}}
+                                    <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ $gl }}</option>
                                 @endforeach
                             </select>
                         </div>
