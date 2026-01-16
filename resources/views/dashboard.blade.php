@@ -22,7 +22,7 @@
             {{-- LOGIC: TEACHER VIEW                                     --}}
             {{-- ======================================================= --}}
             @if(Auth::user()->role === 'teacher')
-                {{-- (Teacher View Code remains same - shortened for brevity since no changes needed here) --}}
+                
                 @if(isset($staffError))
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm flex items-center">
                         <i class='bx bx-error-circle text-2xl mr-3'></i>
@@ -94,7 +94,7 @@
                             </div>
                         </div>
 
-                        {{-- MY LOADS --}}
+                        {{-- MY LOADS / SCHEDULE --}}
                         <div class="md:col-span-1 space-y-6">
                             <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase flex justify-between items-center">
@@ -124,6 +124,7 @@
                                     @endif
                                 </div>
                             </div>
+
                             <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md text-white overflow-hidden group">
                                 <div class="p-5 text-center">
                                     <i class='bx bx-edit text-4xl mb-2 text-white opacity-90 group-hover:scale-110 transition duration-300'></i>
@@ -143,7 +144,7 @@
             {{-- ======================================================= --}}
             @else
                 
-                {{-- 1. STATISTICS CARDS (Added 'duration' to script) --}}
+                {{-- 1. STATISTICS CARDS --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {{-- Students --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-blue-600 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
@@ -193,7 +194,7 @@
                 {{-- 2. BOTTOM SECTION: ACTIVITY & SPOTLIGHT --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
-                    {{-- RECENT ACTIVITY (FIXED: LOADED INSTANTLY via BLADE) --}}
+                    {{-- RECENT ACTIVITY (SERVER-SIDE RENDERED FOR SPEED) --}}
                     <div class="md:col-span-2 bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-6 text-gray-900">
                             <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2">
@@ -202,11 +203,9 @@
                                 </h3>
                             </div>
                             
-                            {{-- ID="activity-list" contains INITIAL BLADE DATA --}}
                             <div class="space-y-6 relative" id="activity-list">
                                 <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>
                                 
-                                {{-- INITIAL LOAD VIA PHP (No Spinner, No Lag) --}}
                                 @forelse($activities as $activity)
                                     @php
                                         $dotColor = match($activity->action) {
@@ -319,7 +318,7 @@
         </div>
     </div>
 
-    {{-- 👇 OPTIMIZED SCRIPT: 4s Animation & 30s Polling --}}
+    {{-- 👇 SCRIPT: Dynamic Duration (Iwas "Hihintayan") & Optimized Polling --}}
     <script>
         let statsInterval = null;
         let activityInterval = null;
@@ -338,28 +337,32 @@
             }
 
             if(document.getElementById('activity-list')) {
-                // Background updates only, initial load is already handled by Blade
+                // Polling for updates (initial load already handled by Blade)
                 activityInterval = setInterval(fetchActivities, 30000);
             }
         }
 
-        // --- SMOOTH ANIMATION (Fixed 4 Second Duration for Slower Effect) ---
+        // --- SMOOTH ANIMATION WITH DYNAMIC DURATION ---
         function animateCounters() {
             const counters = document.querySelectorAll('.count-up');
-            const duration = 4000; // 4 Seconds (Adjusted from 2000)
 
             counters.forEach(counter => {
                 const target = +counter.getAttribute('data-target');
                 const startTime = performance.now();
 
-                counter.innerText = '0'; // Reset to 0
+                // Dynamic Duration: 
+                // Kung maliit ang number, mabilis lang (500ms).
+                // Kung malaki, sakto lang (max 2 seconds).
+                const duration = Math.min(2000, Math.max(500, target * 50)); 
+
+                counter.innerText = '0'; // Start at 0
 
                 function update(currentTime) {
                     const elapsed = currentTime - startTime;
                     const progress = Math.min(elapsed / duration, 1);
 
-                    // Easing Function (Ease Out Quart) for smooth slowdown
-                    const ease = 1 - Math.pow(1 - progress, 4);
+                    // Easing Function (Ease Out Quad) - Mas natural na pagbagal
+                    const ease = 1 - (1 - progress) * (1 - progress);
 
                     const current = Math.floor(ease * target);
                     counter.innerText = current.toLocaleString();
@@ -394,6 +397,7 @@
                 const oldValue = parseInt(el.innerText.replace(/,/g, ''));
                 el.setAttribute('data-target', newValue);
                 
+                // Only animate/change if value is different
                 if (oldValue !== newValue) {
                     el.innerText = newValue.toLocaleString();
                     el.classList.add('text-green-600', 'transition-colors', 'duration-500');
@@ -420,7 +424,7 @@
                         return;
                     }
 
-                    // Duplicated HTML Structure for JS Rendering (Matches Blade Structure)
+                    // Rebuild HTML for updates
                     let htmlContent = '<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
                     
                     data.forEach(activity => {
@@ -463,7 +467,7 @@
                         `;
                     });
 
-                    // Only update DOM if content changed
+                    // Only update DOM if content actually changed
                     if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
                         listContainer.innerHTML = htmlContent;
                     }
