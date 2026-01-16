@@ -22,7 +22,7 @@
             {{-- LOGIC: TEACHER VIEW                                     --}}
             {{-- ======================================================= --}}
             @if(Auth::user()->role === 'teacher')
-                
+                {{-- (Teacher View Code remains same - shortened for brevity since no changes needed here) --}}
                 @if(isset($staffError))
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm flex items-center">
                         <i class='bx bx-error-circle text-2xl mr-3'></i>
@@ -94,7 +94,7 @@
                             </div>
                         </div>
 
-                        {{-- MY LOADS / SCHEDULE --}}
+                        {{-- MY LOADS --}}
                         <div class="md:col-span-1 space-y-6">
                             <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase flex justify-between items-center">
@@ -124,7 +124,6 @@
                                     @endif
                                 </div>
                             </div>
-
                             <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md text-white overflow-hidden group">
                                 <div class="p-5 text-center">
                                     <i class='bx bx-edit text-4xl mb-2 text-white opacity-90 group-hover:scale-110 transition duration-300'></i>
@@ -144,7 +143,7 @@
             {{-- ======================================================= --}}
             @else
                 
-                {{-- 1. STATISTICS CARDS --}}
+                {{-- 1. STATISTICS CARDS (Added 'duration' to script) --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {{-- Students --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-blue-600 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
@@ -194,7 +193,7 @@
                 {{-- 2. BOTTOM SECTION: ACTIVITY & SPOTLIGHT --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
-                    {{-- RECENT ACTIVITY --}}
+                    {{-- RECENT ACTIVITY (FIXED: LOADED INSTANTLY via BLADE) --}}
                     <div class="md:col-span-2 bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-6 text-gray-900">
                             <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2">
@@ -203,12 +202,54 @@
                                 </h3>
                             </div>
                             
-                            {{-- ID="activity-list" FOR AJAX --}}
+                            {{-- ID="activity-list" contains INITIAL BLADE DATA --}}
                             <div class="space-y-6 relative" id="activity-list">
-                                <div class="text-center py-8">
-                                    <i class='bx bx-loader-circle bx-spin text-2xl text-indigo-500'></i>
-                                    <p class="text-sm text-gray-400 mt-2">Loading activities...</p>
-                                </div>
+                                <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>
+                                
+                                {{-- INITIAL LOAD VIA PHP (No Spinner, No Lag) --}}
+                                @forelse($activities as $activity)
+                                    @php
+                                        $dotColor = match($activity->action) {
+                                            'Updated Grades' => 'bg-indigo-500',
+                                            'Checked Attendance' => 'bg-green-500',
+                                            'Login' => 'bg-blue-400',
+                                            default => 'bg-gray-400'
+                                        };
+                                        $actionText = match($activity->action) {
+                                            'Updated Grades' => 'updated the grades',
+                                            'Checked Attendance' => 'recorded the attendance',
+                                            'Login' => 'has logged in',
+                                            default => strtolower($activity->action)
+                                        };
+                                        $role = ucfirst($activity->user->role ?? '');
+                                        $name = $activity->user->name ?? 'System';
+                                        $cleanDesc = strip_tags(str_replace(['Updated Grades', 'Checked Attendance'], '', $activity->description));
+                                    @endphp
+
+                                    <div class="flex gap-x-3 relative z-10 mb-4 last:mb-0">
+                                        <div class="flex-none w-5 flex justify-center mt-1">
+                                            <div class="w-3.5 h-3.5 rounded-full border-2 border-white {{ $dotColor }} shadow-sm"></div>
+                                        </div>
+                                        <div class="flex-grow">
+                                            <div class="text-sm text-gray-800">
+                                                @if($role) <span class="font-bold text-indigo-700">{{ $role }}</span> @endif
+                                                <span class="font-bold text-gray-900">{{ $name }}</span>
+                                                <span class="text-gray-600">{{ $actionText }}.</span>
+                                            </div>
+                                            @if($activity->action != 'Login')
+                                                <p class="text-xs text-gray-500 italic mb-1">{{ $cleanDesc }}</p>
+                                            @endif
+                                            <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                                                <i class='bx bx-time'></i> {{ $activity->created_at->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="text-center py-8 text-gray-400 text-sm">
+                                        <i class='bx bx-sleep-y text-2xl mb-2'></i>
+                                        <p>No recent activities logged.</p>
+                                    </div>
+                                @endforelse
                             </div>
                         </div>
                     </div>
@@ -278,13 +319,13 @@
         </div>
     </div>
 
-    {{-- 👇 OPTIMIZED SCRIPT: Smooth Animation, Fixed Duration, No Lag --}}
+    {{-- 👇 OPTIMIZED SCRIPT: 4s Animation & 30s Polling --}}
     <script>
         let statsInterval = null;
         let activityInterval = null;
 
         function initDashboard() {
-            // 1. CLEANUP (Prevent memory leaks when navigating)
+            // 1. CLEANUP (Prevent memory leaks)
             if (statsInterval) clearInterval(statsInterval);
             if (activityInterval) clearInterval(activityInterval);
 
@@ -297,39 +338,35 @@
             }
 
             if(document.getElementById('activity-list')) {
+                // Background updates only, initial load is already handled by Blade
                 activityInterval = setInterval(fetchActivities, 30000);
             }
         }
 
-        // --- SMOOTH ANIMATION (Fixed 2 Second Duration) ---
+        // --- SMOOTH ANIMATION (Fixed 4 Second Duration for Slower Effect) ---
         function animateCounters() {
             const counters = document.querySelectorAll('.count-up');
-            const duration = 2000; // Animation takes exactly 2 seconds
+            const duration = 4000; // 4 Seconds (Adjusted from 2000)
 
             counters.forEach(counter => {
                 const target = +counter.getAttribute('data-target');
                 const startTime = performance.now();
 
-                // Reset text to 0 immediately
-                counter.innerText = '0';
+                counter.innerText = '0'; // Reset to 0
 
                 function update(currentTime) {
                     const elapsed = currentTime - startTime;
-                    const progress = Math.min(elapsed / duration, 1); // Value between 0 and 1
+                    const progress = Math.min(elapsed / duration, 1);
 
-                    // Ease Out Quart Formula (Starts fast, slows down smoothly)
+                    // Easing Function (Ease Out Quart) for smooth slowdown
                     const ease = 1 - Math.pow(1 - progress, 4);
 
-                    // Compute current number
                     const current = Math.floor(ease * target);
-                    
-                    // Update text with commas (e.g., 1,234)
                     counter.innerText = current.toLocaleString();
 
                     if (progress < 1) {
                         requestAnimationFrame(update);
                     } else {
-                        // Ensure final number is exact
                         counter.innerText = target.toLocaleString();
                     }
                 }
@@ -354,13 +391,9 @@
         function updateStatElement(id, newValue) {
             const el = document.getElementById(id);
             if(el) {
-                // Get current value without commas to compare
                 const oldValue = parseInt(el.innerText.replace(/,/g, ''));
-                
-                // Update attribute for next animation cycle (if user navigates away and back)
                 el.setAttribute('data-target', newValue);
                 
-                // Only update visually if value actually changed
                 if (oldValue !== newValue) {
                     el.innerText = newValue.toLocaleString();
                     el.classList.add('text-green-600', 'transition-colors', 'duration-500');
@@ -387,7 +420,7 @@
                         return;
                     }
 
-                    // Build HTML
+                    // Duplicated HTML Structure for JS Rendering (Matches Blade Structure)
                     let htmlContent = '<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
                     
                     data.forEach(activity => {
@@ -430,7 +463,7 @@
                         `;
                     });
 
-                    // Only update DOM if content changed to reduce browser load
+                    // Only update DOM if content changed
                     if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
                         listContainer.innerHTML = htmlContent;
                     }
@@ -439,9 +472,7 @@
         }
 
         // --- EVENT LISTENERS ---
-        // 1. Initial Load
         document.addEventListener('DOMContentLoaded', initDashboard);
-        // 2. Livewire Navigation (SPA Mode)
         document.addEventListener('livewire:navigated', initDashboard);
 
     </script>
