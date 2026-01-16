@@ -39,41 +39,41 @@
                 </div>
             @endif
 
-            {{-- COMPACT FILTER TOOLBAR --}}
+            {{-- FIXED: COMPACT & WIDE SEARCH TOOLBAR --}}
             <div class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                 <form method="GET" action="{{ route('students.index') }}">
-                    <div class="flex flex-col md:flex-row md:items-end gap-3">
+                    {{-- Gamit tayo ng 'flex-wrap' pero pipilitin nating maging row sa malalaking screen --}}
+                    <div class="flex flex-col lg:flex-row lg:items-end gap-3">
                         
-                        {{-- 1. SEARCH (FIXED VISIBILITY) --}}
-                        <div class="flex-grow">
+                        {{-- 1. SEARCH: 'flex-grow' para sakupin ang natitirang space + 'min-w' para di maipit --}}
+                        <div class="w-full lg:flex-grow lg:min-w-[300px]">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Search Student</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i class='bx bx-search text-gray-400 text-lg'></i>
                                 </div>
-                                {{-- 👇 Added: text-gray-900 bg-white placeholder-gray-500 --}}
                                 <input type="text" name="search" value="{{ request('search') }}" 
                                     class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white placeholder-gray-500" 
                                     placeholder="Name, LRN, or ID...">
                             </div>
                         </div>
 
-                        {{-- 2. GRADE LEVEL --}}
-                        <div class="w-full md:w-32">
+                        {{-- 2. GRADE LEVEL: Fixed width, hindi liliit --}}
+                        <div class="w-full lg:w-40 flex-shrink-0">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Grade</label>
                             <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
-                                <option value="">All</option>
+                                <option value="">All Grades</option>
                                 @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
                                     <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ $gl }}</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        {{-- 3. SECTION --}}
-                        <div class="w-full md:w-40">
+                        {{-- 3. SECTION: Mas malapad konti para sa mahahabang section names --}}
+                        <div class="w-full lg:w-48 flex-shrink-0">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Section</label>
                             <select name="section_id" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
-                                <option value="">All</option>
+                                <option value="">All Sections</option>
                                 @foreach($sections->groupBy('grade_level') as $grade => $gradeSections)
                                     <optgroup label="{{ $grade }}">
                                         @foreach($gradeSections as $sec)
@@ -87,10 +87,10 @@
                         </div>
 
                         {{-- 4. STATUS --}}
-                        <div class="w-full md:w-36">
+                        <div class="w-full lg:w-40 flex-shrink-0">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
                             <select name="status" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
-                                <option value="">All</option>
+                                <option value="">All Statuses</option>
                                 @foreach(['New', 'Continuing', 'Enrolled', 'Transfer out', 'Graduate'] as $stat)
                                     <option value="{{ $stat }}" {{ request('status') == $stat ? 'selected' : '' }}>{{ $stat }}</option>
                                 @endforeach
@@ -98,8 +98,8 @@
                         </div>
 
                         {{-- 5. BUTTONS --}}
-                        <div class="flex gap-2 min-w-fit">
-                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-bold shadow transition h-[38px] flex items-center">
+                        <div class="w-full lg:w-auto flex flex-row gap-2 flex-shrink-0">
+                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-md text-sm font-bold shadow transition h-[38px] flex items-center justify-center">
                                 <i class='bx bx-filter-alt mr-1'></i> Filter
                             </button>
                             
