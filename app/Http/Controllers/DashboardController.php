@@ -11,7 +11,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Models\Staff;
 use App\Models\Schedule;
-use App\Models\ActivityLog; // 👈 1. IMPORTED ACTIVITY LOG
+use App\Models\ActivityLog; 
 
 class DashboardController extends Controller
 {
@@ -32,25 +32,20 @@ class DashboardController extends Controller
         // =========================================================
         if ($user->role === 'teacher') {
             
-            // A. Hanapin ang Staff Record gamit ang EMAIL
             $staff = Staff::where('email', $user->email)->first();
 
-            // Default values
             $advisorySection = null;
             $advisoryCount = 0;
             $mySchedules = collect([]);
             $staffError = null;
 
             if ($staff) {
-                // B. Hanapin ang Section kung saan siya ang Adviser
                 $advisorySection = Section::where('adviser_id', $staff->id)->first();
 
-                // C. Bilangin ang estudyante kung may advisory class
                 if ($advisorySection) {
                     $advisoryCount = Student::where('section_id', $advisorySection->id)->count();
                 }
 
-                // D. Kunin ang Schedules/Loads niya
                 $mySchedules = Schedule::with(['subject', 'section'])
                                 ->where('staff_id', $staff->id)
                                 ->orderBy('day')
@@ -60,7 +55,6 @@ class DashboardController extends Controller
                 $staffError = "Staff profile not found. Please contact Admin to link your account.";
             }
 
-            // Ipasa ang teacher variables sa view
             return view('dashboard', compact(
                 'advisorySection', 
                 'advisoryCount', 
@@ -73,45 +67,45 @@ class DashboardController extends Controller
         // 3. LOGIC FOR ADMIN (Default)
         // =========================================================
         
-        // KUNIN ANG COUNTS
         $totalStudents = Student::count(); 
         $totalApplicants = EnrollmentApplication::where('status', 'Pending')->count(); 
         $totalSections = Section::count();
         $totalTeams = Team::count();
         
-        // Extra variables para sa Admin Dashboard view
         $upcomingPlansCount = 0; 
 
-        // 👇 2. GET RECENT ACTIVITIES (INITIAL LOAD)
+        // Get activities for initial page load
         $activities = ActivityLog::with('user')
                         ->latest()
                         ->take(5)
                         ->get();
 
-        // Ipasa ang admin variables sa view
         return view('dashboard', compact(
             'totalStudents', 
             'totalApplicants', 
             'totalSections', 
             'totalTeams',
             'upcomingPlansCount',
-            'activities' // 👈 Passed real data to view
+            'activities'
         ));
     }
 
-    // 👇 3. ADDED THIS FUNCTION FOR LIVE AJAX UPDATES
+    // 👇 UPDATED FUNCTION: Returns Complete Data for AJAX
     public function getRecentActivity()
     {
-        // Kunin ang latest 5 activities
         $activities = ActivityLog::with('user')
                         ->latest()
                         ->take(5)
                         ->get()
                         ->map(function ($activity) {
                             return [
-                                'description' => $activity->description,
-                                // Kinoconvert natin ang time (e.g. "1 minute ago") para ready na sa JS
+                                'action' => $activity->action,           // Need for Color Logic
+                                'description' => $activity->description, // Need for Details
                                 'time_ago' => $activity->created_at->diffForHumans(),
+                                'user' => $activity->user ? [            // Need for Name & Role
+                                    'name' => $activity->user->name,
+                                    'role' => $activity->user->role,
+                                ] : null,
                             ];
                         });
 

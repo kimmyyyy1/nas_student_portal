@@ -201,33 +201,64 @@
                         <div class="p-6 text-gray-900">
                             <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2">
                                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                                    <i class='bx bx-history mr-2 text-gray-500'></i> Recent System Activity
+                                    <i class='bx bx-history mr-2 text-indigo-600'></i> Recent System Activity
                                 </h3>
                             </div>
                             
                             {{-- ID="activity-list" FOR AJAX --}}
-                            <div class="space-y-6" id="activity-list">
+                            <div class="space-y-6 relative pl-2" id="activity-list">
+                                {{-- Vertical Line --}}
+                                <div class="absolute left-2 top-2 bottom-2 w-0.5 bg-gray-100"></div>
+
                                 @php 
                                     $safeActivities = $activities ?? collect([]); 
                                 @endphp
 
                                 @forelse($safeActivities as $activity)
-                                    <div class="flex items-start">
-                                        <div class="flex-shrink-0 mr-3">
-                                            <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 ring-4 ring-blue-50"></div>
+                                    @php
+                                        // 1. Color Logic
+                                        $dotColor = match($activity->action) {
+                                            'Updated Grades' => 'bg-indigo-500',
+                                            'Checked Attendance' => 'bg-green-500',
+                                            'Login' => 'bg-blue-400',
+                                            default => 'bg-gray-400'
+                                        };
+                                        // 2. Sentence Logic
+                                        $actionText = match($activity->action) {
+                                            'Updated Grades' => 'updated the grades',
+                                            'Checked Attendance' => 'recorded the attendance',
+                                            'Login' => 'has logged in',
+                                            default => strtolower($activity->action)
+                                        };
+                                        // 3. User Logic
+                                        $role = ucfirst($activity->user->role ?? '');
+                                        $name = $activity->user->name ?? 'System';
+                                    @endphp
+
+                                    <div class="relative pl-6">
+                                        {{-- Dot --}}
+                                        <div class="absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-white {{ $dotColor }}"></div>
+                                        
+                                        <div class="text-sm text-gray-800">
+                                            @if($role) <span class="font-bold text-indigo-700">{{ $role }}</span> @endif
+                                            <span class="font-bold text-gray-900">{{ $name }}</span>
+                                            <span class="text-gray-600">{{ $actionText }}.</span>
                                         </div>
-                                        <div>
-                                            <p class="text-sm text-gray-800 font-medium">{!! $activity->description !!}</p>
-                                            <p class="text-xs text-gray-400 flex items-center mt-1">
-                                                <i class='bx bx-time-five mr-1'></i>
-                                                {{ $activity->created_at ? $activity->created_at->diffForHumans() : 'Just now' }}
+
+                                        @if($activity->action != 'Login')
+                                            <p class="text-xs text-gray-500 italic mb-1">
+                                                {{ str_replace(['Updated Grades', 'Checked Attendance'], '', $activity->description) }}
                                             </p>
-                                        </div>
+                                        @endif
+
+                                        <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                                            <i class='bx bx-time'></i> {{ $activity->created_at->diffForHumans() }}
+                                        </p>
                                     </div>
                                 @empty
-                                    <div class="text-center py-8">
-                                        <i class='bx bx-sleep-y text-4xl text-gray-300 mb-2'></i>
-                                        <p class="text-sm text-gray-400 italic">No recent activities logged.</p>
+                                    <div class="text-center py-8 text-gray-400 text-sm">
+                                        <i class='bx bx-sleep-y text-2xl mb-2'></i>
+                                        <p>No recent activities logged.</p>
                                     </div>
                                 @endforelse
                             </div>
@@ -299,7 +330,7 @@
         </div>
     </div>
 
-    {{-- 👇 LIVE UPDATE SCRIPT (Fixed Flickering) --}}
+    {{-- 👇 LIVE UPDATE SCRIPT (Fixed for New Layout) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
@@ -332,27 +363,52 @@
                             return;
                         }
 
-                        let htmlContent = '';
+                        let htmlContent = '<div class="absolute left-2 top-2 bottom-2 w-0.5 bg-gray-100"></div>';
                         
                         data.forEach(activity => {
-                            // REMOVED 'animate-fade-in' class to prevent flicker
+                            // 1. Color Logic
+                            let dotColor = 'bg-gray-400';
+                            if (activity.action === 'Updated Grades') dotColor = 'bg-indigo-500';
+                            else if (activity.action === 'Checked Attendance') dotColor = 'bg-green-500';
+                            else if (activity.action === 'Login') dotColor = 'bg-blue-400';
+
+                            // 2. Sentence Parts
+                            // Ensure user object exists (handle null users)
+                            let role = activity.user && activity.user.role ? activity.user.role.charAt(0).toUpperCase() + activity.user.role.slice(1) : '';
+                            let name = activity.user && activity.user.name ? activity.user.name : 'System';
+                            
+                            let actionText = activity.action.toLowerCase();
+                            if (activity.action === 'Updated Grades') actionText = 'updated the grades';
+                            else if (activity.action === 'Checked Attendance') actionText = 'recorded the attendance';
+                            else if (activity.action === 'Login') actionText = 'has logged in';
+
+                            // 3. Description cleaning
+                            let desc = activity.description;
+                            if (activity.action !== 'Login') {
+                                // Remove the action text from description if it's repeated
+                                desc = desc.replace('Updated Grades', '').replace('Checked Attendance', '').trim();
+                            }
+
+                            // 4. Construct HTML
                             htmlContent += `
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0 mr-3">
-                                        <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 ring-4 ring-blue-50"></div>
+                                <div class="relative pl-6 mb-4 last:mb-0">
+                                    <div class="absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-white ${dotColor}"></div>
+                                    
+                                    <div class="text-sm text-gray-800">
+                                        ${role ? `<span class="font-bold text-indigo-700">${role}</span>` : ''}
+                                        <span class="font-bold text-gray-900">${name}</span>
+                                        <span class="text-gray-600">${actionText}.</span>
                                     </div>
-                                    <div>
-                                        <p class="text-sm text-gray-800 font-medium">${activity.description}</p>
-                                        <p class="text-xs text-gray-400 flex items-center mt-1">
-                                            <i class='bx bx-time-five mr-1'></i>
-                                            ${activity.time_ago}
-                                        </p>
-                                    </div>
+
+                                    ${(activity.action !== 'Login') ? `<p class="text-xs text-gray-500 italic mb-1">${desc}</p>` : ''}
+                                    
+                                    <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                                        <i class='bx bx-time'></i> ${activity.time_ago || 'Just now'}
+                                    </p>
                                 </div>
                             `;
                         });
 
-                        // Update only if content actually changed (prevents unnecessary repaints)
                         if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
                             listContainer.innerHTML = htmlContent;
                         }
