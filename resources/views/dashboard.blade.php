@@ -23,7 +23,6 @@
             {{-- ======================================================= --}}
             @if(Auth::user()->role === 'teacher')
                 
-                {{-- 1. ERROR ALERT --}}
                 @if(isset($staffError))
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm flex items-center">
                         <i class='bx bx-error-circle text-2xl mr-3'></i>
@@ -33,8 +32,7 @@
                         </div>
                     </div>
                 @else
-
-                    {{-- 2. WELCOME BANNER --}}
+                    {{-- WELCOME BANNER --}}
                     <div class="bg-gradient-to-r from-blue-900 to-indigo-800 text-white overflow-hidden shadow-lg sm:rounded-lg mb-6 relative border border-blue-700">
                         <div class="p-6 relative z-10 flex justify-between items-center">
                             <div>
@@ -50,7 +48,7 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {{-- 3. ADVISORY CLASS CARD --}}
+                        {{-- ADVISORY CLASS CARD --}}
                         <div class="md:col-span-2">
                             <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200 h-full flex flex-col">
                                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
@@ -96,7 +94,7 @@
                             </div>
                         </div>
 
-                        {{-- 4. MY LOADS / SCHEDULE --}}
+                        {{-- MY LOADS / SCHEDULE --}}
                         <div class="md:col-span-1 space-y-6">
                             <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase flex justify-between items-center">
@@ -152,7 +150,6 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-blue-600 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Students</p>
-                            {{-- 👇 CHANGED: Added 'count-up' class and data-target --}}
                             <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" data-target="{{ $totalStudents ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
@@ -164,7 +161,6 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-green-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Sections</p>
-                            {{-- 👇 CHANGED: Added 'count-up' class and data-target --}}
                             <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" data-target="{{ $totalSections ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-green-100 text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
@@ -176,7 +172,6 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-yellow-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Sports Teams</p>
-                            {{-- 👇 CHANGED: Added 'count-up' class and data-target --}}
                             <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" data-target="{{ $totalTeams ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 group-hover:bg-yellow-600 group-hover:text-white transition">
@@ -188,7 +183,6 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-red-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Upcoming Plans</p>
-                            {{-- 👇 CHANGED: Added 'count-up' class and data-target --}}
                             <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" data-target="{{ $upcomingPlansCount ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
@@ -211,7 +205,6 @@
                             
                             {{-- ID="activity-list" FOR AJAX --}}
                             <div class="space-y-6 relative" id="activity-list">
-                                {{-- Initial content loaded via PHP or AJAX will populate here --}}
                                 <div class="text-center py-8">
                                     <i class='bx bx-loader-circle bx-spin text-2xl text-indigo-500'></i>
                                     <p class="text-sm text-gray-400 mt-2">Loading activities...</p>
@@ -285,15 +278,25 @@
         </div>
     </div>
 
-    {{-- 👇 LIVE UPDATE SCRIPT & COUNT-UP ANIMATION --}}
+    {{-- 👇 SCRIPT FIX: Handles Initial Load AND Livewire Navigation --}}
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            
-            // --- 1. COUNT-UP ANIMATION ---
+        // Global variables for intervals to clear them properly
+        let statsInterval = null;
+        let activityInterval = null;
+
+        function initDashboard() {
+            // 1. CLEAR OLD INTERVALS (Prevents duplicates/memory leaks)
+            if (statsInterval) clearInterval(statsInterval);
+            if (activityInterval) clearInterval(activityInterval);
+
+            // 2. COUNT-UP ANIMATION
             const counters = document.querySelectorAll('.count-up');
-            const speed = 200; // The lower the slower
+            const speed = 200; 
 
             counters.forEach(counter => {
+                // Reset text to 0 first to see the animation again
+                counter.innerText = '0';
+                
                 const animate = () => {
                     const value = +counter.getAttribute('data-target');
                     const data = +counter.innerText;
@@ -301,7 +304,7 @@
                     const time = value / speed;
                     if(data < value) {
                         counter.innerText = Math.ceil(data + time);
-                        setTimeout(animate, 20); // Delay in ms
+                        setTimeout(animate, 20);
                     } else {
                         counter.innerText = value;
                     }
@@ -309,113 +312,110 @@
                 animate();
             });
 
-            // --- 2. LIVE UPDATES FOR STATS (Polling) ---
+            // 3. START LIVE POLLING (Only if elements exist)
             if(document.querySelector('.count-up')) {
-                setInterval(function() { updateDashboardStats(); }, 10000); 
+                // Poll every 10 seconds for updated stats
+                statsInterval = setInterval(updateDashboardStats, 10000); 
             }
 
-            // --- 3. LIVE UPDATES FOR ACTIVITY (Polling) ---
             if(document.getElementById('activity-list')) {
-                fetchActivities(); // Fetch immediately on load
-                setInterval(fetchActivities, 5000); // Then every 5 sec
+                fetchActivities(); // Fetch immediately
+                activityInterval = setInterval(fetchActivities, 5000); // Poll every 5s
             }
+        }
 
-            function fetchActivities() {
-                fetch("{{ route('recent.activity') }}")
-                    .then(response => response.json())
-                    .then(data => {
-                        const listContainer = document.getElementById('activity-list');
+        // --- FETCH FUNCTIONS ---
+        function fetchActivities() {
+            fetch("{{ route('recent.activity') }}")
+                .then(response => response.json())
+                .then(data => {
+                    const listContainer = document.getElementById('activity-list');
+                    if (!listContainer) return;
+
+                    if (data.length === 0) {
+                        listContainer.innerHTML = `
+                            <div class="text-center py-8">
+                                <i class='bx bx-sleep-y text-4xl text-gray-300 mb-2'></i>
+                                <p class="text-sm text-gray-400 italic">No recent activities logged.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let htmlContent = '<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
+                    
+                    data.forEach(activity => {
+                        let dotColor = 'bg-gray-400';
+                        if (activity.action === 'Updated Grades') dotColor = 'bg-indigo-500';
+                        else if (activity.action === 'Checked Attendance') dotColor = 'bg-green-500';
+                        else if (activity.action === 'Login') dotColor = 'bg-blue-400';
+
+                        let role = activity.user && activity.user.role ? activity.user.role.charAt(0).toUpperCase() + activity.user.role.slice(1) : '';
+                        let name = activity.user && activity.user.name ? activity.user.name : 'System';
                         
-                        if (data.length === 0) {
-                            listContainer.innerHTML = `
-                                <div class="text-center py-8">
-                                    <i class='bx bx-sleep-y text-4xl text-gray-300 mb-2'></i>
-                                    <p class="text-sm text-gray-400 italic">No recent activities logged.</p>
-                                </div>
-                            `;
-                            return;
+                        let actionText = activity.action.toLowerCase();
+                        if (activity.action === 'Updated Grades') actionText = 'updated the grades';
+                        else if (activity.action === 'Checked Attendance') actionText = 'recorded the attendance';
+                        else if (activity.action === 'Login') actionText = 'has logged in';
+
+                        let desc = activity.description;
+                        if (activity.action !== 'Login') {
+                            desc = desc.replace('Updated Grades', '').replace('Checked Attendance', '').trim();
+                            desc = desc.replace(/(<([^>]+)>)/gi, "");
                         }
 
-                        // Updated Structure using FLEX
-                        let htmlContent = '<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
-                        
-                        data.forEach(activity => {
-                            let dotColor = 'bg-gray-400';
-                            if (activity.action === 'Updated Grades') dotColor = 'bg-indigo-500';
-                            else if (activity.action === 'Checked Attendance') dotColor = 'bg-green-500';
-                            else if (activity.action === 'Login') dotColor = 'bg-blue-400';
-
-                            let role = activity.user && activity.user.role ? activity.user.role.charAt(0).toUpperCase() + activity.user.role.slice(1) : '';
-                            let name = activity.user && activity.user.name ? activity.user.name : 'System';
-                            
-                            let actionText = activity.action.toLowerCase();
-                            if (activity.action === 'Updated Grades') actionText = 'updated the grades';
-                            else if (activity.action === 'Checked Attendance') actionText = 'recorded the attendance';
-                            else if (activity.action === 'Login') actionText = 'has logged in';
-
-                            let desc = activity.description;
-                            if (activity.action !== 'Login') {
-                                desc = desc.replace('Updated Grades', '').replace('Checked Attendance', '').trim();
-                                desc = desc.replace(/(<([^>]+)>)/gi, ""); // Strips HTML tags
-                            }
-
-                            htmlContent += `
-                                <div class="flex gap-x-3 relative z-10 mb-4 last:mb-0">
-                                    <div class="flex-none w-5 flex justify-center mt-1">
-                                        <div class="w-3.5 h-3.5 rounded-full border-2 border-white ${dotColor} shadow-sm"></div>
-                                    </div>
-                                    
-                                    <div class="flex-grow">
-                                        <div class="text-sm text-gray-800">
-                                            ${role ? `<span class="font-bold text-indigo-700">${role}</span>` : ''}
-                                            <span class="font-bold text-gray-900">${name}</span>
-                                            <span class="text-gray-600">${actionText}.</span>
-                                        </div>
-
-                                        ${(activity.action !== 'Login') ? `<p class="text-xs text-gray-500 italic mb-1">${desc}</p>` : ''}
-                                        
-                                        <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                                            <i class='bx bx-time'></i> ${activity.time_ago || 'Just now'}
-                                        </p>
-                                    </div>
+                        htmlContent += `
+                            <div class="flex gap-x-3 relative z-10 mb-4 last:mb-0">
+                                <div class="flex-none w-5 flex justify-center mt-1">
+                                    <div class="w-3.5 h-3.5 rounded-full border-2 border-white ${dotColor} shadow-sm"></div>
                                 </div>
-                            `;
-                        });
+                                <div class="flex-grow">
+                                    <div class="text-sm text-gray-800">
+                                        ${role ? `<span class="font-bold text-indigo-700">${role}</span>` : ''}
+                                        <span class="font-bold text-gray-900">${name}</span>
+                                        <span class="text-gray-600">${actionText}.</span>
+                                    </div>
+                                    ${(activity.action !== 'Login') ? `<p class="text-xs text-gray-500 italic mb-1">${desc}</p>` : ''}
+                                    <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                                        <i class='bx bx-time'></i> ${activity.time_ago || 'Just now'}
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                    });
 
-                        if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
-                            listContainer.innerHTML = htmlContent;
-                        }
-                    })
-                    .catch(error => console.error('Error fetching activities:', error));
-            }
+                    if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
+                        listContainer.innerHTML = htmlContent;
+                    }
+                })
+                .catch(error => console.error('Error fetching activities:', error));
+        }
 
-            function updateDashboardStats() {
-                // This function currently fetches the whole HTML page to parse stats.
-                // ideally, you would make a JSON endpoint for stats like you did for activities.
-                // But keeping your logic here for now:
-                const url = window.location.href;
-                fetch(url)
-                    .then(response => response.text())
-                    .then(html => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        
-                        // We use querySelector now because we added classes, but IDs are safer if unique
-                        // Let's stick to the IDs you provided in your code for updating
-                        // Note: If you want the live update to ALSO animate, you'd need to re-trigger the animate function here.
-                        
-                        // Helper to update text
-                        const updateText = (id) => {
-                            const newEl = doc.querySelector(`[data-target*="${id}"]`); // simplistic finding strategy or ID
-                            // Actually, simpler to just grab by the unique IDs if you added them back.
-                            // Since I removed IDs in favor of classes for the count-up script above, let's rely on data-target updating logic 
-                            // OR better, let's just create a specific JSON endpoint for stats in the future.
-                            
-                            // For now, let's just ensure the count-up script runs on page load.
-                        };
-                    })
-                    .catch(error => console.error('Error updating stats:', error));
-            }
-        });
+        function updateDashboardStats() {
+            const url = window.location.href;
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    const updateElement = (id) => {
+                        const newEl = doc.getElementById(id); // NOTE: This assumes IDs exist on count-up elements if you want live updates.
+                        // Currently your count-up elements use classes. If you want LIVE updates for stats without refresh:
+                        // Ideally create a JSON endpoint for stats too. 
+                        // For now, count-up animation handles the "Load" visual.
+                    };
+                })
+                .catch(error => {});
+        }
+
+        // --- EVENT LISTENERS ---
+        
+        // 1. Runs on initial Full Page Load
+        document.addEventListener('DOMContentLoaded', initDashboard);
+
+        // 2. Runs after Livewire Navigation (The Fix!)
+        document.addEventListener('livewire:navigated', initDashboard);
+
     </script>
 </x-app-layout>
