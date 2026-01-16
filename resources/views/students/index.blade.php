@@ -62,15 +62,16 @@
                         
                         <tbody id="student-list" class="bg-white divide-y divide-gray-200">
                             @forelse($students as $student)
-                                <tr class="hover:bg-gray-50 transition">
-                                    {{-- ID --}}
+                                <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
+                                    
+                                    {{-- 1. STUDENT ID (With Photo) --}}
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 mr-2 hidden sm:block">
                                                 @if($student->id_picture)
                                                     <img class="h-8 w-8 rounded-full object-cover border border-gray-300" src="{{ $student->id_picture }}" alt="">
                                                 @else
-                                                    <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-xs">
+                                                    <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold text-xs border border-indigo-200">
                                                         {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}
                                                     </div>
                                                 @endif
@@ -81,39 +82,66 @@
                                         </div>
                                     </td>
 
-                                    {{-- NAME --}}
+                                    {{-- 2. NAME --}}
                                     <td class="px-4 py-3">
-                                        <div class="text-sm font-bold text-gray-900 leading-tight">{{ $student->last_name }}, {{ $student->first_name }}</div>
+                                        <div class="text-sm font-bold text-gray-900 uppercase leading-tight">
+                                            {{ $student->last_name }}, {{ $student->first_name }} {{ $student->middle_name }}
+                                        </div>
                                         <div class="text-xs text-gray-500 truncate">{{ $student->email_address }}</div>
                                     </td>
 
-                                    {{-- GRADE --}}
+                                    {{-- 3. GRADE & SECTION (FIXED LOGIC FOR GRADUATES) --}}
                                     <td class="px-4 py-3 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">{{ $student->grade_level }}</div>
-                                        <div class="text-xs text-gray-500 truncate">
-                                            {{ $student->section ? $student->section->section_name : 'Unassigned' }}
-                                        </div>
+                                        @if($student->status === 'Graduate')
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                                                <i class='bx bxs-graduation mr-1'></i> Alumni
+                                            </span>
+                                        @elseif($student->status === 'Transfer out')
+                                            <span class="text-xs text-red-500 italic font-medium">Transferred Out</span>
+                                        @else
+                                            <div class="text-sm text-gray-900 font-medium">{{ $student->grade_level }}</div>
+                                            <div class="text-xs text-gray-500 truncate">
+                                                {{ $student->section->section_name ?? 'Unassigned' }}
+                                            </div>
+                                        @endif
                                     </td>
 
-                                    {{-- SPORT --}}
+                                    {{-- 4. SPORT --}}
                                     <td class="px-4 py-3 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 truncate max-w-[120px]">
-                                            {{ $student->team ? ($student->team->sport ?? $student->team->sport_type ?? 'No Sport') : 'No Team' }}
-                                        </span>
+                                        @if($student->team)
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-100 truncate max-w-[120px]">
+                                                {{ $student->team->team_name ?? $student->team->sport ?? 'Sport Team' }}
+                                            </span>
+                                        @else
+                                            <span class="text-xs text-gray-400 italic">None</span>
+                                        @endif
                                     </td>
 
-                                    {{-- STATUS --}}
+                                    {{-- 5. STATUS (COLOR CODED) --}}
                                     <td class="px-4 py-3 whitespace-nowrap text-center">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $student->status == 'Enrolled' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                        @php
+                                            $statusColor = match($student->status) {
+                                                'New' => 'bg-green-100 text-green-800 border-green-200',
+                                                'Continuing' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                                'Enrolled' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                                                'Graduate' => 'bg-gray-600 text-white border-gray-600', // Distinct dark badge
+                                                'Transfer out' => 'bg-red-100 text-red-800 border-red-200',
+                                                default => 'bg-gray-100 text-gray-800'
+                                            };
+                                        @endphp
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full border {{ $statusColor }}">
                                             {{ $student->status }}
                                         </span>
                                     </td>
-                                    
-                                    {{-- ACTION --}}
+
+                                    {{-- 6. ACTION BUTTONS --}}
                                     <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                        {{-- 👇 UPDATED LINKS: Added query params to preserve page number --}}
-                                        <a href="{{ route('students.show', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-blue-600 hover:text-blue-900 mr-2 font-bold">View</a>
-                                        <a href="{{ route('students.edit', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold">Edit</a>
+                                        <a href="{{ route('students.show', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 hover:underline">
+                                            View
+                                        </a>
+                                        <a href="{{ route('students.edit', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-blue-600 hover:text-blue-900 font-bold hover:underline">
+                                            Edit
+                                        </a>
                                     </td>
                                 </tr>
                             @empty
