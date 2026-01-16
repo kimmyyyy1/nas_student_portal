@@ -174,11 +174,12 @@
                                         @endif
                                     </td>
 
-                                    {{-- 4. SPORT --}}
+                                    {{-- 4. SPORT (FIXED: SHOW SPORT INSTEAD OF TEAM NAME) --}}
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         @if($student->team)
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-100 truncate max-w-[120px]">
-                                                {{ $student->team->team_name ?? $student->team->sport ?? 'Sport Team' }}
+                                                {{-- 👇 PRIORITY: Sport -> Sport Type -> Team Name --}}
+                                                {{ $student->team->sport ?? $student->team->sport_type ?? $student->team->team_name }}
                                             </span>
                                         @else
                                             <span class="text-xs text-gray-400 italic">None</span>
@@ -202,7 +203,7 @@
                                         </span>
                                     </td>
 
-                                    {{-- 6. ACTION BUTTONS (NO UNDERLINE) --}}
+                                    {{-- 6. ACTION BUTTONS --}}
                                     <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ route('students.show', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 transition">
                                             View
@@ -233,6 +234,8 @@
     {{-- LIVE UPDATE SCRIPT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Using Livewire navigate makes full page reload polling less ideal, 
+            // but keeping it as requested. Ensure wire:navigate works properly.
             setInterval(function() {
                 updateTable();
             }, 5000);
