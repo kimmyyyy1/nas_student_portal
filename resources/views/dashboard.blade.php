@@ -1,31 +1,41 @@
 <x-app-layout>
     
-    {{-- 👇 ADDED: CSS FOR SMOOTH SCROLLING & CUSTOM SCROLLBAR --}}
+    {{-- 👇 ADDED: CSS FOR ULTRA-SMOOTH SCROLLING & SIDEBAR OPTIMIZATION --}}
     <style>
+        /* 1. Global Smooth Scroll */
         html {
-            scroll-behavior: smooth; /* Smooth anchor linking */
+            scroll-behavior: smooth;
         }
-        
-        /* Custom Scrollbar para sa Webkit Browsers (Chrome, Edge, Safari) */
+
+        /* 2. Custom Scrollbar (Manipis at Modern) - Applied to ALL scrollable areas including Sidebar */
         ::-webkit-scrollbar {
-            width: 8px; /* Mas manipis */
+            width: 6px; /* Mas manipis para hindi sagabal */
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
+            background: transparent; 
         }
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1; /* Light Gray */
-            border-radius: 4px;
+            border-radius: 10px;
             transition: background 0.3s ease;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8; /* Darker Gray pag hover */
         }
 
-        /* Optimization para iwas lag sa text rendering */
+        /* 3. HARDWARE ACCELERATION para sa Sidebar at Main Content (Iwas Lag) */
+        .overflow-y-auto, .overflow-x-auto, aside, main {
+            -webkit-overflow-scrolling: touch; /* Momentum scrolling (Madulas) */
+            will-change: scroll-position;      /* Browser Optimization */
+            transform: translateZ(0);          /* Force GPU Rendering */
+        }
+
+        /* 4. Font Rendering Optimization */
         body {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
     </style>
 
@@ -43,7 +53,7 @@
         </div>
     </x-slot>
 
-    {{-- Main Content Wrapper (Added 'antialiased' for smoother text) --}}
+    {{-- Main Content Wrapper --}}
     <div class="py-12 antialiased">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
@@ -223,7 +233,7 @@
                 {{-- 2. BOTTOM SECTION: ACTIVITY & SPOTLIGHT --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
-                    {{-- RECENT ACTIVITY (No Spinner - Instant Load) --}}
+                    {{-- RECENT ACTIVITY (SERVER-SIDE RENDERED) --}}
                     <div class="md:col-span-2 bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-6 text-gray-900">
                             <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2">
@@ -348,20 +358,20 @@
         </div>
     </div>
 
-    {{-- 👇 SCRIPT: Dynamic Duration (Iwas "Hihintayan") & Optimized Polling --}}
+    {{-- 👇 SCRIPT: Dynamic Duration (No Waiting) & Optimized Polling --}}
     <script>
         let statsInterval = null;
         let activityInterval = null;
 
         function initDashboard() {
-            // 1. CLEANUP (Prevent memory leaks)
+            // 1. CLEANUP
             if (statsInterval) clearInterval(statsInterval);
             if (activityInterval) clearInterval(activityInterval);
 
-            // 2. RUN ANIMATION ON LOAD
+            // 2. RUN ANIMATION
             animateCounters();
 
-            // 3. START POLLING (Every 30 seconds to prevent lag)
+            // 3. START POLLING (Every 30 seconds)
             if(document.querySelector('.count-up')) {
                 statsInterval = setInterval(fetchStats, 30000); 
             }
@@ -371,7 +381,7 @@
             }
         }
 
-        // --- SMOOTH ANIMATION WITH DYNAMIC DURATION ---
+        // --- SMOOTH ANIMATION (DYNAMIC DURATION) ---
         function animateCounters() {
             const counters = document.querySelectorAll('.count-up');
 
@@ -379,16 +389,16 @@
                 const target = +counter.getAttribute('data-target');
                 const startTime = performance.now();
 
-                // Dynamic Duration: Small numbers animate fast, big numbers animate slow
+                // Dynamic Duration: Fast for small numbers, Slower for big numbers (Max 2s)
                 const duration = Math.min(2000, Math.max(500, target * 50)); 
 
-                counter.innerText = '0'; // Start at 0
+                counter.innerText = '0'; 
 
                 function update(currentTime) {
                     const elapsed = currentTime - startTime;
                     const progress = Math.min(elapsed / duration, 1);
 
-                    // Easing Function (Ease Out Quad) - Smooth slowdown
+                    // Ease Out Quad
                     const ease = 1 - (1 - progress) * (1 - progress);
 
                     const current = Math.floor(ease * target);
@@ -424,7 +434,6 @@
                 const oldValue = parseInt(el.innerText.replace(/,/g, ''));
                 el.setAttribute('data-target', newValue);
                 
-                // Only animate/change if value is different
                 if (oldValue !== newValue) {
                     el.innerText = newValue.toLocaleString();
                     el.classList.add('text-green-600', 'transition-colors', 'duration-500');
@@ -451,7 +460,6 @@
                         return;
                     }
 
-                    // Rebuild HTML for updates (Updated to match Blade structure)
                     let htmlContent = '<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
                     
                     data.forEach(activity => {
@@ -494,7 +502,6 @@
                         `;
                     });
 
-                    // Only update DOM if content actually changed
                     if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
                         listContainer.innerHTML = htmlContent;
                     }
