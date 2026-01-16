@@ -39,10 +39,76 @@
                 </div>
             @endif
 
-            <div class="mb-4 flex justify-end">
-                <form method="GET" action="{{ route('students.index') }}" class="flex gap-2 w-full sm:w-auto">
-                    <input type="text" name="search" placeholder="Search name or ID..." value="{{ request('search') }}" class="border border-gray-300 rounded-md text-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-64">
-                    <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-700 shadow transition">Search</button>
+            {{-- 👇 NEW ADVANCED FILTER BAR --}}
+            <div class="mb-6 bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                <form method="GET" action="{{ route('students.index') }}" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                    
+                    {{-- 1. SEARCH INPUT --}}
+                    <div class="md:col-span-4">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Search Student</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class='bx bx-search text-gray-400 text-lg'></i>
+                            </div>
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                placeholder="Name, LRN, or ID...">
+                        </div>
+                    </div>
+
+                    {{-- 2. GRADE LEVEL FILTER --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Grade Level</label>
+                        <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm cursor-pointer">
+                            <option value="">All Grades</option>
+                            @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
+                                <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ $gl }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- 3. SECTION FILTER (Grouped by Grade) --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Section</label>
+                        <select name="section_id" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm cursor-pointer">
+                            <option value="">All Sections</option>
+                            @foreach($sections->groupBy('grade_level') as $grade => $gradeSections)
+                                <optgroup label="{{ $grade }}">
+                                    @foreach($gradeSections as $sec)
+                                        <option value="{{ $sec->id }}" {{ request('section_id') == $sec->id ? 'selected' : '' }}>
+                                            {{ $sec->section_name }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- 4. STATUS FILTER --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
+                        <select name="status" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm cursor-pointer">
+                            <option value="">All Statuses</option>
+                            @foreach(['New', 'Continuing', 'Enrolled', 'Transfer out', 'Graduate'] as $stat)
+                                <option value="{{ $stat }}" {{ request('status') == $stat ? 'selected' : '' }}>{{ $stat }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- 5. ACTION BUTTONS --}}
+                    <div class="md:col-span-2 flex gap-2">
+                        <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-bold shadow w-full transition flex justify-center items-center">
+                            Filter
+                        </button>
+                        
+                        {{-- Reset Button (Only shows if filtering) --}}
+                        @if(request()->hasAny(['search', 'grade_level', 'section_id', 'status']))
+                            <a href="{{ route('students.index') }}" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-2 rounded-md text-sm font-bold shadow w-auto transition flex items-center justify-center" title="Reset Filters">
+                                <i class='bx bx-x text-xl'></i>
+                            </a>
+                        @endif
+                    </div>
+
                 </form>
             </div>
 
@@ -124,7 +190,7 @@
                                                 'New' => 'bg-green-100 text-green-800 border-green-200',
                                                 'Continuing' => 'bg-blue-100 text-blue-800 border-blue-200',
                                                 'Enrolled' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
-                                                'Graduate' => 'bg-gray-600 text-white border-gray-600', // Distinct dark badge
+                                                'Graduate' => 'bg-gray-600 text-white border-gray-600', 
                                                 'Transfer out' => 'bg-red-100 text-red-800 border-red-200',
                                                 default => 'bg-gray-100 text-gray-800'
                                             };

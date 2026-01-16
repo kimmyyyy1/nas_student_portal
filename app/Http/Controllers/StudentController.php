@@ -39,11 +39,17 @@ class StudentController extends Controller
         ]);
     }
 
+    // 👇 UPDATED INDEX: With Advanced Filtering Logic
     public function index(Request $request): View
     {
+        // 1. Kunin ang Sections para sa Filter Dropdown
+        $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
+
+        // 2. Start Query
         $query = Student::with(['section', 'team']);
 
-        if ($request->has('search') && !empty($request->search)) {
+        // 3. Text Search (Name, LRN, ID)
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('last_name', 'like', "%{$search}%")
@@ -53,13 +59,29 @@ class StudentController extends Controller
             });
         }
 
+        // 4. Dropdown Filters
+        if ($request->filled('grade_level')) {
+            $query->where('grade_level', $request->grade_level);
+        }
+
+        if ($request->filled('section_id')) {
+            $query->where('section_id', $request->section_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // 5. Execute & Paginate
         $students = $query->orderBy('last_name')->paginate(15); 
-        return view('students.index', compact('students'));
+        
+        // Ipasa ang $sections sa view para gumana ang dropdown filter
+        return view('students.index', compact('students', 'sections'));
     }
 
-    // 👇 TAMA NA ITO: Ipinapasa niya lahat ng sections para ma-filter ng JavaScript sa View
     public function create(): View
     {
+        // Ipasa lahat ng section para sa JavaScript filtering
         $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
         $teams = Team::orderBy('team_name')->get();
         return view('students.create', compact('sections', 'teams'));
@@ -154,7 +176,6 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', "Student record created! Password: {$tempPassword}");
     }
 
-    // 👇 TAMA NA RIN ITO
     public function edit(Request $request, Student $student): View
     {
         $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
