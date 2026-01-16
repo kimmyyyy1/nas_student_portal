@@ -19,7 +19,6 @@
                         </div>
                     @endif
 
-                    {{-- 👇 NOTE: We pass queryParams in the action if needed, but usually controller redirect handles success state. --}}
                     <form method="POST" action="{{ route('students.update', $student->id) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -76,11 +75,11 @@
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Middle Name</label><input type="text" name="middle_name" value="{{ old('middle_name', $student->middle_name) }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Email Address</label><input type="email" name="email_address" value="{{ old('email_address', $student->email_address) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Sex</label><select name="sex" class="w-full border-gray-300 rounded-md shadow-sm"><option value="Male" {{ old('sex', $student->sex) == 'Male' ? 'selected' : '' }}>Male</option><option value="Female" {{ old('sex', $student->sex) == 'Female' ? 'selected' : '' }}>Female</option></select></div>
-                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthdate</label><input type="date" id="birthdate" name="birthdate" value="{{ old('birthdate', $student->birthdate ? $student->birthdate->format('Y-m-d') : '') }}" class="w-full border-gray-300 rounded-md shadow-sm" required onchange="calculateAge()"></div>
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthdate</label><input type="date" id="birthdate" name="birthdate" value="{{ old('birthdate', $student->birthdate ? $student->birthdate->format('Y-m-d') : '') }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthplace</label><input type="text" name="birthplace" value="{{ old('birthplace', $student->birthplace) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Religion</label><input type="text" name="religion" value="{{ old('religion', $student->religion) }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                     
-                                    {{-- UPDATED CHECKBOX LAYOUT --}}
+                                    {{-- CHECKBOXES --}}
                                     <div class="md:col-span-3 mt-2 pt-4 border-t border-gray-100 border-dashed">
                                         <div class="flex flex-wrap gap-y-3 gap-x-6 items-center">
                                             <label class="flex items-center space-x-2 cursor-pointer">
@@ -95,14 +94,8 @@
                                                 <input type="checkbox" name="is_4ps" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps', $student->is_4ps) ? 'checked' : '' }}> 
                                                 <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
                                             </label>
-                                            {{-- OTHERS FIELD (Visual only if no column in DB yet) --}}
-                                            <div class="flex items-center space-x-2 ml-auto sm:ml-0">
-                                                <span class="text-xs font-bold text-gray-600 uppercase">Others:</span>
-                                                <input type="text" class="border-0 border-b border-gray-400 focus:ring-0 focus:border-indigo-600 text-sm w-40 placeholder-gray-300" placeholder="(Optional)">
-                                            </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
 
@@ -122,23 +115,26 @@
                             <div class="md:col-span-2 bg-gray-50 p-6 rounded-lg border border-gray-200">
                                 <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i class='bx bx-trophy mr-2 text-yellow-600'></i> Academic & Sports</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    
+                                    {{-- 1. GRADE LEVEL --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Grade Level</label>
-                                        <select name="grade_level" class="w-full border-gray-300 rounded-md shadow-sm">
-                                            @foreach(['Grade 7','Grade 8'] as $gl)
+                                        <select id="grade_level" name="grade_level" class="w-full border-gray-300 rounded-md shadow-sm">
+                                            @foreach(['Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'] as $gl)
                                                 <option value="{{ $gl }}" {{ old('grade_level', $student->grade_level) == $gl ? 'selected' : '' }}>{{ $gl }}</option>
                                             @endforeach
                                         </select>
                                     </div>
+
+                                    {{-- 2. SECTION ASSIGNMENT (DEPENDENT) --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Section Assignment</label>
-                                        <select name="section_id" class="w-full border-gray-300 rounded-md shadow-sm">
+                                        {{-- Empty on load, populated by JS --}}
+                                        <select id="section_id" name="section_id" class="w-full border-gray-300 rounded-md shadow-sm">
                                             <option value="">-- No Section Yet --</option>
-                                            @foreach($sections as $section)
-                                                <option value="{{ $section->id }}" {{ old('section_id', $student->section_id) == $section->id ? 'selected' : '' }}>{{ $section->section_name }}</option>
-                                            @endforeach
                                         </select>
                                     </div>
+
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Sports Team</label>
                                         <select name="team_id" class="w-full border-gray-300 rounded-md shadow-sm">
@@ -194,9 +190,7 @@
                         </div> 
                         
                         <div class="mt-10 flex justify-end gap-4 border-t border-gray-100 pt-6">
-                            {{-- 👇 UPDATED CANCEL BUTTON: Uses queryParams to return to the correct page --}}
-                            <a href="{{ route('students.index', $queryParams ?? []) }}" wire:navigate class="px-6 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">Cancel</a>
-                            
+                            <a href="{{ route('students.index', $queryParams ?? []) }}" class="px-6 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">Cancel</a>
                             <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center">
                                 <i class='bx bx-save mr-2'></i> Update Record
                             </button>
@@ -208,6 +202,7 @@
         </div>
     </div>
 
+    {{-- SCRIPTS (PHOTO PREVIEW & FILTER) --}}
     <script>
         function previewImage(event) {
             const reader = new FileReader();
@@ -222,16 +217,61 @@
                 reader.readAsDataURL(event.target.files[0]);
             }
         }
-        function calculateAge() {
-            var dob = document.getElementById('birthdate').value;
-            if (dob) {
-                var today = new Date();
-                var birthDate = new Date(dob);
-                var age = today.getFullYear() - birthDate.getFullYear();
-                var m = today.getMonth() - birthDate.getMonth();
-                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-                // Note: Ensure you have an element with ID 'age' if you want this to work, otherwise you can remove this func.
+
+        // DEPENDENT DROPDOWN LOGIC (JSON Approach)
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const allSections = @json($sections);
+            // Get current section ID from DB (for edit view) or old input (if validation fails)
+            const currentSectionId = @json(old('section_id', $student->section_id));
+
+            const gradeSelect = document.getElementById('grade_level');
+            const sectionSelect = document.getElementById('section_id');
+
+            function filterSections() {
+                const selectedGradeText = gradeSelect.value;
+                // Extract number only (Grade 7 -> 7)
+                const gradeNumber = selectedGradeText.replace(/[^0-9]/g, '');
+
+                // Clear dropdown
+                sectionSelect.innerHTML = '<option value="">-- No Section Yet --</option>';
+
+                if (gradeNumber) {
+                    const filteredSections = allSections.filter(section => {
+                        if(!section.grade_level) return false;
+                        const sectionGradeNumber = section.grade_level.toString().replace(/[^0-9]/g, '');
+                        return sectionGradeNumber === gradeNumber;
+                    });
+
+                    if (filteredSections.length > 0) {
+                        sectionSelect.innerHTML = '<option value="">-- Select Section --</option>';
+                        
+                        filteredSections.forEach(section => {
+                            const option = document.createElement('option');
+                            option.value = section.id;
+                            option.text = section.section_name;
+
+                            // Pre-select logic
+                            if (currentSectionId && currentSectionId == section.id) {
+                                option.selected = true;
+                            }
+
+                            sectionSelect.appendChild(option);
+                        });
+                    } else {
+                        sectionSelect.innerHTML = '<option value="">-- No Sections Found --</option>';
+                    }
+                } else {
+                    sectionSelect.innerHTML = '<option value="">-- Select Grade First --</option>';
+                }
             }
-        }
+
+            gradeSelect.addEventListener('change', filterSections);
+
+            // Run once on load to populate sections for the existing student
+            if(gradeSelect.value) {
+                filterSections();
+            }
+        });
     </script>
 </x-app-layout>
