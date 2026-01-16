@@ -23,7 +23,7 @@
         </div>
     </x-slot>
 
-    <div class="py-6"> {{-- Reduced padding from py-8 to py-6 --}}
+    <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             {{-- ALERTS --}}
@@ -43,10 +43,9 @@
             <div class="mb-4 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
                 <form method="GET" action="{{ route('students.index') }}">
                     
-                    {{-- Flex Row on Large Screens, Stack on Mobile --}}
                     <div class="flex flex-col lg:flex-row lg:items-end gap-2">
                         
-                        {{-- 1. SEARCH (FLEX-1: Takes all available width) --}}
+                        {{-- 1. SEARCH --}}
                         <div class="w-full lg:flex-1">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Search Student</label>
                             <div class="relative">
@@ -59,7 +58,7 @@
                             </div>
                         </div>
 
-                        {{-- 2. GRADE (Fixed Width) --}}
+                        {{-- 2. GRADE --}}
                         <div class="w-full lg:w-40">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Grade</label>
                             <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
@@ -70,7 +69,7 @@
                             </select>
                         </div>
 
-                        {{-- 3. SECTION (Fixed Width) --}}
+                        {{-- 3. SECTION --}}
                         <div class="w-full lg:w-48">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Section</label>
                             <select name="section_id" onchange="this.form.submit()" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
@@ -87,7 +86,7 @@
                             </select>
                         </div>
 
-                        {{-- 4. STATUS (Fixed Width) --}}
+                        {{-- 4. STATUS --}}
                         <div class="w-full lg:w-36">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status</label>
                             <select name="status" onchange="this.form.submit()" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
@@ -203,12 +202,12 @@
                                         </span>
                                     </td>
 
-                                    {{-- 6. ACTION BUTTONS --}}
+                                    {{-- 6. ACTION BUTTONS (NO UNDERLINE) --}}
                                     <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="{{ route('students.show', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 hover:underline">
+                                        <a href="{{ route('students.show', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 transition">
                                             View
                                         </a>
-                                        <a href="{{ route('students.edit', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-blue-600 hover:text-blue-900 font-bold hover:underline">
+                                        <a href="{{ route('students.edit', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-blue-600 hover:text-blue-900 font-bold transition">
                                             Edit
                                         </a>
                                     </td>
@@ -234,10 +233,7 @@
     {{-- LIVE UPDATE SCRIPT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Using Livewire navigate makes full page reload polling less ideal, 
-            // but keeping it as requested. Ensure wire:navigate works properly.
             setInterval(function() {
-                // Check if we are not editing/interacting to avoid disrupting user
                 updateTable();
             }, 5000);
         });
