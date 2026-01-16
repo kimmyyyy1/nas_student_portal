@@ -39,26 +39,27 @@
                 </div>
             @endif
 
-            {{-- FIXED: COMPACT GRID FILTER TOOLBAR --}}
+            {{-- COMPACT FILTER TOOLBAR --}}
             <div class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                 <form method="GET" action="{{ route('students.index') }}">
-                    <div class="grid grid-cols-2 md:grid-cols-12 gap-3 items-end">
+                    <div class="flex flex-col md:flex-row md:items-end gap-3">
                         
-                        {{-- 1. SEARCH (FIXED WIDTH: 4 COLUMNS) --}}
-                        <div class="col-span-2 md:col-span-4">
+                        {{-- 1. SEARCH (FIXED VISIBILITY) --}}
+                        <div class="flex-grow">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Search Student</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i class='bx bx-search text-gray-400 text-lg'></i>
                                 </div>
+                                {{-- 👇 Added: text-gray-900 bg-white placeholder-gray-500 --}}
                                 <input type="text" name="search" value="{{ request('search') }}" 
                                     class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white placeholder-gray-500" 
                                     placeholder="Name, LRN, or ID...">
                             </div>
                         </div>
 
-                        {{-- 2. GRADE LEVEL (2 COLUMNS) --}}
-                        <div class="col-span-1 md:col-span-2">
+                        {{-- 2. GRADE LEVEL --}}
+                        <div class="w-full md:w-32">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Grade</label>
                             <select name="grade_level" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
                                 <option value="">All</option>
@@ -68,8 +69,8 @@
                             </select>
                         </div>
 
-                        {{-- 3. SECTION (2 COLUMNS) --}}
-                        <div class="col-span-1 md:col-span-2">
+                        {{-- 3. SECTION --}}
+                        <div class="w-full md:w-40">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Section</label>
                             <select name="section_id" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
                                 <option value="">All</option>
@@ -85,8 +86,8 @@
                             </select>
                         </div>
 
-                        {{-- 4. STATUS (2 COLUMNS) --}}
-                        <div class="col-span-1 md:col-span-2">
+                        {{-- 4. STATUS --}}
+                        <div class="w-full md:w-36">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
                             <select name="status" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 text-gray-900 bg-white cursor-pointer">
                                 <option value="">All</option>
@@ -96,9 +97,9 @@
                             </select>
                         </div>
 
-                        {{-- 5. BUTTONS (2 COLUMNS) --}}
-                        <div class="col-span-1 md:col-span-2 flex gap-2">
-                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-bold shadow transition h-[38px] flex items-center justify-center w-full">
+                        {{-- 5. BUTTONS --}}
+                        <div class="flex gap-2 min-w-fit">
+                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-bold shadow transition h-[38px] flex items-center">
                                 <i class='bx bx-filter-alt mr-1'></i> Filter
                             </button>
                             
