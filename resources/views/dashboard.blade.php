@@ -1,43 +1,5 @@
 <x-app-layout>
     
-    {{-- 👇 CSS FIXES: STOP SCROLL CHAINING (Anti-Tagos Scroll) --}}
-    <style>
-        /* 1. Global Optimization */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* 2. ULTIMATE FIX: Pigilan ang 'Scroll Chaining' sa LAHAT ng scrollable areas */
-        /* Targetin lahat ng elements na may 'overflow-y-auto' o 'overflow-y-scroll' */
-        [class*="overflow-y-"] {
-            overscroll-behavior: contain !important;  /* Ito ang pipigil sa pag-scroll ng background */
-            -webkit-overflow-scrolling: touch !important; /* Smooth scroll sa touch devices */
-        }
-
-        /* 3. Custom Scrollbar (Manipis at Modern) */
-        ::-webkit-scrollbar {
-            width: 6px; 
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 10px;
-            transition: background 0.3s ease;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; 
-        }
-
-        /* 4. Force GPU Rendering sa Sidebar elements (Iwas Lag) */
-        aside, nav, .sidebar {
-            transform: translate3d(0, 0, 0); 
-            will-change: transform;
-        }
-    </style>
-
     {{-- HEADER --}}
     <x-slot name="header">
         <div class="flex items-center justify-between">
