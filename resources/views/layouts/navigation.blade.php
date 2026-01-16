@@ -1,6 +1,6 @@
 {{-- 👇 CSS OPTIMIZATION: SIDEBAR SCROLL FIXES & GPU ACCELERATION --}}
 <style>
-    /* 1. Force GPU Rendering (Iwas Lag/Flicker) */
+    /* 1. Force GPU Rendering (Iwas Lag/Flicker sa Sidebar) */
     nav.fixed {
         transform: translate3d(0, 0, 0);
         will-change: transform;
@@ -11,7 +11,7 @@
 
     /* 2. SIDEBAR SCROLL FIX (Anti-Tagos at Smooth) */
     #sidebar-menu {
-        overscroll-behavior: contain; /* Pigilan ang pag-scroll ng body pag sagad na */
+        overscroll-behavior: contain; /* Ito ang pipigil sa pag-scroll ng main page pag sagad na ang sidebar */
         -webkit-overflow-scrolling: touch; /* Momentum scrolling */
         scroll-behavior: smooth;
     }
@@ -45,12 +45,7 @@
     </div>
 
     {{-- 2. SCROLLABLE MENU AREA --}}
-    {{-- 👇 ANG FIX: AlpineJS x-init para instant ang restore ng scroll position --}}
-    <div id="sidebar-menu" 
-         class="flex-1 overflow-y-auto py-4 px-3 space-y-1"
-         x-data
-         x-init="$el.scrollTop = localStorage.getItem('sidebar-scroll-pos') || 0"
-         @scroll.passive="localStorage.setItem('sidebar-scroll-pos', $el.scrollTop)">
+    <div id="sidebar-menu" class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
 
         {{-- ROLE: STUDENT --}}
         @if(Auth::user()->role === 'student')
@@ -249,3 +244,23 @@
         </div>
     </div>
 </nav>
+
+{{-- 👇 FINAL SCRIPT: LIVEWIRE LIFECYCLE HOOKS PARA SA SCROLL RESTORATION --}}
+<script>
+    // 1. I-save ang pwesto bago umalis (Navigating)
+    document.addEventListener('livewire:navigating', () => {
+        let sidebar = document.getElementById('sidebar-menu');
+        if(sidebar) {
+            sessionStorage.setItem('sidebar-scroll-pos', sidebar.scrollTop);
+        }
+    });
+
+    // 2. Ibalik ang pwesto pagkatapos mag-load (Navigated)
+    document.addEventListener('livewire:navigated', () => {
+        let sidebar = document.getElementById('sidebar-menu');
+        let pos = sessionStorage.getItem('sidebar-scroll-pos');
+        if(sidebar && pos) {
+            sidebar.scrollTop = pos;
+        }
+    });
+</script>
