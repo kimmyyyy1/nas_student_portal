@@ -1,44 +1,5 @@
 <x-app-layout>
     
-    {{-- 👇 ADDED: CSS FOR ULTRA-SMOOTH SCROLLING & SIDEBAR OPTIMIZATION --}}
-    <style>
-        /* 1. Global Smooth Scroll */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* 2. Custom Scrollbar (Manipis at Modern) - Applied to ALL scrollable areas including Sidebar */
-        ::-webkit-scrollbar {
-            width: 6px; /* Mas manipis para hindi sagabal */
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; /* Light Gray */
-            border-radius: 10px;
-            transition: background 0.3s ease;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; /* Darker Gray pag hover */
-        }
-
-        /* 3. HARDWARE ACCELERATION para sa Sidebar at Main Content (Iwas Lag) */
-        .overflow-y-auto, .overflow-x-auto, aside, main {
-            -webkit-overflow-scrolling: touch; /* Momentum scrolling (Madulas) */
-            will-change: scroll-position;      /* Browser Optimization */
-            transform: translateZ(0);          /* Force GPU Rendering */
-        }
-
-        /* 4. Font Rendering Optimization */
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
-        }
-    </style>
-
     {{-- HEADER --}}
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -54,7 +15,7 @@
     </x-slot>
 
     {{-- Main Content Wrapper --}}
-    <div class="py-12 antialiased">
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- ======================================================= --}}
@@ -72,7 +33,7 @@
                     </div>
                 @else
                     {{-- WELCOME BANNER --}}
-                    <div class="bg-gradient-to-r from-blue-900 to-indigo-800 text-white overflow-hidden shadow-lg sm:rounded-lg mb-6 relative border border-blue-700 transform transition-all duration-300 hover:shadow-xl">
+                    <div class="bg-gradient-to-r from-blue-900 to-indigo-800 text-white overflow-hidden shadow-lg sm:rounded-lg mb-6 relative border border-blue-700">
                         <div class="p-6 relative z-10 flex justify-between items-center">
                             <div>
                                 <h3 class="text-2xl font-bold drop-shadow-md">Welcome, Teacher {{ Auth::user()->name }}!</h3>
@@ -89,7 +50,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {{-- ADVISORY CLASS CARD --}}
                         <div class="md:col-span-2">
-                            <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200 h-full flex flex-col transition hover:shadow-lg">
+                            <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200 h-full flex flex-col">
                                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                                     <h4 class="font-bold text-gray-700 flex items-center uppercase text-sm tracking-wide">
                                         <i class='bx bx-chalkboard text-xl mr-2 text-indigo-600'></i>
@@ -135,7 +96,7 @@
 
                         {{-- MY LOADS / SCHEDULE --}}
                         <div class="md:col-span-1 space-y-6">
-                            <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200 transition hover:shadow-lg">
+                            <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase flex justify-between items-center">
                                     <span><i class='bx bx-book-open mr-1'></i> My Loads</span>
                                     <a href="{{ route('schedules.my') }}" class="text-xs text-blue-600 hover:text-blue-800 hover:underline">View All</a>
@@ -164,7 +125,7 @@
                                 </div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md text-white overflow-hidden group hover:shadow-lg transition">
+                            <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md text-white overflow-hidden group">
                                 <div class="p-5 text-center">
                                     <i class='bx bx-edit text-4xl mb-2 text-white opacity-90 group-hover:scale-110 transition duration-300'></i>
                                     <h4 class="font-bold mb-1">Grading System</h4>
