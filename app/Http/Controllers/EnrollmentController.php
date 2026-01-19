@@ -6,8 +6,8 @@ use App\Models\EnrollmentApplication;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Barryvdh\DomPDF\Facade\Pdf; 
-use Carbon\Carbon; // Added for date handling
+// use Barryvdh\DomPDF\Facade\Pdf; // Commented out: Hindi na kailangan para sa Client-Side Print
+use Carbon\Carbon;
 
 class EnrollmentController extends Controller
 {
@@ -79,7 +79,7 @@ class EnrollmentController extends Controller
         return view('admission.show', compact('application'));
     }
     
-    // --- UPDATED PROCESS FUNCTION (WITH DATE FIX) ---
+    // --- UPDATED PROCESS FUNCTION ---
     public function process(Request $request, $id): RedirectResponse {
         $application = EnrollmentApplication::findOrFail($id);
         
@@ -95,7 +95,6 @@ class EnrollmentController extends Controller
         }
 
         // FIX: I-save ang current date/time sa 'date_checked'
-        // Ito ang solusyon para mawala ang "-- Pending --" sa date column
         $validated['date_checked'] = now(); 
 
         $application->update($validated);
@@ -103,10 +102,13 @@ class EnrollmentController extends Controller
         return back()->with('success', "Status updated successfully.");
     }
 
+    // --- REPLACED PDF GENERATION WITH PRINT VIEW ---
     public function generatePdf($id) {
         $application = EnrollmentApplication::findOrFail($id);
-        $pdf = Pdf::loadView('admission.pdf', compact('application'));
-        $pdf->setPaper('letter', 'portrait');
-        return $pdf->stream('NAS_Application_' . $application->lrn . '.pdf');
+        
+        // Instead of using DomPDF which requires GD extension, we return a blade view
+        // designed for printing. This shifts the rendering to the client's browser.
+        // This is the FIX for the Vercel 500 Error.
+        return view('admission.print', compact('application'));
     }
 }

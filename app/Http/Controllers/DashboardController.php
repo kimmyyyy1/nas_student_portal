@@ -9,8 +9,9 @@ use App\Models\EnrollmentApplication;
 use App\Models\Section;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\Staff;     // Added
-use App\Models\Schedule;  // Added
+use App\Models\Staff;
+use App\Models\Schedule;
+use App\Models\ActivityLog; 
 
 class DashboardController extends Controller
 {
@@ -18,7 +19,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Redirect logic (Students & Applicants)
+        // =========================================================
+        // 1. REDIRECT LOGIC (Students & Applicants)
+        // =========================================================
         if ($user->role === 'student') {
             return redirect()->route('student.dashboard');
         }
@@ -31,26 +34,23 @@ class DashboardController extends Controller
         // =========================================================
         if ($user->role === 'teacher') {
             
-            // A. Hanapin ang Staff Record gamit ang EMAIL
+            // Hanapin ang staff record gamit ang email
             $staff = Staff::where('email', $user->email)->first();
 
-            // Default values
             $advisorySection = null;
             $advisoryCount = 0;
             $mySchedules = collect([]);
             $staffError = null;
 
             if ($staff) {
-                // B. Hanapin ang Section kung saan siya ang Adviser
+                // Check kung may advisory section
                 $advisorySection = Section::where('adviser_id', $staff->id)->first();
 
-                // C. Bilangin ang estudyante kung may advisory class
                 if ($advisorySection) {
-                    // Dito pwede nating bilangin lahat ng nasa section, enrolled man o hindi
                     $advisoryCount = Student::where('section_id', $advisorySection->id)->count();
                 }
 
-                // D. Kunin ang Schedules/Loads niya
+                // Kunin ang schedule ng teacher
                 $mySchedules = Schedule::with(['subject', 'section'])
                                 ->where('staff_id', $staff->id)
                                 ->orderBy('day')
@@ -60,7 +60,6 @@ class DashboardController extends Controller
                 $staffError = "Staff profile not found. Please contact Admin to link your account.";
             }
 
-            // Ipasa ang teacher variables sa view
             return view('dashboard', compact(
                 'advisorySection', 
                 'advisoryCount', 
@@ -70,30 +69,67 @@ class DashboardController extends Controller
         }
 
         // =========================================================
-        // 3. LOGIC FOR ADMIN (Default)
+        // 3. LOGIC FOR ADMIN (Default View)
         // =========================================================
         
-        // KUNIN ANG COUNTS
-        
-        // FIX: Binago ko ito para bilangin LAHAT ng students (hindi lang Enrolled)
+        // Initial Data for Blade View (Page Load)
         $totalStudents = Student::count(); 
-
-        $totalApplicants = EnrollmentApplication::where('status', 'Pending')->count(); 
-        $totalSections = Section::count();
-        $totalTeams = Team::count();
+        $totalApplicants = EnrollmentApplication::where('status', 'Pending')->count();
         
-        // Extra variables para sa Admin Dashboard view
-        $upcomingPlansCount = 0; 
-        $activities = collect([]); 
+        $activeSections = Section::count(); 
+        $sportsTeams = Team::count();       
+        $upcomingPlans = 0; // Replace with Event::count() later if needed
 
-        // Ipasa ang admin variables sa view
+        // Get activities for initial page load
+        $activities = ActivityLog::with('user')
+                        ->latest()
+                        ->take(5)
+                        ->get();
+
         return view('dashboard', compact(
             'totalStudents', 
             'totalApplicants', 
-            'totalSections', 
-            'totalTeams',
-            'upcomingPlansCount',
+            'activeSections', 
+            'sportsTeams',
+            'upcomingPlans',
             'activities'
         ));
     }
-}
+
+    // =========================================================
+    // 4. AJAX ENDPOINTS (For Live Updates)
+    // =========================================================
+
+    // Returns Recent Activity Logs as JSON
+    public function getRecentActivity()
+    {
+        $activities = ActivityLog::with('user')
+                        ->latest()
+                        ->take(5)
+                        ->get()
+                        ->map(function ($activity) {
+                            return [
+                                'action' => $activity->action,
+                                'description' => $activity->description,
+                                'time_ago' => $activity->created_at->diffForHumans(),
+                                'user' => $activity->user ? [
+                                    'name' => $activity->user->name,
+                                    'role' => $activity->user->role,
+                                ] : null,
+                            ];
+                        });
+
+        return response()->json($activities);
+    }
+
+    // Returns Statistics Counts as JSON
+    public function getStats()
+    {
+        return response()->json([
+            'totalStudents' => Student::count(),
+            'activeSections' => Section::count(),
+            'totalTeams' => Team::count(),
+            'upcomingPlans' => 0, // Update this if you have an Events model
+        ]);
+    }
+}   

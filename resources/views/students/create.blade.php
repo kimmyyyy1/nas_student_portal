@@ -28,6 +28,7 @@
                     <form method="POST" action="{{ route('students.store') }}" enctype="multipart/form-data">
                         @csrf
 
+                        {{-- PHOTO UPLOAD SECTION --}}
                         <div class="mb-10 flex flex-col items-center justify-center border-b border-gray-100 pb-8">
                             <label class="block text-gray-700 font-bold mb-3 text-lg">Student 2x2 ID Picture</label>
                             
@@ -48,6 +49,7 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             
+                            {{-- IDENTIFICATION --}}
                             <div class="md:col-span-2 bg-blue-50 p-6 rounded-lg border border-blue-100 shadow-sm">
                                 <h3 class="font-bold text-blue-800 mb-4 flex items-center text-lg">
                                     <i class='bx bx-id-card mr-2 text-xl'></i> Identification
@@ -73,6 +75,7 @@
                                 </div>
                             </div>
 
+                            {{-- PERSONAL INFO --}}
                             <div class="md:col-span-2">
                                 <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex items-center">
                                     <i class='bx bx-user mr-2'></i> Personal Information
@@ -115,15 +118,33 @@
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Religion</label>
                                         <input type="text" name="religion" value="{{ old('religion') }}" class="w-full border-gray-300 rounded-md shadow-sm">
                                     </div>
+
+                                    {{-- CHECKBOXES --}}
+                                    <div class="md:col-span-3 mt-2 pt-4 border-t border-gray-100 border-dashed">
+                                        <div class="flex flex-wrap gap-y-3 gap-x-6 items-center">
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                <input type="checkbox" name="is_ip" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip') ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                <input type="checkbox" name="is_pwd" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd') ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                <input type="checkbox" name="is_4ps" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps') ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
+                            {{-- ADDRESS --}}
                             <div class="md:col-span-2">
                                 <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex items-center">
                                     <i class='bx bx-map mr-2'></i> Complete Address
                                 </h3>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {{-- FIX: Tinanggal ang "value='Region III'" --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Region</label>
                                         <input type="text" name="region" placeholder="Region" class="w-full border-gray-300 rounded-md shadow-sm text-sm" value="{{ old('region') }}" required>
@@ -147,30 +168,36 @@
                                 </div>
                             </div>
 
+                            {{-- ACADEMIC & SPORTS PLACEMENT --}}
                             <div class="md:col-span-2 bg-gray-50 p-6 rounded-lg border border-gray-200">
                                 <h3 class="font-bold text-gray-800 mb-4 flex items-center">
                                     <i class='bx bx-trophy mr-2 text-yellow-600'></i> Academic & Sports Placement
                                 </h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     
-                                    {{-- GRADE LEVEL: RESTRICTED TO GRADE 7 & 8 ONLY --}}
+                                    {{-- 1. GRADE LEVEL DROPDOWN --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Grade Level <span class="text-red-500">*</span></label>
-                                        <select name="grade_level" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="Grade 7">Grade 7</option>
-                                            <option value="Grade 8">Grade 8</option>
+                                        <select id="grade_level" name="grade_level" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="" disabled selected>-- Select Grade --</option>
+                                            <option value="Grade 7" {{ old('grade_level') == 'Grade 7' ? 'selected' : '' }}>Grade 7</option>
+                                            <option value="Grade 8" {{ old('grade_level') == 'Grade 8' ? 'selected' : '' }}>Grade 8</option>
+                                            <option value="Grade 9" {{ old('grade_level') == 'Grade 9' ? 'selected' : '' }}>Grade 9</option>
+                                            <option value="Grade 10" {{ old('grade_level') == 'Grade 10' ? 'selected' : '' }}>Grade 10</option>
+                                            <option value="Grade 11" {{ old('grade_level') == 'Grade 11' ? 'selected' : '' }}>Grade 11</option>
+                                            <option value="Grade 12" {{ old('grade_level') == 'Grade 12' ? 'selected' : '' }}>Grade 12</option>
                                         </select>
                                     </div>
-                                    
+
+                                    {{-- 2. SECTION ASSIGNMENT (EMPTY INITIAL STATE) --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Section Assignment</label>
-                                        <select name="section_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">-- No Section Yet --</option>
-                                            @foreach($sections as $section)
-                                                <option value="{{ $section->id }}">{{ $section->section_name }}</option>
-                                            @endforeach
+                                        {{-- 👇 Note: Empty options initially. JavaScript will populate this. --}}
+                                        <select id="section_id" name="section_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="">-- Select Grade First --</option>
                                         </select>
                                     </div>
+
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Sports Team</label>
                                         <select name="team_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
@@ -180,9 +207,20 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Entry Year</label><input type="number" name="entry_year" class="w-full border-gray-300 rounded-md shadow-sm" value="{{ old('entry_year', date('Y')) }}"></div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Promotion Status</label>
+                                        <select name="promotion_status" class="w-full border-gray-300 rounded-md shadow-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach(['Promoted', 'Conditional', 'Retained'] as $status)
+                                                 <option value="{{ $status }}" {{ old('promotion_status') == $status ? 'selected' : '' }}>{{ $status }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
+                            {{-- GUARDIAN INFO --}}
                             <div class="md:col-span-2">
                                 <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex items-center">
                                     <i class='bx bx-shield-alt-2 mr-2'></i> Guardian / Parent Information
@@ -190,15 +228,19 @@
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Full Name <span class="text-red-500">*</span></label>
-                                        <input type="text" name="guardian_name" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                        <input type="text" name="guardian_name" value="{{ old('guardian_name') }}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Relationship <span class="text-red-500">*</span></label>
-                                        <input type="text" name="guardian_relationship" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                        <input type="text" name="guardian_relationship" value="{{ old('guardian_relationship') }}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Contact Number <span class="text-red-500">*</span></label>
-                                        <input type="text" name="guardian_contact" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                        <input type="text" name="guardian_contact" value="{{ old('guardian_contact') }}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                    </div>
+                                    <div class="md:col-span-3">
+                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Guardian Address</label>
+                                        <input type="text" name="guardian_address" value="{{ old('guardian_address') }}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                 </div>
                             </div>
@@ -218,7 +260,9 @@
         </div>
     </div>
 
+    {{-- SCRIPTS (PHOTO PREVIEW & FILTER) --}}
     <script>
+        // Photo Preview Logic (Global Function)
         function previewImage(event) {
             const reader = new FileReader();
             const output = document.getElementById('photo-preview');
@@ -232,5 +276,86 @@
                 reader.readAsDataURL(event.target.files[0]);
             }
         }
+
+        // DEPENDENT DROPDOWN LOGIC WRAPPER
+        function initStudentForm() {
+            // 1. KUNIN ANG DATA (Blade -> JS)
+            const allSections = @json($sections ?? []); 
+            const currentSectionId = @json(old('section_id'));
+
+            const gradeSelect = document.getElementById('grade_level');
+            const sectionSelect = document.getElementById('section_id');
+
+            // Safety check
+            if (!gradeSelect || !sectionSelect) return;
+
+            function filterSections() {
+                const selectedGradeText = gradeSelect.value;
+                // Extract number only (e.g., "Grade 7" -> "7")
+                const gradeNumber = selectedGradeText.replace(/[^0-9]/g, '');
+
+                // Clear dropdown
+                sectionSelect.innerHTML = ''; 
+
+                if (gradeNumber) {
+                    // Filter Sections
+                    const filteredSections = allSections.filter(section => {
+                        if(!section.grade_level) return false;
+                        const sectionGradeNumber = section.grade_level.toString().replace(/[^0-9]/g, '');
+                        return sectionGradeNumber === gradeNumber;
+                    });
+
+                    if (filteredSections.length > 0) {
+                        // Add default option
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = "";
+                        defaultOption.text = "-- Select Section --";
+                        sectionSelect.appendChild(defaultOption);
+                        
+                        // Populate Options
+                        filteredSections.forEach(section => {
+                            const option = document.createElement('option');
+                            option.value = section.id;
+                            option.text = section.section_name;
+
+                            // Pre-select logic
+                            if (currentSectionId && currentSectionId == section.id) {
+                                option.selected = true;
+                            }
+
+                            sectionSelect.appendChild(option);
+                        });
+                    } else {
+                        const option = document.createElement('option');
+                        option.value = "";
+                        option.text = "-- No Section Found --";
+                        sectionSelect.appendChild(option);
+                    }
+                } else {
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "-- Select Grade First --";
+                    sectionSelect.appendChild(option);
+                }
+            }
+
+            // Remove old listener to avoid duplication (if any)
+            gradeSelect.removeEventListener('change', filterSections);
+            // Add new listener
+            gradeSelect.addEventListener('change', filterSections);
+
+            // Run immediately logic to populate saved data
+            if(gradeSelect.value) {
+                filterSections();
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        // 1. Para sa Hard Refresh (F5)
+        document.addEventListener('DOMContentLoaded', initStudentForm);
+        
+        // 2. Para sa Livewire Navigation (wire:navigate)
+        document.addEventListener('livewire:navigated', initStudentForm);
+
     </script>
 </x-app-layout>

@@ -5,11 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Register | NAS SAIS</title>
         
-    <link rel="icon" type="image/jpeg" href="/images/nas/favicon.jpg">
+    <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    {{-- 👇 1. IBINALIK ANG ALPINE.JS SCRIPT DITO RIN --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        /* SAFEGUARD CSS */
+        body {
+            font-family: 'Poppins', sans-serif !important;
+        }
+
+        /* 👇 FIX: Hide default browser password toggle */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
+        input[type="password"]::-webkit-contacts-auto-fill-button,
+        input[type="password"]::-webkit-credentials-auto-fill-button {
+            visibility: hidden;
+            pointer-events: none;
+            position: absolute;
+            right: 0;
+        }
+
+        [x-cloak] { display: none !important; }
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
 <body class="bg-gray-900 h-screen w-full overflow-hidden relative flex flex-col items-center justify-center">
 
@@ -25,7 +54,8 @@
             <div class="overflow-y-auto px-8 py-6 custom-scrollbar">
                 
                 <div class="text-center mb-6">
-                    <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" class="h-16 w-auto mx-auto mb-3 drop-shadow-md hover:scale-105 transition-transform" alt="NAS Logo">
+                    <img src="{{ asset('images/nas/stack.png') }}" class="h-24 w-auto mx-auto mb-3 drop-shadow-md hover:scale-105 transition-transform" alt="NAS Logo">
+                    
                     <h2 class="text-2xl font-extrabold text-blue-900 tracking-tight">Create Account</h2>
                     <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Applicant Registration</p>
                 </div>
@@ -65,6 +95,7 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         
+                        {{-- PASSWORD FIELD --}}
                         <div x-data="{ show: false }">
                             <label class="block font-bold text-[10px] text-gray-500 uppercase mb-1 ml-1 tracking-tight">Password *</label>
                             <div class="relative">
@@ -80,6 +111,7 @@
                             <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs" />
                         </div>
 
+                        {{-- CONFIRM PASSWORD FIELD --}}
                         <div x-data="{ showConfirm: false }">
                             <label class="block font-bold text-[10px] text-gray-500 uppercase mb-1 ml-1 tracking-tight">Confirm Password *</label>
                             <div class="relative">
@@ -115,11 +147,5 @@
             </p>
         </div>
     </div>
-
-    <style>
-        [x-cloak] { display: none !important; }
-        .custom-scrollbar::-webkit-scrollbar { display: none; }
-        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
 </body>
 </html>

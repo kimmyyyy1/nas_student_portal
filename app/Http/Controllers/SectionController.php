@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Section;
-use App\Models\Staff; // Import Staff Model
+use App\Models\Staff; 
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -15,8 +15,17 @@ class SectionController extends Controller
      */
     public function index(): View
     {
-        // Eager load 'adviser' relationship para hindi mabagal ang loading ng table
-        $sections = Section::with('adviser')->orderBy('grade_level')->orderBy('section_name')->get();
+        // 👇 FINAL SORTING LOGIC:
+        // 1. Unahin ang haba ng text (Para ang Grade 7 ay mauna sa Grade 10)
+        // 2. Sunod ang Grade Level mismo (7, 8, 9...)
+        // 3. Huli ang Section Name (A-Z sa loob ng Grade)
+        
+        $sections = Section::with('adviser')
+                           ->orderByRaw('LENGTH(grade_level) ASC') 
+                           ->orderBy('grade_level', 'asc')
+                           ->orderBy('section_name', 'asc') 
+                           ->get();
+
         return view('sections.index', compact('sections'));
     }
 
@@ -25,11 +34,7 @@ class SectionController extends Controller
      */
     public function create(): View
     {
-        // KUNIN ANG STAFF (TEACHERS)
-        // Siguraduhin na 'teacher' ang role
-        // Kung may 'user' relationship ang Staff, pwede ring ->with('user')
-        $teachers = Staff::where('role', 'teacher')->get();
-        
+        $teachers = Staff::where('role', 'teacher')->orderBy('last_name')->get();
         return view('sections.create', compact('teachers'));
     }
 
@@ -38,16 +43,12 @@ class SectionController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // FIX: Pinalitan ang validation para sa adviser_id
         $validated = $request->validate([
             'grade_level' => 'required|string',
             'section_name' => 'required|string|max:255',
-            
-            // IMPORTANT: Validate na ang ID ay exist sa 'staff' table
             'adviser_id' => 'required|exists:staff,id', 
-            
             'room_number' => 'nullable|string|max:255',
-            'schedule' => 'nullable|string|max:255', // Optional: Kung ginagamit mo pa ito
+            'schedule' => 'nullable|string|max:255', 
         ]);
 
         Section::create($validated);
@@ -60,9 +61,7 @@ class SectionController extends Controller
      */
     public function edit(Section $section): View
     {
-        // Kunin ulit ang teachers para sa edit dropdown
-        $teachers = Staff::where('role', 'teacher')->get();
-
+        $teachers = Staff::where('role', 'teacher')->orderBy('last_name')->get();
         return view('sections.edit', compact('section', 'teachers'));
     }
 
@@ -71,14 +70,10 @@ class SectionController extends Controller
      */
     public function update(Request $request, Section $section): RedirectResponse
     {
-        // FIX: Pinalitan din dito ang validation
         $validated = $request->validate([
             'grade_level' => 'required|string',
             'section_name' => 'required|string|max:255',
-            
-            // IMPORTANT: Validate na ang ID ay exist sa 'staff' table
             'adviser_id' => 'required|exists:staff,id',
-            
             'room_number' => 'nullable|string|max:255',
             'schedule' => 'nullable|string|max:255',
         ]);

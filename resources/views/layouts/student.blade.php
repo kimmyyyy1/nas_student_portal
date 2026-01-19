@@ -10,6 +10,8 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+        {{-- ❌ SCRIPT REMOVED: Managed by resources/js/app.js now --}}
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <!-- Vercel Web Analytics -->

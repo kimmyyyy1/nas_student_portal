@@ -5,14 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Forgot Password | NAS SAIS</title>
     
-    <link rel="icon" type="image/jpeg" href="/images/nas/favicon.jpg">
+    <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
+    {{-- 👇 1. ADDED POPPINS FONT --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+        /* SAFEGUARD CSS */
+        /* 👇 2. APPLIED POPPINS FONT TO BODY */
+        body {
+            font-family: 'Poppins', sans-serif !important;
+        }
+
         [x-cloak] { display: none !important; }
         .custom-scrollbar::-webkit-scrollbar { display: none; }
         .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -34,7 +42,7 @@
             <div class="overflow-y-auto px-6 py-6 custom-scrollbar">
                 
                 <div class="text-center mb-6">
-                    <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" class="h-16 w-auto mx-auto mb-3 drop-shadow-md" alt="NAS Logo">
+                    <img src="{{ asset('images/nas/stack.png') }}" class="h-16 w-auto mx-auto mb-3 drop-shadow-md hover:scale-105 transition-transform" alt="NAS Logo">
                     <h1 class="text-2xl font-extrabold text-blue-900 tracking-tight">NAS SAIS</h1>
                     <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Reset Password</p>
                 </div>

@@ -1,13 +1,21 @@
 <x-app-layout>
     
+    {{-- HEADER --}}
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                {{ __('Dashboard') }}
+            </h2>
+            
+            {{-- LIVE INDICATOR --}}
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
+                <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
+            </span>
+        </div>
     </x-slot>
 
     {{-- Main Content Wrapper --}}
-    <div class="py-8">
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- ======================================================= --}}
@@ -15,7 +23,6 @@
             {{-- ======================================================= --}}
             @if(Auth::user()->role === 'teacher')
                 
-                {{-- 1. ERROR ALERT (Kung walang Staff Profile) --}}
                 @if(isset($staffError))
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm flex items-center">
                         <i class='bx bx-error-circle text-2xl mr-3'></i>
@@ -25,8 +32,7 @@
                         </div>
                     </div>
                 @else
-
-                    {{-- 2. WELCOME BANNER --}}
+                    {{-- WELCOME BANNER --}}
                     <div class="bg-gradient-to-r from-blue-900 to-indigo-800 text-white overflow-hidden shadow-lg sm:rounded-lg mb-6 relative border border-blue-700">
                         <div class="p-6 relative z-10 flex justify-between items-center">
                             <div>
@@ -38,13 +44,11 @@
                                 <p class="text-xl font-semibold drop-shadow-md">{{ date('F d, Y') }}</p>
                             </div>
                         </div>
-                        {{-- Decorative Overlay --}}
                         <div class="absolute right-0 top-0 h-full w-1/3 bg-white opacity-10 skew-x-12 transform origin-bottom-right"></div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        
-                        {{-- 3. ADVISORY CLASS CARD (Left Side - Wider) --}}
+                        {{-- ADVISORY CLASS CARD --}}
                         <div class="md:col-span-2">
                             <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200 h-full flex flex-col">
                                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
@@ -52,7 +56,6 @@
                                         <i class='bx bx-chalkboard text-xl mr-2 text-indigo-600'></i>
                                         My Advisory Class
                                     </h4>
-                                    {{-- Student Count Badge --}}
                                     @if(isset($advisorySection) && $advisorySection)
                                         <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200">
                                             {{ $advisoryCount ?? 0 }} Students
@@ -70,8 +73,6 @@
                                                 <i class='bx bx-building-house mr-1'></i> Room: {{ $advisorySection->room_number ?? 'TBA' }}
                                             </p>
                                         </div>
-                                        
-                                        {{-- Action Buttons --}}
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-auto">
                                             <a href="{{ route('teacher.advisory') }}" class="block p-4 bg-indigo-50 border border-indigo-100 rounded-lg hover:bg-indigo-100 transition text-center group shadow-sm hover:shadow-md">
                                                 <i class='bx bx-list-ul text-3xl text-indigo-600 mb-2 group-hover:scale-110 transition block'></i>
@@ -83,7 +84,6 @@
                                             </a>
                                         </div>
                                     @else
-                                        {{-- Empty State --}}
                                         <div class="text-center py-10 text-gray-400">
                                             <i class='bx bx-folder-minus text-6xl mb-3 opacity-50'></i>
                                             <p class="font-medium text-lg">No advisory class assigned yet.</p>
@@ -94,10 +94,8 @@
                             </div>
                         </div>
 
-                        {{-- 4. MY LOADS / SCHEDULE (Right Side - Narrower) --}}
+                        {{-- MY LOADS / SCHEDULE --}}
                         <div class="md:col-span-1 space-y-6">
-                            
-                            {{-- Schedule List --}}
                             <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase flex justify-between items-center">
                                     <span><i class='bx bx-book-open mr-1'></i> My Loads</span>
@@ -127,7 +125,6 @@
                                 </div>
                             </div>
 
-                            {{-- Grading Button --}}
                             <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md text-white overflow-hidden group">
                                 <div class="p-5 text-center">
                                     <i class='bx bx-edit text-4xl mb-2 text-white opacity-90 group-hover:scale-110 transition duration-300'></i>
@@ -149,12 +146,11 @@
                 
                 {{-- 1. STATISTICS CARDS --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    
                     {{-- Students --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-blue-600 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Students</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $totalStudents ?? 0 }}</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-students" data-target="{{ $totalStudents ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
                             <i class='bx bx-user-pin text-3xl'></i>
@@ -165,7 +161,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-green-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Sections</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $totalSections ?? 0 }}</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-sections" data-target="{{ $activeSections ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-green-100 text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
                             <i class='bx bx-chalkboard text-3xl'></i>
@@ -176,7 +172,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-yellow-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Sports Teams</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $totalTeams ?? 0 }}</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-teams" data-target="{{ $sportsTeams ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 group-hover:bg-yellow-600 group-hover:text-white transition">
                             <i class='bx bx-trophy text-3xl'></i>
@@ -187,7 +183,7 @@
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-red-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Upcoming Plans</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $upcomingPlansCount ?? 0 }}</p>
+                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-plans" data-target="{{ $upcomingPlans ?? 0 }}">0</p>
                         </div>
                         <div class="p-3 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
                             <i class='bx bx-run text-3xl'></i>
@@ -198,37 +194,60 @@
                 {{-- 2. BOTTOM SECTION: ACTIVITY & SPOTLIGHT --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
-                    {{-- Recent Activity --}}
+                    {{-- RECENT ACTIVITY (SERVER-SIDE RENDERED) --}}
                     <div class="md:col-span-2 bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-6 text-gray-900">
                             <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2">
                                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                                    <i class='bx bx-history mr-2 text-gray-500'></i> Recent System Activity
+                                    <i class='bx bx-history mr-2 text-indigo-600'></i> Recent System Activity
                                 </h3>
-                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Latest Updates</span>
                             </div>
-                            <div class="space-y-6">
-                                @php 
-                                    $safeActivities = $activities ?? collect([]); 
-                                @endphp
+                            
+                            {{-- SSR Content (Instant) --}}
+                            <div class="space-y-6 relative" id="activity-list">
+                                <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>
+                                
+                                @forelse($activities as $activity)
+                                    @php
+                                        $dotColor = match($activity->action) {
+                                            'Updated Grades' => 'bg-indigo-500',
+                                            'Checked Attendance' => 'bg-green-500',
+                                            'Login' => 'bg-blue-400',
+                                            default => 'bg-gray-400'
+                                        };
+                                        $actionText = match($activity->action) {
+                                            'Updated Grades' => 'updated the grades',
+                                            'Checked Attendance' => 'recorded the attendance',
+                                            'Login' => 'has logged in',
+                                            default => strtolower($activity->action)
+                                        };
+                                        $role = ucfirst($activity->user->role ?? '');
+                                        $name = $activity->user->name ?? 'System';
+                                        $cleanDesc = strip_tags(str_replace(['Updated Grades', 'Checked Attendance'], '', $activity->description));
+                                    @endphp
 
-                                @forelse($safeActivities as $activity)
-                                    <div class="flex items-start">
-                                        <div class="flex-shrink-0 mr-3">
-                                            <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 ring-4 ring-blue-50"></div>
+                                    <div class="flex gap-x-3 relative z-10 mb-4 last:mb-0">
+                                        <div class="flex-none w-5 flex justify-center mt-1">
+                                            <div class="w-3.5 h-3.5 rounded-full border-2 border-white {{ $dotColor }} shadow-sm"></div>
                                         </div>
-                                        <div>
-                                            <p class="text-sm text-gray-800 font-medium">{!! $activity->description !!}</p>
-                                            <p class="text-xs text-gray-400 flex items-center mt-1">
-                                                <i class='bx bx-time-five mr-1'></i>
-                                                {{ $activity->created_at ? $activity->created_at->diffForHumans() : 'Just now' }}
+                                        <div class="flex-grow">
+                                            <div class="text-sm text-gray-800">
+                                                @if($role) <span class="font-bold text-indigo-700">{{ $role }}</span> @endif
+                                                <span class="font-bold text-gray-900">{{ $name }}</span>
+                                                <span class="text-gray-600">{{ $actionText }}.</span>
+                                            </div>
+                                            @if($activity->action != 'Login')
+                                                <p class="text-xs text-gray-500 italic mb-1">{{ $cleanDesc }}</p>
+                                            @endif
+                                            <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                                                <i class='bx bx-time'></i> {{ $activity->created_at->diffForHumans() }}
                                             </p>
                                         </div>
                                     </div>
                                 @empty
-                                    <div class="text-center py-8">
-                                        <i class='bx bx-sleep-y text-4xl text-gray-300 mb-2'></i>
-                                        <p class="text-sm text-gray-400 italic">No recent activities logged.</p>
+                                    <div class="text-center py-8 text-gray-400 text-sm">
+                                        <i class='bx bx-sleep-y text-2xl mb-2'></i>
+                                        <p>No recent activities logged.</p>
                                     </div>
                                 @endforelse
                             </div>
@@ -241,7 +260,6 @@
                             <h3 class="text-lg font-bold text-gray-800 mb-2">Campus Spotlight</h3>
                             <p class="text-xs text-gray-500 mb-4 uppercase tracking-wide">National Academy of Sports</p>
                             
-                            {{-- THUMBNAIL --}}
                             <div @click="showModal = true" class="bg-gray-100 h-48 rounded-lg flex items-center justify-center overflow-hidden mb-4 border border-gray-300 relative group cursor-pointer hover:shadow-lg transition-all duration-300">
                                 <img src="{{ asset('images/nas/NAS.png') }}" 
                                      class="h-full w-full object-cover transition duration-500 group-hover:scale-110" 
@@ -260,7 +278,6 @@
                             </div>
                         </div>
                         
-                        {{-- MODAL --}}
                         <template x-teleport="body">
                             <div x-show="showModal" 
                                  style="display: none;"
@@ -301,4 +318,161 @@
 
         </div>
     </div>
+
+    {{-- 👇 SCRIPT: Dynamic Duration (No Waiting) & Optimized Polling --}}
+    <script>
+        let statsInterval = null;
+        let activityInterval = null;
+
+        function initDashboard() {
+            // 1. CLEANUP
+            if (statsInterval) clearInterval(statsInterval);
+            if (activityInterval) clearInterval(activityInterval);
+
+            // 2. RUN ANIMATION
+            animateCounters();
+
+            // 3. START POLLING (Every 30 seconds)
+            if(document.querySelector('.count-up')) {
+                statsInterval = setInterval(fetchStats, 30000); 
+            }
+
+            if(document.getElementById('activity-list')) {
+                activityInterval = setInterval(fetchActivities, 30000);
+            }
+        }
+
+        // --- SMOOTH ANIMATION (DYNAMIC DURATION) ---
+        function animateCounters() {
+            const counters = document.querySelectorAll('.count-up');
+
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const startTime = performance.now();
+
+                // Dynamic Duration: Fast for small numbers, Slower for big numbers (Max 2s)
+                const duration = Math.min(2000, Math.max(500, target * 50)); 
+
+                counter.innerText = '0'; 
+
+                function update(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    // Ease Out Quad
+                    const ease = 1 - (1 - progress) * (1 - progress);
+
+                    const current = Math.floor(ease * target);
+                    counter.innerText = current.toLocaleString();
+
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    } else {
+                        counter.innerText = target.toLocaleString();
+                    }
+                }
+
+                requestAnimationFrame(update);
+            });
+        }
+
+        // --- FETCH STATS (AJAX) ---
+        function fetchStats() {
+            fetch("{{ route('dashboard.stats') }}")
+                .then(response => response.json())
+                .then(data => {
+                    updateStatElement('stat-students', data.totalStudents);
+                    updateStatElement('stat-sections', data.activeSections);
+                    updateStatElement('stat-teams', data.totalTeams);
+                    updateStatElement('stat-plans', data.upcomingPlans);
+                })
+                .catch(error => console.error('Error fetching stats:', error));
+        }
+
+        function updateStatElement(id, newValue) {
+            const el = document.getElementById(id);
+            if(el) {
+                const oldValue = parseInt(el.innerText.replace(/,/g, ''));
+                el.setAttribute('data-target', newValue);
+                
+                if (oldValue !== newValue) {
+                    el.innerText = newValue.toLocaleString();
+                    el.classList.add('text-green-600', 'transition-colors', 'duration-500');
+                    setTimeout(() => el.classList.remove('text-green-600'), 1000);
+                }
+            }
+        }
+
+        // --- FETCH ACTIVITIES (AJAX) ---
+        function fetchActivities() {
+            fetch("{{ route('recent.activity') }}")
+                .then(response => response.json())
+                .then(data => {
+                    const listContainer = document.getElementById('activity-list');
+                    if (!listContainer) return;
+
+                    if (data.length === 0) {
+                        listContainer.innerHTML = `
+                            <div class="text-center py-8">
+                                <i class='bx bx-sleep-y text-4xl text-gray-300 mb-2'></i>
+                                <p class="text-sm text-gray-400 italic">No recent activities logged.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let htmlContent = '<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
+                    
+                    data.forEach(activity => {
+                        let dotColor = 'bg-gray-400';
+                        if (activity.action === 'Updated Grades') dotColor = 'bg-indigo-500';
+                        else if (activity.action === 'Checked Attendance') dotColor = 'bg-green-500';
+                        else if (activity.action === 'Login') dotColor = 'bg-blue-400';
+
+                        let role = activity.user && activity.user.role ? activity.user.role.charAt(0).toUpperCase() + activity.user.role.slice(1) : '';
+                        let name = activity.user && activity.user.name ? activity.user.name : 'System';
+                        
+                        let actionText = activity.action.toLowerCase();
+                        if (activity.action === 'Updated Grades') actionText = 'updated the grades';
+                        else if (activity.action === 'Checked Attendance') actionText = 'recorded the attendance';
+                        else if (activity.action === 'Login') actionText = 'has logged in';
+
+                        let desc = activity.description;
+                        if (activity.action !== 'Login') {
+                            desc = desc.replace('Updated Grades', '').replace('Checked Attendance', '').trim();
+                            desc = desc.replace(/(<([^>]+)>)/gi, "");
+                        }
+
+                        htmlContent += `
+                            <div class="flex gap-x-3 relative z-10 mb-4 last:mb-0">
+                                <div class="flex-none w-5 flex justify-center mt-1">
+                                    <div class="w-3.5 h-3.5 rounded-full border-2 border-white ${dotColor} shadow-sm"></div>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="text-sm text-gray-800">
+                                        ${role ? `<span class="font-bold text-indigo-700">${role}</span>` : ''}
+                                        <span class="font-bold text-gray-900">${name}</span>
+                                        <span class="text-gray-600">${actionText}.</span>
+                                    </div>
+                                    ${(activity.action !== 'Login') ? `<p class="text-xs text-gray-500 italic mb-1">${desc}</p>` : ''}
+                                    <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                                        <i class='bx bx-time'></i> ${activity.time_ago || 'Just now'}
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
+                        listContainer.innerHTML = htmlContent;
+                    }
+                })
+                .catch(error => console.error('Error fetching activities:', error));
+        }
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', initDashboard);
+        document.addEventListener('livewire:navigated', initDashboard);
+
+    </script>
 </x-app-layout>

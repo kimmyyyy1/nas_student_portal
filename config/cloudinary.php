@@ -6,10 +6,6 @@ return [
     |--------------------------------------------------------------------------
     | Cloudinary Configuration
     |--------------------------------------------------------------------------
-    |
-    | An HTTP or HTTPS URL to notify your application (a webhook) when the process of uploads,
-    | deletes, and any API that accepts notification_url has completed.
-    |
     */
     'notification_url' => env('CLOUDINARY_NOTIFICATION_URL'),
 
@@ -17,16 +13,11 @@ return [
     |--------------------------------------------------------------------------
     | Cloudinary Configuration
     |--------------------------------------------------------------------------
-    |
-    | Here you may configure your Cloudinary settings. Cloudinary is a cloud hosted
-    | media management service for all file uploads, storage, delivery and transformation needs.
-    |
     */
     'cloud_url' => env('CLOUDINARY_URL'),
 
     /**
     * Upload Preset From Cloudinary Dashboard
-    *
     */
     'upload_preset' => env('CLOUDINARY_UPLOAD_PRESET'),
 
@@ -34,15 +25,12 @@ return [
     |--------------------------------------------------------------------------
     | Cloudinary Credentials
     |--------------------------------------------------------------------------
-    |
-    | The following keys are used if you are not using the CLOUDINARY_URL configuration.
-    | Ito ang hinahanap ng system kaya nag-eerror kanina.
-    |
+    | 👇 FIXED: Tinanggal ang env() at nilagay directly ang values (Strings)
     */
     'cloud' => [
-        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
-        'api_key'    => env('CLOUDINARY_API_KEY'),
-        'api_secret' => env('CLOUDINARY_API_SECRET'),
+        'cloud_name' => 'dqkzofruk', 
+        'api_key'    => '452544782214523', 
+        'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo', 
     ],
 
     /*

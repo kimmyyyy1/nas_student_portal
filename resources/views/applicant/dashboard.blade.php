@@ -1,15 +1,20 @@
 <x-applicant-layout>
-    <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    {{-- WRAPPER ID FOR AJAX UPDATES --}}
+    <div id="dashboard-content" class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         
-        {{-- Header Section --}}
+        {{-- UPDATED Header Section --}}
+        {{-- Ginaya natin ang style sa Create Page: Horizontal Logo + Simple Text --}}
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div>
-                <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">
-                    Welcome, {{ Auth::user()->first_name }}!
+            <div class="mb-4 md:mb-0">
+                {{-- 👇 LOGO: Horizontal, inalis ang malaking Title text --}}
+                <img src="{{ asset('images/nas/horizontal.png') }}" class="h-12 md:h-16 object-contain mb-2" alt="NAS Logo">
+                
+                {{-- Welcome Message (Pinanatili ko ito dahil dashboard ito) --}}
+                <h1 class="text-lg font-bold text-gray-700 tracking-tight">
+                    Welcome, <span class="text-indigo-700">{{ Auth::user()->first_name }}</span>!
                 </h1>
-                <p class="text-gray-500 mt-1">Manage your admission application status and requirements.</p>
             </div>
-            <div class="mt-4 md:mt-0 text-right">
+            <div class="text-right">
                 <span class="text-xs text-gray-400 uppercase font-bold tracking-wider">Current Date</span>
                 <p class="text-lg font-bold text-indigo-700">{{ now()->format('F d, Y') }}</p>
             </div>
@@ -42,7 +47,7 @@
         @if($application)
             
             {{-- Status Card --}}
-            <div class="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200 mb-8">
+            <div id="status-section" class="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200 mb-8">
                 <div class="p-6 md:p-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                         <div>
@@ -55,11 +60,12 @@
                                 'Qualified', 'Enrolled' => 'bg-green-100 text-green-800 border-green-200',
                                 'Not Qualified' => 'bg-red-100 text-red-800 border-red-200',
                                 'Waitlisted' => 'bg-orange-100 text-orange-800 border-orange-200',
-                                'For Assessment' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                'For Assessment', 'Pending' => 'bg-blue-100 text-blue-800 border-blue-200',
                                 default => 'bg-gray-100 text-gray-800 border-gray-200'
                             };
                         @endphp
-                        <span class="mt-4 md:mt-0 px-6 py-2 rounded-full text-sm font-bold border uppercase tracking-wide shadow-sm {{ $statusColor }}">
+                        
+                        <span id="live-status-badge" class="mt-4 md:mt-0 px-6 py-2 rounded-full text-sm font-bold border uppercase tracking-wide shadow-sm {{ $statusColor }}">
                             {{ $application->status }}
                         </span>
                     </div>
@@ -81,13 +87,13 @@
                                 $progress = match($application->status) {
                                     'Enrolled' => 100,
                                     'Qualified' => 90,
-                                    'For Assessment', 'Waitlisted' => 50,
+                                    'For Assessment', 'Waitlisted', 'Pending' => 50,
                                     'Not Qualified' => 100,
                                     default => 25
                                 };
                                 $barColor = $application->status == 'Not Qualified' ? 'bg-red-500' : 'bg-indigo-500';
                             @endphp
-                            <div style="width:{{ $progress }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center {{ $barColor }}"></div>
+                            <div style="width:{{ $progress }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center {{ $barColor }} transition-all duration-1000 ease-in-out"></div>
                         </div>
                     </div>
 
@@ -122,7 +128,6 @@
                     </div>
                     <div class="p-6 text-center">
                         <div class="inline-block relative">
-                            {{-- 👇 FIXED IMAGE SOURCE: REMOVED 'asset/storage' --}}
                             @if(isset($application->uploaded_files['id_picture']))
                                 <img src="{{ $application->uploaded_files['id_picture'] }}" class="h-32 w-32 rounded-full object-cover border-4 border-indigo-100 shadow-md mx-auto" alt="Student Photo">
                             @else
@@ -236,11 +241,24 @@
                                                         Uploaded
                                                     </span>
                                                 </td>
-                                                <td class="px-6 py-4 text-center">
-                                                    {{-- 👇 FIXED LINK: REMOVED 'asset/storage' since it's now a full URL --}}
-                                                    <a href="{{ $path }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold uppercase hover:underline">
-                                                        View File
-                                                    </a>
+                                                <td class="px-6 py-4 text-center flex flex-col gap-1 items-center justify-center">
+                                                    {{-- 👇 RE-APPLIED GOOGLE DOCS FIX FOR PDF VIEWING --}}
+                                                    @if(Str::endsWith(strtolower($path), '.pdf'))
+                                                        <a href="https://docs.google.com/viewer?url={{ urlencode($path) }}&embedded=true" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold uppercase hover:underline flex items-center">
+                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                            View PDF
+                                                        </a>
+                                                        {{-- Fallback --}}
+                                                        <a href="{{ $path }}" download class="text-gray-400 hover:text-gray-600 text-[10px] font-medium hover:underline">
+                                                            (Download)
+                                                        </a>
+                                                    @else
+                                                        {{-- For Images --}}
+                                                        <a href="{{ $path }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold uppercase hover:underline flex items-center">
+                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                            View Image
+                                                        </a>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -259,6 +277,7 @@
 
             @if($application->status == 'Qualified')
                 <div class="bg-blue-50 border border-blue-200 rounded-xl p-8 shadow-sm">
+                    {{-- ... (Rest of Qualified Section remains the same) ... --}}
                     <div class="flex items-start">
                         <div class="flex-shrink-0">
                             <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -271,130 +290,90 @@
                                 Congratulations! Please upload the remaining digital copies to finalize your enrollment.
                             </p>
 
-                            {{-- UPDATED REQUIREMENTS FORM --}}
                             <form id="uploadForm" action="{{ route('applicant.submit_requirements') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-xl border border-blue-100 shadow-sm">
                                 @csrf
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     @php
-                                        // Uploaded Files List
                                         $uploaded = $application->uploaded_files ?? [];
-                                        
-                                         // Required Fields Keys
                                         $requiredFields = ['sf10', 'good_moral', 'psa_birth_cert', 'medical_cert', 'coach_reco'];
-                                        $allFilesUploaded = true; // Checker flag for completion
+                                        $allFilesUploaded = true;
                                     @endphp
 
                                     @foreach($requiredFields as $field)
                                         @php
-                                            // CHECK IF UPLOADED
                                             $isUploaded = isset($uploaded[$field]) && !empty($uploaded[$field]);
-                                            if (!$isUploaded) { $allFilesUploaded = false; } // If one is missing, flag becomes false
-                                            
-                                            // Get Label
+                                            if (!$isUploaded) { $allFilesUploaded = false; }
                                             $label = $summaryDisplayName[$field] ?? strtoupper(str_replace('_', ' ', $field));
-                                            
-                                            // Get File Path
                                             $currentPath = $uploaded[$field] ?? null;
                                         @endphp
 
                                         <div class="border-2 rounded-lg p-4 transition-all {{ $isUploaded ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-300 shadow-md' }}">
-                                            
                                             <div class="flex justify-between items-start mb-3">
-                                                <label class="block text-sm font-extrabold {{ $isUploaded ? 'text-green-800' : 'text-red-800' }}">
-                                                    {{ $label }}
-                                                </label>
-                                                
+                                                <label class="block text-sm font-extrabold {{ $isUploaded ? 'text-green-800' : 'text-red-800' }}">{{ $label }}</label>
                                                 @if($isUploaded)
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-200 text-green-900 border border-green-300">
-                                                        ✓ SUBMITTED
-                                                    </span>
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-200 text-green-900 border border-green-300">✓ SUBMITTED</span>
                                                 @else
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-200 text-red-900 border border-red-300 animate-pulse">
-                                                        PENDING
-                                                    </span>
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-200 text-red-900 border border-red-300 animate-pulse">PENDING</span>
                                                 @endif
                                             </div>
                                             
                                             @if($isUploaded)
-                                                {{-- KUNG UPLOADED NA: Wala nang input, View button na lang --}}
                                                 <div class="flex items-center justify-between bg-white p-3 rounded border border-green-200 shadow-sm">
-                                                    <span class="text-xs text-green-700 font-bold italic">
-                                                        File has been uploaded.
-                                                    </span>
-                                                    {{-- 👇 FIXED LINK: REMOVED 'asset/storage' --}}
-                                                    <a href="{{ $currentPath }}" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">
-                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                                        VIEW
-                                                    </a>
+                                                    <span class="text-xs text-green-700 font-bold italic">File has been uploaded.</span>
+                                                    {{-- RE-APPLIED GOOGLE DOCS FIX FOR QUALIFIED SECTION --}}
+                                                    @if(Str::endsWith(strtolower($currentPath), '.pdf'))
+                                                        <a href="https://docs.google.com/viewer?url={{ urlencode($currentPath) }}&embedded=true" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">
+                                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                            VIEW PDF
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ $currentPath }}" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">
+                                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                            VIEW
+                                                        </a>
+                                                    @endif
                                                 </div>
                                             @else
-                                                {{-- KUNG WALA PA: Dito lang lalabas ang upload button --}}
                                                 <div class="bg-white p-2 rounded border border-red-200">
                                                     <p class="text-[10px] text-red-500 font-bold mb-1 uppercase tracking-wide">Select file to upload:</p>
-                                                    <input type="file" name="{{ $field }}" required
-                                                        class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-red-100 file:text-red-700 hover:file:bg-red-200 cursor-pointer">
+                                                    <input type="file" name="{{ $field }}" required class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-red-100 file:text-red-700 hover:file:bg-red-200 cursor-pointer">
                                                 </div>
                                                 @error($field)
                                                     <p class="text-red-600 text-xs mt-1 font-bold">{{ $message }}</p>
                                                 @enderror
                                             @endif
-
                                         </div>
                                     @endforeach
                                 </div>
-
+                                
                                 <div class="mt-8">
                                     @if($allFilesUploaded)
-                                        {{-- SUCCESS & NEXT STEPS CARD (Kung tapos na lahat) --}}
+                                        {{-- SUCCESS STATE --}}
                                         <div class="bg-green-50 border-2 border-green-400 rounded-xl p-6 text-center shadow-md">
-                                            
                                             <div class="flex justify-center mb-4">
                                                 <div class="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center">
-                                                    <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg>
+                                                    <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                 </div>
                                             </div>
-
-                                            <h3 class="text-xl font-extrabold text-green-800 uppercase tracking-wide mb-2">
-                                                Digital Submission Complete!
-                                            </h3>
-                                            
-                                            <p class="text-green-700 font-medium mb-6">
-                                                You have successfully uploaded all the required documents.
-                                            </p>
-
+                                            <h3 class="text-xl font-extrabold text-green-800 uppercase tracking-wide mb-2">Digital Submission Complete!</h3>
+                                            <p class="text-green-700 font-medium mb-6">You have successfully uploaded all the required documents.</p>
                                             <div class="bg-white rounded-lg border border-green-200 p-5 text-left shadow-sm max-w-lg mx-auto">
                                                 <h4 class="text-sm font-bold text-gray-800 uppercase mb-3 border-b pb-2 flex items-center">
                                                     <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                     Final Step: Official Enrollment
                                                 </h4>
                                                 <ul class="space-y-3 text-sm text-gray-600">
-                                                    <li class="flex items-start">
-                                                        <span class="mr-2 text-green-600 font-bold">1.</span>
-                                                        <span>Please proceed to the <strong>School Registrar's Office</strong>.</span>
-                                                    </li>
-                                                    <li class="flex items-start">
-                                                        <span class="mr-2 text-green-600 font-bold">2.</span>
-                                                        <span>Bring the <strong class="text-red-600 underline">ORIGINAL HARD COPIES</strong> of all the uploaded documents for verification.</span>
-                                                    </li>
-                                                    <li class="flex items-start">
-                                                        <span class="mr-2 text-green-600 font-bold">3.</span>
-                                                        <span>Submit your documents to the <strong>Office of the Registrar</strong> to finalize your enrollment.</span>
-                                                    </li>
+                                                    <li class="flex items-start"><span class="mr-2 text-green-600 font-bold">1.</span><span>Please proceed to the <strong>School Registrar's Office</strong>.</span></li>
+                                                    <li class="flex items-start"><span class="mr-2 text-green-600 font-bold">2.</span><span>Bring the <strong class="text-red-600 underline">ORIGINAL HARD COPIES</strong> of all the uploaded documents for verification.</span></li>
+                                                    <li class="flex items-start"><span class="mr-2 text-green-600 font-bold">3.</span><span>Submit your documents to the <strong>Office of the Registrar</strong> to finalize your enrollment.</span></li>
                                                 </ul>
                                             </div>
-
                                         </div>
                                     @else
-                                        {{-- Kung may kulang pa, ipakita ang submit button --}}
                                         <div class="flex justify-end">
                                             <button type="submit" id="submitBtn" class="bg-indigo-700 hover:bg-indigo-800 text-white px-8 py-3 rounded-lg font-bold shadow-md transition transform hover:-translate-y-0.5 flex items-center">
                                                 <span id="btnText">Upload Selected Files</span>
-                                                <svg id="btnSpinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
+                                                <svg id="btnSpinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                             </button>
                                         </div>
                                     @endif
@@ -408,7 +387,11 @@
         @else
             {{-- No Application Found State --}}
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 text-center p-16">
-                <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-20 w-20 mx-auto mb-6 opacity-80 grayscale hover:grayscale-0 transition">
+                {{-- 👇 LOGO FOR EMPTY STATE (Centered stack logo) --}}
+                <img src="{{ asset('images/nas/stack.png') }}" 
+                     class="h-24 w-auto mx-auto mb-6 opacity-90 drop-shadow-sm hover:scale-105 transition-transform" 
+                     alt="NAS Logo">
+                
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">No Application Found</h2>
                 <p class="text-gray-500 mb-8 max-w-md mx-auto">It looks like you haven't started your admission process yet. Click the button below to begin.</p>
                 <a href="{{ route('applicant.create') }}" class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg transform transition hover:-translate-y-1">
@@ -419,17 +402,16 @@
 
     </div>
 
-    {{-- Script for Loading State and Auto-Dismiss Alert --}}
+    {{-- 👇 LIVE UPDATE SCRIPT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Loading Spinner Logic
+            setInterval(function() { updateDashboard(); }, 5000);
             const form = document.getElementById('uploadForm');
             if (form) {
                 form.addEventListener('submit', function() {
                     var btn = document.getElementById('submitBtn');
                     var btnText = document.getElementById('btnText');
                     var spinner = document.getElementById('btnSpinner');
-
                     if (btn && btnText && spinner) {
                         btn.disabled = true;
                         btn.classList.add('opacity-75', 'cursor-not-allowed');
@@ -438,8 +420,6 @@
                     }
                 });
             }
-
-            // Auto-hide success alert
             const alert = document.getElementById('success-alert');
             if (alert) {
                 setTimeout(function() {
@@ -448,5 +428,17 @@
                 }, 5000);
             }
         });
+        function updateDashboard() {
+            const url = window.location.href;
+            fetch(url).then(response => response.text()).then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.getElementById('dashboard-content').innerHTML;
+                const currentContent = document.getElementById('dashboard-content');
+                if(document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "SELECT") {
+                     if(currentContent.innerHTML !== newContent) { currentContent.innerHTML = newContent; }
+                }
+            }).catch(error => console.error('Error updating dashboard:', error));
+        }
     </script>
 </x-applicant-layout>

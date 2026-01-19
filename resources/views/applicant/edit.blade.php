@@ -2,10 +2,9 @@
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         
         <div class="text-center mb-10">
-            <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-24 mx-auto mb-4 drop-shadow-sm rounded-full" alt="NAS Logo">
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">National Academy of Sports</h1>
-            <p class="text-lg text-gray-600 mt-1 font-medium">Edit Student-Athlete Application</p>
-            <p class="text-sm text-gray-500 mt-1">Update your information below</p>
+            {{-- HEADER LOGO UPDATE --}}
+            <img src="{{ asset('images/nas/horizontal.png') }}" class="h-12 md:h-16 mx-auto mb-4 drop-shadow-sm object-contain" alt="NAS Logo">
+            <p class="text-sm text-gray-500 mt-1 uppercase tracking-widest font-bold">Based on SAIS Guidelines</p>
         </div>
 
         <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
@@ -26,12 +25,13 @@
                     @csrf 
                     @method('PATCH')
 
+                    {{-- ID PICTURE UPLOAD SECTION --}}
                     <div class="mb-10 bg-indigo-50 p-8 rounded-xl border border-indigo-100 flex flex-col md:flex-row items-center gap-8">
                         <div class="flex-shrink-0 text-center">
                             <div style="width: 200px; height: 200px;" class="bg-white border-4 border-dashed border-indigo-300 flex items-center justify-center text-indigo-400 rounded-lg overflow-hidden relative shadow-sm mx-auto">
                                 
                                 @if(isset($application->uploaded_files['id_picture']))
-                                    <img src="{{ asset('storage/' . $application->uploaded_files['id_picture']) }}" class="absolute inset-0 w-full h-full object-cover z-10" id="current-preview">
+                                    <img src="{{ $application->uploaded_files['id_picture'] }}" class="absolute inset-0 w-full h-full object-cover z-10" id="current-preview">
                                 @else
                                     <div id="preview-text" class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
                                         <span class="text-xs text-center px-2 font-bold uppercase tracking-wider">2x2 Photo<br>Preview</span>
@@ -53,6 +53,7 @@
                         </div>
                     </div>
 
+                    {{-- 1. APPLICANT INFORMATION --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center">
                             <span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">1</span> Applicant Information
@@ -113,21 +114,18 @@
                          </div>
                     </div>
 
+                    {{-- CATEGORIES LOGIC --}}
                     @php
-                        // 1. Tukuyin kung saan kukunin ang data: sa Old Input (kung nag-error) o sa Database
                         $categoriesData = [];
                         $otherDetailsValue = '';
 
                         if (old('_token')) { 
-                            // Kung galing sa submit (validation error), gamitin ang old input
                             $categoriesData = old('categories', []);
                             $otherDetailsValue = old('other_category_details', '');
                         } else { 
-                            // Kung kakabukas lang ng page, gamitin ang database
                             $rawString = $application->special_categories ?? '';
                             $categoriesData = array_map('trim', explode(',', $rawString));
                             
-                            // Hanapin ang 'Others' details sa database string
                             foreach($categoriesData as $cat) {
                                 if (Illuminate\Support\Str::startsWith(strtolower($cat), 'others')) {
                                     if (str_contains($cat, ':')) {
@@ -140,11 +138,9 @@
                             }
                         }
 
-                        // Helper function para malaman kung checked ang isang category
                         $isChecked = function($label) use ($categoriesData) {
                             if (!is_array($categoriesData)) return false;
                             foreach($categoriesData as $item) {
-                                // Check kung match, o kung nagsisimula sa label (para sa "Others: ...")
                                 if (Illuminate\Support\Str::startsWith(strtolower($item), strtolower($label))) {
                                     return true;
                                 }
@@ -189,6 +185,7 @@
                         </div>
                     </div>
 
+                    {{-- 2. ADDRESS INFORMATION --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">2</span> Address Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -203,18 +200,32 @@
                         </div>
                     </div>
 
+                    {{-- 3. ACADEMIC & SPORTS --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">3</span> Academic & Sports</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('previous_school', $application->previous_school) }}"></div>
                             
+                            {{-- 👇 DYNAMIC SPORTS DROPDOWN (EDIT MODE) --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sport and Subcategory *</label>
                                 <select name="sport" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required>
                                     <option value="" disabled>-- Select Sport --</option>
-                                    @foreach(['Aquatics - Swimming', 'Arnis', 'Athletics - Running', 'Athletics - Throwing', 'Athletics - Jumping', 'Badminton', 'Gymnastics', 'Judo', 'Table Tennis', 'Taekwondo', 'Weightlifting'] as $sportOption)
-                                        <option value="{{ $sportOption }}" {{ old('sport', $application->sport_choice ?? $application->sport) == $sportOption ? 'selected' : '' }}>{{ $sportOption }}</option>
-                                    @endforeach
+                                    
+                                    @if(isset($teams) && count($teams) > 0)
+                                        @foreach($teams as $team)
+                                            @php
+                                                // Clean name: "NAS Athletics Team" -> "Athletics"
+                                                $sportName = str_replace(['NAS ', ' Team'], '', $team->team_name);
+                                            @endphp
+                                            {{-- Compare old input OR database value with the cleaned name --}}
+                                            <option value="{{ $sportName }}" {{ old('sport', $application->sport) == $sportName ? 'selected' : '' }}>
+                                                {{ $sportName }}
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        <option value="" disabled>No sports available.</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -247,6 +258,7 @@
                         </div>
                     </div>
 
+                    {{-- 4. DESIGNATED GUARDIAN --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">4</span> Designated Guardian</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -259,6 +271,7 @@
                         </div>
                     </div>
 
+                    {{-- 5. REQUIREMENTS --}}
                     <div class="mb-12">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">5</span> Update Requirements</h3>
                         <p class="text-sm text-gray-600 mb-6 italic bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">

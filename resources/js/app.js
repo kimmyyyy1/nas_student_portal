@@ -1,7 +1,13 @@
 import './bootstrap';
 
-import Alpine from 'alpinejs';
+// 1. Import Packages
+import { inject } from '@vercel/analytics';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
-window.Alpine = Alpine;
+// 2. Initialize Web Analytics (Visitor Tracking)
+inject({
+    mode: 'production',
+});
 
-Alpine.start();
+// 3. Initialize Speed Insights (Performance Tracking)
+injectSpeedInsights();

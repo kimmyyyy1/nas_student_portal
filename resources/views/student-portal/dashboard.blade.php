@@ -8,29 +8,23 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- PROFILE CARD --}}
+            {{-- ========================== --}}
+            {{-- 1. PROFILE CARD SECTION    --}}
+            {{-- ========================== --}}
             <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 border-l-8 border-indigo-700">
                 <div class="p-6 md:flex items-start justify-between">
                     <div class="flex items-center mb-4 md:mb-0">
                         
-                        {{-- === PROFILE PICTURE LOGIC (SPATIE) === --}}
+                        {{-- Profile Picture Logic --}}
                         <div class="h-24 w-24 rounded-full bg-gray-200 border-4 border-indigo-500 shadow-sm overflow-hidden mr-6 flex-shrink-0 relative group">
-                            @php
-                                // Kunin ang URL galing sa Spatie Media Library ('avatar' collection)
-                                $avatarUrl = $student->getFirstMediaUrl('avatar');
-                            @endphp
-
-                            @if($avatarUrl)
-                                {{-- Kung may in-upload na picture --}}
-                                <img src="{{ $avatarUrl }}" alt="Profile" class="h-full w-full object-cover">
+                            @if($student->id_picture)
+                                <img src="{{ $student->id_picture }}" alt="Profile" class="h-full w-full object-cover">
                             @else
-                                {{-- Kung wala, ipakita ang Initials (Fallback) --}}
                                 <div class="h-full w-full flex items-center justify-center bg-indigo-100 text-indigo-700 text-2xl font-bold">
                                     {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}
                                 </div>
                             @endif
                         </div>
-                        {{-- ====================================== --}}
 
                         <div>
                             <h1 class="text-2xl font-bold text-gray-800">{{ $student->last_name }}, {{ $student->first_name }}</h1>
@@ -39,6 +33,7 @@
                         </div>
                     </div>
                     
+                    {{-- Status Badges --}}
                     <div class="text-left md:text-right space-y-1">
                         <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
                             {{ $student->grade_level }} - {{ $student->section->section_name ?? 'Unassigned' }}
@@ -50,7 +45,7 @@
                     </div>
                 </div>
                 
-                {{-- EXPANDABLE DETAILS --}}
+                {{-- Expandable Details --}}
                 <div x-data="{ showInfo: false }" class="border-t border-gray-100">
                     <button @click="showInfo = !showInfo" class="w-full text-center py-2 text-xs text-gray-500 hover:bg-gray-50 flex justify-center items-center bg-gray-50 transition">
                         <span x-show="!showInfo">View Full Profile Details</span>
@@ -78,7 +73,9 @@
                 </div>
             </div>
             
-            {{-- PROMOTION STATUS BANNER --}}
+            {{-- ========================== --}}
+            {{-- 2. PROMOTION STATUS        --}}
+            {{-- ========================== --}}
             @if(isset($student->promotion_status) && $student->promotion_status)
                 @php
                     $borderClass = 'border-red-500';
@@ -104,7 +101,9 @@
                 </div>
             @endif
 
-            {{-- CLASS SCHEDULE --}}
+            {{-- ========================== --}}
+            {{-- 3. CLASS SCHEDULE          --}}
+            {{-- ========================== --}}
             <div x-data="{ showSchedule: false }" class="bg-white shadow-md rounded-lg overflow-hidden mb-8 border border-gray-200">
                 <button @click="showSchedule = !showSchedule" class="w-full p-4 bg-blue-50 border-b border-gray-200 flex justify-between items-center hover:bg-blue-100 transition">
                     <div class="flex items-center text-blue-800">
@@ -151,7 +150,10 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
-                {{-- ACADEMIC RECORDS (GRADES) --}}
+                {{-- ========================== --}}
+                {{-- 4. ACADEMIC RECORDS (GRADES) --}}
+                {{-- 👇 REPLACED TABLE STRUCTURE --}}
+                {{-- ========================== --}}
                 <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-indigo-50">
                         <h3 class="text-lg font-bold text-indigo-800">Academic Records</h3>
@@ -160,22 +162,34 @@
                         @if($student->grades && $student->grades->count() > 0)
                             <div class="overflow-x-auto">
                                 <table class="min-w-full text-sm">
-                                    <thead>
-                                        <tr class="bg-white border-b text-gray-600">
-                                            <th class="p-3 text-left pl-4">Subject</th>
-                                            <th class="p-3 text-center">Period</th>
-                                            <th class="p-3 text-right pr-4">Mark</th>
+                                    <thead class="bg-gray-50 text-gray-600 font-bold uppercase text-xs">
+                                        <tr>
+                                            <th class="p-3 pl-4 text-left">Subject</th>
+                                            <th class="p-3 text-center">Q1</th>
+                                            <th class="p-3 text-center">Q2</th>
+                                            <th class="p-3 text-center">Q3</th>
+                                            <th class="p-3 text-center">Q4</th>
+                                            <th class="p-3 text-center text-indigo-700 bg-indigo-50">Final</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="divide-y divide-gray-100">
                                         @foreach($student->grades as $grade)
-                                            <tr class="border-b hover:bg-gray-50">
-                                                <td class="p-3 pl-4 font-medium">
+                                            <tr class="hover:bg-gray-50 transition">
+                                                {{-- Subject Name --}}
+                                                <td class="p-3 pl-4 font-medium text-gray-800">
                                                     {{ $grade->schedule->subject->subject_name ?? 'Subject' }}
                                                 </td>
-                                                <td class="p-3 text-center text-gray-500">{{ $grade->grading_period }}</td>
-                                                <td class="p-3 pr-4 text-right font-bold {{ $grade->mark < 75 ? 'text-red-600' : 'text-green-600' }}">
-                                                    {{ $grade->mark }}
+
+                                                {{-- Quarter Grades (Display '-' if null) --}}
+                                                <td class="p-3 text-center text-gray-600">{{ $grade->first_quarter ?? '-' }}</td>
+                                                <td class="p-3 text-center text-gray-600">{{ $grade->second_quarter ?? '-' }}</td>
+                                                <td class="p-3 text-center text-gray-600">{{ $grade->third_quarter ?? '-' }}</td>
+                                                <td class="p-3 text-center text-gray-600">{{ $grade->fourth_quarter ?? '-' }}</td>
+
+                                                {{-- Final Grade (Dynamic Color) --}}
+                                                <td class="p-3 text-center font-bold bg-indigo-50/50 
+                                                    {{ ($grade->final_grade && $grade->final_grade < 75) ? 'text-red-600' : 'text-green-600' }}">
+                                                    {{ $grade->final_grade ?? '-' }}
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -189,7 +203,9 @@
                 </div>
 
                 <div class="space-y-6">
-                    {{-- AWARDS --}}
+                    {{-- ========================== --}}
+                    {{-- 5. AWARDS                  --}}
+                    {{-- ========================== --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                         <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-yellow-50">
                             <h3 class="text-lg font-bold text-yellow-800">Awards & Recognition</h3>
@@ -208,7 +224,9 @@
                         </div>
                     </div>
 
-                    {{-- ATTENDANCE --}}
+                    {{-- ========================== --}}
+                    {{-- 6. ATTENDANCE LOG (UPDATED)--}}
+                    {{-- ========================== --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                         <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-green-50">
                             <h3 class="text-lg font-bold text-green-800">Attendance Log</h3>
@@ -217,22 +235,52 @@
                              @if($student->attendances && $student->attendances->count() > 0)
                                 <div class="space-y-2">
                                     @foreach($student->attendances->sortByDesc('date')->take(5) as $att)
-                                        <div class="flex justify-between items-center p-2 rounded border border-gray-100 text-sm bg-white">
-                                            <div class="flex items-center">
-                                                <span class="text-gray-700 font-medium mr-2">{{ date('M d', strtotime($att->date)) }}</span>
-                                                <span class="text-xs text-gray-400">({{ $att->schedule->subject->subject_code ?? '' }})</span>
+                                        
+                                        {{-- COLOR MATCHING LOGIC --}}
+                                        @php
+                                            $statusColor = match(strtolower($att->status)) {
+                                                'present' => 'bg-green-100 text-green-700',
+                                                'late'    => 'bg-yellow-100 text-yellow-700',
+                                                'absent'  => 'bg-red-100 text-red-700',
+                                                'excused' => 'bg-blue-100 text-blue-700',
+                                                default   => 'bg-gray-100 text-gray-700',
+                                            };
+                                        @endphp
+
+                                        <div class="p-2 rounded border border-gray-100 text-sm bg-white">
+                                            <div class="flex justify-between items-center">
+                                                <div class="flex items-center">
+                                                    {{-- Date --}}
+                                                    <span class="text-gray-700 font-medium mr-2">{{ date('M d', strtotime($att->date)) }}</span>
+                                                    {{-- Day --}}
+                                                    <span class="text-xs text-gray-400">({{ date('D', strtotime($att->date)) }})</span>
+                                                </div>
+                                                
+                                                {{-- Badge --}}
+                                                <span class="font-bold text-[10px] px-2 py-1 rounded uppercase {{ $statusColor }}">
+                                                    {{ $att->status }}
+                                                </span>
                                             </div>
-                                            <span class="font-bold text-[10px] px-2 py-1 rounded uppercase {{ $att->status == 'Present' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                                {{ $att->status }}
-                                            </span>
+
+                                            {{-- SHOW REMARKS IF EXCUSED (AND NOT EMPTY) --}}
+                                            @if(strtolower($att->status) == 'excused' && !empty($att->remarks))
+                                                <div class="mt-1 text-right">
+                                                    <span class="text-[10px] italic text-blue-500">
+                                                        Note: {{ $att->remarks }}
+                                                    </span>
+                                                </div>
+                                            @endif
                                         </div>
+
                                     @endforeach
                                 </div>
                             @else <p class="text-gray-400 text-center italic text-sm">No attendance records.</p> @endif
                         </div>
                     </div>
 
-                    {{-- EXIT CLEARANCE --}}
+                    {{-- ========================== --}}
+                    {{-- 7. EXIT CLEARANCE          --}}
+                    {{-- ========================== --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                         <div class="p-4 flex items-center justify-between">
                             <div><h3 class="text-md font-bold text-gray-800">Exit Clearance</h3><p class="text-xs text-gray-500">Transfer/Graduation</p></div>

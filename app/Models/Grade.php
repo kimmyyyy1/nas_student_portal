@@ -10,11 +10,16 @@ class Grade extends Model
 {
     use HasFactory;
 
+    // 👇 ITO ANG DAPAT MONG PALITAN
     protected $fillable = [
         'student_id',
         'schedule_id',
-        'mark',
-        'grading_period',
+        // Palitan natin yung 'mark' at 'grading_period' nito:
+        'first_quarter',
+        'second_quarter',
+        'third_quarter',
+        'fourth_quarter',
+        'final_grade',
     ];
 
     // Relasyon: Ang isang Grade ay kabilang sa isang Student

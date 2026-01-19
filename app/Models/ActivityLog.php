@@ -9,9 +9,24 @@ class ActivityLog extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
+        'user_id',      // 👈 ITO ANG KULANG KANINA
+        'action',       // 👈 ITO RIN
         'description',
-        'model_type',
-        'model_id',
+        // Pwede mong retain ang 'model_type' at 'model_id' kung gagamitin mo sa future, 
+        // pero sa ngayon, user_id, action, at description ang kailangan.
     ];
+
+    /**
+     * Get the user that performed the activity.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
