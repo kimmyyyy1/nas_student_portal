@@ -118,6 +118,24 @@
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Religion</label>
                                         <input type="text" name="religion" value="{{ old('religion') }}" class="w-full border-gray-300 rounded-md shadow-sm">
                                     </div>
+
+                                    {{-- CHECKBOXES --}}
+                                    <div class="md:col-span-3 mt-2 pt-4 border-t border-gray-100 border-dashed">
+                                        <div class="flex flex-wrap gap-y-3 gap-x-6 items-center">
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                <input type="checkbox" name="is_ip" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip') ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                <input type="checkbox" name="is_pwd" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd') ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                <input type="checkbox" name="is_4ps" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps') ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -170,7 +188,7 @@
                                             <option value="Grade 12" {{ old('grade_level') == 'Grade 12' ? 'selected' : '' }}>Grade 12</option>
                                         </select>
                                     </div>
-                                    
+
                                     {{-- 2. SECTION ASSIGNMENT (EMPTY INITIAL STATE) --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Section Assignment</label>
@@ -186,6 +204,16 @@
                                             <option value="">-- No Team Yet --</option>
                                             @foreach($teams as $team)
                                                 <option value="{{ $team->id }}">{{ $team->team_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Entry Year</label><input type="number" name="entry_year" class="w-full border-gray-300 rounded-md shadow-sm" value="{{ old('entry_year', date('Y')) }}"></div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Promotion Status</label>
+                                        <select name="promotion_status" class="w-full border-gray-300 rounded-md shadow-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach(['Promoted', 'Conditional', 'Retained'] as $status)
+                                                 <option value="{{ $status }}" {{ old('promotion_status') == $status ? 'selected' : '' }}>{{ $status }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -210,6 +238,10 @@
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Contact Number <span class="text-red-500">*</span></label>
                                         <input type="text" name="guardian_contact" value="{{ old('guardian_contact') }}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                                     </div>
+                                    <div class="md:col-span-3">
+                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Guardian Address</label>
+                                        <input type="text" name="guardian_address" value="{{ old('guardian_address') }}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
                                 </div>
                             </div>
 
@@ -228,9 +260,9 @@
         </div>
     </div>
 
-    {{-- SCRIPTS (FIXED LOGIC FOR DROPDOWN) --}}
+    {{-- SCRIPTS (PHOTO PREVIEW & FILTER) --}}
     <script>
-        // 1. Photo Preview
+        // Photo Preview Logic (Global Function)
         function previewImage(event) {
             const reader = new FileReader();
             const output = document.getElementById('photo-preview');
@@ -245,69 +277,85 @@
             }
         }
 
-        // 2. DEPENDENT DROPDOWN (JSON DATA APPROACH)
-        document.addEventListener('DOMContentLoaded', function () {
-            
-            // Kukunin natin ang raw data galing sa Laravel Controller
-            const allSections = @json($sections);
-            const oldSectionId = @json(old('section_id')); // Kung may error, mare-retain ang selection
+        // DEPENDENT DROPDOWN LOGIC WRAPPER
+        function initStudentForm() {
+            // 1. KUNIN ANG DATA (Blade -> JS)
+            const allSections = @json($sections ?? []); 
+            const currentSectionId = @json(old('section_id'));
 
             const gradeSelect = document.getElementById('grade_level');
             const sectionSelect = document.getElementById('section_id');
 
+            // Safety check
+            if (!gradeSelect || !sectionSelect) return;
+
             function filterSections() {
-                // Kunin ang Grade Level (e.g. "Grade 7")
                 const selectedGradeText = gradeSelect.value;
-                
-                // Extract Number Only (Para "Grade 7" -> "7")
-                // Ito ang solusyon para mag-match kahit ano pa format sa database
+                // Extract number only (e.g., "Grade 7" -> "7")
                 const gradeNumber = selectedGradeText.replace(/[^0-9]/g, '');
 
-                // Reset Dropdown
-                sectionSelect.innerHTML = '<option value="">-- No Section Yet --</option>';
+                // Clear dropdown
+                sectionSelect.innerHTML = ''; 
 
                 if (gradeNumber) {
-                    // Filter: Hanapin ang sections na may parehong number sa grade_level
+                    // Filter Sections
                     const filteredSections = allSections.filter(section => {
-                        // Safety check kung null ang grade_level
                         if(!section.grade_level) return false;
-                        
-                        // Gawin ding number ang nasa database (e.g. "Grade 7" -> "7" or "7" -> "7")
                         const sectionGradeNumber = section.grade_level.toString().replace(/[^0-9]/g, '');
-                        
                         return sectionGradeNumber === gradeNumber;
                     });
 
                     if (filteredSections.length > 0) {
-                        sectionSelect.innerHTML = '<option value="">-- Select Section --</option>';
+                        // Add default option
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = "";
+                        defaultOption.text = "-- Select Section --";
+                        sectionSelect.appendChild(defaultOption);
                         
+                        // Populate Options
                         filteredSections.forEach(section => {
                             const option = document.createElement('option');
                             option.value = section.id;
                             option.text = section.section_name;
 
-                            // Check if ito yung dating sinelect (old input)
-                            if (oldSectionId && oldSectionId == section.id) {
+                            // Pre-select logic
+                            if (currentSectionId && currentSectionId == section.id) {
                                 option.selected = true;
                             }
 
                             sectionSelect.appendChild(option);
                         });
                     } else {
-                        sectionSelect.innerHTML = '<option value="">-- No Sections Found for ' + selectedGradeText + ' --</option>';
+                        const option = document.createElement('option');
+                        option.value = "";
+                        option.text = "-- No Section Found --";
+                        sectionSelect.appendChild(option);
                     }
                 } else {
-                    sectionSelect.innerHTML = '<option value="">-- Select Grade First --</option>';
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "-- Select Grade First --";
+                    sectionSelect.appendChild(option);
                 }
             }
 
-            // Listen for changes
+            // Remove old listener to avoid duplication (if any)
+            gradeSelect.removeEventListener('change', filterSections);
+            // Add new listener
             gradeSelect.addEventListener('change', filterSections);
 
-            // Run once on load (para kung may laman na, mag-load agad)
+            // Run immediately logic to populate saved data
             if(gradeSelect.value) {
                 filterSections();
             }
-        });
+        }
+
+        // --- EVENT LISTENERS ---
+        // 1. Para sa Hard Refresh (F5)
+        document.addEventListener('DOMContentLoaded', initStudentForm);
+        
+        // 2. Para sa Livewire Navigation (wire:navigate)
+        document.addEventListener('livewire:navigated', initStudentForm);
+
     </script>
 </x-app-layout>
