@@ -49,7 +49,7 @@
                 
                 {{-- HEADER --}}
                 <div class="text-center mb-8">
-                    <img src="{{ asset('images/nas/horizontal.png') }}" class="h-24 w-auto mx-auto mb-3 drop-shadow-md hover:scale-105 transition-transform" alt="NAS Logo">
+                    <img src="{{ asset('images/nas/stack.png') }}" class="h-24 w-auto mx-auto mb-3 drop-shadow-md hover:scale-105 transition-transform" alt="NAS Logo">
                     
                     <h2 class="text-2xl font-extrabold text-blue-900 tracking-tight">Reset Password</h2>
                     <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Create a new secure password</p>
