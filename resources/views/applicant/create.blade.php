@@ -2,6 +2,7 @@
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         
         <div class="text-center mb-10">
+            {{-- HEADER LOGO --}}
             <img src="{{ asset('images/nas/horizontal.png') }}" class="h-12 md:h-16 mx-auto mb-4 drop-shadow-sm object-contain" alt="NAS Logo">
             <p class="text-sm text-gray-500 mt-1 uppercase tracking-widest font-bold">Based on SAIS Guidelines</p>
         </div>
@@ -11,6 +12,7 @@
 
             <div class="p-8 md:p-12 text-gray-900">
                 
+                {{-- ERROR MESSAGES --}}
                 @if ($errors->any())
                     <div class="mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-md text-sm shadow-sm">
                         <p class="font-bold mb-2">Please check required fields:</p>
@@ -23,6 +25,7 @@
                 <form method="POST" action="{{ route('applicant.store') }}" enctype="multipart/form-data">
                     @csrf 
 
+                    {{-- ID PICTURE UPLOAD --}}
                     <div class="mb-10 bg-indigo-50 p-8 rounded-xl border border-indigo-100 flex flex-col md:flex-row items-center gap-8">
                         <div class="flex-shrink-0">
                             <div style="width: 200px; height: 200px;" class="bg-white border-4 border-dashed border-indigo-300 flex items-center justify-center text-indigo-400 rounded-lg overflow-hidden relative shadow-sm mx-auto">
@@ -40,6 +43,7 @@
                         </div>
                     </div>
 
+                    {{-- 1. APPLICANT INFORMATION --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center">
                             <span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">1</span> Applicant Information
@@ -93,6 +97,7 @@
                          </div>
                     </div>
 
+                    {{-- SPECIAL CATEGORIES --}}
                     <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 mb-10">
                         <span class="block text-sm font-bold text-blue-800 mb-4 uppercase tracking-wide">Special Categories (Check if applicable):</span>
                         <div class="flex flex-col gap-3">
@@ -112,6 +117,7 @@
                         </div>
                     </div>
 
+                    {{-- 2. ADDRESS INFORMATION --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">2</span> Address Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -126,28 +132,31 @@
                         </div>
                     </div>
 
+                    {{-- 3. ACADEMIC & SPORTS --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">3</span> Academic & Sports</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('previous_school') }}"></div>
                             
-                            {{-- 👇 UPDATED SPORT DROPDOWN: Dynamic na ito (Galing Database) --}}
+                            {{-- 👇 DYNAMIC & CLEANED SPORTS DROPDOWN --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sport and Subcategory *</label>
                                 <select name="sport" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required>
                                     <option value="" disabled selected>-- Select Sport --</option>
                                     
-                                    {{-- CHECK: Kung walang laman ang $teams, magpapakita ng error o fallback --}}
                                     @if(isset($teams) && count($teams) > 0)
                                         @foreach($teams as $team)
-                                            {{-- Ginagamit natin ang 'team_name' bilang value para tumugma sa structure --}}
-                                            <option value="{{ $team->team_name }}" {{ old('sport') == $team->team_name ? 'selected' : '' }}>
-                                                {{ $team->team_name }}
+                                            @php
+                                                // Remove "NAS " from the start and " Team" from the end
+                                                // Case sensitive, so ensure db matches "NAS ..." and "... Team"
+                                                $sportName = str_replace(['NAS ', ' Team'], '', $team->team_name);
+                                            @endphp
+                                            <option value="{{ $sportName }}" {{ old('sport') == $sportName ? 'selected' : '' }}>
+                                                {{ $sportName }}
                                             </option>
                                         @endforeach
                                     @else
-                                        {{-- FALLBACK: Kung sakaling hindi naipasa ang $teams mula sa controller --}}
-                                        <option value="" disabled>No sports teams available. Please contact admin.</option>
+                                        <option value="" disabled>No sports available.</option>
                                     @endif
                                 </select>
                             </div>
@@ -168,6 +177,7 @@
                         </div>
                     </div>
 
+                    {{-- 4. DESIGNATED GUARDIAN --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">4</span> Designated Guardian</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -180,6 +190,7 @@
                         </div>
                     </div>
 
+                    {{-- 5. REQUIREMENTS --}}
                     <div class="mb-12">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">5</span> Requirements Upload</h3>
                         <p class="text-sm text-gray-600 mb-6 italic bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">Please upload clear copies (PDF, JPG, PNG). Max 5MB per file.</p>
