@@ -18,6 +18,9 @@
         {{-- Icons --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
+        {{-- 👇 VERCEL ANALYTICS SCRIPT (Added Here) --}}
+        <script defer src="/_vercel/insights/script.js"></script>
+
         {{-- Scripts (Vite) --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
