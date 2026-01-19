@@ -2,12 +2,7 @@
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         
         <div class="text-center mb-10">
-            {{-- 👇 UPDATED HEADER SECTION --}}
-            {{-- 1. Changed image to horizontal.png --}}
-            {{-- 2. Adjusted height to h-12 md:h-16 so it's not too big --}}
-            {{-- 3. Removed the text titles --}}
             <img src="{{ asset('images/nas/horizontal.png') }}" class="h-12 md:h-16 mx-auto mb-4 drop-shadow-sm object-contain" alt="NAS Logo">
-            
             <p class="text-sm text-gray-500 mt-1 uppercase tracking-widest font-bold">Based on SAIS Guidelines</p>
         </div>
 
@@ -60,15 +55,15 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Last Name *</label>
-                                <input type="text" name="last_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('last_name', Auth::user()->last_name) }}">
+                                <input type="text" name="last_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('last_name', Auth::user()->last_name ?? '') }}">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">First Name *</label>
-                                <input type="text" name="first_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('first_name', Auth::user()->first_name) }}">
+                                <input type="text" name="first_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('first_name', Auth::user()->first_name ?? '') }}">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Middle Name (Optional)</label>
-                                <input type="text" name="middle_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('middle_name', Auth::user()->middle_name) }}">
+                                <input type="text" name="middle_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('middle_name', Auth::user()->middle_name ?? '') }}">
                             </div>
                         </div>
 
@@ -94,7 +89,7 @@
 
                          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div><label class="block text-sm font-bold text-gray-700 mb-2">Religion</label><input type="text" name="religion" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('religion') }}"></div>
-                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="email_address" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 h-11 text-gray-500" required value="{{ Auth::user()->email }}" readonly></div>
+                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="email_address" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 h-11 text-gray-500" required value="{{ Auth::user()->email ?? '' }}" readonly></div>
                          </div>
                     </div>
 
@@ -136,21 +131,24 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('previous_school') }}"></div>
                             
+                            {{-- 👇 UPDATED SPORT DROPDOWN: Dynamic na ito (Galing Database) --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sport and Subcategory *</label>
                                 <select name="sport" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required>
                                     <option value="" disabled selected>-- Select Sport --</option>
-                                    <option value="Aquatics - Swimming" {{ old('sport') == 'Aquatics - Swimming' ? 'selected' : '' }}>Aquatics - Swimming</option>
-                                    <option value="Arnis" {{ old('sport') == 'Arnis' ? 'selected' : '' }}>Arnis</option>
-                                    <option value="Athletics - Running" {{ old('sport') == 'Athletics - Running' ? 'selected' : '' }}>Athletics - Running</option>
-                                    <option value="Athletics - Throwing" {{ old('sport') == 'Athletics - Throwing' ? 'selected' : '' }}>Athletics - Throwing</option>
-                                    <option value="Athletics - Jumping" {{ old('sport') == 'Athletics - Jumping' ? 'selected' : '' }}>Athletics - Jumping</option>
-                                    <option value="Badminton" {{ old('sport') == 'Badminton' ? 'selected' : '' }}>Badminton</option>
-                                    <option value="Gymnastics" {{ old('sport') == 'Gymnastics' ? 'selected' : '' }}>Gymnastics</option>
-                                    <option value="Judo" {{ old('sport') == 'Judo' ? 'selected' : '' }}>Judo</option>
-                                    <option value="Table Tennis" {{ old('sport') == 'Table Tennis' ? 'selected' : '' }}>Table Tennis</option>
-                                    <option value="Taekwondo" {{ old('sport') == 'Taekwondo' ? 'selected' : '' }}>Taekwondo</option>
-                                    <option value="Weightlifting" {{ old('sport') == 'Weightlifting' ? 'selected' : '' }}>Weightlifting</option>
+                                    
+                                    {{-- CHECK: Kung walang laman ang $teams, magpapakita ng error o fallback --}}
+                                    @if(isset($teams) && count($teams) > 0)
+                                        @foreach($teams as $team)
+                                            {{-- Ginagamit natin ang 'team_name' bilang value para tumugma sa structure --}}
+                                            <option value="{{ $team->team_name }}" {{ old('sport') == $team->team_name ? 'selected' : '' }}>
+                                                {{ $team->team_name }}
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        {{-- FALLBACK: Kung sakaling hindi naipasa ang $teams mula sa controller --}}
+                                        <option value="" disabled>No sports teams available. Please contact admin.</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>

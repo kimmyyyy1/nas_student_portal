@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EnrollmentApplication;
+use App\Models\Team; // 👈 IMPORTANT: Added Team Model
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -19,8 +20,6 @@ class ApplicantPortalController extends Controller
     // --- CONSTRUCTOR: INITIALIZE CLOUDINARY ---
     public function __construct()
     {
-        // Sine-set natin ang configuration tuwing gagamitin ang controller na ito.
-        // Siguradong walang "Undefined array key" dahil nandito na mismo ang credentials.
         Configuration::instance([
             'cloud' => [
                 'cloud_name' => 'dqkzofruk', 
@@ -43,7 +42,12 @@ class ApplicantPortalController extends Controller
     {
         $existing = EnrollmentApplication::where('user_id', Auth::id())->first();
         if ($existing) return redirect()->route('applicant.dashboard');
-        return view('applicant.create');
+
+        // 👇 FIX: Kunin ang mga sports teams para sa dropdown
+        $teams = Team::orderBy('team_name')->get();
+
+        // Ipasa ang $teams sa view gamit ang compact
+        return view('applicant.create', compact('teams'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -68,10 +72,15 @@ class ApplicantPortalController extends Controller
     public function edit(): View|RedirectResponse
     {
         $application = EnrollmentApplication::where('user_id', Auth::id())->firstOrFail();
+        
         if (in_array($application->status, ['Enrolled'])) { 
              return redirect()->route('applicant.dashboard')->with('error', 'Cannot edit application at this stage.');
         }
-        return view('applicant.edit', compact('application'));
+
+        // 👇 FIX: Ipasa din ang teams sa Edit view para hindi mawala ang dropdown
+        $teams = Team::orderBy('team_name')->get();
+
+        return view('applicant.edit', compact('application', 'teams'));
     }
 
     public function update(Request $request): RedirectResponse
@@ -194,7 +203,7 @@ class ApplicantPortalController extends Controller
         return $data;
     }
 
-    // ... (Validation & Logic helpers retained below) ...
+    // ... (Validation & Logic helpers) ...
     private function validateApplication(Request $request, $isUpdate = false)
     {
         $rules = [
