@@ -1,15 +1,17 @@
 <x-guest-layout>
-    {{-- HEADER SECTION --}}
+    {{-- HEADER SECTION (Inside Card) --}}
     <div class="text-center mb-8">
-        {{-- Logo --}}
-        <img src="{{ asset('images/nas/horizontal.png') }}" class="h-24 mx-auto mb-4 drop-shadow-md object-contain" alt="NAS Logo">
+        {{-- Logo: Siguraduhin na tama ang path ng logo mo --}}
+        <a href="/" class="inline-block">
+            <img src="{{ asset('images/nas/logo-transparent.png') }}" class="h-20 w-auto mx-auto mb-4 drop-shadow-md object-contain" alt="NAS Logo">
+        </a>
         
         {{-- Titles --}}
-        <h1 class="text-2xl font-extrabold text-blue-900 tracking-tight">NAS SAIS</h1>
-        <h2 class="text-lg font-bold text-gray-600 uppercase tracking-widest mt-1">Reset Password</h2>
+        <h1 class="text-3xl font-extrabold text-blue-900 tracking-tight">NAS SAIS</h1>
+        <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest mt-1">Reset Password</h2>
         
-        <p class="text-sm text-gray-500 mt-3">
-            Please create a strong password for your account to ensure security.
+        <p class="text-xs text-gray-400 mt-3 px-4">
+            Create a new, strong password for your account.
         </p>
     </div>
 
@@ -20,14 +22,15 @@
 
         <div class="mb-5">
             <label for="email" class="block text-xs font-bold text-gray-600 uppercase mb-2">Email Address</label>
-            {{-- Added 'readonly' kasi galing na ito sa email link, para hindi magkamali ang user --}}
+            {{-- Added 'readonly' at gray background para hindi na mapalitan ng user (iwas error) --}}
             <input id="email" 
                    type="email" 
                    name="email" 
-                   class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all cursor-not-allowed" 
+                   class="block w-full px-4 py-3 rounded-lg border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed focus:border-indigo-500 focus:ring-indigo-500 shadow-sm sm:text-sm" 
                    value="{{ old('email', $request->email) }}" 
                    required 
-                   readonly>
+                   readonly 
+                   tabindex="-1" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
@@ -36,10 +39,11 @@
             <input id="password" 
                    type="password" 
                    name="password" 
-                   class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all" 
+                   class="block w-full px-4 py-3 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm sm:text-sm transition-colors" 
                    required 
-                   autocomplete="new-password"
-                   placeholder="Enter new password">
+                   autofocus
+                   autocomplete="new-password" 
+                   placeholder="Enter your new password" />
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
@@ -48,15 +52,15 @@
             <input id="password_confirmation" 
                    type="password" 
                    name="password_confirmation" 
-                   class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all" 
+                   class="block w-full px-4 py-3 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm sm:text-sm transition-colors" 
                    required 
-                   autocomplete="new-password"
-                   placeholder="Retype new password">
+                   autocomplete="new-password" 
+                   placeholder="Retype your new password" />
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
         <div class="flex items-center justify-end">
-            <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition transform hover:-translate-y-0.5 flex justify-center items-center uppercase tracking-wider text-sm">
+            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-blue-800 hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5 uppercase tracking-widest">
                 {{ __('Reset Password') }}
             </button>
         </div>
