@@ -21,7 +21,7 @@
                         <div class="flex">
                             <div class="shrink-0 flex items-center">
                                 <a href="{{ route('student.dashboard') }}">
-                                    <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="block h-10 w-auto" alt="NAS Logo" />
+                                    <img src="{{ asset('images/nas/favicon1.png') }}" class="block h-10 w-auto" alt="NAS Logo" />
                                 </a>
                                 <span class="ml-3 font-bold text-indigo-900 hidden md:block">Student Portal</span>
                             </div>
