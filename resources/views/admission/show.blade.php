@@ -55,9 +55,10 @@
                         </div>
                         
                         <div class="flex flex-col md:flex-row gap-6">
-                            <div class="w-40 h-40 bg-gray-100 border border-gray-400 flex-shrink-0 flex items-center justify-center">
+                            <div class="w-40 h-40 bg-gray-100 border border-gray-400 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                {{-- 👇 FIXED IMAGE: Removed asset('storage/...') --}}
                                 @if(isset($application->uploaded_files['id_picture']))
-                                    <img src="{{ asset('storage/' . $application->uploaded_files['id_picture']) }}" class="w-full h-full object-cover">
+                                    <img src="{{ $application->uploaded_files['id_picture'] }}" class="w-full h-full object-cover">
                                 @else
                                     <span class="text-gray-400 text-xs font-bold">2x2 PHOTO</span>
                                 @endif
@@ -169,7 +170,12 @@
                                     'coach_reco' => 'Coach Recommendation Form',
                                     'adviser_reco' => 'Adviser Recommendation Form',
                                     'medical_clearance' => 'Medical/Physical Clearance',
-                                    'guardian_id' => 'Guardian Valid ID'
+                                    'guardian_id' => 'Guardian Valid ID',
+                                    'psa_birth_cert' => 'PSA Birth Certificate',
+                                    'good_moral' => 'Good Moral Certificate',
+                                    'sf10' => 'Form 137 (SF10)',
+                                    'report_card' => 'Report Card (SF9)',
+                                    'id_picture' => '2x2 ID Picture'
                                 ];
                             @endphp
 
@@ -181,7 +187,8 @@
                                     <span class="{{ isset($files[$key]) ? 'text-gray-900 font-bold' : 'text-gray-400' }}">
                                         {{ $label }}
                                         @if(isset($files[$key]))
-                                            <a href="{{ asset('storage/'.$files[$key]) }}" target="_blank" class="no-print ml-1 text-blue-600 hover:underline">(View)</a>
+                                            {{-- 👇 FIXED LINK: Removed asset('storage/...') --}}
+                                            <a href="{{ $files[$key] }}" target="_blank" class="no-print ml-1 text-blue-600 hover:underline">(View)</a>
                                         @endif
                                     </span>
                                 </div>
@@ -254,4 +261,4 @@
         statusSelect.addEventListener('change', toggleReject);
         toggleReject(); 
     </script>
-</x-app-layout> 
+</x-app-layout>

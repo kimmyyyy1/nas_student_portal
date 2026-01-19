@@ -26,7 +26,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             {{-- DATABASE INSPECTOR (X-RAY) - Start --}}
-            {{-- Ito ay temporary tool para makita natin ang tamang column name --}}
             <div class="bg-red-100 border-4 border-red-500 text-red-900 p-4 mb-6 rounded shadow-lg relative no-print">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
@@ -93,8 +92,9 @@
                         
                         <div class="flex gap-6 mb-4">
                             <div class="w-32 h-32 border border-gray-300 flex-shrink-0 bg-gray-100 flex items-center justify-center overflow-hidden">
+                                {{-- 👇 FIXED IMAGE: Removed asset('storage/...') --}}
                                 @if(isset($application->uploaded_files['id_picture']))
-                                    <img src="{{ asset('storage/' . $application->uploaded_files['id_picture']) }}" class="w-full h-full object-cover">
+                                    <img src="{{ $application->uploaded_files['id_picture'] }}" class="w-full h-full object-cover">
                                 @else
                                     <span class="text-xs text-gray-400 italic">No Photo</span>
                                 @endif
@@ -185,15 +185,12 @@
                             $is_pwd = (bool)($application->is_pwd ?? false);
                             $is_4ps = (bool)($application->is_4ps ?? false);
                             
-                            // Check multiple possible column names for the text
-                            // TINGNAN MO YUNG PULANG BOX PARA SA TAMANG NAME
                             $others_text = $application->others_specify 
                                         ?? $application->other_category_details 
                                         ?? $application->other_category 
                                         ?? $application->others
                                         ?? '';
 
-                            // Auto-check the box if there is text, OR if the boolean is true
                             $is_others = (bool)($application->is_others ?? false) || !empty($others_text);
                         @endphp
 
@@ -266,6 +263,46 @@
                                 <span class="block text-xs text-gray-500 uppercase font-bold">Relationship</span>
                                 <div class="border-b border-gray-400 h-6 flex items-end uppercase">{{ $application->guardian_relationship }}</div>
                             </div>
+                        </div>
+                    </div>
+                    
+                    {{-- DOCUMENTS CHECKLIST SECTION --}}
+                    <div>
+                        <div class="bg-gray-200 border border-gray-400 px-3 py-1 mb-4">
+                            <h3 class="text-sm font-bold text-gray-800 uppercase">IV. Submitted Documents Checklist</h3>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-2 gap-y-3 gap-x-2 text-xs">
+                            @php
+                                $files = $application->uploaded_files ?? [];
+                                $docs = [
+                                    'scholarship_form' => 'Scholarship Application Form',
+                                    'student_profile' => 'Student-Athlete Profile Form',
+                                    'coach_reco' => 'Coach Recommendation Form',
+                                    'adviser_reco' => 'Adviser Recommendation Form',
+                                    'medical_clearance' => 'Medical/Physical Clearance',
+                                    'guardian_id' => 'Guardian Valid ID',
+                                    'psa_birth_cert' => 'PSA Birth Certificate',
+                                    'good_moral' => 'Good Moral Certificate',
+                                    'sf10' => 'Form 137 (SF10)',
+                                    'report_card' => 'Report Card (SF9)',
+                                    'id_picture' => '2x2 ID Picture'
+                                ];
+                            @endphp
+
+                            @foreach($docs as $key => $label)
+                                <div class="flex items-center">
+                                    <div class="check-box">
+                                        @if(isset($files[$key])) <span class="text-black font-bold text-xs">✓</span> @endif
+                                    </div>
+                                    <span class="{{ isset($files[$key]) ? 'text-gray-900 font-bold' : 'text-gray-400' }}">
+                                        {{ $label }}
+                                        @if(isset($files[$key]))
+                                            {{-- 👇 FIXED LINK: Removed asset('storage/...') --}}
+                                            <a href="{{ $files[$key] }}" target="_blank" class="no-print ml-1 text-blue-600 hover:underline">(View)</a>
+                                        @endif
+                                    </span>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
 

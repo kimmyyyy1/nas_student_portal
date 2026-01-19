@@ -7,47 +7,71 @@
 
         <title>{{ config('app.name', 'NAS SAIS') }}</title>
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        {{-- Favicon --}}
+        <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
+        {{-- Google Fonts: Poppins --}}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        
+        {{-- Icons --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
+        {{-- ❌ TINANGGAL NA NATIN ANG MANUAL VERCEL SCRIPT DITO --}}
+        {{-- Dahil nasa app.js na ang injection --}}
+
+        {{-- Scripts (Vite) --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
+        {{-- Livewire Styles --}}
+        @livewireStyles
+
+        {{-- Custom Styles --}}
         <style>
-            /* Custom Scrollbar */
+            * {
+                font-family: 'Poppins', sans-serif !important;
+            }
+
+            /* Custom Scrollbar Style */
             .custom-scrollbar::-webkit-scrollbar { width: 5px; }
             .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
             .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 5px; }
             .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
         </style>
+
+        <!-- Vercel Web Analytics -->
+        <script>
+            window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+        </script>
+        <script defer src="/_vercel/insights/script.js"></script>
     </head>
-    <body class="font-sans antialiased">
+    
+    <body class="font-sans antialiased text-gray-900">
         
-        {{-- 1. GLOBAL BACKGROUND IMAGE (Pinaka-likod) --}}
-        <div class="fixed inset-0 -z-50 w-full h-full pointer-events-none">
-            <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover opacity-80" alt="NAS Background">
-            <div class="absolute inset-0 bg-white/30"></div>
+        {{-- BACKGROUND IMAGE --}}
+        <div class="fixed inset-0 z-[-1]">
+            <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-900/60 to-black/70 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- 2. SIDEBAR WHITE BACKGROUND FIX (Para hindi transparent ang sidebar area) --}}
-        <div class="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 z-0 hidden md:block"></div>
-
-        {{-- 3. MAIN CONTENT WRAPPER --}}
-        <div class="min-h-screen bg-transparent relative z-10">
+        {{-- MAIN CONTENT WRAPPER --}}
+        <div class="min-h-screen relative">
             
-            {{-- Navigation Sidebar --}}
+            {{-- NAVIGATION --}}
             @include('layouts.navigation')
 
+            {{-- PAGE HEADER --}}
             @if (isset($header))
-                <header class="bg-white/90 shadow backdrop-blur-sm relative z-30 md:ml-64"> 
+                <header class="bg-white shadow relative md:ml-64 transition-all duration-300"> 
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
             @endif
 
-            <main class="md:ml-64 pt-6 px-4"> 
+            {{-- PAGE CONTENT --}}
+            <main class="md:ml-64 pt-6 px-4 transition-all duration-300"> 
                 {{ $slot }}
             </main>
         </div>
@@ -57,5 +81,7 @@
             window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
         </script>
         <script defer src="/_vercel/speed-insights/script.js"></script>
+        {{-- Livewire Scripts --}}
+        @livewireScripts
     </body>
 </html>

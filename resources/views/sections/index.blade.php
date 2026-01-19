@@ -1,62 +1,36 @@
 <x-app-layout>
+    {{-- Global Styles --}}
+    <style>
+        .font-poppins-override * { font-family: 'Poppins', sans-serif !important; }
+        [x-cloak] { display: none !important; }
+    </style>
+
+    {{-- HEADER --}}
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        {{-- x-data: Dito tayo makikinig sa signal ng Livewire --}}
+        <div class="flex justify-between items-center font-poppins-override"
+             x-data="{ showButton: true }"
+             @toggle-add-button.window="showButton = $event.detail.show">
+            
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Sections') }}
+                {{ __('Sections & Classes') }}
             </h2>
-            <a href="{{ route('sections.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Section</a>
+
+            {{-- 👇 MANUAL ADD BUTTON --}}
+            {{-- Kapag pinindot ito, hahanapin niya ang button na may ID na 'hidden-create-btn' at pipindutin yun --}}
+            <button x-show="showButton"
+                    x-cloak
+                    onclick="document.getElementById('hidden-create-btn').click()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer">
+                Add Section
+            </button>
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 font-poppins-override">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section Name</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade Level</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Adviser</th>
-                                <th scope="col" class="relative px-6 py-3">
-                                    <span class="sr-only">Actions</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($sections as $section)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $section->section_name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $section->grade_level }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $section->adviser_name ?? 'N/A' }}</td>
-                                    
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        
-                                        <a href="{{ route('sections.edit', $section->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                        
-                                        <form class="inline-block ml-4" method="POST" action="{{ route('sections.destroy', $section->id) }}" onsubmit="return confirm('Sigurado ka bang gusto mong burahin ang section na ito?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
-                                                Delete
-                                            </button>
-                                        </form>
-
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
-                                        No sections found.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-
-                </div>
-            </div>
+            {{-- Livewire Component --}}
+            @livewire('sections-manager')
         </div>
     </div>
 </x-app-layout>

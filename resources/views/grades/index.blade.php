@@ -1,63 +1,47 @@
 <x-app-layout>
+    {{-- Global Styles --}}
+    <style>
+        /* FIX: Apply Poppins sa lahat EXCEPT sa mga icons (.bx).
+           Ito ang solusyon para bumalik ang floppy disk at user icons.
+        */
+        .font-poppins-override *:not(.bx) { 
+            font-family: 'Poppins', sans-serif !important; 
+        }
+        
+        [x-cloak] { display: none !important; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+
+    {{-- HEADER --}}
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Grades Management') }}
+        <div class="flex justify-between items-center font-poppins-override"
+             x-data="{ 
+                 title: 'Select Class to Grade', 
+                 showBack: false 
+             }"
+             @update-header.window="title = $event.detail.title; showBack = $event.detail.showBack">
+            
+            {{-- DYNAMIC TITLE --}}
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight" x-text="title">
+                {{ __('Select Class to Grade') }}
             </h2>
-            <a href="{{ route('grades.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Grade</a>
+
+            {{-- DYNAMIC BACK BUTTON --}}
+            <button x-show="showBack"
+                    x-cloak
+                    x-transition
+                    onclick="document.getElementById('hidden-back-btn').click()"
+                    class="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer">
+                <i class='bx bx-arrow-back'></i> Back to Classes
+            </button>
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 font-poppins-override">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grading Period</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mark</th>
-                                <th scope="col" class="relative px-6 py-3">
-                                    <span class="sr-only">Actions</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($grades as $grade)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $grade->student->last_name ?? 'N/A' }}, {{ $grade->student->first_name ?? '' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $grade->schedule->subject->subject_name ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $grade->grading_period }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap font-bold">{{ $grade->mark }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        
-                                        <a href="{{ route('grades.edit', $grade->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                        
-                                        <form class="inline-block ml-4" method="POST" action="{{ route('grades.destroy', $grade->id) }}" onsubmit="return confirm('Sigurado ka bang gusto mong burahin ang gradong ito?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
-                                                Delete
-                                            </button>
-                                        </form>
-
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
-                                        No grades found.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-
-                </div>
-            </div>
+            {{-- Livewire Component --}}
+            @livewire('grades-manager')
         </div>
     </div>
 </x-app-layout>

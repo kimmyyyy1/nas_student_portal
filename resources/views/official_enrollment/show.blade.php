@@ -34,8 +34,9 @@
                         <div class="p-6">
                             <div class="flex flex-col sm:flex-row items-center sm:items-start mb-6 gap-6">
                                 <div class="w-32 h-32 bg-gray-200 rounded-md overflow-hidden border-2 border-gray-300 flex-shrink-0">
+                                    {{-- 👇 FIXED IMAGE: Removed asset('storage/...') --}}
                                     @if(isset($application->uploaded_files['id_picture']))
-                                        <img src="{{ asset('storage/' . $application->uploaded_files['id_picture']) }}" class="w-full h-full object-cover">
+                                        <img src="{{ $application->uploaded_files['id_picture'] }}" class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-gray-400 font-bold">NO PHOTO</div>
                                     @endif
@@ -91,7 +92,8 @@
                                                     <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                     AVAILABLE (Uploaded)
                                                 </span>
-                                                <a href="{{ asset('storage/' . $application->uploaded_files[$key]) }}" target="_blank" class="text-blue-600 hover:underline text-xs font-bold px-2 py-0.5 rounded bg-blue-50">
+                                                {{-- 👇 FIXED LINK: Removed asset('storage/...') --}}
+                                                <a href="{{ $application->uploaded_files[$key] }}" target="_blank" class="text-blue-600 hover:underline text-xs font-bold px-2 py-0.5 rounded bg-blue-50">
                                                     VIEW FILE
                                                 </a>
                                             </dd>

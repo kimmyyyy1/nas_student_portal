@@ -1,7 +1,7 @@
 // tailwind.config.js
 
 import defaultTheme from 'tailwindcss/defaultTheme';
-import forms from '@tailwindcss/forms'; // Siguraduhin na may 'import forms...'
+import forms from '@tailwindcss/forms'; 
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -14,10 +14,11 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                // 👇 DITO ANG PAGBABAGO: Pinalitan ko ang 'Figtree' ng 'Poppins'
+                sans: ['Poppins', ...defaultTheme.fontFamily.sans],
             },
         },
     },
 
-    plugins: [forms], // <-- ITO ANG PINAKAMAHALAGA. Siguraduhin na nandito ang 'forms'
+    plugins: [forms], 
 };

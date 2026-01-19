@@ -2,10 +2,9 @@
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         
         <div class="text-center mb-10">
-            <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-24 mx-auto mb-4 drop-shadow-sm rounded-full" alt="NAS Logo">
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">National Academy of Sports</h1>
-            <p class="text-lg text-gray-600 mt-1 font-medium">Student-Athlete Admission Application</p>
-            <p class="text-sm text-gray-500 mt-1">Based on SAIS Guidelines</p>
+            {{-- HEADER LOGO --}}
+            <img src="{{ asset('images/nas/horizontal.png') }}" class="h-12 md:h-16 mx-auto mb-4 drop-shadow-sm object-contain" alt="NAS Logo">
+            <p class="text-sm text-gray-500 mt-1 uppercase tracking-widest font-bold">Based on SAIS Guidelines</p>
         </div>
 
         <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
@@ -13,6 +12,7 @@
 
             <div class="p-8 md:p-12 text-gray-900">
                 
+                {{-- ERROR MESSAGES --}}
                 @if ($errors->any())
                     <div class="mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-md text-sm shadow-sm">
                         <p class="font-bold mb-2">Please check required fields:</p>
@@ -25,6 +25,7 @@
                 <form method="POST" action="{{ route('applicant.store') }}" enctype="multipart/form-data">
                     @csrf 
 
+                    {{-- ID PICTURE UPLOAD --}}
                     <div class="mb-10 bg-indigo-50 p-8 rounded-xl border border-indigo-100 flex flex-col md:flex-row items-center gap-8">
                         <div class="flex-shrink-0">
                             <div style="width: 200px; height: 200px;" class="bg-white border-4 border-dashed border-indigo-300 flex items-center justify-center text-indigo-400 rounded-lg overflow-hidden relative shadow-sm mx-auto">
@@ -42,6 +43,7 @@
                         </div>
                     </div>
 
+                    {{-- 1. APPLICANT INFORMATION --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center">
                             <span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">1</span> Applicant Information
@@ -57,15 +59,15 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Last Name *</label>
-                                <input type="text" name="last_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('last_name', Auth::user()->last_name) }}">
+                                <input type="text" name="last_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('last_name', Auth::user()->last_name ?? '') }}">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">First Name *</label>
-                                <input type="text" name="first_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('first_name', Auth::user()->first_name) }}">
+                                <input type="text" name="first_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('first_name', Auth::user()->first_name ?? '') }}">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Middle Name (Optional)</label>
-                                <input type="text" name="middle_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('middle_name', Auth::user()->middle_name) }}">
+                                <input type="text" name="middle_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('middle_name', Auth::user()->middle_name ?? '') }}">
                             </div>
                         </div>
 
@@ -91,10 +93,11 @@
 
                          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div><label class="block text-sm font-bold text-gray-700 mb-2">Religion</label><input type="text" name="religion" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('religion') }}"></div>
-                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="email_address" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 h-11 text-gray-500" required value="{{ Auth::user()->email }}" readonly></div>
+                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="email_address" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 h-11 text-gray-500" required value="{{ Auth::user()->email ?? '' }}" readonly></div>
                          </div>
                     </div>
 
+                    {{-- SPECIAL CATEGORIES --}}
                     <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 mb-10">
                         <span class="block text-sm font-bold text-blue-800 mb-4 uppercase tracking-wide">Special Categories (Check if applicable):</span>
                         <div class="flex flex-col gap-3">
@@ -114,6 +117,7 @@
                         </div>
                     </div>
 
+                    {{-- 2. ADDRESS INFORMATION --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">2</span> Address Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -128,26 +132,32 @@
                         </div>
                     </div>
 
+                    {{-- 3. ACADEMIC & SPORTS --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">3</span> Academic & Sports</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('previous_school') }}"></div>
                             
+                            {{-- 👇 DYNAMIC & CLEANED SPORTS DROPDOWN --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sport and Subcategory *</label>
                                 <select name="sport" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required>
                                     <option value="" disabled selected>-- Select Sport --</option>
-                                    <option value="Aquatics - Swimming" {{ old('sport') == 'Aquatics - Swimming' ? 'selected' : '' }}>Aquatics - Swimming</option>
-                                    <option value="Arnis" {{ old('sport') == 'Arnis' ? 'selected' : '' }}>Arnis</option>
-                                    <option value="Athletics - Running" {{ old('sport') == 'Athletics - Running' ? 'selected' : '' }}>Athletics - Running</option>
-                                    <option value="Athletics - Throwing" {{ old('sport') == 'Athletics - Throwing' ? 'selected' : '' }}>Athletics - Throwing</option>
-                                    <option value="Athletics - Jumping" {{ old('sport') == 'Athletics - Jumping' ? 'selected' : '' }}>Athletics - Jumping</option>
-                                    <option value="Badminton" {{ old('sport') == 'Badminton' ? 'selected' : '' }}>Badminton</option>
-                                    <option value="Gymnastics" {{ old('sport') == 'Gymnastics' ? 'selected' : '' }}>Gymnastics</option>
-                                    <option value="Judo" {{ old('sport') == 'Judo' ? 'selected' : '' }}>Judo</option>
-                                    <option value="Table Tennis" {{ old('sport') == 'Table Tennis' ? 'selected' : '' }}>Table Tennis</option>
-                                    <option value="Taekwondo" {{ old('sport') == 'Taekwondo' ? 'selected' : '' }}>Taekwondo</option>
-                                    <option value="Weightlifting" {{ old('sport') == 'Weightlifting' ? 'selected' : '' }}>Weightlifting</option>
+                                    
+                                    @if(isset($teams) && count($teams) > 0)
+                                        @foreach($teams as $team)
+                                            @php
+                                                // Remove "NAS " from the start and " Team" from the end
+                                                // Case sensitive, so ensure db matches "NAS ..." and "... Team"
+                                                $sportName = str_replace(['NAS ', ' Team'], '', $team->team_name);
+                                            @endphp
+                                            <option value="{{ $sportName }}" {{ old('sport') == $sportName ? 'selected' : '' }}>
+                                                {{ $sportName }}
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        <option value="" disabled>No sports available.</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -167,6 +177,7 @@
                         </div>
                     </div>
 
+                    {{-- 4. DESIGNATED GUARDIAN --}}
                     <div class="mb-10">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">4</span> Designated Guardian</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -179,6 +190,7 @@
                         </div>
                     </div>
 
+                    {{-- 5. REQUIREMENTS --}}
                     <div class="mb-12">
                         <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-8 w-8 flex items-center justify-center text-sm mr-3">5</span> Requirements Upload</h3>
                         <p class="text-sm text-gray-600 mb-6 italic bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">Please upload clear copies (PDF, JPG, PNG). Max 5MB per file.</p>

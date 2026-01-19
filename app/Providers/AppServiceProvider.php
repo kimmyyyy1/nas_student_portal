@@ -3,18 +3,42 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View; // Importante para sa View Composer
-use Illuminate\Support\Facades\URL;  // <--- Idinagdag natin ito para sa HTTPS fix
-use App\Models\EnrollmentApplication; // Importante para sa Database Query
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Config; // 👈 IMPORTANT IMPORT
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
+     * DITO NATIN ILALAGAY ANG CONFIG PARA UNAHAN ANG CLOUDINARY.
      */
     public function register(): void
     {
-        //
+        // 🚀 SUPER NUCLEAR FIX (Moved to register)
+        // Set config BEFORE the package boots up.
+        
+        // 1. Force Cloudinary Main Config (Para sa Error: "Undefined array key cloud")
+        Config::set('cloudinary.cloud_url', 'cloudinary://452544782214523:Dew-wu6KDw8HNKzO473L5P5tpqo@dqkzofruk');
+        Config::set('cloudinary.cloud', [
+            'cloud_name' => 'dqkzofruk',
+            'api_key'    => '452544782214523',
+            'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+            'key'        => '452544782214523', 
+            'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+        ]);
+
+        // 2. Force Filesystem Config (Para sa Error: "TypeError")
+        Config::set('filesystems.disks.cloudinary', [
+            'driver'     => 'cloudinary',
+            'cloud_name' => 'dqkzofruk',
+            'api_key'    => '452544782214523',
+            'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+            'key'        => '452544782214523',
+            'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+            'cloud_url'  => 'cloudinary://452544782214523:Dew-wu6KDw8HNKzO473L5P5tpqo@dqkzofruk',
+            'throw'      => false,
+        ]);
     }
 
     /**
@@ -22,30 +46,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // --- START NG FIX SA VERCEL STYLING ---
-        // Kung nasa production (live site), pilitin na gumamit ng HTTPS
+        Schema::defaultStringLength(191);
+
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
-        // --- END NG FIX ---
-
-
-        // I-share ang variable na $pendingAdmissionsCount sa 'layouts.navigation' view
-        View::composer('layouts.navigation', function ($view) {
-            $count = 0;
-            
-            try {
-                // Bilangin ang mga may status na 'Pending'
-                // Check muna kung existing ang table para di mag-error sa fresh migration
-                if (\Schema::hasTable('enrollment_applications')) {
-                     $count = EnrollmentApplication::where('status', 'Pending')->count();
-                }
-            } catch (\Exception $e) {
-                // Iwas error kapag may problema sa DB connection o migration
-                $count = 0;
-            }
-
-            $view->with('pendingAdmissionsCount', $count);
-        });
     }
 }

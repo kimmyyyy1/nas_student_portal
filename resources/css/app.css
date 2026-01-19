@@ -1,3 +1,21 @@
+/* 1. IMPORT POPPINS FONT DIRECTLY */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 2. FORCE OVERRIDE: PILITIN LAHAT NG ELEMENTS MAG-POPPINS */
+@layer base {
+    html {
+        font-family: 'Poppins', sans-serif !important;
+    }
+
+    /* Targetin natin lahat ng pasaway na elements (Tables, Inputs, Buttons, Headings) */
+    body, h1, h2, h3, h4, h5, h6, 
+    p, span, a, li, 
+    button, input, select, textarea, label,
+    table, td, th {
+        font-family: 'Poppins', sans-serif !important;
+    }
+}

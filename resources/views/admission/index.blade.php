@@ -1,13 +1,19 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
             {{ __('Admission Management') }}
+            {{-- LIVE INDICATOR --}}
+            <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
+                <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
+            </span>
         </h2>
     </x-slot>
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
+            {{-- DASHBOARD CARDS --}}
+            {{-- Added IDs to stats for live updates --}}
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                 
                 <a href="{{ route('admission.index') }}" 
@@ -15,7 +21,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Submitted</p>
-                            <p class="text-2xl font-extrabold text-gray-800">{{ $totalSubmitted ?? 0 }}</p>
+                            <p class="text-2xl font-extrabold text-gray-800" id="stat-submitted">{{ $totalSubmitted ?? 0 }}</p>
                         </div>
                         <i class='bx bx-folder-open text-2xl text-blue-200'></i>
                     </div>
@@ -27,7 +33,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Assessment</p>
-                            <p class="text-2xl font-extrabold text-gray-800">{{ $countPending ?? 0 }}</p>
+                            <p class="text-2xl font-extrabold text-gray-800" id="stat-pending">{{ $countPending ?? 0 }}</p>
                         </div>
                         <i class='bx bx-time text-2xl text-yellow-200'></i>
                     </div>
@@ -39,7 +45,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Qualified</p>
-                            <p class="text-2xl font-extrabold text-gray-800">{{ $countQualified ?? 0 }}</p>
+                            <p class="text-2xl font-extrabold text-gray-800" id="stat-qualified">{{ $countQualified ?? 0 }}</p>
                         </div>
                         <i class='bx bx-check-circle text-2xl text-green-200'></i>
                     </div>
@@ -51,7 +57,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Waitlisted</p>
-                            <p class="text-2xl font-extrabold text-gray-800">{{ $countWaitlisted ?? 0 }}</p>
+                            <p class="text-2xl font-extrabold text-gray-800" id="stat-waitlisted">{{ $countWaitlisted ?? 0 }}</p>
                         </div>
                         <i class='bx bx-list-ul text-2xl text-indigo-200'></i>
                     </div>
@@ -63,7 +69,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Not Qualified</p>
-                            <p class="text-2xl font-extrabold text-gray-800">{{ $countRejected ?? 0 }}</p>
+                            <p class="text-2xl font-extrabold text-gray-800" id="stat-rejected">{{ $countRejected ?? 0 }}</p>
                         </div>
                         <i class='bx bx-x-circle text-2xl text-red-200'></i>
                     </div>
@@ -72,9 +78,11 @@
 
             </div>
 
+            {{-- MAIN CONTENT AREA --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
                 <div class="p-6 text-gray-900">
                     
+                    {{-- HEADER & SEARCH --}}
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <div class="flex items-center">
                             <h3 class="text-lg font-bold text-gray-800 flex items-center">
@@ -117,6 +125,7 @@
                         </div>
                     @endif
 
+                    {{-- TABLE --}}
                     @if($applications->count() > 0)
                     <div class="overflow-x-auto rounded-lg border border-gray-200">
                         <table class="min-w-full divide-y divide-gray-200">
@@ -131,12 +140,17 @@
                                     <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            
+                            {{-- 👇 ADDED ID="admission-list" HERE FOR AJAX UPDATES --}}
+                            <tbody id="admission-list" class="bg-white divide-y divide-gray-200">
                                 @foreach($applications as $app)
                                 <tr class="hover:bg-gray-50 transition">
+                                    {{-- ID --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
                                         #{{ str_pad($app->id, 4, '0', STR_PAD_LEFT) }}
                                     </td>
+                                    
+                                    {{-- DETAILS --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
@@ -148,26 +162,36 @@
                                             </div>
                                         </div>
                                     </td>
+                                    
+                                    {{-- GRADE LEVEL --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded border border-gray-300">
                                             {{ $app->grade_level_applied }}
                                         </span>
                                     </td>
+                                    
+                                    {{-- DATE SUBMITTED --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $app->created_at->format('M d, Y') }}
                                     </td>
                                     
+                                    {{-- DATE CHECKED --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @if(!in_array($app->status, ['Pending', 'For Assessment']))
+                                        @if($app->date_checked)
                                             <div class="flex flex-col">
-                                                <span class="font-bold text-gray-700">{{ $app->updated_at->format('M d, Y') }}</span>
-                                                <span class="text-xs text-gray-400">{{ $app->updated_at->format('h:i A') }}</span>
+                                                <span class="font-bold text-gray-700">
+                                                    {{ \Carbon\Carbon::parse($app->date_checked)->format('M d, Y') }}
+                                                </span>
+                                                <span class="text-xs text-gray-400">
+                                                    {{ \Carbon\Carbon::parse($app->date_checked)->format('h:i A') }}
+                                                </span>
                                             </div>
                                         @else
                                             <span class="text-gray-400 italic text-xs">-- Pending --</span>
                                         @endif
                                     </td>
 
+                                    {{-- STATUS --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if(in_array($app->status, ['Pending', 'pending', 'For Assessment']))
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
@@ -195,6 +219,8 @@
                                             </span>
                                         @endif
                                     </td>
+
+                                    {{-- ACTION --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <a href="{{ route('admission.show', $app->id) }}" class="text-indigo-600 hover:text-white border border-indigo-600 hover:bg-indigo-600 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center inline-flex items-center transition">
                                             <i class='bx bx-show mr-1'></i> Review
@@ -231,4 +257,55 @@
             </div>
         </div>
     </div>
+
+    {{-- 👇 LIVE UPDATE SCRIPT --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Refresh content every 5 seconds
+            setInterval(function() {
+                updateAdmissionData();
+            }, 5000);
+        });
+
+        function updateAdmissionData() {
+            const url = window.location.href;
+
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // 1. Update List Table
+                    const newList = doc.getElementById('admission-list');
+                    const currentList = document.getElementById('admission-list');
+                    if(newList && currentList) {
+                        currentList.innerHTML = newList.innerHTML;
+                    }
+
+                    // 2. Update Stats (Counts)
+                    updateElement(doc, 'stat-submitted');
+                    updateElement(doc, 'stat-pending');
+                    updateElement(doc, 'stat-qualified');
+                    updateElement(doc, 'stat-waitlisted');
+                    updateElement(doc, 'stat-rejected');
+                })
+                .catch(error => console.error('Error updating admission data:', error));
+        }
+
+        function updateElement(doc, id) {
+            const newEl = doc.getElementById(id);
+            const currentEl = document.getElementById(id);
+            if (newEl && currentEl) {
+                // Optional: Add simple flash animation if number changes
+                if(newEl.innerText !== currentEl.innerText) {
+                    currentEl.innerText = newEl.innerText;
+                    currentEl.classList.add('text-blue-600', 'scale-110'); // Highlight effect
+                    setTimeout(() => {
+                        currentEl.classList.remove('text-blue-600', 'scale-110');
+                    }, 500);
+                }
+            }
+        }
+    </script>
 </x-app-layout>

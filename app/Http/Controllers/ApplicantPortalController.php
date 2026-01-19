@@ -3,16 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\EnrollmentApplication;
+use App\Models\Team; // 👈 IMPORTANT: Added Team Model
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
+// 👇 IMPORTANT IMPORTS PARA SA MANUAL UPLOAD
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\UploadApi;
+
 class ApplicantPortalController extends Controller
 {
+    // --- CONSTRUCTOR: INITIALIZE CLOUDINARY ---
+    public function __construct()
+    {
+        Configuration::instance([
+            'cloud' => [
+                'cloud_name' => 'dqkzofruk', 
+                'api_key'    => '452544782214523', 
+                'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo'
+            ],
+            'url' => [
+                'secure' => true
+            ]
+        ]);
+    }
+
     public function index(): View
     {
         $application = EnrollmentApplication::where('user_id', Auth::id())->first();
@@ -23,7 +42,12 @@ class ApplicantPortalController extends Controller
     {
         $existing = EnrollmentApplication::where('user_id', Auth::id())->first();
         if ($existing) return redirect()->route('applicant.dashboard');
-        return view('applicant.create');
+
+        // 👇 FIX: Kunin ang mga sports teams para sa dropdown
+        $teams = Team::orderBy('team_name')->get();
+
+        // Ipasa ang $teams sa view gamit ang compact
+        return view('applicant.create', compact('teams'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -31,21 +55,15 @@ class ApplicantPortalController extends Controller
         $validated = $this->validateApplication($request);
         $categories = $request->input('categories', []);
 
-        // 1. Prepare Data
         $data = $this->mapInputData($validated, $request);
         
-        // 2. Add Special Category Logic (Sync New Array -> Old Booleans)
         $data['user_id'] = Auth::id();
-        $data['special_categories'] = $this->processCategories($request); // New Column
-        
-        // SYNC: Check if keywords exist in the categories array to set old booleans
+        $data['special_categories'] = $this->processCategories($request);
         $data['is_ip'] = $this->checkCategory($categories, ['Indigenous People', 'IP']);
         $data['is_pwd'] = $this->checkCategory($categories, ['PWD', 'Person with Disability']);
         $data['is_4ps'] = $this->checkCategory($categories, ['4Ps', 'Beneficiary']);
-
         $data['status'] = 'Submitted (with Pending)';
 
-        // 3. Create
         EnrollmentApplication::create($data);
 
         return redirect()->route('applicant.dashboard')->with('success', 'Application submitted successfully!');
@@ -54,10 +72,15 @@ class ApplicantPortalController extends Controller
     public function edit(): View|RedirectResponse
     {
         $application = EnrollmentApplication::where('user_id', Auth::id())->firstOrFail();
+        
         if (in_array($application->status, ['Enrolled'])) { 
              return redirect()->route('applicant.dashboard')->with('error', 'Cannot edit application at this stage.');
         }
-        return view('applicant.edit', compact('application'));
+
+        // 👇 FIX: Ipasa din ang teams sa Edit view para hindi mawala ang dropdown
+        $teams = Team::orderBy('team_name')->get();
+
+        return view('applicant.edit', compact('application', 'teams'));
     }
 
     public function update(Request $request): RedirectResponse
@@ -71,74 +94,57 @@ class ApplicantPortalController extends Controller
         $validated = $this->validateApplication($request, true);
         $categories = $request->input('categories', []);
 
-        // 1. Prepare Data
         $data = $this->mapInputData($validated, $request, $application);
 
-        // 2. Add Special Category Logic
         $data['special_categories'] = $this->processCategories($request); 
         $data['other_category_details'] = $validated['other_category_details'] ?? null;
-
         $data['is_ip'] = $this->checkCategory($categories, ['Indigenous People', 'IP']);
         $data['is_pwd'] = $this->checkCategory($categories, ['PWD', 'Person with Disability']);
         $data['is_4ps'] = $this->checkCategory($categories, ['4Ps', 'Beneficiary']);
 
-        // 3. Update
         $application->update($data);
 
         return redirect()->route('applicant.dashboard')->with('success', 'Application updated successfully!');
     }
 
-    /**
-     * DITO ANG FIX: Logic para sa Upload Requirements sa Dashboard
-     */
+    // --- UPDATED: MANUAL UPLOAD FOR REQUIREMENTS ---
     public function submitRequirements(Request $request): RedirectResponse
     {
-        // 1. Kunin ang Application
         $application = EnrollmentApplication::where('user_id', Auth::id())->first();
 
         if (!$application) {
             return back()->withErrors(['msg' => 'Application record not found.']);
         }
 
-        // 2. Kunin ang existing uploaded files (Array)
         $currentFiles = $application->uploaded_files ?? [];
-
-        // 3. Listahan ng mga expected files mula sa form
         $fields = ['sf10', 'good_moral', 'psa_birth_cert', 'medical_cert', 'coach_reco'];
-        
         $hasChanges = false;
 
-        // 4. Loop sa bawat field para i-check kung may in-upload
         foreach ($fields as $field) {
             if ($request->hasFile($field)) {
-                
-                // Validate file type and size (Max 10MB)
                 $request->validate([
                     $field => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
                 ]);
 
-                // Kung may dating file, burahin muna sa storage para hindi kalat
-                if (isset($currentFiles[$field]) && Storage::disk('public')->exists($currentFiles[$field])) {
-                    Storage::disk('public')->delete($currentFiles[$field]);
+                // ✅ MANUAL FIX: Direct Cloudinary Upload
+                try {
+                    $upload = (new UploadApi())->upload($request->file($field)->getRealPath(), [
+                        'folder' => 'requirements',
+                        'resource_type' => 'auto'
+                    ]);
+                    
+                    // Kuhanin diretso ang URL galing sa response
+                    $currentFiles[$field] = $upload['secure_url'];
+                    $hasChanges = true;
+                } catch (\Exception $e) {
+                    return back()->withErrors(['msg' => 'Upload failed for ' . $field . ': ' . $e->getMessage()]);
                 }
-
-                // I-save ang bagong file
-                // Path format: requirements/sf10_user123.pdf
-                $filename = "{$field}_" . Auth::id() . '_' . time() . '.' . $request->file($field)->extension();
-                $path = $request->file($field)->storeAs('requirements', $filename, 'public');
-
-                // I-update ang array key
-                $currentFiles[$field] = $path;
-                
-                $hasChanges = true;
             }
         }
 
-        // 5. I-save sa database kapag may nabago
         if ($hasChanges) {
             $application->uploaded_files = $currentFiles;
             $application->save();
-
             return back()->with('success', 'Upload Successful! Requirements have been updated.');
         }
 
@@ -147,6 +153,57 @@ class ApplicantPortalController extends Controller
 
     // --- Helper Methods ---
 
+    private function mapInputData($validated, $request, $existingApp = null)
+    {
+        $data = $validated;
+        
+        $data['age'] = Carbon::parse($validated['date_of_birth'])->age;
+        $data['has_palaro_participation'] = $request->has('has_palaro_participation') ? 1 : 0;
+
+        $currentFiles = $existingApp ? ($existingApp->uploaded_files ?? []) : [];
+
+        // ✅ FIX 1: ID Picture Upload (MANUAL)
+        if ($request->hasFile('id_picture')) {
+            try {
+                $upload = (new UploadApi())->upload($request->file('id_picture')->getRealPath(), [
+                    'folder' => 'applicants/photos',
+                    'resource_type' => 'auto'
+                ]);
+
+                // Save secure URL directly
+                $url = $upload['secure_url'];
+                $data['id_picture_url'] = $url;
+                $currentFiles['id_picture'] = $url;
+            } catch (\Exception $e) {
+                // Log error or handle gracefully
+            }
+        }
+
+        // ✅ FIX 2: Document Files Upload Loop (MANUAL)
+        if ($request->has('files')) {
+            foreach ($request->file('files') as $key => $file) {
+                try {
+                    $upload = (new UploadApi())->upload($file->getRealPath(), [
+                        'folder' => "applicants/docs/{$key}",
+                        'resource_type' => 'auto'
+                    ]);
+
+                    $currentFiles[$key] = $upload['secure_url'];
+                } catch (\Exception $e) {
+                    // Continue uploading other files even if one fails
+                }
+            }
+        }
+        
+        $data['uploaded_files'] = $currentFiles;
+        
+        unset($data['categories']); 
+        unset($data['files']);
+
+        return $data;
+    }
+
+    // ... (Validation & Logic helpers) ...
     private function validateApplication(Request $request, $isUpdate = false)
     {
         $rules = [
@@ -179,7 +236,6 @@ class ApplicantPortalController extends Controller
             'palaro_year' => 'nullable|string',
         ];
 
-        // Files logic
         if ($isUpdate) {
             $rules['files.*'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['id_picture'] = 'nullable|image|max:5120';
@@ -189,37 +245,6 @@ class ApplicantPortalController extends Controller
         }
 
         return $request->validate($rules);
-    }
-
-    private function mapInputData($validated, $request, $existingApp = null)
-    {
-        $data = $validated;
-        
-        // Calculate Age
-        $data['age'] = Carbon::parse($validated['date_of_birth'])->age;
-        $data['has_palaro_participation'] = $request->has('has_palaro_participation') ? 1 : 0;
-
-        // Handle Files
-        $currentFiles = $existingApp ? ($existingApp->uploaded_files ?? []) : [];
-
-        if ($request->hasFile('id_picture')) {
-            if (isset($currentFiles['id_picture'])) Storage::disk('public')->delete($currentFiles['id_picture']);
-            $currentFiles['id_picture'] = $request->file('id_picture')->store('applicants/photos', 'public');
-        }
-
-        if ($request->has('files')) {
-            foreach ($request->file('files') as $key => $file) {
-                if (isset($currentFiles[$key])) Storage::disk('public')->delete($currentFiles[$key]);
-                $currentFiles[$key] = $file->store("applicants/docs/{$key}", 'public');
-            }
-        }
-        
-        $data['uploaded_files'] = $currentFiles;
-        
-        unset($data['categories']); 
-        unset($data['files']);
-
-        return $data;
     }
 
     private function processCategories(Request $request): ?string

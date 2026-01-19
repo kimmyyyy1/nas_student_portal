@@ -33,6 +33,3 @@ Thumbs.db
 /bootstrap/cache/config.php
 /bootstrap/cache/*.php
 !/bootstrap/cache/.gitignore
-
-# Build files
-/public/build

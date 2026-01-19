@@ -2,17 +2,20 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan;
 
-// --- CONTROLLER IMPORTS ---
+// --- CORE CONTROLLERS ---
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DashboardController;           // Admin/Main Dashboard
-use App\Http\Controllers\EnrollmentController;          // Admin: Admission Management
-use App\Http\Controllers\OfficialEnrollmentController;  // Admin: Enrollment Process
-use App\Http\Controllers\ApplicantPortalController;     // Applicant: Portal
-use App\Http\Controllers\StudentPortalController;       // Student: Portal (Enrolled)
-use App\Http\Controllers\TeacherController;             // Teacher: Portal
+use App\Http\Controllers\DashboardController;
 
-// --- RESOURCE CONTROLLERS ---
+// --- PORTAL CONTROLLERS ---
+use App\Http\Controllers\ApplicantPortalController;
+use App\Http\Controllers\StudentPortalController;
+use App\Http\Controllers\TeacherController;
+
+// --- MODULE CONTROLLERS ---
+use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\OfficialEnrollmentController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SubjectController;
@@ -31,117 +34,139 @@ use App\Http\Controllers\StaffController;
 |--------------------------------------------------------------------------
 */
 
-// --- ROOT REDIRECT LOGIC ---
+// ==========================================
+//  ROOT REDIRECT LOGIC
+// ==========================================
 Route::get('/', function () {
     if (Auth::check()) {
         $role = Auth::user()->role;
-        
-        // 1. Kung Student (Enrolled) -> Student Portal
-        if ($role === 'student') {
-            return redirect()->route('student.dashboard');
-        }
-        // 2. Kung Applicant (Ongoing) -> Applicant Portal
-        if ($role === 'applicant') {
-            return redirect()->route('applicant.dashboard');
-        }
-        
-        // 3. Kung Admin/Staff/Teacher/Coach -> Main Dashboard
+        // Redirect based on role
+        if ($role === 'student') return redirect()->route('student.dashboard');
+        if ($role === 'applicant') return redirect()->route('applicant.dashboard');
+        // Admin & Teachers go to main dashboard
         return redirect()->route('dashboard');
     }
-    // Kung hindi naka-login -> Login Page
     return view('auth.login');
 });
 
-// --- AUTHENTICATED ROUTES GROUP ---
+// ==========================================
+//  DEBUG / UTILITY ROUTE (Clear Cache)
+// ==========================================
+Route::get('/clear-all', function() {
+    try {
+        Artisan::call('config:clear');
+        Artisan::call('cache:clear');
+        Artisan::call('view:clear');
+        return response()->json(['message' => 'System Cache Cleared Successfully!']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+// ==========================================
+//  AUTHENTICATED ROUTES GROUP
+// ==========================================
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // --- MAIN DASHBOARD (Unified Controller logic) ---
+    // --- MAIN DASHBOARD ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // --- USER PROFILE (Common) ---
+    // 👇 AJAX ROUTES (For Live Dashboard Updates)
+    Route::get('/recent-activity', [DashboardController::class, 'getRecentActivity'])->name('recent.activity');
+    Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats'); // NEW ROUTE ADDED
+
+    // --- USER PROFILE ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // ==========================================
-    //  APPLICANT PORTAL (For Applicants)
+    //  APPLICANT PORTAL
     // ==========================================
-    Route::get('/applicant/dashboard', [ApplicantPortalController::class, 'index'])->name('applicant.dashboard');
-    Route::get('/applicant/apply', [ApplicantPortalController::class, 'create'])->name('applicant.create');
-    Route::post('/applicant/apply', [ApplicantPortalController::class, 'store'])->name('applicant.store');
-    Route::get('/applicant/edit', [ApplicantPortalController::class, 'edit'])->name('applicant.edit');
-    Route::patch('/applicant/edit', [ApplicantPortalController::class, 'update'])->name('applicant.update');
-    Route::post('/applicant/submit-requirements', [ApplicantPortalController::class, 'submitRequirements'])->name('applicant.submit_requirements');
+    Route::prefix('applicant')->name('applicant.')->group(function() {
+        Route::get('/dashboard', [ApplicantPortalController::class, 'index'])->name('dashboard');
+        Route::get('/apply', [ApplicantPortalController::class, 'create'])->name('create');
+        Route::post('/apply', [ApplicantPortalController::class, 'store'])->name('store');
+        Route::get('/edit', [ApplicantPortalController::class, 'edit'])->name('edit');
+        Route::patch('/edit', [ApplicantPortalController::class, 'update'])->name('update');
+        Route::post('/submit-requirements', [ApplicantPortalController::class, 'submitRequirements'])->name('submit_requirements');
+    });
 
     // ==========================================
-    //  STUDENT PORTAL (For Enrolled Students)
+    //  STUDENT PORTAL
     // ==========================================
     Route::get('/student/dashboard', [StudentPortalController::class, 'index'])->name('student.dashboard');
 
     // ==========================================
-    //  TEACHER PORTAL
+    //  TEACHER SPECIFIC ROUTES
     // ==========================================
     Route::get('/teacher/advisory', [TeacherController::class, 'advisory'])->name('teacher.advisory');
 
     // ==========================================
     //  ADMIN / REGISTRAR MODULES
     // ==========================================
-
-    // 1. Admission Management
+    
+    // Admissions
     Route::get('/admission', [EnrollmentController::class, 'index'])->name('admission.index');
     Route::get('/admission/{id}', [EnrollmentController::class, 'show'])->name('admission.show');
     Route::patch('/admission/{id}', [EnrollmentController::class, 'process'])->name('admission.process');
     Route::get('/admission/{id}/pdf', [EnrollmentController::class, 'generatePdf'])->name('admission.pdf');
 
-    // 2. Official Enrollment Process
+    // Official Enrollment
     Route::get('/official-enrollment/process/{id}', [OfficialEnrollmentController::class, 'show'])->name('official-enrollment.show');
     Route::post('/official-enrollment/store/{id}', [OfficialEnrollmentController::class, 'store'])->name('official-enrollment.store');
 
     // ==========================================
-    //  ACADEMIC RESOURCES (CRUD)
+    //  ACADEMIC RESOURCES
     // ==========================================
     
-    // Student Management
-    Route::resource('students', StudentController::class);
+    // Students (Bulk Upload must be BEFORE resource)
+    Route::get('/students/bulk-upload', [StudentController::class, 'bulkUploadForm'])->name('students.bulk-upload');
+    Route::post('/students/bulk-upload', [StudentController::class, 'processBulkUpload'])->name('students.process-bulk-upload');
     Route::get('/students-enrollment-list', [StudentController::class, 'enrollmentList'])->name('students.enrollment'); 
+    Route::resource('students', StudentController::class);
 
     // Sections & Subjects
     Route::resource('sections', SectionController::class);
     Route::resource('subjects', SubjectController::class);
     
     // Schedules
-    Route::resource('schedules', ScheduleController::class);
     Route::get('/my-schedules', [ScheduleController::class, 'mySchedules'])->name('schedules.my');
+    Route::resource('schedules', ScheduleController::class);
     
-    // Grades
-    Route::resource('grades', GradeController::class);
-    
-    // Attendance
-    Route::resource('attendances', AttendanceController::class);
+    // Grades Management
+    Route::patch('/grades/bulk-update', [GradeController::class, 'bulkUpdate'])->name('grades.bulk_update'); 
+    Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
+    Route::get('/grades/{section}', [GradeController::class, 'show'])->name('grades.show');
+
+    // Attendance Management
+    Route::post('/attendances/bulk-store', [AttendanceController::class, 'bulkStore'])->name('attendances.bulk_store');
+    Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances.index');
+    Route::get('/attendances/{section}', [AttendanceController::class, 'show'])->name('attendances.show');
 
     // ==========================================
-    //  SPORTS & MEDICAL MODULES (Coach & Admin)
+    //  SPORTS & MEDICAL MODULES
     // ==========================================
     Route::resource('teams', TeamController::class);
     Route::resource('training-plans', TrainingPlanController::class);
     Route::resource('medical-records', MedicalRecordController::class);
     
     // ==========================================
-    //  SYSTEM MANAGEMENT (Admin Only)
+    //  SYSTEM MANAGEMENT
     // ==========================================
-    
-    // Staff / User Management
     Route::resource('staff', StaffController::class);
 
-    // Reports Management
-    Route::resource('reports', ReportController::class);
-    
-    // Specific Report Routes (Ito ang hinahanap ng error mo kanina)
-    Route::get('/reports/grade-sheets', [ReportController::class, 'gradeSheets'])->name('reports.grade_sheets');
-    Route::get('/reports/report-cards', [ReportController::class, 'reportCards'])->name('reports.report_cards');
-    Route::get('/reports/school-forms', [ReportController::class, 'schoolForms'])->name('reports.school_forms');
-    Route::get('/reports/awardees', [ReportController::class, 'awardees'])->name('reports.awardees');
-    Route::get('/reports/ranking', [ReportController::class, 'ranking'])->name('reports.ranking');
+    // ==========================================
+    //  REPORTS MANAGEMENT
+    // ==========================================
+    Route::prefix('reports')->name('reports.')->group(function() {
+        Route::get('/grade-sheets', [ReportController::class, 'gradeSheets'])->name('grade_sheets');
+        Route::get('/report-cards', [ReportController::class, 'reportCards'])->name('report_cards');
+        Route::get('/school-forms', [ReportController::class, 'schoolForms'])->name('school_forms');
+        Route::get('/awardees', [ReportController::class, 'awardees'])->name('awardees');
+        Route::get('/ranking', [ReportController::class, 'ranking'])->name('ranking');
+    });
+    Route::resource('reports', ReportController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
 
 });
 
