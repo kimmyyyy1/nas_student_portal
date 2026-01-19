@@ -129,7 +129,6 @@
                                     {{-- 2. SECTION ASSIGNMENT (DEPENDENT) --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Section Assignment</label>
-                                        {{-- Empty on load, populated by JS --}}
                                         <select id="section_id" name="section_id" class="w-full border-gray-300 rounded-md shadow-sm">
                                             <option value="">-- No Section Yet --</option>
                                         </select>
@@ -204,6 +203,7 @@
 
     {{-- SCRIPTS (PHOTO PREVIEW & FILTER) --}}
     <script>
+        // Photo Preview Logic
         function previewImage(event) {
             const reader = new FileReader();
             const output = document.getElementById('photo-preview');
@@ -218,25 +218,28 @@
             }
         }
 
-        // DEPENDENT DROPDOWN LOGIC (JSON Approach)
-        document.addEventListener('DOMContentLoaded', function () {
-            
-            const allSections = @json($sections);
-            // Get current section ID from DB (for edit view) or old input (if validation fails)
-            const currentSectionId = @json(old('section_id', $student->section_id));
+        // DEPENDENT DROPDOWN LOGIC WRAPPER
+        function initStudentForm() {
+            // 1. KUNIN ANG DATA (Blade -> JS)
+            const allSections = @json($sections ?? []); 
+            const currentSectionId = @json(old('section_id', $student->section_id ?? ''));
 
             const gradeSelect = document.getElementById('grade_level');
             const sectionSelect = document.getElementById('section_id');
 
+            // Safety check
+            if (!gradeSelect || !sectionSelect) return;
+
             function filterSections() {
                 const selectedGradeText = gradeSelect.value;
-                // Extract number only (Grade 7 -> 7)
+                // Extract number only (e.g., "Grade 7" -> "7")
                 const gradeNumber = selectedGradeText.replace(/[^0-9]/g, '');
 
                 // Clear dropdown
-                sectionSelect.innerHTML = '<option value="">-- No Section Yet --</option>';
+                sectionSelect.innerHTML = ''; 
 
                 if (gradeNumber) {
+                    // Filter Sections based on Grade Level
                     const filteredSections = allSections.filter(section => {
                         if(!section.grade_level) return false;
                         const sectionGradeNumber = section.grade_level.toString().replace(/[^0-9]/g, '');
@@ -244,8 +247,13 @@
                     });
 
                     if (filteredSections.length > 0) {
-                        sectionSelect.innerHTML = '<option value="">-- Select Section --</option>';
+                        // Add default option
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = "";
+                        defaultOption.text = "-- Select Section --";
+                        sectionSelect.appendChild(defaultOption);
                         
+                        // Populate Options
                         filteredSections.forEach(section => {
                             const option = document.createElement('option');
                             option.value = section.id;
@@ -259,19 +267,36 @@
                             sectionSelect.appendChild(option);
                         });
                     } else {
-                        sectionSelect.innerHTML = '<option value="">-- No Sections Found --</option>';
+                        const option = document.createElement('option');
+                        option.value = "";
+                        option.text = "-- No Section Found --";
+                        sectionSelect.appendChild(option);
                     }
                 } else {
-                    sectionSelect.innerHTML = '<option value="">-- Select Grade First --</option>';
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "-- Select Grade First --";
+                    sectionSelect.appendChild(option);
                 }
             }
 
+            // Remove old listener to avoid duplication (sa Livewire navigation)
+            gradeSelect.removeEventListener('change', filterSections);
+            // Add new listener
             gradeSelect.addEventListener('change', filterSections);
 
-            // Run once on load to populate sections for the existing student
+            // Run immediately logic to populate saved data
             if(gradeSelect.value) {
                 filterSections();
             }
-        });
+        }
+
+        // --- EVENT LISTENERS ---
+        // 1. Para sa Hard Refresh (F5)
+        document.addEventListener('DOMContentLoaded', initStudentForm);
+        
+        // 2. Para sa Livewire Navigation (wire:navigate)
+        document.addEventListener('livewire:navigated', initStudentForm);
+
     </script>
 </x-app-layout>
