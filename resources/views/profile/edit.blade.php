@@ -1,12 +1,16 @@
 @php
     // Determine the layout based on user role
+    $role = Auth::user()->role;
     $layout = 'app-layout'; // Default (Admin)
 
-    if (Auth::user()->role === 'student') {
+    if ($role === 'student') {
         $layout = 'student-layout';
-    } elseif (Auth::user()->role === 'applicant') {
+    } elseif ($role === 'applicant') {
         $layout = 'applicant-layout';
     }
+
+    // 👇 Check if user is a student to lock fields
+    $isStudent = ($role === 'student'); 
 @endphp
 
 <x-dynamic-component :component="$layout">
@@ -66,19 +70,28 @@
                             </h3>
 
                             <div class="space-y-6">
-                                {{-- Name Field (Editable) --}}
+                                {{-- 👇 MODIFIED: Name Field (ReadOnly if Student) --}}
                                 <div>
                                     <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
                                     <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required autofocus autocomplete="name"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5">
+                                        {{ $isStudent ? 'readonly' : '' }}
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 
+                                        {{ $isStudent ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : '' }}">
+                                    
+                                    @if($isStudent)
+                                        <p class="text-[10px] text-gray-400 mt-1 italic"><i class='bx bx-lock-alt'></i> Contact Registrar to update name.</p>
+                                    @endif
                                     @error('name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                 </div>
 
-                                {{-- Email Field --}}
+                                {{-- 👇 MODIFIED: Email Field (ReadOnly if Student) --}}
                                 <div>
                                     <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
                                     <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required autocomplete="username"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5">
+                                        {{ $isStudent ? 'readonly' : '' }}
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5
+                                        {{ $isStudent ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : '' }}">
+                                    
                                     @error('email') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
 
                                     {{-- Email Verification Notice --}}
