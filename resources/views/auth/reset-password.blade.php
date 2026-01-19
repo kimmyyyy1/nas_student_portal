@@ -2,7 +2,7 @@
     {{-- HEADER SECTION --}}
     <div class="text-center mb-8">
         {{-- Logo --}}
-        <img src="{{ asset('images/nas/logo-transparent.png') }}" class="h-24 mx-auto mb-4 drop-shadow-md object-contain" alt="NAS Logo">
+        <img src="{{ asset('images/nas/horizontal.png') }}" class="h-24 mx-auto mb-4 drop-shadow-md object-contain" alt="NAS Logo">
         
         {{-- Titles --}}
         <h1 class="text-2xl font-extrabold text-blue-900 tracking-tight">NAS SAIS</h1>
