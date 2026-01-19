@@ -10,7 +10,7 @@
         {{-- Favicon --}}
         <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-        {{-- 👇 1. UPDATE: POPPINS FONT (Google Fonts) --}}
+        {{-- Google Fonts: Poppins --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,8 +18,8 @@
         {{-- Icons --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-        {{-- 👇 VERCEL ANALYTICS SCRIPT (Added Here) --}}
-        <script defer src="/_vercel/insights/script.js"></script>
+        {{-- ❌ TINANGGAL NA NATIN ANG MANUAL VERCEL SCRIPT DITO --}}
+        {{-- Dahil nasa app.js na ang injection --}}
 
         {{-- Scripts (Vite) --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -29,8 +29,6 @@
 
         {{-- Custom Styles --}}
         <style>
-            /* 👇 2. THE NUCLEAR OPTION: USE '*' SELECTOR */
-            /* Ito ang pipilit sa LAHAT ng elements na mag-Poppins, walang kawala */
             * {
                 font-family: 'Poppins', sans-serif !important;
             }
@@ -48,7 +46,6 @@
         {{-- BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Overlay --}}
             <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-900/60 to-black/70 backdrop-blur-[2px]"></div>
         </div>
 
