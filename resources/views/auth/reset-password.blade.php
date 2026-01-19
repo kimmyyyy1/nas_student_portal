@@ -3,7 +3,7 @@
     <div class="text-center mb-8">
         {{-- Logo: Siguraduhin na tama ang path ng logo mo --}}
         <a href="/" class="inline-block">
-            <img src="{{ asset('images/nas/logo-transparent.png') }}" class="h-20 w-auto mx-auto mb-4 drop-shadow-md object-contain" alt="NAS Logo">
+            <img src="{{ asset('images/nas/horizontal.png') }}" class="h-20 w-auto mx-auto mb-4 drop-shadow-md object-contain" alt="NAS Logo">
         </a>
         
         {{-- Titles --}}
