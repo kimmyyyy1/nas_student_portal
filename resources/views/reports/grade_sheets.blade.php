@@ -1,11 +1,16 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+        {{-- 👇 FIX: Ginawang flex-col (mobile) -> flex-row (desktop) para maayos ang stack --}}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            
+            {{-- TITLE --}}
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Grade Sheets Generator') }}
             </h2>
-            <span class="inline-block w-fit text-xs font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full uppercase tracking-wide self-start md:self-center">
-                Academic Report
+
+            {{-- BADGE --}}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
+                <i class='bx bxs-report mr-1'></i> Academic Report
             </span>
         </div>
     </x-slot>
@@ -14,18 +19,21 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- 🟢 MOBILE FILTER TOGGLE BUTTON --}}
-            <div class="md:hidden mb-4">
+            <div class="md:hidden mb-6">
                 <button @click="showFilters = !showFilters" 
-                        class="w-full flex items-center justify-between bg-white p-4 rounded-lg shadow border border-gray-200 text-gray-700 font-bold">
-                    <span class="flex items-center"><i class='bx bx-filter-alt mr-2 text-lg'></i> Filter Options</span>
-                    <i class='bx bx-chevron-down text-xl transition-transform duration-200' :class="{'rotate-180': showFilters}"></i>
+                        class="w-full flex items-center justify-between bg-white p-4 rounded-lg shadow border border-gray-200 text-gray-700 font-bold transition hover:bg-gray-50">
+                    <span class="flex items-center text-indigo-600"><i class='bx bx-filter-alt mr-2 text-xl'></i> Filter Options</span>
+                    <i class='bx bx-chevron-down text-2xl transition-transform duration-200 text-gray-400' :class="{'rotate-180': showFilters}"></i>
                 </button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 
-                {{-- 🟢 FILTER PANEL (Responsive) --}}
+                {{-- 🟢 FILTER PANEL (Collapsible on Mobile) --}}
                 <div class="md:col-span-1" 
+                     x-show="showFilters" 
+                     x-cloak 
+                     x-transition.opacity.duration.300ms
                      :class="{'block': showFilters, 'hidden': !showFilters, 'md:block': true}">
                     
                     <div class="bg-white shadow-md rounded-lg p-6 sticky top-6 border border-gray-200">
@@ -35,7 +43,6 @@
                         </h3>
                         
                         <form action="#" method="GET"> 
-                            
                             <div class="mb-4">
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">School Year</label>
                                 <select class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
@@ -48,12 +55,9 @@
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Grade Level</label>
                                 <select class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                                     <option value="">-- Select Grade --</option>
-                                    <option>Grade 7</option>
-                                    <option>Grade 8</option>
-                                    <option>Grade 9</option>
-                                    <option>Grade 10</option>
-                                    <option>Grade 11</option>
-                                    <option>Grade 12</option>
+                                    @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
+                                        <option value="{{ $gl }}">{{ $gl }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -61,7 +65,6 @@
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Section</label>
                                 <select class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                                     <option value="">-- Select Section --</option>
-                                    {{-- Options populated via JS/Livewire --}}
                                 </select>
                             </div>
 
@@ -69,7 +72,6 @@
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Subject</label>
                                 <select class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                                     <option value="">-- Select Subject --</option>
-                                    {{-- Options populated via JS/Livewire --}}
                                 </select>
                             </div>
 
@@ -98,7 +100,7 @@
                         {{-- Preview Header --}}
                         <div class="bg-gray-50 border-b border-gray-200 px-4 md:px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                             <h3 class="text-sm font-bold text-gray-700 flex items-center">
-                                <i class='bx bx-file-blank mr-2 text-gray-400'></i> Preview Mode
+                                <i class='bx bx-file-blank mr-2 text-gray-400 text-lg'></i> Preview Mode
                             </h3>
                             <button class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-xs font-bold flex justify-center items-center shadow-sm transition">
                                 <i class='bx bx-printer mr-2 text-base'></i>
@@ -112,8 +114,8 @@
                                 <i class='bx bx-spreadsheet text-5xl text-indigo-400'></i>
                             </div>
                             <h4 class="text-lg md:text-xl font-bold text-gray-800">Select Criteria to Generate</h4>
-                            <p class="text-gray-500 text-sm max-w-xs mt-2">
-                                Please use the <span class="md:hidden font-bold text-indigo-600">Filter Options</span><span class="hidden md:inline font-bold text-indigo-600">filters on the left</span> to load the required Grade Sheet.
+                            <p class="text-gray-500 text-sm max-w-xs mt-2 mx-auto">
+                                Please use the <span class="md:hidden font-bold text-indigo-600">Filter Options</span> button above to load the required Grade Sheet.
                             </p>
                         </div>
                     </div>
