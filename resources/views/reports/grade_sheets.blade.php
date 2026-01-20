@@ -1,18 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- HEADER CONTAINER --}}
-        {{-- Mobile: Column with spacing (gap-y-3) --}}
-        {{-- Desktop: Row (Title left, Badge right) --}}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-y-3 md:gap-y-0 pb-2">
+        {{-- Mobile: Mas malaki ang gap (gap-y-4) para bumaba ang badge --}}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-y-4 md:gap-y-0 pb-2">
             
             {{-- TITLE --}}
             <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight">
                 {{ __('Grade Sheets Generator') }}
             </h2>
 
-            {{-- BADGE (Compact sa Mobile) --}}
-            {{-- w-fit: Para hindi kumain ng buong width --}}
-            <span class="inline-flex w-fit items-center px-2 py-1 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
+            {{-- BADGE --}}
+            {{-- Added 'mt-2' para bumaba pa lalo sa mobile --}}
+            <span class="inline-flex w-fit items-center px-3 py-1 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm mt-2 md:mt-0">
                 <i class='bx bxs-report mr-1 text-sm'></i> Academic Report
             </span>
         </div>
