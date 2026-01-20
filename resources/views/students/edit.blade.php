@@ -58,7 +58,7 @@
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Status</label>
                                         <select name="status" class="w-full border-gray-300 rounded-md shadow-sm">
-                                            @foreach(['New', 'Continuing', 'Transfer out', 'Graduate'] as $stat)
+                                            @foreach(['New', 'Continuing', 'Enrolled', 'Transfer out', 'Graduate'] as $stat)
                                                 <option value="{{ $stat }}" {{ old('status', $student->status) == $stat ? 'selected' : '' }}>{{ $stat }}</option>
                                             @endforeach
                                         </select>
@@ -74,26 +74,46 @@
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">First Name</label><input type="text" name="first_name" value="{{ old('first_name', $student->first_name) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Middle Name</label><input type="text" name="middle_name" value="{{ old('middle_name', $student->middle_name) }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Email Address</label><input type="email" name="email_address" value="{{ old('email_address', $student->email_address) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
-                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Sex</label><select name="sex" class="w-full border-gray-300 rounded-md shadow-sm"><option value="Male" {{ old('sex', $student->sex) == 'Male' ? 'selected' : '' }}>Male</option><option value="Female" {{ old('sex', $student->sex) == 'Female' ? 'selected' : '' }}>Female</option></select></div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Sex</label>
+                                        <select name="sex" class="w-full border-gray-300 rounded-md shadow-sm">
+                                            <option value="Male" {{ old('sex', $student->sex) == 'Male' ? 'selected' : '' }}>Male</option>
+                                            <option value="Female" {{ old('sex', $student->sex) == 'Female' ? 'selected' : '' }}>Female</option>
+                                        </select>
+                                    </div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthdate</label><input type="date" id="birthdate" name="birthdate" value="{{ old('birthdate', $student->birthdate ? $student->birthdate->format('Y-m-d') : '') }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthplace</label><input type="text" name="birthplace" value="{{ old('birthplace', $student->birthplace) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Religion</label><input type="text" name="religion" value="{{ old('religion', $student->religion) }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                     
-                                    {{-- CHECKBOXES --}}
-                                    <div class="md:col-span-3 mt-2 pt-4 border-t border-gray-100 border-dashed">
-                                        <div class="flex flex-wrap gap-y-3 gap-x-6 items-center">
-                                            <label class="flex items-center space-x-2 cursor-pointer">
-                                                <input type="checkbox" name="is_ip" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip', $student->is_ip) ? 'checked' : '' }}> 
-                                                <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
-                                            </label>
-                                            <label class="flex items-center space-x-2 cursor-pointer">
-                                                <input type="checkbox" name="is_pwd" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd', $student->is_pwd) ? 'checked' : '' }}> 
-                                                <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
-                                            </label>
-                                            <label class="flex items-center space-x-2 cursor-pointer">
-                                                <input type="checkbox" name="is_4ps" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps', $student->is_4ps) ? 'checked' : '' }}> 
-                                                <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
-                                            </label>
+                                    {{-- CHECKBOXES & OTHERS (FIXED) --}}
+                                    <div class="md:col-span-3 mt-4 pt-4 border-t border-gray-100 border-dashed">
+                                        <div class="flex flex-col md:flex-row md:items-center gap-4">
+                                            
+                                            {{-- Group 1: Checkboxes --}}
+                                            <div class="flex flex-wrap gap-4">
+                                                <label class="flex items-center space-x-2 cursor-pointer">
+                                                    <input type="checkbox" name="is_ip" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip', $student->is_ip) ? 'checked' : '' }}> 
+                                                    <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
+                                                </label>
+                                                <label class="flex items-center space-x-2 cursor-pointer">
+                                                    <input type="checkbox" name="is_pwd" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd', $student->is_pwd) ? 'checked' : '' }}> 
+                                                    <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
+                                                </label>
+                                                <label class="flex items-center space-x-2 cursor-pointer">
+                                                    <input type="checkbox" name="is_4ps" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps', $student->is_4ps) ? 'checked' : '' }}> 
+                                                    <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
+                                                </label>
+                                            </div>
+
+                                            {{-- Group 2: Input Field for "Others" --}}
+                                            {{-- NOTE: Siguraduhin na may 'other_remarks' column sa database o palitan ito ng tamang column name --}}
+                                            <div class="flex items-center flex-1 w-full md:w-auto">
+                                                <label for="other_remarks" class="text-xs font-bold text-gray-600 uppercase mr-2 whitespace-nowrap">Others:</label>
+                                                <input type="text" id="other_remarks" name="other_remarks" value="{{ old('other_remarks', $student->other_remarks ?? '') }}" 
+                                                       class="border-0 border-b border-gray-300 focus:border-indigo-500 focus:ring-0 text-sm w-full bg-transparent" 
+                                                       placeholder="Specific details (e.g. Manobo, Visual Impairment)">
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
