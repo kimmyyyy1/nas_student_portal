@@ -1,19 +1,25 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- HEADER CONTAINER --}}
-        {{-- Mobile: min-h-[100px] para humaba ang container at masakop ang white space --}}
-        {{-- Badge: mt-auto para bumaba siya sa dulo ng container --}}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center min-h-[100px] md:min-h-0">
+        {{-- Flex-col sa mobile (stacked), Flex-row sa desktop (magkahiwalay) --}}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-y-2">
             
-            {{-- TITLE --}}
-            <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight">
-                {{ __('Grade Sheets Generator') }}
-            </h2>
+            {{-- TITLE & BACK BUTTON GROUP --}}
+            <div class="flex items-center gap-2">
+                {{-- BACK BUTTON --}}
+                <a href="{{ route('reports.index') }}" class="text-gray-500 hover:text-indigo-600 transition p-1 rounded-full hover:bg-gray-100" title="Back to Reports">
+                    <i class='bx bx-arrow-back text-xl md:text-2xl'></i>
+                </a>
+
+                {{-- TITLE --}}
+                <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight">
+                    {{ __('Grade Sheets Generator') }}
+                </h2>
+            </div>
 
             {{-- BADGE --}}
-            {{-- mt-auto: Ito ang magtutulak sa kanya pababa sa mobile --}}
-            {{-- md:mt-0: Reset sa desktop --}}
-            <span class="mt-auto md:mt-0 inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
+            {{-- Reset sa normal positioning, tinanggal ang mt-auto para di tumaba ang container --}}
+            <span class="ml-9 md:ml-0 inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
                 <i class='bx bxs-report mr-1 text-sm'></i> Academic Report
             </span>
         </div>
