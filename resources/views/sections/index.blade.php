@@ -7,8 +7,9 @@
 
     {{-- HEADER --}}
     <x-slot name="header">
-        {{-- x-data: Dito tayo makikinig sa signal ng Livewire --}}
-        <div class="flex justify-between items-center font-poppins-override"
+        {{-- 👇 FIX: Ginawang Column sa Mobile (flex-col), Row sa Desktop (md:flex-row) --}}
+        {{-- Added 'gap-4' para may space pag nag-stack --}}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 font-poppins-override"
              x-data="{ showButton: true }"
              @toggle-add-button.window="showButton = $event.detail.show">
             
@@ -16,19 +17,21 @@
                 {{ __('Sections & Classes') }}
             </h2>
 
-            {{-- 👇 MANUAL ADD BUTTON --}}
-            {{-- Kapag pinindot ito, hahanapin niya ang button na may ID na 'hidden-create-btn' at pipindutin yun --}}
+            {{-- 👇 FIX: Button Width Adjusted --}}
+            {{-- w-full (Mobile): Para madaling pindutin at nasa ilalim ng title --}}
+            {{-- md:w-auto (Desktop): Para bumalik sa dating laki sa kanan --}}
             <button x-show="showButton"
                     x-cloak
                     onclick="document.getElementById('hidden-create-btn').click()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer">
-                Add Section
+                    class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer flex justify-center items-center">
+                <i class='bx bx-plus mr-2 text-lg'></i> Add Section
             </button>
         </div>
     </x-slot>
 
-    <div class="py-12 font-poppins-override">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6 md:py-12 font-poppins-override">
+        {{-- Added px-4 para hindi dikit sa gilid ng cellphone --}}
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             {{-- Livewire Component --}}
             @livewire('sections-manager')
         </div>
