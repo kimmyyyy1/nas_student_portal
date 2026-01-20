@@ -1,14 +1,16 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- HEADER CONTAINER --}}
-        {{-- Flex-col sa mobile (stacked), Flex-row sa desktop (magkahiwalay) --}}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-y-2">
+        {{-- flex-col: Stacked pababa sa mobile --}}
+        {{-- items-start: Lahat naka-align sa KALIWA (Left) --}}
+        {{-- justify-center: Naka-gitna vertically sa loob ng white bar --}}
+        <div class="flex flex-col md:flex-row justify-center md:justify-between items-start md:items-center gap-y-2 md:gap-y-0 h-full">
             
-            {{-- TITLE & BACK BUTTON GROUP --}}
+            {{-- TITLE GROUP (Back Btn + Text) --}}
             <div class="flex items-center gap-2">
                 {{-- BACK BUTTON --}}
-                <a href="{{ route('reports.index') }}" class="text-gray-500 hover:text-indigo-600 transition p-1 rounded-full hover:bg-gray-100" title="Back to Reports">
-                    <i class='bx bx-arrow-back text-xl md:text-2xl'></i>
+                <a href="{{ route('reports.index') }}" class="text-gray-500 hover:text-indigo-600 transition p-1 -ml-1 rounded-full hover:bg-gray-100" title="Back to Reports">
+                    <i class='bx bx-arrow-back text-2xl'></i>
                 </a>
 
                 {{-- TITLE --}}
@@ -18,8 +20,8 @@
             </div>
 
             {{-- BADGE --}}
-            {{-- Reset sa normal positioning, tinanggal ang mt-auto para di tumaba ang container --}}
-            <span class="ml-9 md:ml-0 inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
+            {{-- Tinanggal ang ml-9 para pantay sa kaliwa kasama ng arrow --}}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
                 <i class='bx bxs-report mr-1 text-sm'></i> Academic Report
             </span>
         </div>
