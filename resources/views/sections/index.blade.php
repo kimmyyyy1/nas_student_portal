@@ -7,24 +7,23 @@
 
     {{-- HEADER --}}
     <x-slot name="header">
-        {{-- 👇 FIX: Ginawang Column sa Mobile (flex-col), Row sa Desktop (md:flex-row) --}}
-        {{-- Added 'gap-4' para may space pag nag-stack --}}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 font-poppins-override"
+        {{-- 👇 FIX: Ginawang 'flex-row' para magkatabi sila, at 'items-center' --}}
+        <div class="flex flex-row justify-between items-center font-poppins-override"
              x-data="{ showButton: true }"
              @toggle-add-button.window="showButton = $event.detail.show">
             
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{-- TITLE --}}
+            <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight truncate">
                 {{ __('Sections & Classes') }}
             </h2>
 
-            {{-- 👇 FIX: Button Width Adjusted --}}
-            {{-- w-full (Mobile): Para madaling pindutin at nasa ilalim ng title --}}
-            {{-- md:w-auto (Desktop): Para bumalik sa dating laki sa kanan --}}
+            {{-- 👇 FIX: Button Width Adjusted (Compact sa mobile) --}}
             <button x-show="showButton"
                     x-cloak
                     onclick="document.getElementById('hidden-create-btn').click()"
-                    class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer flex justify-center items-center">
-                <i class='bx bx-plus mr-2 text-lg'></i> Add Section
+                    class="shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 md:px-4 rounded shadow-sm text-xs md:text-sm transition duration-150 ease-in-out cursor-pointer flex items-center">
+                <i class='bx bx-plus mr-1 md:mr-2 text-base md:text-lg'></i> 
+                Add Section
             </button>
         </div>
     </x-slot>
