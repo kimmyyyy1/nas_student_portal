@@ -1,32 +1,28 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- HEADER CONTAINER --}}
-        {{-- Mobile: Flex-col (Pababa) | Desktop: Flex-row (Pahalang) --}}
-        <div class="w-full flex flex-col md:flex-row md:justify-between md:items-center">
+        {{-- Added padding (py-2) para siguradong hindi dikit sa edge o natatakpan --}}
+        <div class="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-y-3 md:gap-y-0 py-2">
             
             {{-- 🟢 ROW 1: BACK BUTTON & TITLE --}}
-            {{-- mb-3: Naglagay ng space sa baba nito para sa mobile --}}
-            <div class="flex items-center gap-3 mb-3 md:mb-0">
-                
-                {{-- BACK BUTTON --}}
+            <div class="flex items-center gap-3">
+                {{-- BACK BUTTON (Mobile Optimized) --}}
+                {{-- w-10 h-10 rounded-full bg-gray-100: Bilog na may background para madaling pindutin --}}
                 <a href="{{ route('reports.index') }}" 
-                   class="flex items-center justify-center p-2 rounded-full text-gray-600 hover:text-indigo-600 hover:bg-gray-100 transition duration-200" 
+                   class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-indigo-600 transition-colors duration-200 shadow-sm" 
                    title="Back to Reports">
-                    {{-- Pinalaki ang text-2xl para siguradong kita --}}
                     <i class='bx bx-arrow-back text-2xl'></i>
                 </a>
 
                 {{-- TITLE --}}
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight">
                     {{ __('Grade Sheets Generator') }}
                 </h2>
             </div>
 
-            {{-- 🟢 ROW 2: ACADEMIC REPORT BADGE --}}
-            {{-- Mobile: Nasa baba ng Title, Left Aligned --}}
-            {{-- Desktop: Kusang pupunta sa kanan dahil sa md:justify-between --}}
-            {{-- pl-2: Konting indent sa mobile para pantay sa mata --}}
-            <div class="flex md:block pl-2 md:pl-0">
+            {{-- 🟢 ROW 2: BADGE --}}
+            {{-- pl-1: Konting align sa ilalim ng text --}}
+            <div class="flex md:block pl-1 md:pl-0">
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
                     <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
                 </span>
