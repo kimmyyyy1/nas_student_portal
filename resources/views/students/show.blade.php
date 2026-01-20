@@ -4,36 +4,38 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Student Profile') }}
             </h2>
-            {{-- 👇 UPDATED BACK BUTTON: Uses queryParams to return to correct page --}}
+            {{-- UPDATED BACK BUTTON --}}
             <a href="{{ route('students.index', $queryParams ?? []) }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
                 <i class='bx bx-arrow-back mr-1'></i> Back to Directory
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6 md:py-12"> {{-- Reduced padding on mobile --}}
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            <div class="bg-white overflow-hidden shadow-lg sm:rounded-xl border border-gray-200 relative">
+            <div class="bg-white overflow-hidden shadow-lg sm:rounded-xl border border-gray-200 relative pb-10">
                 
                 {{-- COVER --}}
-                <div class="bg-gradient-to-r from-blue-900 to-indigo-800 h-40 relative z-0">
+                <div class="bg-gradient-to-r from-blue-900 to-indigo-800 h-32 md:h-40 relative z-0">
                     <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                 </div>
                 
-                <div class="px-8 pb-8 relative z-10">
+                <div class="px-4 md:px-8 relative z-10">
                     
-                    {{-- EDIT BUTTON --}}
-                    <div class="absolute top-4 right-6 sm:top-6 sm:right-8 z-50">
-                        {{-- 👇 UPDATED EDIT BUTTON: Carries over queryParams --}}
+                    {{-- EDIT BUTTON (Responsive Positioning) --}}
+                    {{-- Mobile: Nasa baba ng cover. Desktop: Nasa kanan. --}}
+                    <div class="absolute top-36 right-4 sm:top-6 sm:right-8 z-50">
                         <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
-                           class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer relative">
+                           class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer">
                             <i class='bx bx-edit text-lg mr-2'></i> Edit Profile
                         </a>
                     </div>
 
                     {{-- PROFILE HEADER --}}
-                    <div class="relative flex flex-col sm:flex-row items-end -mt-16 mb-6">
+                    <div class="relative flex flex-col sm:flex-row items-center sm:items-end -mt-16 mb-6">
+                        
+                        {{-- Profile Picture --}}
                         <div class="relative group z-20">
                             <img src="{{ $student->id_picture ?? 'https://ui-avatars.com/api/?name=' . urlencode($student->first_name . ' ' . $student->last_name) . '&background=random&size=256' }}" 
                                  class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-xl object-cover bg-white" 
@@ -41,12 +43,13 @@
                             <div class="absolute bottom-2 right-2 w-5 h-5 rounded-full border-2 border-white {{ $student->status === 'Enrolled' ? 'bg-green-500' : 'bg-gray-400' }}" title="{{ $student->status }}"></div>
                         </div>
                         
+                        {{-- Name & Details --}}
                         <div class="mt-4 sm:mt-0 sm:ml-6 mb-2 text-center sm:text-left w-full sm:w-auto z-10 sm:pr-40">
-                            <h1 class="text-3xl font-extrabold text-gray-900 leading-tight break-words">
+                            <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight break-words px-2 sm:px-0">
                                 {{ $student->last_name }}, {{ $student->first_name }} 
-                                <span class="text-gray-500 font-normal text-xl block sm:inline">{{ $student->middle_name }}</span>
+                                <span class="text-gray-500 font-normal text-lg md:text-xl block sm:inline">{{ $student->middle_name }}</span>
                             </h1>
-                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-2 text-sm text-gray-600">
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3 text-sm text-gray-600">
                                 <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-mono font-bold border border-blue-100 flex items-center shadow-sm">
                                     <i class='bx bx-id-card mr-1'></i> {{ $student->nas_student_id }}
                                 </span>
@@ -58,7 +61,7 @@
                     </div>
 
                     {{-- DETAILS GRID --}}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 border-t border-gray-100 pt-8 relative z-0">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 border-t border-gray-100 pt-8 relative z-0">
                         
                         {{-- LEFT: ACADEMIC & SPORTS --}}
                         <div class="space-y-6">
@@ -184,7 +187,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                                 <div>
                                     <p class="text-xs uppercase tracking-wide text-gray-500 font-bold mb-1">Student Email</p>
-                                    <a href="mailto:{{ $student->email_address }}" class="font-medium text-blue-600 hover:underline flex items-center">
+                                    <a href="mailto:{{ $student->email_address }}" class="font-medium text-blue-600 hover:underline flex items-center break-all">
                                         {{ $student->email_address }}
                                     </a>
                                 </div>
@@ -194,14 +197,14 @@
                                 </div>
                                 
                                 <div class="sm:col-span-2 pt-2">
-                                    <div class="bg-orange-50 border border-orange-100 rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                                    <div class="bg-orange-50 border border-orange-100 rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                         <div>
                                             <p class="text-xs uppercase tracking-wide text-orange-600 font-bold mb-1">Guardian / Emergency Contact</p>
                                             <p class="font-bold text-gray-900 text-lg">{{ $student->guardian_name }}</p>
                                             <p class="text-sm text-gray-600">{{ $student->guardian_relationship }}</p>
                                         </div>
-                                        <div class="mt-3 sm:mt-0">
-                                            <a href="tel:{{ $student->guardian_contact }}" class="inline-flex items-center px-4 py-2 bg-white border border-orange-200 rounded-md font-semibold text-xs text-orange-700 uppercase tracking-widest shadow-sm hover:bg-orange-50 transition">
+                                        <div class="w-full sm:w-auto">
+                                            <a href="tel:{{ $student->guardian_contact }}" class="inline-flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-white border border-orange-200 rounded-md font-semibold text-xs text-orange-700 uppercase tracking-widest shadow-sm hover:bg-orange-50 transition">
                                                 <i class='bx bxs-phone mr-2 text-lg'></i> {{ $student->guardian_contact }}
                                             </a>
                                         </div>
