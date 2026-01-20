@@ -1,17 +1,19 @@
 <x-app-layout>
     <x-slot name="header">
-        {{-- 👇 FIX 1: Responsive Header Layout (Column on Mobile, Row on Desktop) --}}
+        {{-- 👇 FIX 1: RESPONSIVE HEADER (Column sa Mobile, Row sa Desktop) --}}
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             
-            {{-- LIVE BADGE & TITLE --}}
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
-                {{ __('Student Directory') }}
-                <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
-                    <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
-                </span>
-            </h2>
+            {{-- TITLE SECTION --}}
+            <div class="flex items-center justify-between w-full md:w-auto">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                    {{ __('Student Directory') }}
+                    <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
+                        <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
+                    </span>
+                </h2>
+            </div>
             
-            {{-- BUTTONS (Stacked on mobile, Row on Desktop) --}}
+            {{-- BUTTONS SECTION (Stacked & Full Width sa Mobile) --}}
             <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                 <a href="{{ route('students.bulk-upload') }}" wire:navigate class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center justify-center shadow transition w-full sm:w-auto">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
@@ -27,7 +29,7 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4"> {{-- Added px-4 for mobile padding --}}
             
             {{-- ALERTS --}}
             @if(session('success'))
@@ -60,48 +62,50 @@
                             </div>
                         </div>
 
-                        {{-- 2. GRADE --}}
-                        <div class="w-full lg:w-40">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Grade</label>
-                            <select name="grade_level" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
-                                <option value="">All Grades</option>
-                                @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
-                                    <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ $gl }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:w-auto">
+                            {{-- 2. GRADE --}}
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Grade</label>
+                                <select name="grade_level" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
+                                    <option value="">All Grades</option>
+                                    @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
+                                        <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ $gl }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                        {{-- 3. SECTION --}}
-                        <div class="w-full lg:w-48">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Section</label>
-                            <select name="section_id" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
-                                <option value="">All Sections</option>
-                                @foreach($sections->groupBy('grade_level') as $grade => $gradeSections)
-                                    <optgroup label="{{ $grade }}">
-                                        @foreach($gradeSections as $sec)
-                                            <option value="{{ $sec->id }}" {{ request('section_id') == $sec->id ? 'selected' : '' }}>
-                                                {{ $sec->section_name }}
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-                                @endforeach
-                            </select>
-                        </div>
+                            {{-- 3. SECTION --}}
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Section</label>
+                                <select name="section_id" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
+                                    <option value="">All Sections</option>
+                                    @foreach($sections->groupBy('grade_level') as $grade => $gradeSections)
+                                        <optgroup label="{{ $grade }}">
+                                            @foreach($gradeSections as $sec)
+                                                <option value="{{ $sec->id }}" {{ request('section_id') == $sec->id ? 'selected' : '' }}>
+                                                    {{ $sec->section_name }}
+                                                </option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                        {{-- 4. STATUS --}}
-                        <div class="w-full lg:w-36">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status</label>
-                            <select name="status" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
-                                <option value="">All Statuses</option>
-                                @foreach(['New', 'Continuing', 'Enrolled', 'Transfer out', 'Graduate'] as $stat)
-                                    <option value="{{ $stat }}" {{ request('status') == $stat ? 'selected' : '' }}>{{ $stat }}</option>
-                                @endforeach
-                            </select>
+                            {{-- 4. STATUS --}}
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status</label>
+                                <select name="status" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
+                                    <option value="">All Statuses</option>
+                                    @foreach(['New', 'Continuing', 'Enrolled', 'Transfer out', 'Graduate'] as $stat)
+                                        <option value="{{ $stat }}" {{ request('status') == $stat ? 'selected' : '' }}>{{ $stat }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
 
                         {{-- 5. BUTTONS --}}
-                        <div class="flex gap-2">
-                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1.5 rounded text-sm font-bold shadow transition h-[34px] flex items-center w-full justify-center lg:w-auto">
+                        <div class="flex gap-2 w-full lg:w-auto">
+                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1.5 rounded text-sm font-bold shadow transition h-[34px] flex items-center justify-center flex-1 lg:flex-none">
                                 <i class='bx bx-filter-alt mr-1'></i> Filter
                             </button>
                             
@@ -118,17 +122,17 @@
 
             <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200 overflow-hidden">
                 
-                {{-- 👇 FIX 2: Added 'overflow-x-auto' to enable horizontal scrolling on mobile --}}
+                {{-- 👇 FIX 2: WRAPPER PARA SA HORIZONTAL SCROLL --}}
                 <div class="w-full overflow-x-auto"> 
-                    <table class="min-w-full divide-y divide-gray-200"> {{-- Removed table-fixed, added min-w-full --}}
+                    <table class="min-w-full divide-y divide-gray-200 whitespace-nowrap">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Student ID</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Name</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Grade & Sec</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Sport</th>
-                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Status</th>
-                                <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Action</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student ID</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Grade & Sec</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Sport</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
                             </tr>
                         </thead>
                         
@@ -137,7 +141,7 @@
                                 <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
                                     
                                     {{-- 1. STUDENT ID --}}
-                                    <td class="px-4 py-3 whitespace-nowrap">
+                                    <td class="px-4 py-3">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 mr-2 hidden sm:block">
                                                 @if($student->id_picture)
@@ -155,7 +159,7 @@
                                     </td>
 
                                     {{-- 2. NAME --}}
-                                    <td class="px-4 py-3 whitespace-nowrap">
+                                    <td class="px-4 py-3">
                                         <div class="text-sm font-bold text-gray-900 uppercase leading-tight">
                                             {{ $student->last_name }}, {{ $student->first_name }}
                                         </div>
@@ -163,7 +167,7 @@
                                     </td>
 
                                     {{-- 3. GRADE & SECTION --}}
-                                    <td class="px-4 py-3 whitespace-nowrap">
+                                    <td class="px-4 py-3">
                                         @if($student->status === 'Graduate')
                                             <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
                                                 <i class='bx bxs-graduation mr-1'></i> Alumni
@@ -179,7 +183,7 @@
                                     </td>
 
                                     {{-- 4. SPORT --}}
-                                    <td class="px-4 py-3 whitespace-nowrap">
+                                    <td class="px-4 py-3">
                                         @if($student->team)
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-100">
                                                 {{ $student->team->sport ?? $student->team->sport_type ?? $student->team->team_name }}
@@ -190,7 +194,7 @@
                                     </td>
 
                                     {{-- 5. STATUS --}}
-                                    <td class="px-4 py-3 whitespace-nowrap text-center">
+                                    <td class="px-4 py-3 text-center">
                                         @php
                                             $statusColor = match($student->status) {
                                                 'New' => 'bg-green-100 text-green-800 border-green-200',
@@ -207,7 +211,7 @@
                                     </td>
 
                                     {{-- 6. ACTION --}}
-                                    <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                    <td class="px-4 py-3 text-right text-sm font-medium">
                                         <a href="{{ route('students.show', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 transition">
                                             View
                                         </a>
@@ -238,8 +242,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             setInterval(function() {
-                updateTable();
-            }, 5000);
+                // Tignan kung nasa first page at walang search filter bago mag-update
+                // para hindi mawala ang data habang nagse-search
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.has('search') && !urlParams.has('page')) {
+                    updateTable();
+                }
+            }, 10000); // Ginawang 10 seconds para hindi masyadong mabigat
         });
 
         function updateTable() {
