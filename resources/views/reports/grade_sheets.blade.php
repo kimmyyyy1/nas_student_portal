@@ -1,16 +1,16 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- HEADER CONTAINER --}}
-        {{-- flex-row: Lahat nasa iisang linya (hangga't kasya) --}}
-        {{-- items-center: Naka-gitna vertically --}}
-        {{-- flex-wrap: Bababa ang elements kung sobrang sikip ng screen --}}
-        <div class="flex flex-row flex-wrap items-center justify-start gap-3">
+        {{-- w-full: Importante para gumana ang justify-between --}}
+        {{-- md:flex-row: Magkahiwalay sa Desktop (Left & Right) --}}
+        {{-- items-start: Naka-align sa kaliwa ang text sa mobile --}}
+        <div class="w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-y-2 md:gap-y-0">
             
-            {{-- 🟢 GROUP: BACK BUTTON & TITLE --}}
-            <div class="flex items-center gap-2">
+            {{-- 🟢 LEFT SIDE: Back Button & Title --}}
+            <div class="flex items-center gap-3">
                 {{-- BACK BUTTON --}}
-                <a href="{{ route('reports.index') }}" class="text-gray-500 hover:text-indigo-600 transition p-1 -ml-1 rounded-full hover:bg-gray-100" title="Back to Reports">
-                    <i class='bx bx-arrow-back text-2xl'></i>
+                <a href="{{ route('reports.index') }}" class="group flex items-center justify-center p-1.5 rounded-full text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition duration-200" title="Back to Reports">
+                    <i class='bx bx-arrow-back text-2xl transform group-hover:-translate-x-1 transition-transform'></i>
                 </a>
 
                 {{-- TITLE --}}
@@ -19,9 +19,11 @@
                 </h2>
             </div>
 
-            {{-- BADGE --}}
-            <span class="inline-flex items-center px-2 py-1 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm whitespace-nowrap">
-                <i class='bx bxs-report mr-1 text-sm'></i> Academic Report
+            {{-- 🟢 RIGHT SIDE (Desktop) / BOTTOM (Mobile): Badge --}}
+            {{-- md:mt-0: Reset margin sa desktop --}}
+            {{-- ml-1: Konting indent sa mobile para pantay sa text ng title (optional visual fix) --}}
+            <span class="ml-1 md:ml-0 inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
+                <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
             </span>
         </div>
     </x-slot>
@@ -32,7 +34,7 @@
             {{-- 🟢 MOBILE FILTER TOGGLE BUTTON --}}
             <div class="md:hidden mb-6">
                 <button @click="showFilters = !showFilters" 
-                        class="w-full flex items-center justify-between bg-white p-4 rounded-lg shadow border border-gray-200 text-gray-700 font-bold transition hover:bg-gray-50">
+                        class="w-full flex items-center justify-between bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-gray-700 font-bold transition hover:bg-gray-50 active:scale-[0.99]">
                     <span class="flex items-center text-indigo-600"><i class='bx bx-filter-alt mr-2 text-xl'></i> Filter Options</span>
                     <i class='bx bx-chevron-down text-2xl transition-transform duration-200 text-gray-400' :class="{'rotate-180': showFilters}"></i>
                 </button>
@@ -48,8 +50,8 @@
                      :class="{'block': showFilters, 'hidden': !showFilters}">
                     
                     <div class="bg-white shadow-md rounded-lg p-6 sticky top-6 border border-gray-200">
-                        <h3 class="font-bold text-gray-800 mb-4 uppercase text-xs tracking-wider flex items-center border-b pb-2">
-                            <i class='bx bx-slider-alt mr-2 text-lg text-indigo-600'></i>
+                        <h3 class="font-bold text-gray-800 mb-4 uppercase text-xs tracking-wider flex items-center border-b pb-2 text-indigo-600">
+                            <i class='bx bx-slider-alt mr-2 text-lg'></i>
                             Filter Selection
                         </h3>
                         
@@ -96,7 +98,7 @@
                                 </select>
                             </div>
 
-                            <button type="button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition text-sm flex justify-center items-center group">
+                            <button type="button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition text-sm flex justify-center items-center group transform hover:-translate-y-0.5">
                                 <i class='bx bx-layer mr-2 text-lg group-hover:animate-bounce'></i>
                                 Generate Sheet
                             </button>
@@ -113,7 +115,7 @@
                             <h3 class="text-sm font-bold text-gray-700 flex items-center">
                                 <i class='bx bx-file-blank mr-2 text-gray-400 text-lg'></i> Preview Mode
                             </h3>
-                            <button class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-xs font-bold flex justify-center items-center shadow-sm transition">
+                            <button class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-xs font-bold flex justify-center items-center shadow-sm transition hover:shadow-md">
                                 <i class='bx bx-printer mr-2 text-base'></i>
                                 Print Grade Sheet
                             </button>
@@ -121,11 +123,11 @@
 
                         {{-- Empty State / Content --}}
                         <div class="flex flex-col items-center justify-center h-80 md:h-96 text-center p-8">
-                            <div class="bg-indigo-50 p-6 rounded-full mb-4 animate-pulse">
-                                <i class='bx bx-spreadsheet text-5xl text-indigo-400'></i>
+                            <div class="bg-indigo-50 p-6 rounded-full mb-4 animate-pulse ring-4 ring-indigo-50/50">
+                                <i class='bx bx-spreadsheet text-5xl text-indigo-500'></i>
                             </div>
                             <h4 class="text-lg md:text-xl font-bold text-gray-800">Select Criteria to Generate</h4>
-                            <p class="text-gray-500 text-sm max-w-xs mt-2 mx-auto">
+                            <p class="text-gray-500 text-sm max-w-xs mt-2 mx-auto leading-relaxed">
                                 Please use the <span class="md:hidden font-bold text-indigo-600">Filter Options</span><span class="hidden md:inline font-bold text-indigo-600">filters on the left</span> to load the required Grade Sheet.
                             </p>
                         </div>
