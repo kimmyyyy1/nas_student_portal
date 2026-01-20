@@ -1,30 +1,32 @@
 <x-app-layout>
     <x-slot name="header">
-        {{-- HEADER CONTAINER --}}
-        {{-- w-full: Importante para gumana ang justify-between --}}
-        {{-- md:flex-row: Magkahiwalay sa Desktop (Left & Right) --}}
-        {{-- items-start: Naka-align sa kaliwa ang text sa mobile --}}
-        <div class="w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-y-2 md:gap-y-0">
+        {{-- HEADER WRAPPER --}}
+        <div class="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-y-3 md:gap-y-0">
             
-            {{-- 🟢 LEFT SIDE: Back Button & Title --}}
+            {{-- 🟢 ROW 1: BACK BUTTON & TITLE --}}
             <div class="flex items-center gap-3">
-                {{-- BACK BUTTON --}}
-                <a href="{{ route('reports.index') }}" class="group flex items-center justify-center p-1.5 rounded-full text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition duration-200" title="Back to Reports">
-                    <i class='bx bx-arrow-back text-2xl transform group-hover:-translate-x-1 transition-transform'></i>
+                {{-- Back Button (Fixed Size & Shape) --}}
+                <a href="{{ route('reports.index') }}" 
+                   class="shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:text-indigo-600 hover:bg-gray-100 transition active:scale-95" 
+                   title="Back to Reports">
+                    <i class='bx bx-arrow-back text-2xl'></i>
                 </a>
 
-                {{-- TITLE --}}
-                <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight">
+                {{-- Title --}}
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     {{ __('Grade Sheets Generator') }}
                 </h2>
             </div>
 
-            {{-- 🟢 RIGHT SIDE (Desktop) / BOTTOM (Mobile): Badge --}}
-            {{-- md:mt-0: Reset margin sa desktop --}}
-            {{-- ml-1: Konting indent sa mobile para pantay sa text ng title (optional visual fix) --}}
-            <span class="ml-1 md:ml-0 inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
-                <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
-            </span>
+            {{-- 🟢 ROW 2: BADGE --}}
+            {{-- Mobile: Naka-align sa kaliwa (pl-11 para pantay sa text ng title) --}}
+            {{-- Desktop: Naka-align sa kanan --}}
+            <div class="flex md:justify-end pl-11 md:pl-0">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
+                    <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
+                </span>
+            </div>
+
         </div>
     </x-slot>
 
