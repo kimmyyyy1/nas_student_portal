@@ -14,10 +14,13 @@
             </h2>
 
             {{-- 🟢 DESKTOP BUTTON (Hidden sa Mobile) --}}
-            {{-- Ito ay lalabas lang kapag naka-PC/Laptop --}}
+            {{-- Pinalitan din ng SVG icon para sure --}}
             <button onclick="document.getElementById('hidden-create-btn').click()"
                     class="hidden md:flex bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer items-center">
-                <i class='bx bx-plus mr-2 text-lg'></i> 
+                {{-- SVG Plus Icon --}}
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
                 Add Section
             </button>
         </div>
@@ -27,11 +30,14 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- 🟢 MOBILE ADD BUTTON (Visible only on Mobile) --}}
-            {{-- Ito ang lilitaw sa cellphone, nasa loob ng content para hindi matakpan --}}
+            {{-- Nasa loob ng content area --}}
             <div class="md:hidden mb-6">
                 <button onclick="document.getElementById('hidden-create-btn').click()"
                         class="w-full flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md text-sm transition duration-150 ease-in-out cursor-pointer">
-                    <i class='bx bx-plus mr-2 text-xl'></i> 
+                    {{-- SVG Plus Icon (Fixed) --}}
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
                     Add New Section
                 </button>
             </div>
