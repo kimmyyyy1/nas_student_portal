@@ -23,8 +23,18 @@
                 
                 <div class="px-4 md:px-8 relative z-10">
                     
+                    {{-- EDIT BUTTON --}}
+                    {{-- Mobile: Creates a block below details. Desktop: Absolute Top Right. --}}
+                    <div class="mt-6 w-full sm:w-auto sm:absolute sm:top-6 sm:right-8 sm:mt-0 z-50 hidden sm:block">
+                        <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
+                           class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer">
+                            <i class='bx bx-edit text-lg mr-2'></i> Edit Profile
+                        </a>
+                    </div>
+
                     {{-- PROFILE HEADER --}}
-                    <div class="relative flex flex-col sm:flex-row items-center sm:items-end -mt-16 sm:-mt-20 mb-6">
+                    {{-- 👇 FIX: Changed sm:-mt-20 to sm:-mt-10 (Moves profile/text down onto white area) --}}
+                    <div class="relative flex flex-col sm:flex-row items-center sm:items-end -mt-16 sm:-mt-12 mb-6">
                         
                         {{-- Profile Picture --}}
                         <div class="relative group z-20">
@@ -39,6 +49,7 @@
                         {{-- Name & Details --}}
                         <div class="mt-4 sm:mt-0 sm:ml-6 mb-1 text-center sm:text-left w-full sm:w-auto z-10 flex-1">
                             
+                            {{-- 👇 FIX: Added text-gray-900 explicitly and ensured container is low enough --}}
                             <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight break-words px-2 sm:px-0">
                                 {{ $student->last_name }}, {{ $student->first_name }} 
                                 <span class="text-gray-500 font-normal text-lg md:text-xl block sm:inline">{{ $student->middle_name }}</span>
@@ -53,11 +64,10 @@
                                 </span>
                             </div>
 
-                            {{-- 👇 FIXED EDIT BUTTON POSITIONING --}}
-                            {{-- Mobile: Creates a block below details (mt-6). Desktop: Flies to top-right (absolute). --}}
-                            <div class="mt-6 w-full sm:w-auto sm:absolute sm:top-6 sm:right-8 sm:mt-0 z-50">
+                            {{-- Mobile Edit Button (Only visible on mobile) --}}
+                            <div class="mt-6 w-full sm:hidden">
                                 <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
-                                   class="inline-flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer">
+                                   class="inline-flex items-center justify-center w-full px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer">
                                     <i class='bx bx-edit text-lg mr-2'></i> Edit Profile
                                 </a>
                             </div>
@@ -186,6 +196,7 @@
                                 </div>
                             </div>
 
+                            {{-- CONTACT INFO --}}
                             <h3 class="text-lg font-bold text-gray-800 mt-10 mb-6 flex items-center pb-2 border-b border-gray-100">
                                 <span class="bg-blue-100 p-2 rounded-lg mr-3 text-blue-600">
                                     <i class='bx bx-phone-call'></i>
