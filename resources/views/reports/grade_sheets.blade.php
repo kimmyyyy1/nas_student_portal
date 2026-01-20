@@ -1,18 +1,20 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- HEADER CONTAINER --}}
-        {{-- Mobile: Column (Title sa taas, Badge sa baba) --}}
-        {{-- Desktop: Row (Title sa kaliwa, Badge sa kanan) --}}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+        {{-- Mobile: min-h-[100px] para humaba ang container at masakop ang white space --}}
+        {{-- Badge: mt-auto para bumaba siya sa dulo ng container --}}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center min-h-[100px] md:min-h-0">
             
             {{-- TITLE --}}
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight">
                 {{ __('Grade Sheets Generator') }}
             </h2>
 
             {{-- BADGE --}}
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
-                <i class='bx bxs-report mr-1'></i> Academic Report
+            {{-- mt-auto: Ito ang magtutulak sa kanya pababa sa mobile --}}
+            {{-- md:mt-0: Reset sa desktop --}}
+            <span class="mt-auto md:mt-0 inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
+                <i class='bx bxs-report mr-1 text-sm'></i> Academic Report
             </span>
         </div>
     </x-slot>
