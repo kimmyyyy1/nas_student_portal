@@ -5,10 +5,10 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-6 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-8 bg-white border-b border-gray-200">
+                <div class="p-6 md:p-8 bg-white border-b border-gray-200">
 
                     {{-- ERROR DISPLAY --}}
                     @if ($errors->any())
@@ -47,6 +47,7 @@
                             <p class="text-xs text-gray-400 mt-3 text-center">Allowed formats: JPG, PNG <br> Max size: 5MB</p>
                         </div>
 
+                        {{-- FORM FIELDS --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             
                             {{-- IDENTIFICATION --}}
@@ -85,10 +86,9 @@
                                     <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthplace</label><input type="text" name="birthplace" value="{{ old('birthplace', $student->birthplace) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Religion</label><input type="text" name="religion" value="{{ old('religion', $student->religion) }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                     
-                                    {{-- CHECKBOXES & OTHERS (FIXED) --}}
+                                    {{-- CHECKBOXES & OTHERS --}}
                                     <div class="md:col-span-3 mt-4 pt-4 border-t border-gray-100 border-dashed">
                                         <div class="flex flex-col md:flex-row md:items-center gap-4">
-                                            
                                             {{-- Group 1: Checkboxes --}}
                                             <div class="flex flex-wrap gap-4">
                                                 <label class="flex items-center space-x-2 cursor-pointer">
@@ -106,14 +106,12 @@
                                             </div>
 
                                             {{-- Group 2: Input Field for "Others" --}}
-                                            {{-- NOTE: Siguraduhin na may 'other_remarks' column sa database o palitan ito ng tamang column name --}}
                                             <div class="flex items-center flex-1 w-full md:w-auto">
                                                 <label for="other_remarks" class="text-xs font-bold text-gray-600 uppercase mr-2 whitespace-nowrap">Others:</label>
                                                 <input type="text" id="other_remarks" name="other_remarks" value="{{ old('other_remarks', $student->other_remarks ?? '') }}" 
                                                        class="border-0 border-b border-gray-300 focus:border-indigo-500 focus:ring-0 text-sm w-full bg-transparent" 
                                                        placeholder="Specific details (e.g. Manobo, Visual Impairment)">
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -146,7 +144,7 @@
                                         </select>
                                     </div>
 
-                                    {{-- 2. SECTION ASSIGNMENT (DEPENDENT) --}}
+                                    {{-- 2. SECTION ASSIGNMENT --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Section Assignment</label>
                                         <select id="section_id" name="section_id" class="w-full border-gray-300 rounded-md shadow-sm">
@@ -208,9 +206,12 @@
 
                         </div> 
                         
-                        <div class="mt-10 flex justify-end gap-4 border-t border-gray-100 pt-6">
-                            <a href="{{ route('students.index', $queryParams ?? []) }}" class="px-6 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">Cancel</a>
-                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center">
+                        {{-- 🟢 UPDATED ACTION BUTTONS (Mobile Friendly) --}}
+                        <div class="mt-10 flex flex-col-reverse sm:flex-row justify-end gap-3 border-t border-gray-100 pt-6">
+                            <a href="{{ route('students.index', $queryParams ?? []) }}" class="w-full sm:w-auto text-center px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">
+                                Cancel
+                            </a>
+                            <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-center">
                                 <i class='bx bx-save mr-2'></i> Update Record
                             </button>
                         </div>
