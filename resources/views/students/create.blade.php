@@ -5,10 +5,10 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-6 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-8 bg-white border-b border-gray-200">
+                <div class="p-6 md:p-8 bg-white border-b border-gray-200">
                     
                     {{-- ERROR DISPLAY --}}
                     @if ($errors->any())
@@ -119,21 +119,33 @@
                                         <input type="text" name="religion" value="{{ old('religion') }}" class="w-full border-gray-300 rounded-md shadow-sm">
                                     </div>
 
-                                    {{-- CHECKBOXES --}}
+                                    {{-- CHECKBOXES & OTHERS --}}
                                     <div class="md:col-span-3 mt-2 pt-4 border-t border-gray-100 border-dashed">
-                                        <div class="flex flex-wrap gap-y-3 gap-x-6 items-center">
-                                            <label class="flex items-center space-x-2 cursor-pointer">
-                                                <input type="checkbox" name="is_ip" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip') ? 'checked' : '' }}> 
-                                                <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
-                                            </label>
-                                            <label class="flex items-center space-x-2 cursor-pointer">
-                                                <input type="checkbox" name="is_pwd" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd') ? 'checked' : '' }}> 
-                                                <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
-                                            </label>
-                                            <label class="flex items-center space-x-2 cursor-pointer">
-                                                <input type="checkbox" name="is_4ps" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps') ? 'checked' : '' }}> 
-                                                <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
-                                            </label>
+                                        <div class="flex flex-col md:flex-row md:items-center gap-4">
+                                            
+                                            {{-- Group 1: Checkboxes --}}
+                                            <div class="flex flex-wrap gap-4">
+                                                <label class="flex items-center space-x-2 cursor-pointer">
+                                                    <input type="checkbox" name="is_ip" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip') ? 'checked' : '' }}> 
+                                                    <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
+                                                </label>
+                                                <label class="flex items-center space-x-2 cursor-pointer">
+                                                    <input type="checkbox" name="is_pwd" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd') ? 'checked' : '' }}> 
+                                                    <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
+                                                </label>
+                                                <label class="flex items-center space-x-2 cursor-pointer">
+                                                    <input type="checkbox" name="is_4ps" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps') ? 'checked' : '' }}> 
+                                                    <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
+                                                </label>
+                                            </div>
+
+                                            {{-- Group 2: Input Field for "Others" --}}
+                                            <div class="flex items-center flex-1 w-full md:w-auto">
+                                                <label for="other_remarks" class="text-xs font-bold text-gray-600 uppercase mr-2 whitespace-nowrap">Others:</label>
+                                                <input type="text" id="other_remarks" name="other_remarks" value="{{ old('other_remarks') }}" 
+                                                       class="border-0 border-b border-gray-300 focus:border-indigo-500 focus:ring-0 text-sm w-full bg-transparent" 
+                                                       placeholder="Specific details (e.g. Manobo, Visual Impairment)">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -192,7 +204,6 @@
                                     {{-- 2. SECTION ASSIGNMENT (EMPTY INITIAL STATE) --}}
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Section Assignment</label>
-                                        {{-- 👇 Note: Empty options initially. JavaScript will populate this. --}}
                                         <select id="section_id" name="section_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                                             <option value="">-- Select Grade First --</option>
                                         </select>
@@ -247,9 +258,12 @@
 
                         </div> 
                         
-                        <div class="mt-10 flex justify-end gap-4 border-t border-gray-100 pt-6">
-                            <a href="{{ route('students.index') }}" class="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition shadow-sm">Cancel</a>
-                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center">
+                        {{-- 🟢 UPDATED ACTION BUTTONS (Mobile Friendly) --}}
+                        <div class="mt-10 flex flex-col-reverse sm:flex-row justify-end gap-3 border-t border-gray-100 pt-6">
+                            <a href="{{ route('students.index') }}" class="w-full sm:w-auto text-center px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">
+                                Cancel
+                            </a>
+                            <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-center">
                                 <i class='bx bx-save mr-2'></i> Save Student Record
                             </button>
                         </div>
