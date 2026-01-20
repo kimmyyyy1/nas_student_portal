@@ -18,9 +18,8 @@
 <div x-data="{ open: false }">
 
     {{-- ================================================= --}}
-    {{-- 1. MOBILE HEADER (Glass Effect Fix)               --}}
+    {{-- 1. MOBILE HEADER (Glass Effect)                   --}}
     {{-- ================================================= --}}
-    {{-- Ginawang bg-white/80 at backdrop-blur para hindi 'solid white' --}}
     <div class="md:hidden fixed top-0 left-0 w-full h-16 bg-white/90 backdrop-blur-md border-b border-gray-200/50 z-40 flex items-center justify-between px-4 shadow-sm transition-all duration-300">
         {{-- Logo --}}
         <div class="flex items-center">
@@ -48,7 +47,7 @@
     </div>
 
     {{-- ================================================= --}}
-    {{-- 3. SIDEBAR (Full Scrollable Area)                 --}}
+    {{-- 3. SIDEBAR (Fixed & Persistent Scroll)            --}}
     {{-- ================================================= --}}
     <nav :class="{'translate-x-0': open, '-translate-x-full': !open}"
          class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-xl border-r border-white/20 z-50 shadow-2xl no-print 
@@ -62,22 +61,18 @@
              </button>
         </div>
 
-        {{-- SCROLLABLE CONTAINER (Logo + Menu) --}}
-        {{-- Ito ang mag-i-scroll para sumama ang logo pataas --}}
+        {{-- 
+            👇 SCROLLABLE CONTAINER (FIXED SCROLL LOGIC)
+            1. Tinanggal ang 'scroll-smooth' (Ito ang dahilan ng flick/talon).
+            2. Gumamit ng Alpine x-init para instant ang restore ng position.
+        --}}
         <div id="sidebar-menu" 
-             class="flex-1 overflow-y-auto no-scrollbar scroll-smooth"
-             onscroll="sessionStorage.setItem('sidebar-scroll', this.scrollTop)">
+             class="flex-1 overflow-y-auto no-scrollbar"
+             x-data
+             x-init="$el.scrollTop = sessionStorage.getItem('sidebarPosition') || 0"
+             @scroll.passive="sessionStorage.setItem('sidebarPosition', $el.scrollTop)">
 
-            {{-- Scroll Restore Script --}}
-            <script>
-                var sidebar = document.getElementById('sidebar-menu');
-                var savedScroll = sessionStorage.getItem('sidebar-scroll');
-                if (sidebar && savedScroll) {
-                    sidebar.scrollTop = savedScroll;
-                }
-            </script>
-
-            {{-- SIDEBAR HEADER (Nasa loob na ng scroll area) --}}
+            {{-- SIDEBAR HEADER --}}
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
                 <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" wire:navigate class="block w-full px-6">
                     <img src="{{ asset('images/nas/horizontal.png') }}" 
@@ -240,7 +235,7 @@
         </div>
 
         {{-- USER PROFILE & LOGOUT --}}
-        <div class="p-4 border-t border-gray-200/50 bg-gray-50/80 shrink-0 backdrop-blur-sm">
+        <div class="p-4 border-t border-gray-200/50 bg-gray-50/80 shrink-0 backdrop-blur-sm mt-auto">
             <div class="flex items-center mb-3">
                 <div class="flex-shrink-0">
                     <div class="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
