@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- HEADER CONTAINER --}}
-        {{-- Mobile: Column (Title taas, Badge baba) --}}
-        {{-- Desktop: Row (Title kaliwa, Badge kanan) --}}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+        {{-- Mobile: Column with spacing (gap-y-3) --}}
+        {{-- Desktop: Row (Title left, Badge right) --}}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-y-3 md:gap-y-0 pb-2">
             
             {{-- TITLE --}}
             <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight">
@@ -11,8 +11,8 @@
             </h2>
 
             {{-- BADGE (Compact sa Mobile) --}}
-            {{-- text-[10px] & py-0.5 para maliit at sleek sa phone --}}
-            <span class="inline-flex items-center px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
+            {{-- w-fit: Para hindi kumain ng buong width --}}
+            <span class="inline-flex w-fit items-center px-2 py-1 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
                 <i class='bx bxs-report mr-1 text-sm'></i> Academic Report
             </span>
         </div>
@@ -33,7 +33,6 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 
                 {{-- 🟢 FILTER PANEL --}}
-                {{-- Added 'md:!block' para sapilitang ipakita sa Desktop kahit false ang x-show --}}
                 <div class="md:col-span-1 md:!block" 
                      x-show="showFilters" 
                      x-cloak 
