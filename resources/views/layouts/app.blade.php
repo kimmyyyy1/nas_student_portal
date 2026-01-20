@@ -55,6 +55,7 @@
 
             {{-- PAGE HEADER --}}
             @if (isset($header))
+                {{-- Note: Added pt-20 to header container if needed, but usually handled by main --}}
                 <header class="bg-white shadow relative md:ml-64 transition-all duration-300"> 
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
@@ -63,7 +64,8 @@
             @endif
 
             {{-- PAGE CONTENT --}}
-            <main class="md:ml-64 pt-6 px-4 transition-all duration-300"> 
+            {{-- 👇 UPDATED: Added 'pt-20' for mobile spacing --}}
+            <main class="md:ml-64 pt-20 md:pt-6 px-4 transition-all duration-300"> 
                 {{ $slot }}
             </main>
         </div>
