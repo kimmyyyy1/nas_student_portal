@@ -1,12 +1,19 @@
 <x-app-layout>
     <x-slot name="header">
-        {{-- Header Layout: Stacked sa Mobile, Row sa Desktop --}}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        {{-- HEADER CONTAINER --}}
+        {{-- Mobile: Column (Title taas, Badge baba) --}}
+        {{-- Desktop: Row (Title kaliwa, Badge kanan) --}}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+            
+            {{-- TITLE --}}
+            <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight">
                 {{ __('Grade Sheets Generator') }}
             </h2>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
-                <i class='bx bxs-report mr-1'></i> Academic Report
+
+            {{-- BADGE (Compact sa Mobile) --}}
+            {{-- text-[10px] & py-0.5 para maliit at sleek sa phone --}}
+            <span class="inline-flex items-center px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
+                <i class='bx bxs-report mr-1 text-sm'></i> Academic Report
             </span>
         </div>
     </x-slot>
@@ -26,7 +33,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 
                 {{-- 🟢 FILTER PANEL --}}
-                {{-- FIX: Added 'md:!block' para sapilitang ipakita sa Desktop kahit false ang x-show --}}
+                {{-- Added 'md:!block' para sapilitang ipakita sa Desktop kahit false ang x-show --}}
                 <div class="md:col-span-1 md:!block" 
                      x-show="showFilters" 
                      x-cloak 
