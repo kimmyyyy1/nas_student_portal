@@ -23,16 +23,7 @@
                 
                 <div class="px-4 md:px-8 relative z-10">
                     
-                    {{-- EDIT BUTTON (Desktop: Top Right inside Banner | Mobile: Below Banner) --}}
-                    <div class="absolute top-36 right-4 sm:top-6 sm:right-8 z-50">
-                        <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
-                           class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer">
-                            <i class='bx bx-edit text-lg mr-2'></i> Edit Profile
-                        </a>
-                    </div>
-
                     {{-- PROFILE HEADER --}}
-                    {{-- 👇 FIX: Changed -mt-16 to -mt-20 to pull image up, but ensure text stays low --}}
                     <div class="relative flex flex-col sm:flex-row items-center sm:items-end -mt-16 sm:-mt-20 mb-6">
                         
                         {{-- Profile Picture --}}
@@ -46,8 +37,8 @@
                         </div>
                         
                         {{-- Name & Details --}}
-                        {{-- 👇 FIX: Added 'sm:pb-1' and ensured padding puts text on white background --}}
-                        <div class="mt-4 sm:mt-0 sm:ml-6 mb-1 text-center sm:text-left w-full sm:w-auto z-10">
+                        <div class="mt-4 sm:mt-0 sm:ml-6 mb-1 text-center sm:text-left w-full sm:w-auto z-10 flex-1">
+                            
                             <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight break-words px-2 sm:px-0">
                                 {{ $student->last_name }}, {{ $student->first_name }} 
                                 <span class="text-gray-500 font-normal text-lg md:text-xl block sm:inline">{{ $student->middle_name }}</span>
@@ -61,6 +52,16 @@
                                     <i class='bx bx-barcode mr-1'></i> LRN: {{ $student->lrn }}
                                 </span>
                             </div>
+
+                            {{-- 👇 FIXED EDIT BUTTON POSITIONING --}}
+                            {{-- Mobile: Creates a block below details (mt-6). Desktop: Flies to top-right (absolute). --}}
+                            <div class="mt-6 w-full sm:w-auto sm:absolute sm:top-6 sm:right-8 sm:mt-0 z-50">
+                                <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
+                                   class="inline-flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer">
+                                    <i class='bx bx-edit text-lg mr-2'></i> Edit Profile
+                                </a>
+                            </div>
+
                         </div>
                     </div>
 
@@ -185,7 +186,6 @@
                                 </div>
                             </div>
 
-                            {{-- CONTACT INFO --}}
                             <h3 class="text-lg font-bold text-gray-800 mt-10 mb-6 flex items-center pb-2 border-b border-gray-100">
                                 <span class="bg-blue-100 p-2 rounded-lg mr-3 text-blue-600">
                                     <i class='bx bx-phone-call'></i>
