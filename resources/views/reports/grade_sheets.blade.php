@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- HEADER CONTAINER --}}
-        {{-- flex-col: Stacked pababa sa mobile --}}
-        {{-- items-start: Lahat naka-align sa KALIWA (Left) --}}
-        {{-- justify-center: Naka-gitna vertically sa loob ng white bar --}}
-        <div class="flex flex-col md:flex-row justify-center md:justify-between items-start md:items-center gap-y-2 md:gap-y-0 h-full">
+        {{-- flex-row: Lahat nasa iisang linya (hangga't kasya) --}}
+        {{-- items-center: Naka-gitna vertically --}}
+        {{-- flex-wrap: Bababa ang elements kung sobrang sikip ng screen --}}
+        <div class="flex flex-row flex-wrap items-center justify-start gap-3">
             
-            {{-- TITLE GROUP (Back Btn + Text) --}}
+            {{-- 🟢 GROUP: BACK BUTTON & TITLE --}}
             <div class="flex items-center gap-2">
                 {{-- BACK BUTTON --}}
                 <a href="{{ route('reports.index') }}" class="text-gray-500 hover:text-indigo-600 transition p-1 -ml-1 rounded-full hover:bg-gray-100" title="Back to Reports">
@@ -20,8 +20,7 @@
             </div>
 
             {{-- BADGE --}}
-            {{-- Tinanggal ang ml-9 para pantay sa kaliwa kasama ng arrow --}}
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
+            <span class="inline-flex items-center px-2 py-1 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm whitespace-nowrap">
                 <i class='bx bxs-report mr-1 text-sm'></i> Academic Report
             </span>
         </div>
