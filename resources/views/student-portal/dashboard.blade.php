@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-student-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Student Portal Dashboard') }}
@@ -38,6 +38,7 @@
                         <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
                             {{ $student->grade_level }} - {{ $student->section->section_name ?? 'Unassigned' }}
                         </span>
+                        <br class="hidden md:inline">
                         <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">
                             {{ $student->team->team_name ?? $student->sport ?? 'No Sport' }}
                         </span>
@@ -152,7 +153,6 @@
                 
                 {{-- ========================== --}}
                 {{-- 4. ACADEMIC RECORDS (GRADES) --}}
-                {{-- 👇 REPLACED TABLE STRUCTURE --}}
                 {{-- ========================== --}}
                 <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-indigo-50">
@@ -176,17 +176,17 @@
                                         @foreach($student->grades as $grade)
                                             <tr class="hover:bg-gray-50 transition">
                                                 {{-- Subject Name --}}
-                                                <td class="p-3 pl-4 font-medium text-gray-800">
+                                                <td class="p-3 pl-4 font-medium text-gray-800 whitespace-nowrap">
                                                     {{ $grade->schedule->subject->subject_name ?? 'Subject' }}
                                                 </td>
 
-                                                {{-- Quarter Grades (Display '-' if null) --}}
+                                                {{-- Quarter Grades --}}
                                                 <td class="p-3 text-center text-gray-600">{{ $grade->first_quarter ?? '-' }}</td>
                                                 <td class="p-3 text-center text-gray-600">{{ $grade->second_quarter ?? '-' }}</td>
                                                 <td class="p-3 text-center text-gray-600">{{ $grade->third_quarter ?? '-' }}</td>
                                                 <td class="p-3 text-center text-gray-600">{{ $grade->fourth_quarter ?? '-' }}</td>
 
-                                                {{-- Final Grade (Dynamic Color) --}}
+                                                {{-- Final Grade --}}
                                                 <td class="p-3 text-center font-bold bg-indigo-50/50 
                                                     {{ ($grade->final_grade && $grade->final_grade < 75) ? 'text-red-600' : 'text-green-600' }}">
                                                     {{ $grade->final_grade ?? '-' }}
@@ -225,7 +225,7 @@
                     </div>
 
                     {{-- ========================== --}}
-                    {{-- 6. ATTENDANCE LOG (UPDATED)--}}
+                    {{-- 6. ATTENDANCE LOG          --}}
                     {{-- ========================== --}}
                     <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
                         <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-green-50">
@@ -292,4 +292,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-student-layout>

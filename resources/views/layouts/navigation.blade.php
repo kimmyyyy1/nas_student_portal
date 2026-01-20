@@ -36,7 +36,7 @@
          class="flex-1 overflow-y-auto py-4 px-3 space-y-1"
          onscroll="sessionStorage.setItem('sidebar-scroll', this.scrollTop)">
 
-        {{-- 👇 INSTANT SCROLL RESTORE SCRIPT (Ito ang solusyon sa flicker/talon) --}}
+        {{-- 👇 INSTANT SCROLL RESTORE SCRIPT (Keep this!) --}}
         <script>
             var sidebar = document.getElementById('sidebar-menu');
             var savedScroll = sessionStorage.getItem('sidebar-scroll');

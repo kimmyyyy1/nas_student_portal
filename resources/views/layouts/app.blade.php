@@ -18,10 +18,7 @@
         {{-- Icons --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-        {{-- ❌ TINANGGAL NA NATIN ANG MANUAL VERCEL SCRIPT DITO --}}
-        {{-- Dahil nasa app.js na ang injection --}}
-
-        {{-- Scripts (Vite) --}}
+        {{-- 👇 ITO LANG ANG KAILANGAN. Nasa loob nito ang Analytics at Speed Insights --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
         {{-- Livewire Styles --}}
@@ -39,12 +36,6 @@
             .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 5px; }
             .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
         </style>
-
-        <!-- Vercel Web Analytics -->
-        <script>
-            window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-        </script>
-        <script defer src="/_vercel/insights/script.js"></script>
     </head>
     
     <body class="font-sans antialiased text-gray-900">
@@ -52,6 +43,7 @@
         {{-- BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
+            {{-- Overlay --}}
             <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-900/60 to-black/70 backdrop-blur-[2px]"></div>
         </div>
 
@@ -76,11 +68,6 @@
             </main>
         </div>
 
-        <!-- Vercel Speed Insights -->
-        <script>
-            window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-        </script>
-        <script defer src="/_vercel/speed-insights/script.js"></script>
         {{-- Livewire Scripts --}}
         @livewireScripts
     </body>

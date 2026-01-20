@@ -10,12 +10,27 @@
         {{-- 1. FAVICON --}}
         <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-        {{-- FONTS --}}
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        {{-- 2. GOOGLE FONTS: POPPINS (Updated for Consistency) --}}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-        {{-- SCRIPTS (VITE) --}}
+        {{-- 3. SCRIPTS & STYLES --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireStyles
+
+        {{-- 4. CUSTOM STYLES (Scrollbar & Font Force) --}}
+        <style>
+            * {
+                font-family: 'Poppins', sans-serif !important;
+            }
+            
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar { width: 6px; }
+            ::-webkit-scrollbar-track { background: #f1f1f1; }
+            ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+            ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        </style>
     </head>
     <body class="font-sans antialiased bg-gray-50 text-gray-900">
         <div class="min-h-screen flex flex-col">
@@ -38,7 +53,7 @@
                         {{-- DESKTOP DROPDOWN (RIGHT SIDE) --}}
                         <div class="hidden sm:flex sm:items-center sm:ml-6">
                             <div class="relative">
-                                {{-- Trigger Button (May ID na para sa JS) --}}
+                                {{-- Trigger Button --}}
                                 <button id="user-menu-button" type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-indigo-600 hover:bg-gray-50 focus:outline-none transition ease-in-out duration-150">
                                     <div class="font-bold">{{ Auth::user()->name }}</div>
                                     <div class="ml-1">
@@ -48,9 +63,8 @@
                                     </div>
                                 </button>
 
-                                {{-- Dropdown Content (Hidden by default) --}}
+                                {{-- Dropdown Content --}}
                                 <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50 origin-top-right">
-                                    
                                     <div class="px-4 py-2 border-b border-gray-100">
                                         <p class="text-xs text-gray-500">Signed in as</p>
                                         <p class="text-sm font-bold text-gray-900 truncate">{{ Auth::user()->email }}</p>
@@ -116,7 +130,10 @@
             </footer>
         </div>
 
-        {{-- 👇 SUREFIRE DROPDOWN SCRIPT (Vanilla JS) --}}
+        {{-- Livewire Scripts --}}
+        @livewireScripts
+
+        {{-- VANILLA JS DROPDOWN LOGIC --}}
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 
@@ -127,7 +144,7 @@
                 if(userButton && userDropdown) {
                     // Toggle Click
                     userButton.addEventListener('click', function(e) {
-                        e.stopPropagation(); // Pigilan ang pag-close agad
+                        e.stopPropagation();
                         userDropdown.classList.toggle('hidden');
                     });
 

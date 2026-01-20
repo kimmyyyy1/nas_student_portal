@@ -7,30 +7,50 @@
 
         <title>NAS Student Portal</title>
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        {{-- 1. FAVICON --}}
+        <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
+        {{-- 2. GOOGLE FONTS: POPPINS (Updated for Consistency) --}}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+        {{-- 3. SCRIPTS & STYLES --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased bg-gray-100">
-        <div class="min-h-screen">
+        @livewireStyles
+
+        {{-- 4. CUSTOM STYLES (Scrollbar & Font Force) --}}
+        <style>
+            * {
+                font-family: 'Poppins', sans-serif !important;
+            }
             
-            <nav x-data="{ open: false }" class="bg-white border-b border-gray-200 shadow-sm">
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar { width: 6px; }
+            ::-webkit-scrollbar-track { background: #f1f1f1; }
+            ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+            ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        </style>
+    </head>
+    <body class="font-sans antialiased bg-gray-100 text-gray-900">
+        <div class="min-h-screen flex flex-col">
+            
+            <nav x-data="{ open: false }" class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex">
                             <div class="shrink-0 flex items-center">
-                                <a href="{{ route('student.dashboard') }}">
+                                <a href="{{ route('student.dashboard') }}" class="flex items-center gap-2">
                                     <img src="{{ asset('images/nas/favicon1.png') }}" class="block h-10 w-auto" alt="NAS Logo" />
+                                    <span class="font-bold text-gray-700 text-lg hidden md:block tracking-tight">Student Portal</span>
                                 </a>
-                                <span class="ml-3 font-bold text-indigo-900 hidden md:block">Student Portal</span>
                             </div>
                         </div>
 
                         <div class="hidden sm:flex sm:items-center sm:ml-6">
                             <div class="relative" x-data="{ dropdownOpen: false }">
-                                <button @click="dropdownOpen = ! dropdownOpen" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                    <div>{{ Auth::user()->name }}</div>
+                                <button @click="dropdownOpen = ! dropdownOpen" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-indigo-600 hover:bg-gray-50 focus:outline-none transition ease-in-out duration-150">
+                                    <div class="font-bold">{{ Auth::user()->name }}</div>
 
                                     <div class="ml-1">
                                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -39,12 +59,16 @@
                                     </div>
                                 </button>
 
-                                <div x-show="dropdownOpen" @click.outside="dropdownOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50" style="display: none;">
-                                    {{-- INALIS NA ANG PROFILE LINK DITO --}}
+                                <div x-show="dropdownOpen" @click.outside="dropdownOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50 origin-top-right" style="display: none;">
+                                    
+                                    <div class="px-4 py-2 border-b border-gray-100">
+                                        <p class="text-xs text-gray-500">Signed in as</p>
+                                        <p class="text-sm font-bold text-gray-900 truncate">{{ Auth::user()->email }}</p>
+                                    </div>
                                     
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
-                                        <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer">
+                                        <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-800 transition w-full text-left font-medium cursor-pointer">
                                             Log Out
                                         </a>
                                     </form>
@@ -63,24 +87,27 @@
                     </div>
                 </div>
                 
-                <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-200">
+                <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-200 bg-gray-50">
                     <div class="pt-2 pb-3 space-y-1">
                         <a href="{{ route('student.dashboard') }}" class="block w-full ps-3 pe-4 py-2 border-l-4 border-indigo-400 text-start text-base font-medium text-indigo-700 bg-indigo-50 focus:outline-none focus:text-indigo-800 focus:bg-indigo-100 transition duration-150 ease-in-out">
                             Dashboard
                         </a>
                     </div>
                     
-                    <div class="pt-4 pb-1 border-t border-gray-200">
-                        <div class="px-4">
-                            <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                            <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                    <div class="pt-4 pb-4 border-t border-gray-200">
+                        <div class="px-4 flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg">
+                                {{ substr(Auth::user()->name, 0, 1) }}
+                            </div>
+                            <div class="ml-3">
+                                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                            </div>
                         </div>
                         <div class="mt-3 space-y-1">
-                            {{-- INALIS NA DIN ANG PROFILE LINK DITO SA MOBILE --}}
-                            
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="block w-full ps-3 pe-4 py-2 border-l-4 border-transparent text-start text-base font-medium text-red-600 hover:text-red-800 hover:bg-gray-50 hover:border-gray-300 focus:outline-none transition duration-150 ease-in-out">
+                                <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="block w-full ps-3 pe-4 py-2 border-l-4 border-transparent text-start text-base font-medium text-red-600 hover:text-red-800 hover:bg-red-50 hover:border-red-300 focus:outline-none transition duration-150 ease-in-out">
                                     Log Out
                                 </a>
                             </form>
@@ -89,15 +116,19 @@
                 </div>
             </nav>
 
-            <main>
+            <main class="flex-grow">
                 {{ $slot }}
             </main>
             
-            <footer class="bg-white border-t mt-12 py-6">
+            <footer class="bg-white border-t mt-auto py-6">
                 <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
-                    &copy; {{ date('Y') }} National Academy of Sports.
+                    <p class="font-semibold text-gray-600 mb-1">National Academy of Sports</p>
+                    <p>&copy; {{ date('Y') }} All rights reserved.</p>
                 </div>
             </footer>
         </div>
+
+        {{-- Livewire Scripts --}}
+        @livewireScripts
     </body>
 </html>
