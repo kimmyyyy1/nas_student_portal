@@ -1,24 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- HEADER CONTAINER --}}
-        {{-- flex items-center justify-between: Dulo-sa-dulo ang layout --}}
-        <div class="w-full flex items-center justify-between py-2">
+        {{-- Added padding (py-2) para siguradong hindi dikit sa edge o natatakpan --}}
+        <div class="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-y-3 md:gap-y-0 py-2">
             
-            {{-- 🟢 ELEMENT 1: ACADEMIC REPORT BADGE --}}
-            {{-- Mobile: order-1 (Nasa Kaliwa) --}}
-            {{-- Desktop: md:order-2 (Lilipat sa Kanan) --}}
-            <div class="order-1 md:order-2">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
-                    <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
-                </span>
-            </div>
-
-            {{-- 🟢 ELEMENT 2: BACK BUTTON & TITLE GROUP --}}
-            {{-- Mobile: order-2 (Nasa Kanan) --}}
-            {{-- Desktop: md:order-1 (Lilipat sa Kaliwa) --}}
-            <div class="flex items-center gap-3 order-2 md:order-1">
-                
-                {{-- BACK BUTTON --}}
+            {{-- 🟢 ROW 1: BACK BUTTON & TITLE --}}
+            <div class="flex items-center gap-3">
+                {{-- BACK BUTTON (Mobile Optimized) --}}
+                {{-- w-10 h-10 rounded-full bg-gray-100: Bilog na may background para madaling pindutin --}}
                 <a href="{{ route('reports.index') }}" 
                    class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-indigo-600 transition-colors duration-200 shadow-sm" 
                    title="Back to Reports">
@@ -26,10 +15,17 @@
                 </a>
 
                 {{-- TITLE --}}
-                {{-- Hidden sa Mobile para hindi masikip, Visible sa Desktop --}}
-                <h2 class="hidden md:block font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight">
                     {{ __('Grade Sheets Generator') }}
                 </h2>
+            </div>
+
+            {{-- 🟢 ROW 2: BADGE --}}
+            {{-- pl-1: Konting align sa ilalim ng text --}}
+            <div class="flex md:block pl-1 md:pl-0">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
+                    <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
+                </span>
             </div>
 
         </div>
