@@ -1,14 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        {{-- 👇 FIX: Ginawang flex-col (mobile) -> flex-row (desktop) para maayos ang stack --}}
+        {{-- Header Layout: Stacked sa Mobile, Row sa Desktop --}}
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            
-            {{-- TITLE --}}
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Grade Sheets Generator') }}
             </h2>
-
-            {{-- BADGE --}}
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm">
                 <i class='bx bxs-report mr-1'></i> Academic Report
             </span>
@@ -29,12 +25,13 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 
-                {{-- 🟢 FILTER PANEL (Collapsible on Mobile) --}}
-                <div class="md:col-span-1" 
+                {{-- 🟢 FILTER PANEL --}}
+                {{-- FIX: Added 'md:!block' para sapilitang ipakita sa Desktop kahit false ang x-show --}}
+                <div class="md:col-span-1 md:!block" 
                      x-show="showFilters" 
                      x-cloak 
                      x-transition.opacity.duration.300ms
-                     :class="{'block': showFilters, 'hidden': !showFilters, 'md:block': true}">
+                     :class="{'block': showFilters, 'hidden': !showFilters}">
                     
                     <div class="bg-white shadow-md rounded-lg p-6 sticky top-6 border border-gray-200">
                         <h3 class="font-bold text-gray-800 mb-4 uppercase text-xs tracking-wider flex items-center border-b pb-2">
@@ -115,7 +112,7 @@
                             </div>
                             <h4 class="text-lg md:text-xl font-bold text-gray-800">Select Criteria to Generate</h4>
                             <p class="text-gray-500 text-sm max-w-xs mt-2 mx-auto">
-                                Please use the <span class="md:hidden font-bold text-indigo-600">Filter Options</span> button above to load the required Grade Sheet.
+                                Please use the <span class="md:hidden font-bold text-indigo-600">Filter Options</span><span class="hidden md:inline font-bold text-indigo-600">filters on the left</span> to load the required Grade Sheet.
                             </p>
                         </div>
                     </div>
