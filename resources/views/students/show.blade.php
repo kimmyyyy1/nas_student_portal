@@ -4,8 +4,8 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Student Profile') }}
             </h2>
-            {{-- DESKTOP BACK BUTTON --}}
-            <a href="{{ route('students.index', $queryParams ?? []) }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
+            {{-- DESKTOP BACK BUTTON (Hidden on Mobile) --}}
+            <a href="{{ route('students.index', $queryParams ?? []) }}" wire:navigate class="hidden md:flex text-sm text-gray-500 hover:text-gray-700 items-center">
                 <i class='bx bx-arrow-back mr-1'></i> Back to Directory
             </a>
         </div>
@@ -15,14 +15,11 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- 🟢 MOBILE BACK BUTTON (Visible only on mobile) --}}
-            {{-- Ito ang solusyon para makabalik ka kapag naka-mobile --}}
+            {{-- Ginawa itong "White Pill" para litaw at nababasa --}}
             <div class="block md:hidden mb-4">
                 <a href="{{ route('students.index', $queryParams ?? []) }}" wire:navigate 
-                   class="flex items-center text-sm font-bold text-gray-600 hover:text-indigo-600 transition">
-                    <div class="bg-white rounded-full p-1 shadow-sm mr-2 flex items-center justify-center border border-gray-200">
-                        <i class='bx bx-chevron-left text-2xl'></i> 
-                    </div>
-                    Back to Directory
+                   class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition">
+                    <i class='bx bx-arrow-back mr-2'></i> Back
                 </a>
             </div>
 
@@ -35,17 +32,15 @@
                 
                 <div class="px-4 md:px-8 relative z-10">
                     
-                    {{-- EDIT BUTTON (Unified Logic) --}}
-                    {{-- Mobile: Block sa baba. Desktop (md): Absolute sa Right Top. --}}
-                    <div class="mt-6 w-full md:w-auto md:absolute md:top-6 md:right-8 md:mt-0 z-50">
+                    {{-- 🟢 DESKTOP EDIT BUTTON (Top Right - Hidden on Mobile) --}}
+                    <div class="hidden md:block absolute top-6 right-8 z-50">
                         <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
-                           class="inline-flex items-center justify-center w-full md:w-auto px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer">
+                           class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer">
                             <i class='bx bx-edit text-lg mr-2'></i> Edit Profile
                         </a>
                     </div>
 
                     {{-- PROFILE HEADER --}}
-                    {{-- Adjusted margin for overlap effect --}}
                     <div class="relative flex flex-col md:flex-row items-center md:items-end -mt-16 md:-mt-20 mb-8">
                         
                         {{-- Profile Picture --}}
@@ -59,9 +54,7 @@
                         </div>
                         
                         {{-- Name & Details --}}
-                        {{-- md:mt-12 ensures name sits on white background on Desktop --}}
-                        <div class="mt-4 md:mt-12 md:ml-6 mb-1 text-center md:text-left w-full md:w-auto z-10 flex-1 md:pb-2">
-                            
+                        <div class="mt-4 md:mt-0 md:ml-6 text-center md:text-left w-full md:w-auto z-10 flex-1 md:pb-2">
                             <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight break-words px-2 md:px-0">
                                 {{ $student->last_name }}, {{ $student->first_name }} 
                                 <span class="text-gray-500 font-normal text-lg md:text-xl block md:inline">{{ $student->middle_name }}</span>
@@ -75,8 +68,15 @@
                                     <i class='bx bx-barcode mr-1'></i> LRN: {{ $student->lrn }}
                                 </span>
                             </div>
-
                         </div>
+                    </div>
+
+                    {{-- 🟢 MOBILE EDIT BUTTON (Full Width Below Name - Hidden on Desktop) --}}
+                    <div class="block md:hidden w-full mb-8">
+                        <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
+                           class="flex items-center justify-center w-full px-4 py-3 bg-indigo-600 border border-transparent rounded-lg font-bold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none shadow-md cursor-pointer transition">
+                            <i class='bx bx-edit text-xl mr-2'></i> Edit Profile
+                        </a>
                     </div>
 
                     {{-- DETAILS GRID --}}
