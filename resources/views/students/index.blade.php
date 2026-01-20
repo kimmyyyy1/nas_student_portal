@@ -1,9 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        {{-- 👇 FIX 1: RESPONSIVE HEADER (Column sa Mobile, Row sa Desktop) --}}
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             
-            {{-- TITLE SECTION --}}
+            {{-- TITLE --}}
             <div class="flex items-center justify-between w-full md:w-auto">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
                     {{ __('Student Directory') }}
@@ -13,7 +12,7 @@
                 </h2>
             </div>
             
-            {{-- BUTTONS SECTION (Stacked & Full Width sa Mobile) --}}
+            {{-- HEADER BUTTONS --}}
             <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                 <a href="{{ route('students.bulk-upload') }}" wire:navigate class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center justify-center shadow transition w-full sm:w-auto">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
@@ -29,7 +28,7 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4"> {{-- Added px-4 for mobile padding --}}
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- ALERTS --}}
             @if(session('success'))
@@ -44,10 +43,11 @@
                 </div>
             @endif
 
-            {{-- FILTER BAR --}}
+            {{-- FILTER BAR (FIXED DESKTOP VIEW) --}}
             <div class="mb-4 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
                 <form method="GET" action="{{ route('students.index') }}">
-                    <div class="flex flex-col lg:flex-row lg:items-end gap-2">
+                    {{-- 👇 Dito inayos: Isang container na lang para magkatabi sa Desktop --}}
+                    <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
                         
                         {{-- 1. SEARCH --}}
                         <div class="w-full lg:flex-1">
@@ -62,45 +62,43 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:w-auto">
-                            {{-- 2. GRADE --}}
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Grade</label>
-                                <select name="grade_level" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
-                                    <option value="">All Grades</option>
-                                    @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
-                                        <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ $gl }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        {{-- 2. GRADE --}}
+                        <div class="w-full lg:w-40">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Grade</label>
+                            <select name="grade_level" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
+                                <option value="">All Grades</option>
+                                @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $gl)
+                                    <option value="{{ $gl }}" {{ request('grade_level') == $gl ? 'selected' : '' }}>{{ $gl }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                            {{-- 3. SECTION --}}
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Section</label>
-                                <select name="section_id" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
-                                    <option value="">All Sections</option>
-                                    @foreach($sections->groupBy('grade_level') as $grade => $gradeSections)
-                                        <optgroup label="{{ $grade }}">
-                                            @foreach($gradeSections as $sec)
-                                                <option value="{{ $sec->id }}" {{ request('section_id') == $sec->id ? 'selected' : '' }}>
-                                                    {{ $sec->section_name }}
-                                                </option>
-                                            @endforeach
-                                        </optgroup>
-                                    @endforeach
-                                </select>
-                            </div>
+                        {{-- 3. SECTION --}}
+                        <div class="w-full lg:w-48">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Section</label>
+                            <select name="section_id" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
+                                <option value="">All Sections</option>
+                                @foreach($sections->groupBy('grade_level') as $grade => $gradeSections)
+                                    <optgroup label="{{ $grade }}">
+                                        @foreach($gradeSections as $sec)
+                                            <option value="{{ $sec->id }}" {{ request('section_id') == $sec->id ? 'selected' : '' }}>
+                                                {{ $sec->section_name }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+                            </select>
+                        </div>
 
-                            {{-- 4. STATUS --}}
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status</label>
-                                <select name="status" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
-                                    <option value="">All Statuses</option>
-                                    @foreach(['New', 'Continuing', 'Enrolled', 'Transfer out', 'Graduate'] as $stat)
-                                        <option value="{{ $stat }}" {{ request('status') == $stat ? 'selected' : '' }}>{{ $stat }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        {{-- 4. STATUS --}}
+                        <div class="w-full lg:w-36">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status</label>
+                            <select name="status" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
+                                <option value="">All Statuses</option>
+                                @foreach(['New', 'Continuing', 'Enrolled', 'Transfer out', 'Graduate'] as $stat)
+                                    <option value="{{ $stat }}" {{ request('status') == $stat ? 'selected' : '' }}>{{ $stat }}</option>
+                                @endforeach
+                            </select>
                         </div>
 
                         {{-- 5. BUTTONS --}}
@@ -120,9 +118,8 @@
                 </form>
             </div>
 
+            {{-- TABLE SECTION --}}
             <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200 overflow-hidden">
-                
-                {{-- 👇 FIX 2: WRAPPER PARA SA HORIZONTAL SCROLL --}}
                 <div class="w-full overflow-x-auto"> 
                     <table class="min-w-full divide-y divide-gray-200 whitespace-nowrap">
                         <thead class="bg-gray-50">
@@ -242,13 +239,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             setInterval(function() {
-                // Tignan kung nasa first page at walang search filter bago mag-update
-                // para hindi mawala ang data habang nagse-search
                 const urlParams = new URLSearchParams(window.location.search);
                 if (!urlParams.has('search') && !urlParams.has('page')) {
                     updateTable();
                 }
-            }, 10000); // Ginawang 10 seconds para hindi masyadong mabigat
+            }, 10000); 
         });
 
         function updateTable() {
