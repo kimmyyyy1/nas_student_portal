@@ -14,8 +14,8 @@
             </h2>
 
             {{-- 🟢 DESKTOP BUTTON (Hidden on Mobile) --}}
-            {{-- Ito ay lalabas lang kapag naka-PC/Laptop --}}
-            <button onclick="document.getElementById('hidden-create-btn').click()"
+            {{-- Added: 'this.style.display="none"' para mawala pagkapindot --}}
+            <button onclick="this.style.display='none'; document.getElementById('hidden-create-btn').click()"
                     class="hidden md:flex bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer items-center">
                 {{-- SVG Plus Icon --}}
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -30,9 +30,9 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- 🟢 MOBILE ADD BUTTON (Visible only on Mobile) --}}
-            {{-- Ito ang lilitaw sa cellphone, nasa loob ng content para hindi matakpan --}}
+            {{-- Added: 'this.parentElement.style.display="none"' para mawala pati container --}}
             <div class="md:hidden mb-6">
-                <button onclick="document.getElementById('hidden-create-btn').click()"
+                <button onclick="this.parentElement.style.display='none'; document.getElementById('hidden-create-btn').click()"
                         class="w-full flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md text-sm transition duration-150 ease-in-out cursor-pointer">
                     {{-- SVG Plus Icon --}}
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
