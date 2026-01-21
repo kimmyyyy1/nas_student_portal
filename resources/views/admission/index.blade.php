@@ -34,19 +34,11 @@
 
     </x-slot>
 
-    {{-- 👇 FIX: 'py-2' sa mobile para umakyat, 'md:py-12' sa desktop --}}
-    <div class="py-2 md:py-12">
+    {{-- 👇 FIX: 'py-4' sa mobile para tamang-tama ang taas, 'md:py-12' sa desktop --}}
+    <div class="py-4 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- 🟢 MOBILE BACK BUTTON (White Pill Style) --}}
-            <div class="md:hidden mb-3">
-                <a href="{{ route('dashboard') }}" 
-                   wire:navigate
-                   class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-md text-gray-700 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all">
-                    <i class='bx bx-arrow-back mr-2 text-lg text-gray-600'></i>
-                    Back to Dashboard
-                </a>
-            </div>
+            {{-- ❌ REMOVED: Wala na ang Back Button --}}
 
             {{-- DASHBOARD CARDS --}}
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
