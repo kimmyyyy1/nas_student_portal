@@ -1,4 +1,9 @@
 <x-app-layout>
+    {{-- Global Styles --}}
+    <style>
+        .font-poppins-override * { font-family: 'Poppins', sans-serif !important; }
+    </style>
+
     <x-slot name="header">
         
         {{-- ============================================================= --}}
@@ -29,13 +34,12 @@
                 </span>
             </h2>
             
-            {{-- DESKTOP BUTTON --}}
-            {{-- Added ID: 'desktop-add-btn' at onclick logic --}}
+            {{-- 🟢 DESKTOP BUTTON (Hidden on Mobile) --}}
             <a href="{{ route('subjects.create') }}" 
                wire:navigate 
                id="desktop-add-btn"
                onclick="this.style.display='none'"
-               class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center justify-center shadow transition">
+               class="hidden md:flex bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm items-center justify-center shadow transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add Subject
             </a>
@@ -43,12 +47,11 @@
 
     </x-slot>
 
-    {{-- 👇 FIX: 'py-2' mobile, 'md:py-12' desktop --}}
-    <div class="py-2 md:py-12">
+    {{-- 👇 CONTENT BODY --}}
+    <div class="py-2 md:py-12 font-poppins-override">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- 🟢 MOBILE ADD BUTTON --}}
-            {{-- Added ID: 'mobile-add-btn' at onclick logic --}}
+            {{-- 🟢 MOBILE ADD BUTTON (Visible ONLY on Mobile) --}}
             <div class="block md:hidden mb-4" id="mobile-btn-container">
                 <a href="{{ route('subjects.create') }}" 
                    wire:navigate
@@ -134,17 +137,17 @@
 
     {{-- 👇 SCRIPT TO FIX BACK BUTTON ISSUE --}}
     <script>
-        // Kapag bumalik ang user sa page na ito (via Back button),
-        // I-reset ang display ng buttons para lumabas ulit.
         window.addEventListener('pageshow', function(event) {
             var desktopBtn = document.getElementById('desktop-add-btn');
             var mobileContainer = document.getElementById('mobile-btn-container');
 
             if (desktopBtn) {
-                desktopBtn.style.display = 'flex'; // Ibalik sa flex para sa desktop
+                // Ibalik sa 'flex' kung desktop size, pero dahil sa Tailwind classes na 'hidden md:flex',
+                // pwede nating tanggalin lang ang inline style na display:none
+                desktopBtn.style.display = ''; 
             }
             if (mobileContainer) {
-                mobileContainer.style.display = 'block'; // Ibalik sa block para sa mobile
+                mobileContainer.style.display = ''; // Remove inline display:none
             }
         });
     </script>
