@@ -2,7 +2,7 @@
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER: Badge Lang (Para malinis at hindi siksikan)  --}}
+        {{-- 📱 MOBILE HEADER: Badge Lang (Clean Look)                     --}}
         {{-- ============================================================= --}}
         <div class="flex md:hidden items-center w-full py-2">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700 tracking-wide uppercase shadow-sm border border-gray-200">
@@ -12,20 +12,12 @@
         </div>
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Back + Title + Badge                       --}}
+        {{-- 💻 DESKTOP HEADER: Title + Badge (No Back Button)             --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             
-            {{-- KALIWA: Back Button + Title --}}
-            <div class="flex items-center gap-4">
-                {{-- Back Arrow (Points to Dashboard) --}}
-                <a href="{{ route('dashboard') }}" 
-                   class="group flex items-center text-gray-500 hover:text-gray-700 transition-colors p-1" 
-                   title="Back to Dashboard">
-                    <svg class="w-6 h-6 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                </a>
-
-                {{-- TITLE --}}
+            {{-- KALIWA: Title Only --}}
+            <div class="flex items-center">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     {{ __('Reports & Documents Generation') }}
                 </h2>
@@ -43,8 +35,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
-            
-            {{-- Tinanggal ko na ang Back Button dito sa body --}}
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
