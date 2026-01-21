@@ -113,13 +113,13 @@
                             </select>
                         </div>
 
-                        {{-- 4. SPORT (UPDATED FILTER) --}}
+                        {{-- 4. SPORT (UPDATED BASED ON SCREENSHOT) --}}
                         <div class="w-full lg:w-40">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Sport</label>
                             <select name="sport" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Sports</option>
-                                {{-- 👇 Updated list based on your screenshot --}}
-                                @foreach(['Taekwondo', 'Table Tennis', 'Judo', 'Gymnastics', 'Badminton', 'Athletics', 'Aquatics', 'Arnis', 'Archery', 'Wrestling', 'Weightlifting'] as $sport)
+                                {{-- 👇 List from your screenshot --}}
+                                @foreach(['Taekwondo', 'Table Tennis', 'Judo', 'Gymnastics', 'Badminton', 'Athletics', 'Aquatics'] as $sport)
                                     <option value="{{ $sport }}" {{ request('sport') == $sport ? 'selected' : '' }}>{{ $sport }}</option>
                                 @endforeach
                             </select>
@@ -142,7 +142,6 @@
                                 <i class='bx bx-filter-alt mr-1'></i> Filter
                             </button>
                             
-                            {{-- Added 'sport' to clear check --}}
                             @if(request()->hasAny(['search', 'grade_level', 'section_id', 'status', 'sport']))
                                 <a href="{{ route('students.index') }}" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded text-sm font-bold shadow transition h-[34px] flex items-center justify-center">
                                     <i class='bx bx-x text-lg'></i>
