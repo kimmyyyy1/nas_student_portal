@@ -39,7 +39,7 @@ class StudentController extends Controller
         ]);
     }
 
-    // 👇 UPDATED INDEX: With Sport Filtering Logic
+    // 👇 UPDATED INDEX: Fixed Sport Logic (Removed 'sport_type')
     public function index(Request $request): View
     {
         // 1. Kunin ang Sections para sa Filter Dropdown
@@ -72,13 +72,12 @@ class StudentController extends Controller
             $query->where('status', $request->status);
         }
 
-        // 👇 NEW: Sport Filter Logic
+        // 👇 FIXED: Sport Filter Logic
+        // Tinanggal na ang 'sport_type' para iwas error
         if ($request->filled('sport')) {
             $query->whereHas('team', function($q) use ($request) {
-                // Tinitignan nito kung match ang sport sa team name, sport type, o sport column
-                $q->where('sport', $request->sport)
-                  ->orWhere('sport_type', $request->sport)
-                  ->orWhere('team_name', 'like', "%{$request->sport}%");
+                $q->where('sport', $request->sport) // Check kung 'sport' column ang gamit
+                  ->orWhere('team_name', 'like', "%{$request->sport}%"); // Check kung nasa team name ang sport
             });
         }
 
