@@ -40,6 +40,7 @@
                id="desktop-add-btn"
                onclick="this.style.display='none'"
                class="hidden md:flex bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm items-center justify-center shadow transition">
+                {{-- SVG Plus Icon --}}
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add Subject
             </a>
@@ -58,8 +59,12 @@
                    id="mobile-add-btn"
                    onclick="document.getElementById('mobile-btn-container').style.display='none'"
                    class="flex items-center justify-center w-full px-4 py-3 bg-blue-600 text-white rounded-lg shadow-md font-bold text-sm hover:bg-blue-700 active:scale-95 transition-all">
-                    {{-- FIX: Corrected the icon here --}}
-                    <i class='bx bx-plus mr-2 text-xl'></i>
+                    
+                    {{-- 👇 FIXED: Pinalitan ang 'bx' font ng SVG para siguradong lumabas --}}
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    
                     Add New Subject
                 </a>
             </div>
@@ -143,12 +148,10 @@
             var mobileContainer = document.getElementById('mobile-btn-container');
 
             if (desktopBtn) {
-                // Ibalik sa 'flex' kung desktop size, pero dahil sa Tailwind classes na 'hidden md:flex',
-                // pwede nating tanggalin lang ang inline style na display:none
                 desktopBtn.style.display = ''; 
             }
             if (mobileContainer) {
-                mobileContainer.style.display = ''; // Remove inline display:none
+                mobileContainer.style.display = '';
             }
         });
     </script>
