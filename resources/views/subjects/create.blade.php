@@ -1,8 +1,17 @@
 <x-app-layout>
+    {{-- 👇 FORCE HIDE: Ito ang pipilit magtago sa button kung lumalabas pa rin --}}
+    <style>
+        /* Targetin ang button sa header at itago */
+        header a[class*="bg-blue-600"], 
+        header a[class*="Add Subject"] {
+            display: none !important;
+        }
+    </style>
+
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER: Compact Badge & Live Indicator              --}}
+        {{-- 📱 MOBILE HEADER                                              --}}
         {{-- ============================================================= --}}
         <div class="flex md:hidden items-center justify-between w-full py-1">
             
@@ -19,27 +28,21 @@
         </div>
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Standard View (NO BUTTON)                  --}}
+        {{-- 💻 DESKTOP HEADER (Walang Button Code Dito)                   --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
-            
-            {{-- TITLE: "Create New Subject" --}}
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
                 {{ __('Create New Subject') }}
-                
-                {{-- Live Indicator --}}
                 <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
                     <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
                 </span>
             </h2>
-
-            {{-- ❌ NOTE: WALA NA DITONG BUTTON --}}
-            
+            {{-- WALA NANG BUTTON DITO --}}
         </div>
 
     </x-slot>
 
-    {{-- 👇 FORM CONTENT --}}
+    {{-- 👇 CONTENT BODY --}}
     <div class="py-2 md:py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 px-4">
             
