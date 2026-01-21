@@ -3,10 +3,9 @@
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER: Super Compact (No Padding)                  --}}
+        {{-- 📱 MOBILE HEADER: Ultra Compact (py-1)                        --}}
         {{-- ============================================================= --}}
-        {{-- Inalis ko ang 'py-2' dito para hindi kumapal ang white space --}}
-        <div class="flex md:hidden items-center justify-between w-full">
+        <div class="flex md:hidden items-center justify-between w-full py-1">
             
             {{-- Dashboard Badge --}}
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 uppercase shadow-sm border border-indigo-200">
@@ -36,7 +35,7 @@
     </x-slot>
 
     {{-- Main Content Wrapper --}}
-    {{-- 👇 FIX: Ginawang 'py-2' na lang sa mobile para dumikit sa header --}}
+    {{-- 👇 FIX: Ginawang 'py-2' na lang para umakyat ng husto --}}
     <div class="py-2 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
