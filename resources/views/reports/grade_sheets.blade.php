@@ -19,7 +19,9 @@
             
             {{-- KALIWA: Back Button + Title --}}
             <div class="flex items-center gap-4">
+                {{-- 👇 ADDED wire:navigate HERE --}}
                 <a href="{{ route('reports.index') }}" 
+                   wire:navigate
                    class="group flex items-center text-gray-500 hover:text-indigo-600 transition-colors p-1" 
                    title="Back to Reports">
                     <i class='bx bx-arrow-back text-2xl transform group-hover:-translate-x-1 transition-transform'></i>
@@ -43,9 +45,10 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- 🟢 NEW MOBILE BACK BUTTON (Styled as White Pill) --}}
-            {{-- Naka-design para lumitaw sa Blue Background --}}
             <div class="md:hidden mb-5">
+                {{-- 👇 ADDED wire:navigate HERE --}}
                 <a href="{{ route('reports.index') }}" 
+                   wire:navigate
                    class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-md text-gray-700 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all">
                     <i class='bx bx-arrow-back mr-2 text-lg text-indigo-600'></i>
                     Back to Reports
