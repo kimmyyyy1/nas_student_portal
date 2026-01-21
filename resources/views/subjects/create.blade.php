@@ -1,17 +1,8 @@
 <x-app-layout>
-    {{-- 👇 FORCE HIDE: Ito ang pipilit magtago sa button kung lumalabas pa rin --}}
-    <style>
-        /* Targetin ang button sa header at itago */
-        header a[class*="bg-blue-600"], 
-        header a[class*="Add Subject"] {
-            display: none !important;
-        }
-    </style>
-
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER                                              --}}
+        {{-- 📱 MOBILE HEADER: Compact Badge & Live Indicator              --}}
         {{-- ============================================================= --}}
         <div class="flex md:hidden items-center justify-between w-full py-1">
             
@@ -28,7 +19,7 @@
         </div>
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER (Walang Button Code Dito)                   --}}
+        {{-- 💻 DESKTOP HEADER: Standard View (WALANG BUTTON)              --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
@@ -37,12 +28,11 @@
                     <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
                 </span>
             </h2>
-            {{-- WALA NANG BUTTON DITO --}}
         </div>
 
     </x-slot>
 
-    {{-- 👇 CONTENT BODY --}}
+    {{-- 👇 FIX: 'py-2' mobile, 'md:py-12' desktop --}}
     <div class="py-2 md:py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 px-4">
             
