@@ -19,11 +19,11 @@
         </div>
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Standard View (WALANG BUTTON)              --}}
+        {{-- 💻 DESKTOP HEADER: Standard View (NO BUTTON)                  --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             
-            {{-- TITLE LANG ANG NANDITO --}}
+            {{-- TITLE: "Create New Subject" --}}
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
                 {{ __('Create New Subject') }}
                 
@@ -33,13 +33,13 @@
                 </span>
             </h2>
 
-            {{-- ❌ WALA NA DITONG "ADD SUBJECT" BUTTON --}}
+            {{-- ❌ NOTE: WALA NA DITONG BUTTON --}}
             
         </div>
 
     </x-slot>
 
-    {{-- 👇 CONTENT BODY --}}
+    {{-- 👇 FORM CONTENT --}}
     <div class="py-2 md:py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 px-4">
             
