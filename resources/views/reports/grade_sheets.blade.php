@@ -2,10 +2,10 @@
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER: Badge Lang (Dahil ililipat natin ang button) --}}
+        {{-- 📱 MOBILE HEADER: Badge Lang (Clean Look)                     --}}
         {{-- ============================================================= --}}
         <div class="flex md:hidden items-center w-full py-2">
-            {{-- KALIWA: Academic Report Badge --}}
+            {{-- Academic Report Badge --}}
             <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
                 <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
             </span>
@@ -13,7 +13,7 @@
 
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Normal Layout (Back + Title + Badge)       --}}
+        {{-- 💻 DESKTOP HEADER: Back + Title + Badge                       --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             
@@ -42,15 +42,13 @@
     <div class="py-6 md:py-12" x-data="{ showFilters: false }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- 🟢 NEW: MOBILE BACK BUTTON (Nasa taas ng Filter Options) --}}
-            {{-- Ito ang solusyon para siguradong makita mo ang button --}}
-            <div class="md:hidden mb-4">
+            {{-- 🟢 NEW MOBILE BACK BUTTON (Styled as White Pill) --}}
+            {{-- Naka-design para lumitaw sa Blue Background --}}
+            <div class="md:hidden mb-5">
                 <a href="{{ route('reports.index') }}" 
-                   class="inline-flex items-center text-gray-600 hover:text-indigo-600 font-semibold transition-colors group">
-                    <div class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center mr-2 group-active:scale-95 transition-transform">
-                        <i class='bx bx-arrow-back text-xl'></i>
-                    </div>
-                    <span class="text-sm">Back to Reports</span>
+                   class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-md text-gray-700 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all">
+                    <i class='bx bx-arrow-back mr-2 text-lg text-indigo-600'></i>
+                    Back to Reports
                 </a>
             </div>
 
