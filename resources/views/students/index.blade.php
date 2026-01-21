@@ -52,7 +52,7 @@
     <div class="py-2 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- ❌ REMOVED: Wala na ang Back Button dito --}}
+            {{-- ❌ REMOVED: Wala na ang Back Button --}}
             
             {{-- ALERTS --}}
             @if(session('success'))
@@ -113,12 +113,12 @@
                             </select>
                         </div>
 
-                        {{-- 4. SPORT (UPDATED BASED ON SCREENSHOT) --}}
+                        {{-- 4. SPORT (UPDATED LIST) --}}
                         <div class="w-full lg:w-40">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Sport</label>
                             <select name="sport" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Sports</option>
-                                {{-- 👇 List from your screenshot --}}
+                                {{-- 👇 Exact list from your screenshot --}}
                                 @foreach(['Taekwondo', 'Table Tennis', 'Judo', 'Gymnastics', 'Badminton', 'Athletics', 'Aquatics'] as $sport)
                                     <option value="{{ $sport }}" {{ request('sport') == $sport ? 'selected' : '' }}>{{ $sport }}</option>
                                 @endforeach
@@ -263,8 +263,10 @@
                     </table>
                 </div>
                 
+                {{-- 👇 FIX PAGINATION: Added 'appends(request()->query())' --}}
+                {{-- Ito ang dahilan kung bakit hindi mawawala ang filter kapag nag-next page ka --}}
                 <div class="px-4 py-3 border-t border-gray-200">
-                    {{ $students->links() }}
+                    {{ $students->appends(request()->query())->links() }}
                 </div>
             </div>
         </div>
@@ -275,7 +277,8 @@
         document.addEventListener('DOMContentLoaded', function () {
             setInterval(function() {
                 const urlParams = new URLSearchParams(window.location.search);
-                if (!urlParams.has('search') && !urlParams.has('page') && !urlParams.has('sport')) {
+                // Only auto-update if no filters are active to avoid messing up search results
+                if (!urlParams.has('search') && !urlParams.has('page') && !urlParams.has('sport') && !urlParams.has('grade_level')) {
                     updateTable();
                 }
             }, 10000); 
