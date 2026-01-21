@@ -3,12 +3,13 @@
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER: Compact & Clean (Para hindi "Double White") --}}
+        {{-- 📱 MOBILE HEADER: Super Compact (No Padding)                  --}}
         {{-- ============================================================= --}}
-        <div class="flex md:hidden items-center justify-between w-full py-2">
+        {{-- Inalis ko ang 'py-2' dito para hindi kumapal ang white space --}}
+        <div class="flex md:hidden items-center justify-between w-full">
             
-            {{-- Dashboard Badge (Gray para malinis tignan sa mobile) --}}
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700 uppercase shadow-sm border border-gray-200">
+            {{-- Dashboard Badge --}}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 uppercase shadow-sm border border-indigo-200">
                 <i class='bx bxs-dashboard mr-1.5 text-sm'></i> Dashboard
             </span>
 
@@ -34,8 +35,9 @@
 
     </x-slot>
 
-    {{-- 👇 FIX: 'py-4' sa mobile para umakyat at dumikit sa header, 'md:py-12' sa desktop --}}
-    <div class="py-4 md:py-12">
+    {{-- Main Content Wrapper --}}
+    {{-- 👇 FIX: Ginawang 'py-2' na lang sa mobile para dumikit sa header --}}
+    <div class="py-2 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- ======================================================= --}}
