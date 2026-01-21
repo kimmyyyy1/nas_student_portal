@@ -1,6 +1,27 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        
+        {{-- ============================================================= --}}
+        {{-- 📱 MOBILE HEADER: Compact Badge & Live Indicator              --}}
+        {{-- ============================================================= --}}
+        <div class="flex md:hidden items-center justify-between w-full py-1">
+            
+            {{-- Badge --}}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 uppercase shadow-sm border border-green-200">
+                <i class='bx bxs-user-detail mr-1.5 text-sm'></i> Directory
+            </span>
+
+            {{-- Live Indicator --}}
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
+                <span class="w-1.5 h-1.5 bg-red-600 rounded-full mr-1"></span> LIVE
+            </span>
+
+        </div>
+
+        {{-- ============================================================= --}}
+        {{-- 💻 DESKTOP HEADER: Standard View                              --}}
+        {{-- ============================================================= --}}
+        <div class="hidden md:flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-2">
             
             {{-- TITLE --}}
             <div class="flex items-center justify-between w-full md:w-auto">
@@ -27,8 +48,19 @@
         </div>
     </x-slot>
 
-    <div class="py-6">
+    {{-- 👇 FIX: 'py-2' sa mobile, 'md:py-12' sa desktop --}}
+    <div class="py-2 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+            
+            {{-- 🟢 MOBILE BACK BUTTON (White Pill Style) --}}
+            <div class="md:hidden mb-3">
+                <a href="{{ route('dashboard') }}" 
+                   wire:navigate
+                   class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-md text-gray-700 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all">
+                    <i class='bx bx-arrow-back mr-2 text-lg text-gray-600'></i>
+                    Back to Dashboard
+                </a>
+            </div>
             
             {{-- ALERTS --}}
             @if(session('success'))
@@ -43,10 +75,9 @@
                 </div>
             @endif
 
-            {{-- FILTER BAR (FIXED DESKTOP VIEW) --}}
+            {{-- FILTER BAR --}}
             <div class="mb-4 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
                 <form method="GET" action="{{ route('students.index') }}">
-                    {{-- 👇 Dito inayos: Isang container na lang para magkatabi sa Desktop --}}
                     <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
                         
                         {{-- 1. SEARCH --}}
@@ -63,7 +94,7 @@
                         </div>
 
                         {{-- 2. GRADE --}}
-                        <div class="w-full lg:w-40">
+                        <div class="w-full lg:w-32">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Grade</label>
                             <select name="grade_level" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Grades</option>
@@ -74,7 +105,7 @@
                         </div>
 
                         {{-- 3. SECTION --}}
-                        <div class="w-full lg:w-48">
+                        <div class="w-full lg:w-40">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Section</label>
                             <select name="section_id" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Sections</option>
@@ -90,8 +121,20 @@
                             </select>
                         </div>
 
-                        {{-- 4. STATUS --}}
-                        <div class="w-full lg:w-36">
+                        {{-- 4. SPORT (NEW FILTER) --}}
+                        <div class="w-full lg:w-40">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Sport</label>
+                            <select name="sport" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
+                                <option value="">All Sports</option>
+                                {{-- Note: Ideally this comes from DB ($sports), using static list for now --}}
+                                @foreach(['Athletics', 'Badminton', 'Basketball', 'Swimming', 'Table Tennis', 'Taekwondo', 'Volleyball', 'Weightlifting'] as $sport)
+                                    <option value="{{ $sport }}" {{ request('sport') == $sport ? 'selected' : '' }}>{{ $sport }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- 5. STATUS --}}
+                        <div class="w-full lg:w-32">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status</label>
                             <select name="status" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Statuses</option>
@@ -101,13 +144,14 @@
                             </select>
                         </div>
 
-                        {{-- 5. BUTTONS --}}
+                        {{-- 6. BUTTONS --}}
                         <div class="flex gap-2 w-full lg:w-auto">
                             <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1.5 rounded text-sm font-bold shadow transition h-[34px] flex items-center justify-center flex-1 lg:flex-none">
                                 <i class='bx bx-filter-alt mr-1'></i> Filter
                             </button>
                             
-                            @if(request()->hasAny(['search', 'grade_level', 'section_id', 'status']))
+                            {{-- Added 'sport' to clear check --}}
+                            @if(request()->hasAny(['search', 'grade_level', 'section_id', 'status', 'sport']))
                                 <a href="{{ route('students.index') }}" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded text-sm font-bold shadow transition h-[34px] flex items-center justify-center">
                                     <i class='bx bx-x text-lg'></i>
                                 </a>
@@ -240,7 +284,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             setInterval(function() {
                 const urlParams = new URLSearchParams(window.location.search);
-                if (!urlParams.has('search') && !urlParams.has('page')) {
+                if (!urlParams.has('search') && !urlParams.has('page') && !urlParams.has('sport')) {
                     updateTable();
                 }
             }, 10000); 

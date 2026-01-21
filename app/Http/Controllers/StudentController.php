@@ -39,7 +39,7 @@ class StudentController extends Controller
         ]);
     }
 
-    // 👇 UPDATED INDEX: With Advanced Filtering Logic
+    // 👇 UPDATED INDEX: With Sport Filtering Logic
     public function index(Request $request): View
     {
         // 1. Kunin ang Sections para sa Filter Dropdown
@@ -70,6 +70,16 @@ class StudentController extends Controller
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        // 👇 NEW: Sport Filter Logic
+        if ($request->filled('sport')) {
+            $query->whereHas('team', function($q) use ($request) {
+                // Tinitignan nito kung match ang sport sa team name, sport type, o sport column
+                $q->where('sport', $request->sport)
+                  ->orWhere('sport_type', $request->sport)
+                  ->orWhere('team_name', 'like', "%{$request->sport}%");
+            });
         }
 
         // 5. Execute & Paginate
