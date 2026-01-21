@@ -1,36 +1,55 @@
 <x-app-layout>
     <x-slot name="header">
-        {{-- HEADER CONTAINER (GRID LAYOUT) --}}
-        {{-- grid-cols-2: Hahatiin sa dalawa ang header --}}
-        {{-- min-h-[50px]: Safety height para siguradong litaw ang header --}}
-        {{-- relative z-10: Para siguradong nasa ibabaw ito ng background --}}
-        <div class="w-full grid grid-cols-2 items-center gap-4 py-2 min-h-[50px] relative z-10">
+        {{-- HEADER CONTAINER --}}
+        {{-- min-h-[50px]: Safety height --}}
+        <div class="w-full flex items-center justify-between py-2 min-h-[50px]">
             
-            {{-- 🟢 ELEMENT 1: ACADEMIC REPORT BADGE --}}
-            {{-- Mobile: col-start-1 (Nasa Kaliwa) --}}
-            {{-- Desktop: md:col-start-2 (Lilipat sa Kanan) --}}
-            <div class="col-start-1 justify-self-start md:col-start-2 md:justify-self-end">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200 whitespace-nowrap">
-                    <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
-                </span>
+            {{-- 🟢 LEFT SIDE CONTENT --}}
+            <div class="flex items-center">
+                
+                {{-- A. MOBILE VIEW: Academic Report (Kaliwa) --}}
+                <div class="md:hidden">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
+                        <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
+                    </span>
+                </div>
+
+                {{-- B. DESKTOP VIEW: Back Button + Title (Kaliwa) --}}
+                <div class="hidden md:flex items-center gap-4">
+                    {{-- Clean Back Arrow for Desktop (Walang Background) --}}
+                    <a href="{{ route('reports.index') }}" 
+                       class="group flex items-center text-gray-500 hover:text-indigo-600 transition-colors" 
+                       title="Back to Reports">
+                        {{-- Added hover animation: -translate-x-1 --}}
+                        <i class='bx bx-arrow-back text-2xl transform group-hover:-translate-x-1 transition-transform'></i>
+                    </a>
+                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                        {{ __('Grade Sheets Generator') }}
+                    </h2>
+                </div>
+
             </div>
 
-            {{-- 🟢 ELEMENT 2: BACK BUTTON & TITLE --}}
-            {{-- Mobile: col-start-2 (Nasa Kanan) --}}
-            {{-- Desktop: md:col-start-1 (Lilipat sa Kaliwa) --}}
-            <div class="col-start-2 justify-self-end md:col-start-1 md:justify-self-start flex items-center gap-3">
-                
-                {{-- Back Button --}}
-                <a href="{{ route('reports.index') }}" 
-                   class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-indigo-600 transition-colors duration-200 shadow-sm border border-gray-200" 
-                   title="Back to Reports">
-                    <i class='bx bx-arrow-back text-2xl'></i>
-                </a>
 
-                {{-- Title (Desktop Only) --}}
-                <h2 class="hidden md:block font-semibold text-xl text-gray-800 leading-tight whitespace-nowrap">
-                    {{ __('Grade Sheets Generator') }}
-                </h2>
+            {{-- 🟢 RIGHT SIDE CONTENT --}}
+            <div class="flex items-center">
+
+                {{-- A. MOBILE VIEW: Back Button (Kanan) --}}
+                {{-- Keep circle for Mobile touch target --}}
+                <div class="md:hidden">
+                    <a href="{{ route('reports.index') }}" 
+                       class="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 active:bg-gray-300 transition-colors shadow-sm border border-gray-200">
+                        <i class='bx bx-arrow-back text-xl'></i>
+                    </a>
+                </div>
+
+                {{-- B. DESKTOP VIEW: Academic Report (Kanan) --}}
+                <div class="hidden md:block">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
+                        <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
+                    </span>
+                </div>
+
             </div>
 
         </div>
@@ -58,8 +77,8 @@
                      :class="{'block': showFilters, 'hidden': !showFilters}">
                     
                     <div class="bg-white shadow-md rounded-lg p-6 sticky top-6 border border-gray-200">
-                        <h3 class="font-bold text-gray-800 mb-4 uppercase text-xs tracking-wider flex items-center border-b pb-2 text-indigo-600">
-                            <i class='bx bx-slider-alt mr-2 text-lg'></i>
+                        <h3 class="font-bold text-gray-800 mb-4 uppercase text-xs tracking-wider flex items-center border-b pb-2">
+                            <i class='bx bx-slider-alt mr-2 text-lg text-indigo-600'></i>
                             Filter Selection
                         </h3>
                         
