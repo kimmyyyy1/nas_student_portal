@@ -12,11 +12,11 @@
         </div>
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Title + Badge (No Back Button)             --}}
+        {{-- 💻 DESKTOP HEADER: Title + Badge                              --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             
-            {{-- KALIWA: Title Only --}}
+            {{-- KALIWA: Title Only (Removed Desktop Back Button too) --}}
             <div class="flex items-center">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     {{ __('Reports & Documents Generation') }}
@@ -33,20 +33,11 @@
 
     </x-slot>
 
-    {{-- 👇 FIX: Pinalitan ang 'py-6' ng 'py-4' para umakyat pa lalo --}}
+    {{-- 👇 FIX: py-4 sa mobile para tamang-tama ang taas --}}
     <div class="py-4 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- 🟢 MOBILE BACK BUTTON --}}
-            {{-- 👇 FIX: Ginawang 'mb-3' (mula mb-6) para mas dumikit ang mga cards --}}
-            <div class="md:hidden mb-3">
-                <a href="{{ route('dashboard') }}" 
-                   wire:navigate 
-                   class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-md text-gray-700 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all">
-                    <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Back to Dashboard
-                </a>
-            </div>
+            {{-- ❌ REMOVED: Wala na ang Back Button dito --}}
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
