@@ -52,15 +52,7 @@
     <div class="py-2 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- 🟢 MOBILE BACK BUTTON (White Pill Style) --}}
-            <div class="md:hidden mb-3">
-                <a href="{{ route('dashboard') }}" 
-                   wire:navigate
-                   class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-md text-gray-700 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all">
-                    <i class='bx bx-arrow-back mr-2 text-lg text-gray-600'></i>
-                    Back to Dashboard
-                </a>
-            </div>
+            {{-- ❌ REMOVED: Wala na ang Back Button dito --}}
             
             {{-- ALERTS --}}
             @if(session('success'))
@@ -121,13 +113,13 @@
                             </select>
                         </div>
 
-                        {{-- 4. SPORT (NEW FILTER) --}}
+                        {{-- 4. SPORT (UPDATED FILTER) --}}
                         <div class="w-full lg:w-40">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Sport</label>
                             <select name="sport" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Sports</option>
-                                {{-- Note: Ideally this comes from DB ($sports), using static list for now --}}
-                                @foreach(['Athletics', 'Badminton', 'Basketball', 'Swimming', 'Table Tennis', 'Taekwondo', 'Volleyball', 'Weightlifting'] as $sport)
+                                {{-- 👇 Updated list based on your screenshot --}}
+                                @foreach(['Taekwondo', 'Table Tennis', 'Judo', 'Gymnastics', 'Badminton', 'Athletics', 'Aquatics', 'Arnis', 'Archery', 'Wrestling', 'Weightlifting'] as $sport)
                                     <option value="{{ $sport }}" {{ request('sport') == $sport ? 'selected' : '' }}>{{ $sport }}</option>
                                 @endforeach
                             </select>
