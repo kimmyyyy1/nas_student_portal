@@ -2,20 +2,20 @@
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER (Ito ang lilitaw sa Cellphone)               --}}
+        {{-- 📱 MOBILE HEADER (Visible lang sa Cellphone)                  --}}
         {{-- ============================================================= --}}
-        {{-- display: flex (default), hidden sa desktop (md:hidden) --}}
-        <div class="flex md:hidden justify-between items-center w-full py-2">
+        <div class="flex md:hidden items-center justify-between w-full py-2">
             
             {{-- KALIWA: Academic Report Badge --}}
             <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
                 <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
             </span>
 
-            {{-- KANAN: Ang "Bago" at Hiwalay na Back Button --}}
+            {{-- KANAN: Back Button --}}
+            {{-- FIX: Added 'flex-shrink-0' at 'w-10 h-10' para hindi mapipi --}}
             <a href="{{ route('reports.index') }}" 
-               class="flex items-center justify-center w-10 h-10 bg-white border border-gray-300 rounded-full text-gray-700 shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
-               style="min-width: 40px; min-height: 40px;"> {{-- Forced size --}}
+               class="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-white border border-gray-300 rounded-full text-gray-700 shadow-sm hover:bg-gray-50 active:scale-95 transition-all ml-2"
+               style="min-width: 40px; min-height: 40px;"> 
                 <i class='bx bx-arrow-back text-xl'></i>
             </a>
 
@@ -23,15 +23,14 @@
 
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER (Ito ang lilitaw sa PC/Laptop)              --}}
+        {{-- 💻 DESKTOP HEADER (Visible lang sa PC/Laptop)                 --}}
         {{-- ============================================================= --}}
-        {{-- display: hidden (default), flex sa desktop (md:flex) --}}
-        <div class="hidden md:flex justify-between items-center w-full py-2">
+        <div class="hidden md:flex items-center justify-between w-full py-2">
             
-            {{-- KALIWA: Title at Arrow --}}
+            {{-- KALIWA: Back Button + Title --}}
             <div class="flex items-center gap-4">
                 <a href="{{ route('reports.index') }}" 
-                   class="group flex items-center text-gray-500 hover:text-indigo-600 transition-colors" 
+                   class="group flex items-center text-gray-500 hover:text-indigo-600 transition-colors p-1" 
                    title="Back to Reports">
                     <i class='bx bx-arrow-back text-2xl transform group-hover:-translate-x-1 transition-transform'></i>
                 </a>
