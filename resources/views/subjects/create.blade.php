@@ -19,27 +19,31 @@
         </div>
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Standard View                              --}}
+        {{-- 💻 DESKTOP HEADER: Standard View (WALANG BUTTON)              --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
+            
+            {{-- TITLE LANG ANG NANDITO --}}
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
                 {{ __('Create New Subject') }}
                 
-                {{-- Live Indicator (Desktop) --}}
+                {{-- Live Indicator --}}
                 <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
                     <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
                 </span>
             </h2>
-            {{-- ❌ TINANGGAL NA DITO ANG "ADD SUBJECT" BUTTON --}}
+
+            {{-- ❌ WALA NA DITONG "ADD SUBJECT" BUTTON --}}
+            
         </div>
 
     </x-slot>
 
-    {{-- 👇 FIX: 'py-2' mobile, 'md:py-12' desktop --}}
+    {{-- 👇 CONTENT BODY --}}
     <div class="py-2 md:py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 px-4">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 px-4">
             
-            {{-- 🟢 MOBILE BACK BUTTON (Optional: Para madaling bumalik sa listahan) --}}
+            {{-- 🟢 MOBILE BACK BUTTON --}}
             <div class="md:hidden mb-3">
                 <a href="{{ route('subjects.index') }}" 
                    wire:navigate
