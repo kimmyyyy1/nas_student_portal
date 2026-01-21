@@ -1,30 +1,34 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- HEADER CONTAINER --}}
-        <div class="w-full flex items-center justify-between py-2">
+        {{-- py-2: Padding para may space --}}
+        {{-- min-h-[40px]: Safety height para hindi mag-collapse --}}
+        <div class="w-full flex items-center justify-between py-2 min-h-[40px]">
             
-            {{-- 🟢 ELEMENT 1: ACADEMIC REPORT BADGE --}}
+            {{-- 🟢 GROUP 1: ACADEMIC REPORT BADGE --}}
             {{-- Mobile: order-1 (Nasa Kaliwa) --}}
             {{-- Desktop: md:order-2 (Lilipat sa Kanan) --}}
-            <div class="order-1 md:order-2">
+            <div class="order-1 md:order-2 flex-shrink-0">
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
                     <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
                 </span>
             </div>
 
-            {{-- 🟢 ELEMENT 2: BACK BUTTON & TITLE GROUP --}}
+            {{-- 🟢 GROUP 2: BACK BUTTON & TITLE --}}
             {{-- Mobile: order-2 (Nasa Kanan) --}}
             {{-- Desktop: md:order-1 (Lilipat sa Kaliwa) --}}
-            <div class="flex items-center gap-3 order-2 md:order-1">
+            <div class="order-2 md:order-1 flex items-center gap-3">
                 
                 {{-- BACK BUTTON --}}
+                {{-- Visible sa Mobile at Desktop --}}
                 <a href="{{ route('reports.index') }}" 
-                   class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-indigo-600 transition-colors duration-200 shadow-sm" 
+                   class="flex-shrink-0 flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-indigo-600 transition-colors duration-200 shadow-sm" 
                    title="Back to Reports">
-                    <i class='bx bx-arrow-back text-2xl'></i>
+                    <i class='bx bx-arrow-back text-xl md:text-2xl'></i>
                 </a>
 
-                {{-- TITLE (Hidden sa Mobile para hindi masikip) --}}
+                {{-- TITLE --}}
+                {{-- Hidden sa Mobile (para Back Button lang ang nasa kanan), Visible sa Desktop --}}
                 <h2 class="hidden md:block font-semibold text-xl text-gray-800 leading-tight">
                     {{ __('Grade Sheets Generator') }}
                 </h2>
@@ -55,9 +59,7 @@
                      :class="{'block': showFilters, 'hidden': !showFilters}">
                     
                     <div class="bg-white shadow-md rounded-lg p-6 sticky top-6 border border-gray-200">
-                        {{-- 👇 FIX: Tinanggal ang text-indigo-600 dito para hindi mag-conflict sa text-gray-800 --}}
                         <h3 class="font-bold text-gray-800 mb-4 uppercase text-xs tracking-wider flex items-center border-b pb-2">
-                            {{-- 👇 FIX: Inilipat ang kulay (text-indigo-600) dito sa icon --}}
                             <i class='bx bx-slider-alt mr-2 text-lg text-indigo-600'></i>
                             Filter Selection
                         </h3>
