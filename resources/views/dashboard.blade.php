@@ -3,12 +3,12 @@
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER: Compact Badges (Para tipid sa space)        --}}
+        {{-- 📱 MOBILE HEADER: Compact & Clean (Para hindi "Double White") --}}
         {{-- ============================================================= --}}
         <div class="flex md:hidden items-center justify-between w-full py-2">
             
-            {{-- Dashboard Badge --}}
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 uppercase shadow-sm border border-indigo-200">
+            {{-- Dashboard Badge (Gray para malinis tignan sa mobile) --}}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700 uppercase shadow-sm border border-gray-200">
                 <i class='bx bxs-dashboard mr-1.5 text-sm'></i> Dashboard
             </span>
 
@@ -20,14 +20,13 @@
         </div>
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Standard View                              --}}
+        {{-- 💻 DESKTOP HEADER: Standard View (Visible lang sa PC)         --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
                 {{ __('Dashboard') }}
             </h2>
             
-            {{-- LIVE INDICATOR --}}
             <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
                 <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
             </span>
@@ -35,9 +34,8 @@
 
     </x-slot>
 
-    {{-- Main Content Wrapper --}}
-    {{-- 👇 FIX: Ginawang 'py-2' para umakyat nang husto sa mobile, 'md:py-12' sa desktop --}}
-    <div class="py-2 md:py-12">
+    {{-- 👇 FIX: 'py-4' sa mobile para umakyat at dumikit sa header, 'md:py-12' sa desktop --}}
+    <div class="py-4 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- ======================================================= --}}
@@ -96,12 +94,10 @@
                                             </p>
                                         </div>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-auto">
-                                            {{-- 👇 wire:navigate added --}}
                                             <a href="{{ route('teacher.advisory') }}" wire:navigate class="block p-4 bg-indigo-50 border border-indigo-100 rounded-lg hover:bg-indigo-100 transition text-center group shadow-sm hover:shadow-md">
                                                 <i class='bx bx-list-ul text-3xl text-indigo-600 mb-2 group-hover:scale-110 transition block'></i>
                                                 <span class="font-bold text-indigo-800 text-xs uppercase tracking-wide">View Masterlist</span>
                                             </a>
-                                            {{-- 👇 wire:navigate added --}}
                                             <a href="{{ route('attendances.index') }}" wire:navigate class="block p-4 bg-green-50 border border-green-100 rounded-lg hover:bg-green-100 transition text-center group shadow-sm hover:shadow-md">
                                                 <i class='bx bx-check-circle text-3xl text-green-600 mb-2 group-hover:scale-110 transition block'></i>
                                                 <span class="font-bold text-green-800 text-xs uppercase tracking-wide">Check Attendance</span>
@@ -123,7 +119,6 @@
                             <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
                                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase flex justify-between items-center">
                                     <span><i class='bx bx-book-open mr-1'></i> My Loads</span>
-                                    {{-- 👇 wire:navigate added --}}
                                     <a href="{{ route('schedules.my') }}" wire:navigate class="text-xs text-blue-600 hover:text-blue-800 hover:underline">View All</a>
                                 </div>
                                 <div class="p-4">
@@ -155,7 +150,6 @@
                                     <i class='bx bx-edit text-4xl mb-2 text-white opacity-90 group-hover:scale-110 transition duration-300'></i>
                                     <h4 class="font-bold mb-1">Grading System</h4>
                                     <p class="text-xs mb-4 opacity-90">Encode grades for your students.</p>
-                                    {{-- 👇 wire:navigate added --}}
                                     <a href="{{ route('grades.index') }}" wire:navigate class="inline-block bg-white text-orange-600 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition shadow text-xs uppercase">
                                         Open Grade Sheet
                                     </a>
