@@ -58,6 +58,7 @@
                    id="mobile-add-btn"
                    onclick="document.getElementById('mobile-btn-container').style.display='none'"
                    class="flex items-center justify-center w-full px-4 py-3 bg-blue-600 text-white rounded-lg shadow-md font-bold text-sm hover:bg-blue-700 active:scale-95 transition-all">
+                    {{-- FIX: Corrected the icon here --}}
                     <i class='bx bx-plus mr-2 text-xl'></i>
                     Add New Subject
                 </a>
