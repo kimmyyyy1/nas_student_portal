@@ -1,40 +1,45 @@
 <x-app-layout>
     <x-slot name="header">
-        {{-- HEADER CONTAINER --}}
-        {{-- py-2: Padding para may space --}}
-        {{-- min-h-[40px]: Safety height para hindi mag-collapse --}}
-        <div class="w-full flex items-center justify-between py-2 min-h-[40px]">
+        
+        {{-- 🟢 MOBILE HEADER LAYOUT (Visible lang sa Mobile) --}}
+        {{-- Layout: [Badge] <Space> [Back Button] --}}
+        <div class="flex md:hidden items-center justify-between w-full py-2">
             
-            {{-- 🟢 GROUP 1: ACADEMIC REPORT BADGE --}}
-            {{-- Mobile: order-1 (Nasa Kaliwa) --}}
-            {{-- Desktop: md:order-2 (Lilipat sa Kanan) --}}
-            <div class="order-1 md:order-2 flex-shrink-0">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] md:text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
-                    <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
-                </span>
-            </div>
+            {{-- Left: Academic Report Badge --}}
+            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
+                <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
+            </span>
 
-            {{-- 🟢 GROUP 2: BACK BUTTON & TITLE --}}
-            {{-- Mobile: order-2 (Nasa Kanan) --}}
-            {{-- Desktop: md:order-1 (Lilipat sa Kaliwa) --}}
-            <div class="order-2 md:order-1 flex items-center gap-3">
-                
-                {{-- BACK BUTTON --}}
-                {{-- Visible sa Mobile at Desktop --}}
+            {{-- Right: Back Button --}}
+            <a href="{{ route('reports.index') }}" 
+               class="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 active:bg-gray-300 transition-colors shadow-sm border border-gray-200">
+                <i class='bx bx-arrow-back text-xl'></i>
+            </a>
+        </div>
+
+
+        {{-- 🔵 DESKTOP HEADER LAYOUT (Visible lang sa PC/Laptop) --}}
+        {{-- Layout: [Back + Title] <Space> [Badge] --}}
+        <div class="hidden md:flex items-center justify-between w-full">
+            
+            {{-- Left: Back Button & Title --}}
+            <div class="flex items-center gap-3">
                 <a href="{{ route('reports.index') }}" 
-                   class="flex-shrink-0 flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-indigo-600 transition-colors duration-200 shadow-sm" 
+                   class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-indigo-600 transition-colors duration-200 shadow-sm" 
                    title="Back to Reports">
-                    <i class='bx bx-arrow-back text-xl md:text-2xl'></i>
+                    <i class='bx bx-arrow-back text-2xl'></i>
                 </a>
-
-                {{-- TITLE --}}
-                {{-- Hidden sa Mobile (para Back Button lang ang nasa kanan), Visible sa Desktop --}}
-                <h2 class="hidden md:block font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     {{ __('Grade Sheets Generator') }}
                 </h2>
             </div>
 
+            {{-- Right: Badge --}}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
+                <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
+            </span>
         </div>
+
     </x-slot>
 
     <div class="py-6 md:py-12" x-data="{ showFilters: false }">
