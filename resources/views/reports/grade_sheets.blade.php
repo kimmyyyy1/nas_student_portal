@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
         
-        {{-- ========================================== --}}
-        {{-- 📱 MOBILE VIEW ONLY (Hiwalay na Layout)    --}}
-        {{-- ========================================== --}}
+        {{-- ========================================================= --}}
+        {{-- 📱 MOBILE HEADER (Visible lang sa Cellphone/Tablet)       --}}
+        {{-- ========================================================= --}}
         <div class="flex md:hidden items-center justify-between w-full py-2">
             
             {{-- KALIWA: Academic Report Badge --}}
@@ -11,38 +11,41 @@
                 <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
             </span>
 
-            {{-- KANAN: Separate Back Button (May Circle Background) --}}
+            {{-- KANAN: Back Button (Bilog na may Background para madaling pindutin) --}}
             <a href="{{ route('reports.index') }}" 
-               class="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 active:bg-gray-300 transition-colors shadow-sm border border-gray-200"
+               class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 active:bg-gray-300 transition-colors shadow-sm border border-gray-200"
                title="Back to Reports">
                 <i class='bx bx-arrow-back text-xl'></i>
             </a>
+            
         </div>
 
 
-        {{-- ========================================== --}}
-        {{-- 💻 DESKTOP VIEW ONLY (Hiwalay na Layout)   --}}
-        {{-- ========================================== --}}
+        {{-- ========================================================= --}}
+        {{-- 💻 DESKTOP HEADER (Visible lang sa Laptop/PC)             --}}
+        {{-- ========================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             
-            {{-- KALIWA: Clean Arrow + Title --}}
+            {{-- KALIWA: Back Button (Arrow Lang) + Title --}}
             <div class="flex items-center gap-4">
-                {{-- Clean Arrow (Walang Background) --}}
+                {{-- Clean Back Button (Walang Bilog) --}}
                 <a href="{{ route('reports.index') }}" 
                    class="group flex items-center text-gray-500 hover:text-indigo-600 transition-colors p-1" 
                    title="Back to Reports">
                     <i class='bx bx-arrow-back text-2xl transform group-hover:-translate-x-1 transition-transform'></i>
                 </a>
 
+                {{-- Title --}}
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     {{ __('Grade Sheets Generator') }}
                 </h2>
             </div>
 
-            {{-- KANAN: Badge --}}
+            {{-- KANAN: Academic Report Badge --}}
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
                 <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
             </span>
+
         </div>
 
     </x-slot>
