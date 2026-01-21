@@ -4,7 +4,6 @@
         {{-- ============================================================= --}}
         {{-- 📱 MOBILE HEADER: Badge Lang (Clean Look)                     --}}
         {{-- ============================================================= --}}
-        {{-- py-2: Tamang spacing lang para hindi kumain ng oras --}}
         <div class="flex md:hidden items-center w-full py-2">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700 tracking-wide uppercase shadow-sm border border-gray-200">
                 <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -34,9 +33,20 @@
 
     </x-slot>
 
-    {{-- 👇 FIX: Ginawang 'py-6' sa mobile para umakyat, 'md:py-12' sa desktop --}}
-    <div class="py-6 md:py-12">
+    {{-- 👇 FIX: Pinalitan ang 'py-6' ng 'py-4' para umakyat pa lalo --}}
+    <div class="py-4 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+            
+            {{-- 🟢 MOBILE BACK BUTTON --}}
+            {{-- 👇 FIX: Ginawang 'mb-3' (mula mb-6) para mas dumikit ang mga cards --}}
+            <div class="md:hidden mb-3">
+                <a href="{{ route('dashboard') }}" 
+                   wire:navigate 
+                   class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-md text-gray-700 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all">
+                    <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to Dashboard
+                </a>
+            </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
