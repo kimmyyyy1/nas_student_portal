@@ -33,7 +33,7 @@
                 </h2>
             </div>
             
-            {{-- HEADER BUTTONS --}}
+            {{-- HEADER BUTTONS (Visible ONLY on Desktop) --}}
             <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                 <a href="{{ route('staff.create') }}" wire:navigate class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center justify-center shadow transition w-full sm:w-auto">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -47,6 +47,16 @@
     {{-- 👇 FIX: 'py-2' mobile, 'md:py-12' desktop --}}
     <div class="py-2 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+            
+            {{-- 🟢 MOBILE ADD BUTTON (Visible ONLY on Mobile) --}}
+            <div class="block md:hidden mb-4">
+                <a href="{{ route('staff.create') }}" 
+                   wire:navigate
+                   class="flex items-center justify-center w-full px-4 py-3 bg-blue-600 text-white rounded-lg shadow-md font-bold text-sm hover:bg-blue-700 active:scale-95 transition-all">
+                    <i class='bx bx-plus mr-2 text-xl'></i>
+                    Add New Staff
+                </a>
+            </div>
             
             {{-- ALERTS --}}
             @if(session('success'))
@@ -62,7 +72,7 @@
             @endif
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-                <div class="p-0 md:p-6 text-gray-900"> {{-- Removed padding on mobile for full-width table feel --}}
+                <div class="p-0 md:p-6 text-gray-900">
                     
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 whitespace-nowrap">
@@ -117,7 +127,7 @@
                                             <div class="flex flex-col items-center justify-center">
                                                 <i class='bx bx-user-x text-4xl text-gray-300 mb-2'></i>
                                                 <p class="text-lg font-medium">No staff found.</p>
-                                                <p class="text-sm mt-1">Click "Add Staff" above to create a new record.</p>
+                                                <p class="text-sm mt-1">Click "Add New Staff" button above.</p>
                                             </div>
                                         </td>
                                     </tr>
