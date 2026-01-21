@@ -72,12 +72,12 @@ class StudentController extends Controller
             $query->where('status', $request->status);
         }
 
-        // 👇 FIXED: Sport Filter Logic
-        // Tinanggal na ang 'sport_type' para iwas error
+        // 👇 FIXED: Sport Filter Logic (Base sa iyong screenshot)
+        // Tinanggal na ang 'sport_type' dahil wala ito sa database mo.
         if ($request->filled('sport')) {
             $query->whereHas('team', function($q) use ($request) {
-                $q->where('sport', $request->sport) // Check kung 'sport' column ang gamit
-                  ->orWhere('team_name', 'like', "%{$request->sport}%"); // Check kung nasa team name ang sport
+                $q->where('sport', $request->sport) // Ito ang column na nakita ko sa screenshot
+                  ->orWhere('team_name', 'like', "%{$request->sport}%"); // Fallback sa Team Name
             });
         }
 
