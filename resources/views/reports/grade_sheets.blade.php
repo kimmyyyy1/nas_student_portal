@@ -2,28 +2,18 @@
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER (Visible lang sa Cellphone)                  --}}
+        {{-- 📱 MOBILE HEADER: Badge Lang (Dahil ililipat natin ang button) --}}
         {{-- ============================================================= --}}
-        <div class="flex md:hidden items-center justify-between w-full py-2">
-            
+        <div class="flex md:hidden items-center w-full py-2">
             {{-- KALIWA: Academic Report Badge --}}
             <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 tracking-wide uppercase shadow-sm border border-green-200">
                 <i class='bx bxs-report mr-1.5 text-sm'></i> Academic Report
             </span>
-
-            {{-- KANAN: Back Button --}}
-            {{-- FIX: Added 'flex-shrink-0' at 'w-10 h-10' para hindi mapipi --}}
-            <a href="{{ route('reports.index') }}" 
-               class="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-white border border-gray-300 rounded-full text-gray-700 shadow-sm hover:bg-gray-50 active:scale-95 transition-all ml-2"
-               style="min-width: 40px; min-height: 40px;"> 
-                <i class='bx bx-arrow-back text-xl'></i>
-            </a>
-
         </div>
 
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER (Visible lang sa PC/Laptop)                 --}}
+        {{-- 💻 DESKTOP HEADER: Normal Layout (Back + Title + Badge)       --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             
@@ -52,6 +42,18 @@
     <div class="py-6 md:py-12" x-data="{ showFilters: false }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
+            {{-- 🟢 NEW: MOBILE BACK BUTTON (Nasa taas ng Filter Options) --}}
+            {{-- Ito ang solusyon para siguradong makita mo ang button --}}
+            <div class="md:hidden mb-4">
+                <a href="{{ route('reports.index') }}" 
+                   class="inline-flex items-center text-gray-600 hover:text-indigo-600 font-semibold transition-colors group">
+                    <div class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center mr-2 group-active:scale-95 transition-transform">
+                        <i class='bx bx-arrow-back text-xl'></i>
+                    </div>
+                    <span class="text-sm">Back to Reports</span>
+                </a>
+            </div>
+
             {{-- 🟢 MOBILE FILTER TOGGLE BUTTON --}}
             <div class="md:hidden mb-6">
                 <button @click="showFilters = !showFilters" 
