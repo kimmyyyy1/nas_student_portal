@@ -25,13 +25,8 @@
         {{-- Custom Styles --}}
         <style>
             * { font-family: 'Poppins', sans-serif !important; }
-            
-            /* Hide scrollbar for Chrome, Safari and Opera */
             .no-scrollbar::-webkit-scrollbar { display: none; }
-            /* Hide scrollbar for IE, Edge and Firefox */
             .no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
-
-            /* Custom Scrollbar for Desktop */
             @media (min-width: 768px) {
                 ::-webkit-scrollbar { width: 6px; }
                 ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -43,10 +38,9 @@
     
     <body class="font-sans antialiased text-gray-900 overflow-x-hidden">
         
-        {{-- BACKGROUND IMAGE (Fixed & Optimized) --}}
+        {{-- BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Modern Gradient Overlay --}}
             <div class="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-slate-900/80 to-black/80 backdrop-blur-[1px]"></div>
         </div>
 
@@ -56,10 +50,11 @@
             {{-- NAVIGATION --}}
             @include('layouts.navigation')
 
-            {{-- PAGE HEADER (Modernized) --}}
+            {{-- PAGE HEADER --}}
             @if (isset($header))
-                <header class="bg-white/95 backdrop-blur-sm shadow-sm relative md:ml-64 transition-all duration-300 z-10 border-b border-gray-100">
-                    {{-- 👇 Ginawang 'py-3' sa mobile para hindi masyadong makapal --}}
+                {{-- 👇 FIX: Added 'pt-16' (mobile) and 'md:pt-0' (desktop) --}}
+                {{-- Ito ang magbibigay ng saktong space para hindi matakpan ng fixed navbar --}}
+                <header class="bg-white/95 backdrop-blur-sm shadow-sm relative md:ml-64 transition-all duration-300 z-10 border-b border-gray-100 pt-16 md:pt-0">
                     <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
@@ -67,14 +62,12 @@
             @endif
 
             {{-- PAGE CONTENT --}}
-            {{-- 👇 FIX: Tinanggal ang 'pt-20' para hindi bumaba masyado sa mobile --}}
             <main class="flex-grow md:ml-64 px-0 md:px-4 transition-all duration-300">
                 {{ $slot }}
             </main>
             
         </div>
 
-        {{-- Livewire Scripts --}}
         @livewireScripts
     </body>
 </html>

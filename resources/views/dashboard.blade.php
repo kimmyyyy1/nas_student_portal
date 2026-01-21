@@ -3,10 +3,9 @@
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER: Super Slim (Negative Margin Trick)          --}}
+        {{-- 📱 MOBILE HEADER: Compact View                                --}}
         {{-- ============================================================= --}}
-        {{-- 👇 FIX: '-my-4' ang magpapaliit sa white header --}}
-        <div class="flex md:hidden items-center justify-between w-full -my-4">
+        <div class="flex md:hidden items-center justify-between w-full">
             
             {{-- Dashboard Badge --}}
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 uppercase shadow-sm border border-indigo-200">
@@ -21,7 +20,7 @@
         </div>
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Standard View (Visible lang sa PC)         --}}
+        {{-- 💻 DESKTOP HEADER: Standard View                              --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
@@ -35,8 +34,8 @@
 
     </x-slot>
 
-    {{-- 👇 Content Padding: 'py-2' para dikit sa header --}}
-    <div class="py-2 md:py-12">
+    {{-- 👇 FIX: Normal 'py-4' na lang, wala nang negative margins --}}
+    <div class="py-4 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- ======================================================= --}}
