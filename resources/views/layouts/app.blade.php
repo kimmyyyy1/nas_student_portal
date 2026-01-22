@@ -26,18 +26,14 @@
             /* 1. Global Font Override */
             * { font-family: 'Poppins', sans-serif !important; }
             
-            /* 👇 2. ICON REPAIR KIT (FINAL FIX)
-               Ito ang aayos sa mga sirang (square) at nawawalang (missing) icons.
-            */
+            /* 2. ICON REPAIR KIT */
             i.bx, i.bxs, i.bxl, .bx {
-                font-family: 'boxicons' !important; /* Ibalik sa Boxicons font */
-                font-weight: normal !important;     /* Bawal mag-bold (sanhi ng square icons) */
-                font-style: normal !important;      /* Bawal mag-italic */
-                line-height: 1 !important;          /* Ayusin ang alignment */
-                
-                /* Anti-Squash: Para hindi mawala/maipit sa mobile */
+                font-family: 'boxicons' !important;
+                font-weight: normal !important;
+                font-style: normal !important;
+                line-height: 1 !important;
                 flex-shrink: 0 !important;          
-                min-width: 1.25rem; /* ~20px width siguradong may space */
+                min-width: 1.25rem;
                 display: inline-block;
                 text-align: center;
             }
@@ -57,6 +53,18 @@
             .custom-scroll::-webkit-scrollbar-track { background: transparent; }
             .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
             .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(107, 114, 128, 0.8); }
+
+            /* 👇 4. NEW: PAGE TRANSITION ANIMATION 
+               Ito ang magpapaganda ng pasok ng content (Fade Up Effect) 
+            */
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .animate-page-enter {
+                animation: fadeUp 0.3s ease-out forwards;
+            }
         </style>
     </head>
     
@@ -88,8 +96,11 @@
                     </header>
                 @endif
 
-                {{-- MAIN SCROLLABLE AREA --}}
-                <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+                {{-- 
+                    👇 MAIN CONTENT WITH ANIMATION
+                    - Added 'animate-page-enter' class here
+                --}}
+                <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 animate-page-enter">
                     {{ $slot }}
                 </main>
 
