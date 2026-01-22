@@ -23,19 +23,25 @@
         @livewireStyles
 
         <style>
-            /* 1. Global Font Override */
+            /* 1. Global Font Override (Poppins) */
             * { font-family: 'Poppins', sans-serif !important; }
+            
+            /* 👇 FIX: RESTORE ICON FONT 
+               Ito ang solusyon para hindi maging 'square' ang mga icons.
+               Binabalik natin ang font-family nila sa 'boxicons'.
+            */
+            i.bx, i.bxs, i.bxl {
+                font-family: 'boxicons' !important;
+            }
+
             [x-cloak] { display: none !important; }
             
-            /* 👇 2. BULLETPROOF LAYOUT FIX 
-               - '100dvh' (Dynamic Viewport Height) ang solusyon sa mobile overflow issue.
-               - Ito ang pipigil sa layout na lumagpas sa ilalim ng screen.
-            */
+            /* 2. BULLETPROOF LAYOUT FIX (100dvh para sa mobile scroll) */
             body {
                 background-color: transparent !important;
                 background-image: none !important;
-                height: 100dvh !important; /* Dynamic height para sa mobile browsers */
-                overflow: hidden !important; /* Bawal mag-scroll ang main window */
+                height: 100dvh !important;
+                overflow: hidden !important;
             }
 
             /* Custom Scrollbar */
@@ -63,11 +69,9 @@
             </div>
 
             {{-- 
-                👇 CONTENT AREA FIXES:
-                - Removed 'w-full': Para hindi lumagpas sa gilid (Horizontal fix).
-                - 'pt-16': Space sa taas para sa Mobile Header.
-                - 'md:pt-0': Walang space sa Desktop (dahil nasa gilid ang nav).
-                - 'md:ml-64': Margin para sa sidebar sa Desktop.
+                CONTENT AREA 
+                - pt-16: Space para sa mobile header
+                - md:pt-0: Reset sa desktop
             --}}
             <div class="flex-1 flex flex-col h-full overflow-hidden relative md:ml-64 pt-16 md:pt-0 transition-all duration-300">
                 
@@ -81,8 +85,8 @@
                 @endif
 
                 {{-- 
-                    👇 MAIN SCROLLABLE AREA 
-                    - 'pb-20': Nagdagdag ng padding sa baba para siguradong hindi matatakpan ang dulo ng content.
+                    MAIN SCROLLABLE AREA 
+                    - pb-20: Padding sa baba para hindi maputol sa mobile views
                 --}}
                 <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
                     {{ $slot }}
