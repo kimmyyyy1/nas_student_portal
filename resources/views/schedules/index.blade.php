@@ -70,21 +70,40 @@
         </div>
     </div>
 
-    {{-- 👇 SCRIPT TO FIX BACK BUTTON ISSUE --}}
+    {{-- 👇 IMPORTANT SCRIPTS TO HANDLE BUTTON VISIBILITY --}}
     <script>
+        // 1. Browser Back Button Fix
         window.addEventListener('pageshow', function(event) {
+            resetButtons();
+        });
+
+        // 2. Livewire Navigation Fix (Cancel/Save Actions)
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('commit', ({ succeed }) => {
+                succeed(() => {
+                    // Maghintay ng sandali para matapos ang render ng Livewire
+                    setTimeout(() => {
+                        // Tignan kung may TABLE sa page (Indicator na nasa List View tayo)
+                        if (document.querySelector('table')) {
+                            resetButtons();
+                        }
+                    }, 100);
+                })
+            })
+        });
+
+        // Helper function para ibalik ang buttons
+        function resetButtons() {
             var desktopBtn = document.getElementById('desktop-add-btn');
             var mobileContainer = document.getElementById('mobile-btn-container');
 
             if (desktopBtn) {
-                // Ibalik sa 'flex' kung desktop size
-                desktopBtn.style.display = ''; 
+                desktopBtn.style.display = ''; // Reset display style
             }
             if (mobileContainer) {
-                // Ibalik sa 'block' kung mobile size
-                mobileContainer.style.display = '';
+                mobileContainer.style.display = ''; // Reset display style
             }
-        });
+        }
     </script>
 
 </x-app-layout>
