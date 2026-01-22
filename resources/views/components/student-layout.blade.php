@@ -49,27 +49,25 @@
             <div class="absolute inset-0 bg-gray-50/50 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- MAIN WRAPPER: Gumagamit ng flex para sa sidebar at content --}}
-        <div class="relative z-10 min-h-screen flex">
+        {{-- MAIN WRAPPER --}}
+        <div class="relative z-10 min-h-screen flex flex-col md:flex-row">
 
-            {{-- SIDEBAR: Ibalik ang sidebar component --}}
-            <x-sidebar-student />
+            {{-- SIDEBAR: Gamitin ang existing navigation file --}}
+            @include('layouts.navigation')
 
-            {{-- MAIN CONTENT AREA: May margin-left para hindi matakpan ng sidebar --}}
-            <div class="flex-1 flex flex-col min-h-screen ml-64 transition-all duration-300">
+            {{-- MAIN CONTENT AREA --}}
+            {{-- Added md:ml-64 para umusog ang content sa kanan kapag naka-desktop (dahil fixed ang sidebar) --}}
+            <div class="flex-1 flex flex-col min-h-screen md:ml-64 transition-all duration-300">
                 
                 @if (isset($header))
                     <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-20">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                             {{ $header }}
-                            
-                            {{-- (Optional) Pwede mong ibalik ang profile dropdown dito kung gusto mo --}}
-                            {{-- <div class="flex items-center">...</div> --}}
                         </div>
                     </header>
                 @endif
 
-                <main class="flex-1 p-6">
+                <main class="flex-1 p-4 sm:p-6">
                     {{ $slot }}
                 </main>
 
