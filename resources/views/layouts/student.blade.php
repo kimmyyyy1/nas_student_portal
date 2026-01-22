@@ -24,12 +24,8 @@
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
             
-            body {
-                background-color: transparent !important; 
-                background-image: none !important;
-                min-height: 100vh;
-                overflow-y: auto; 
-            }
+            /* Siguraduhing transparent ang body */
+            body { background-color: transparent !important; }
 
             .custom-scroll::-webkit-scrollbar { width: 6px; }
             .custom-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -38,17 +34,26 @@
         </style>
     </head>
     
-    <body class="font-sans antialiased text-gray-900 bg-transparent">
+    <body class="font-sans antialiased text-gray-900">
         
-        {{-- 👇 FIXED BACKGROUND IMAGE --}}
-        <div class="fixed inset-0 z-[-1]">
-            {{-- Image --}}
-            <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            
-            {{-- 👇 FIX: Ginawa kong 50% lang ang opacity (bg-gray-50/50) para makita ang picture --}}
-            <div class="absolute inset-0 bg-gray-50/50 backdrop-blur-[2px]"></div>
+        {{-- 👇 1. SUREFIRE BACKGROUND FIX --}}
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;">
+            {{-- Background Image --}}
+            <div style="
+                position: absolute;
+                inset: 0;
+                background-image: url('{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            "></div>
+
+            {{-- Overlay (Manipis lang para makita ang picture) --}}
+            {{-- Kung gusto mo mas malinaw, babaan ang 0.6 sa 0.3 --}}
+            <div style="position: absolute; inset: 0; background-color: rgba(255, 255, 255, 0.6); backdrop-filter: blur(2px);"></div>
         </div>
 
+        {{-- 👇 2. MAIN CONTENT --}}
         <div class="min-h-screen flex flex-col relative">
             
             @include('layouts.navigation')
