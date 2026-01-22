@@ -24,8 +24,12 @@
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
             
-            /* Siguraduhing transparent ang body */
-            body { background-color: transparent !important; }
+            /* Pwersahin na walang kulay ang html at body */
+            html, body {
+                background-color: transparent !important;
+                background: none !important;
+                height: 100%;
+            }
 
             .custom-scroll::-webkit-scrollbar { width: 6px; }
             .custom-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -36,45 +40,42 @@
     
     <body class="font-sans antialiased text-gray-900">
         
-        {{-- 👇 1. SUREFIRE BACKGROUND FIX --}}
-        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;">
-            {{-- Background Image --}}
-            <div style="
-                position: absolute;
-                inset: 0;
-                background-image: url('{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}');
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-            "></div>
+        {{-- WRAPPER: Ito ang maghahawak sa Background at Content --}}
+        <div class="relative min-h-screen w-full overflow-hidden">
 
-            {{-- Overlay (Manipis lang para makita ang picture) --}}
-            {{-- Kung gusto mo mas malinaw, babaan ang 0.6 sa 0.3 --}}
-            <div style="position: absolute; inset: 0; background-color: rgba(255, 255, 255, 0.6); backdrop-filter: blur(2px);"></div>
-        </div>
+            {{-- 1. BACKGROUND IMAGE LAYER (Absolute, Z-0) --}}
+            <div class="absolute inset-0 z-0">
+                <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" 
+                     class="w-full h-full object-cover fixed" 
+                     alt="Background">
+                {{-- Overlay --}}
+                <div class="absolute inset-0 bg-gray-50/50 backdrop-blur-[2px] fixed"></div>
+            </div>
 
-        {{-- 👇 2. MAIN CONTENT --}}
-        <div class="min-h-screen flex flex-col relative">
-            
-            @include('layouts.navigation')
+            {{-- 2. CONTENT LAYER (Relative, Z-10) --}}
+            {{-- Ito ay nakapatong sa image --}}
+            <div class="relative z-10 flex flex-col min-h-screen">
+                
+                @include('layouts.navigation')
 
-            @if (isset($header))
-                <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-10">
-                    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+                @if (isset($header))
+                    <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-20">
+                        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endif
+
+                <main class="flex-1">
+                    {{ $slot }}
+                </main>
+
+                <footer class="bg-white/80 backdrop-blur-sm border-t border-gray-200 mt-auto py-6">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500 font-medium uppercase tracking-wider">
+                        &copy; {{ date('Y') }} National Academy of Sports. Student Portal.
                     </div>
-                </header>
-            @endif
-
-            <main class="flex-1">
-                {{ $slot }}
-            </main>
-
-            <footer class="bg-white/80 backdrop-blur-sm border-t border-gray-200 mt-auto py-6">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500 font-medium uppercase tracking-wider">
-                    &copy; {{ date('Y') }} National Academy of Sports. Student Portal.
-                </div>
-            </footer>
+                </footer>
+            </div>
 
         </div>
 
