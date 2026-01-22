@@ -24,46 +24,67 @@
 
         /* 2. BODY SETTINGS */
         body {
-            margin: 0; padding: 0; width: 100%; height: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
             background-color: #111827;
-            overflow-x: hidden;
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
 
         /* 3. INPUT FIELD FIXES */
-        input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display: none; }
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear { display: none; }
         input[type="password"]::-webkit-contacts-auto-fill-button,
         input[type="password"]::-webkit-credentials-auto-fill-button {
             visibility: hidden; pointer-events: none; position: absolute; right: 0;
         }
 
         /* 4. BACKGROUND LAYERS */
-        .bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        .bg-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+        .bg-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+        }
+        .bg-image {
+            width: 100%; height: 100%; object-fit: cover; opacity: 0.6;
+        }
         .bg-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom right, rgba(30, 58, 138, 0.8), rgba(17, 24, 39, 0.8));
             backdrop-filter: blur(3px);
         }
 
-        /* 5. MAIN WRAPPER */
+        /* 5. MAIN WRAPPER (CENTERING MAGIC) */
         .main-wrapper {
-            min-height: 100vh; min-height: 100dvh;
-            width: 100%; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            padding: 2rem 1rem;
+            min-height: 100vh;      /* Full viewport height */
+            min-height: 100dvh;     /* Mobile dynamic height */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center Vertically on Desktop */
+            align-items: center;     /* Center Horizontally */
+            padding: 2rem 1rem;      /* Breathing room */
         }
 
-        /* 6. LOGIN CARD */
+        /* 6. LOGIN CARD DESIGN */
         .login-card {
-            background-color: white; width: 100%; max-width: 420px;
-            border-radius: 1rem;
+            background-color: white;
+            width: 100%;
+            max-width: 420px;       /* Optimal width for Desktop */
+            border-radius: 1rem;    /* Rounded corners */
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             border-top: 5px solid #facc15; /* Yellow Accent */
-            overflow: hidden; transition: transform 0.3s ease;
+            overflow: hidden;
+            transition: transform 0.3s ease;
         }
+
+        /* Slight hover effect on Desktop */
         @media (min-width: 768px) {
-            .login-card:hover { transform: translateY(-2px); box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6); }
+            .login-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+            }
         }
+
         .card-content { padding: 2.5rem 2rem; }
 
         /* 7. FORM ELEMENTS */
@@ -75,14 +96,15 @@
         .form-input {
             width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem;
             font-size: 0.9rem; border-radius: 0.5rem;
-            border: 1px solid #d1d5db; background-color: #f9fafb; transition: all 0.2s;
+            border: 1px solid #d1d5db; background-color: #f9fafb;
+            transition: all 0.2s;
         }
         .form-input:focus {
             outline: none; border-color: #2563eb; background-color: #fff;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-        /* 👇 8. REMEMBER ME & FORGOT PASSWORD (FIXED) */
+        /* 👇 8. REMEMBER ME FIXES */
         .remember-forgot-row {
             display: flex; align-items: center; justify-content: space-between;
             margin-top: 0.5rem; margin-bottom: 1.5rem;
@@ -91,12 +113,11 @@
             display: inline-flex; align-items: center; cursor: pointer; user-select: none;
         }
         .remember-input {
-            width: 1rem; height: 1rem; border-radius: 0.25rem;
-            border: 1px solid #d1d5db; color: #1e40af; cursor: pointer;
-            transition: all 0.2s;
-        }
-        .remember-input:checked {
-            background-color: #1e40af; border-color: #1e40af;
+            width: 1rem; height: 1rem; 
+            border-radius: 0.25rem;
+            border: 1px solid #d1d5db; 
+            cursor: pointer;
+            accent-color: #1e40af; /* 👇 FIX: Forces blue color when checked */
         }
         .remember-text {
             margin-left: 0.5rem; font-size: 0.8rem; color: #4b5563; font-weight: 500;
@@ -112,7 +133,7 @@
             background-color: #1e40af; color: white;
             font-weight: 700; border-radius: 0.5rem; border: none;
             cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s; margin-top: 0.5rem;
         }
         .btn-login:hover { background-color: #1e3a8a; }
 
@@ -123,7 +144,9 @@
             text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em;
             transition: all 0.2s; border: 1px solid transparent;
         }
-        .btn-register:hover { background-color: #fff; border-color: #d1d5db; color: #1f2937; }
+        .btn-register:hover {
+            background-color: #fff; border-color: #d1d5db; color: #1f2937;
+        }
 
         /* Utilities */
         .icon { position: absolute; top: 50%; left: 0.85rem; transform: translateY(-50%); width: 1.25rem; height: 1.25rem; color: #9ca3af; }
@@ -199,10 +222,11 @@
                         <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
                     </div>
 
-                    {{-- 👇 REMEMBER ME & FORGOT PASSWORD (AYOS NA) --}}
+                    {{-- 👇 REMEMBER ME (Fixed Logic + Styling) --}}
                     <div class="remember-forgot-row">
                         <label for="remember_me" class="remember-label">
-                            <input id="remember_me" type="checkbox" class="remember-input" name="remember">
+                            {{-- 👇 Added 'old' check logic to persist state on error --}}
+                            <input id="remember_me" type="checkbox" class="remember-input" name="remember" {{ old('remember') ? 'checked' : '' }}>
                             <span class="remember-text">Remember me</span>
                         </label>
                         
@@ -221,6 +245,8 @@
                 {{-- Register Link --}}
                 <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #f3f4f6; text-align: center;">
                     <p style="font-size: 0.7rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; margin-bottom: 0.75rem;">No account yet?</p>
+                    
+                    {{-- FIXED ROUTE --}}
                     <a href="{{ route('register') }}" class="btn-register">
                         Register as Applicant
                     </a>
