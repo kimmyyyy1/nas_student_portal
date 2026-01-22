@@ -27,12 +27,15 @@
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
             
-            /* 👇 2. BULLETPROOF LAYOUT & BACKGROUND FIX */
+            /* 👇 2. BULLETPROOF LAYOUT FIX 
+               - '100dvh' (Dynamic Viewport Height) ang solusyon sa mobile overflow issue.
+               - Ito ang pipigil sa layout na lumagpas sa ilalim ng screen.
+            */
             body {
                 background-color: transparent !important;
                 background-image: none !important;
-                height: 100vh !important;
-                overflow: hidden !important;
+                height: 100dvh !important; /* Dynamic height para sa mobile browsers */
+                overflow: hidden !important; /* Bawal mag-scroll ang main window */
             }
 
             /* Custom Scrollbar */
@@ -45,14 +48,13 @@
     
     <body class="font-sans antialiased text-gray-900 bg-transparent">
         
-        {{-- 👇 PERMANENT BACKGROUND IMAGE --}}
+        {{-- BACKGROUND --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Overlay --}}
             <div class="absolute inset-0 bg-white/1 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- 👇 MAIN LAYOUT WRAPPER --}}
+        {{-- MAIN LAYOUT WRAPPER --}}
         <div class="h-full flex flex-col md:flex-row">
             
             {{-- Sidebar --}}
@@ -61,12 +63,13 @@
             </div>
 
             {{-- 
-                👇 CONTENT AREA FIX:
-                - 'pt-16': Naglagay ng space sa taas para sa Mobile Header (Height 16).
-                - 'md:pt-0': Tinanggal ang space sa Desktop (kasi sa gilid ang sidebar).
-                - 'md:ml-64': Margin sa kaliwa para sa Desktop Sidebar.
+                👇 CONTENT AREA FIXES:
+                - Removed 'w-full': Para hindi lumagpas sa gilid (Horizontal fix).
+                - 'pt-16': Space sa taas para sa Mobile Header.
+                - 'md:pt-0': Walang space sa Desktop (dahil nasa gilid ang nav).
+                - 'md:ml-64': Margin para sa sidebar sa Desktop.
             --}}
-            <div class="flex-1 flex flex-col h-full overflow-hidden relative w-full md:ml-64 pt-16 md:pt-0">
+            <div class="flex-1 flex flex-col h-full overflow-hidden relative md:ml-64 pt-16 md:pt-0 transition-all duration-300">
                 
                 {{-- Header --}}
                 @if (isset($header))
@@ -79,8 +82,9 @@
 
                 {{-- 
                     👇 MAIN SCROLLABLE AREA 
+                    - 'pb-20': Nagdagdag ng padding sa baba para siguradong hindi matatakpan ang dulo ng content.
                 --}}
-                <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8">
+                <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
                     {{ $slot }}
                 </main>
 
