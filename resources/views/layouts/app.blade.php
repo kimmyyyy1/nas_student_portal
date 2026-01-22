@@ -32,22 +32,27 @@
         </style>
     </head>
     
-    {{-- 👇 DITO ANG SUSI: 'bg-transparent' --}}
-    <body class="font-sans antialiased text-gray-900 bg-transparent">
+    {{-- 👇 FIX 1: 'h-screen overflow-hidden' (Ito ang nagla-lock ng screen para "FIT" siya at bawal mag-scroll ang window) --}}
+    <body class="font-sans antialiased text-gray-900 bg-transparent h-screen overflow-hidden">
         
-        {{-- 👇 MALINAW NA BACKGROUND --}}
+        {{-- BACKGROUND (HINDI KO GINALAW) --}}
         <div class="fixed inset-0 z-[-1]">
-            {{-- Siguraduhin na tama ang path ng image mo --}}
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Overlay para mabasa ang text --}}
             <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
         </div>
 
-        <div class="min-h-screen flex flex-col md:flex-row">
+        {{-- 
+            👇 FIX 2: TINANGGAL ANG 'flex md:flex-row'. 
+            Ginawa kong simple 'h-full' div lang. 
+            Ito ang solusyon para HINDI lumagpas ang width (No Horizontal Scroll).
+        --}}
+        <div class="h-full">
             
             @include('layouts.navigation')
 
-            <div class="flex-1 flex flex-col md:ml-64 h-full relative">
+            {{-- CONTENT WRAPPER --}}
+            <div class="flex flex-col h-full md:ml-64 transition-all duration-300 relative">
+                
                 @if (isset($header))
                     <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 z-20 shrink-0">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
@@ -56,10 +61,13 @@
                     </header>
                 @endif
 
+                {{-- 👇 FIX 3: DITO LANG ANG SCROLLBAR (SA LOOB) --}}
                 <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8">
                     {{ $slot }}
                 </main>
+
             </div>
+            
         </div>
 
         @livewireScripts
