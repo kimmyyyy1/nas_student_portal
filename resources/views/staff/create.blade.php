@@ -36,6 +36,8 @@
     <div class="py-2 md:py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 px-4">
             
+            {{-- 🟢 BACK BUTTON REMOVED (Cancel button below serves as back) --}}
+
             <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200">
                 <div class="p-6 text-gray-900">
                     
@@ -106,11 +108,12 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                            <a href="{{ route('staff.index') }}" wire:navigate class="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 font-bold py-2 px-4 rounded text-sm shadow-sm transition">
+                        {{-- 👇 UPDATED BUTTON LAYOUT: Flex Column on Mobile, Row on Desktop --}}
+                        <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100">
+                            <a href="{{ route('staff.index') }}" wire:navigate class="w-full sm:w-auto text-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 font-bold py-2 px-4 rounded text-sm shadow-sm transition">
                                 Cancel
                             </a>
-                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded text-sm shadow-md transition transform hover:-translate-y-0.5">
+                            <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded text-sm shadow-md transition transform hover:-translate-y-0.5">
                                 Save Staff & Create Account
                             </button>
                         </div>
