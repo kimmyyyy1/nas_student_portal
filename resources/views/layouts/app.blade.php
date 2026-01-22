@@ -34,32 +34,19 @@
         </style>
     </head>
     
-    {{-- 👇 FIX 1: 'h-screen overflow-hidden' para LOCK ang screen size (Fit) --}}
+    {{-- 👇 IMPORTANT: 'bg-transparent' (Wala dapat bg-gray-100 dito!) --}}
     <body class="font-sans antialiased text-gray-900 bg-transparent h-screen overflow-hidden">
         
-        {{-- 👇 FIX 2: CLEAR BACKGROUND (Malinaw na Image) --}}
+        {{-- 👇 BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
             
-            {{-- 👇 OVERLAY: 'bg-white/30' (Manipis na puti para malinaw) --}}
-            <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- LAYOUT WRAPPER --}}
         <div class="flex h-screen overflow-hidden">
-            
-            {{-- SIDEBAR --}}
             @include('layouts.navigation')
 
-            {{-- 
-                👇 FIX 3: CONTENT AREA
-                - Tinanggal ang 'w-full' para hindi lumagpas (Horizontal Scroll Fix).
-                - 'flex-1' ang bahala mag-fill ng space.
-                - 'md:ml-64' para sa sidebar space.
-            --}}
             <div class="flex-1 flex flex-col md:ml-64 h-full relative">
-                
-                {{-- PAGE HEADER (Sticky) --}}
                 @if (isset($header))
                     <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 z-20 shrink-0">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
@@ -68,17 +55,10 @@
                     </header>
                 @endif
 
-                {{-- 
-                    👇 FIX 4: SCROLLABLE CONTENT
-                    - 'overflow-y-auto': Dito lang magso-scroll (sa loob).
-                    - 'custom-scroll': Magandang scrollbar style.
-                --}}
                 <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8">
                     {{ $slot }}
                 </main>
-
             </div>
-            
         </div>
 
         @livewireScripts
