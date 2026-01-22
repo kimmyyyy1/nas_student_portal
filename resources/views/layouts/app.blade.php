@@ -26,7 +26,7 @@
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
             
-            /* Custom Scrollbar for Dashboard Content */
+            /* Custom Scrollbar for Dashboard Content Only */
             .custom-scroll::-webkit-scrollbar { width: 6px; }
             .custom-scroll::-webkit-scrollbar-track { background: transparent; }
             .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
@@ -34,49 +34,51 @@
         </style>
     </head>
     
-    <body class="font-sans antialiased text-gray-900 bg-transparent">
+    {{-- 👇 FIX: 'h-screen overflow-hidden' para LOCK ang screen (Fit) at walang horizontal scroll --}}
+    <body class="font-sans antialiased text-gray-900 bg-transparent h-screen overflow-hidden">
         
         {{-- BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Overlay: Clear but readable --}}
+            {{-- Overlay --}}
             <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
         </div>
 
         {{-- 
-            👇 LAYOUT FIX:
-            Mobile: 'min-h-screen' (Normal Scroll) -> Iwas Flicker
-            Desktop: 'md:h-screen md:overflow-hidden' (Fixed Window) -> "Fit" sa screen
+            👇 LAYOUT STRUCTURE
+            Hindi na kailangan ng main wrapper flex container.
+            Ang Sidebar ay 'fixed', so ang Content ay ia-adjust gamit ang margin.
         --}}
-        <div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
+        
+        {{-- SIDEBAR (Fixed Position) --}}
+        @include('layouts.navigation')
+
+        {{-- 
+            👇 CONTENT WRAPPER
+            1. 'md:ml-64': Naglalagay ng space para sa sidebar.
+            2. 'h-full': Sinasakop ang buong height ng screen.
+            3. ❌ REMOVED 'w-full': Ito ang nagpapatanggal ng horizontal scrollbar.
+            4. 'flex flex-col': Para maayos ang Header at Main.
+        --}}
+        <div class="flex flex-col h-full md:ml-64 transition-all duration-300">
             
-            {{-- NAVIGATION --}}
-            @include('layouts.navigation')
+            {{-- PAGE HEADER (Fixed at top of content) --}}
+            @if (isset($header))
+                <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 z-20 shrink-0">
+                    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                        {{ $header }}
+                    </div>
+                </header>
+            @endif
 
-            {{-- CONTENT WRAPPER --}}
-            <div class="flex-1 flex flex-col w-full md:ml-64 transition-all duration-300 h-full">
-                
-                {{-- PAGE HEADER --}}
-                @if (isset($header))
-                    {{-- Sticky Header --}}
-                    <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-20 shrink-0">
-                        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                            {{ $header }}
-                        </div>
-                    </header>
-                @endif
+            {{-- 
+                👇 SCROLLABLE AREA
+                Dito lang magkaka-scrollbar (sa loob), hindi sa buong window.
+            --}}
+            <main class="flex-1 overflow-y-auto overflow-x-hidden custom-scroll p-4 sm:p-6 lg:p-8">
+                {{ $slot }}
+            </main>
 
-                {{-- 
-                    👇 MAIN CONTENT AREA:
-                    Desktop: 'md:overflow-y-auto' -> Dito lang magkaka-scrollbar (sa loob), hindi sa buong page.
-                    Mobile: Normal lang.
-                --}}
-                <main class="flex-1 p-4 sm:p-6 lg:p-8 md:overflow-y-auto custom-scroll">
-                    {{ $slot }}
-                </main>
-
-            </div>
-            
         </div>
 
         @livewireScripts
