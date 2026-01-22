@@ -47,12 +47,13 @@
     </div>
 
     {{-- ================================================= --}}
-    {{-- 3. SIDEBAR (Fixed & Persistent Scroll)            --}}
+    {{-- 3. SIDEBAR (Fixed)                                --}}
     {{-- ================================================= --}}
+    {{-- 👇 FIX: Added 'md:transition-none' para hindi mag-animate/flicker sa Desktop --}}
     <nav :class="{'translate-x-0': open, '-translate-x-full': !open}"
          class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-xl border-r border-white/20 z-50 shadow-2xl no-print 
                 transition-transform duration-300 ease-in-out 
-                md:translate-x-0 transform -translate-x-full flex flex-col">
+                md:translate-x-0 transform -translate-x-full md:transition-none flex flex-col">
         
         {{-- Close Button (Mobile Only) --}}
         <div class="md:hidden absolute top-4 right-4 z-[60]">
@@ -62,15 +63,11 @@
         </div>
 
         {{-- 
-            👇 SCROLLABLE CONTAINER (FIXED SCROLL LOGIC)
-            1. Tinanggal ang 'scroll-smooth' (Ito ang dahilan ng flick/talon).
-            2. Gumamit ng Alpine x-init para instant ang restore ng position.
+            👇 SCROLLABLE CONTAINER (REMOVED JS JUMP)
+            Tinanggal ko ang x-init at @scroll logic dito dahil ito ang nagpapatalon (Flicker) ng content.
         --}}
         <div id="sidebar-menu" 
-             class="flex-1 overflow-y-auto no-scrollbar"
-             x-data
-             x-init="$el.scrollTop = sessionStorage.getItem('sidebarPosition') || 0"
-             @scroll.passive="sessionStorage.setItem('sidebarPosition', $el.scrollTop)">
+             class="flex-1 overflow-y-auto no-scrollbar">
 
             {{-- SIDEBAR HEADER --}}
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
