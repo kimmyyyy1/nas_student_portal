@@ -24,13 +24,14 @@
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
             
-            /* Pwersahin na walang kulay ang html at body */
+            /* Pwersahin na walang kulay ang html at body para lumitaw ang BG */
             html, body {
                 background-color: transparent !important;
                 background: none !important;
                 height: 100%;
             }
 
+            /* Custom Scrollbar */
             .custom-scroll::-webkit-scrollbar { width: 6px; }
             .custom-scroll::-webkit-scrollbar-track { background: transparent; }
             .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
@@ -40,27 +41,34 @@
     
     <body class="font-sans antialiased text-gray-900">
         
-        {{-- BACKGROUND IMAGE LAYER (Absolute, Z-0) --}}
+        {{-- =============================================== --}}
+        {{-- FIXED BACKGROUND IMAGE LAYER (Absolute, Z-0)    --}}
+        {{-- =============================================== --}}
         <div class="fixed inset-0 z-0">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" 
                  class="w-full h-full object-cover" 
                  alt="Background">
-            {{-- Overlay --}}
-            <div class="absolute inset-0 bg-gray-50/50 backdrop-blur-[2px]"></div>
+            
+            {{-- 👇 DITO ANG PAGBABAGO: Dark Overlay sa halip na puti --}}
+            {{-- bg-black/40: 40% opacity na itim para hindi masakit sa mata --}}
+            {{-- backdrop-blur-sm: Swabeng blur para clear tignan --}}
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
         </div>
 
-        {{-- MAIN WRAPPER --}}
+        {{-- =============================================== --}}
+        {{-- MAIN CONTENT WRAPPER (Relative, Z-10)           --}}
+        {{-- =============================================== --}}
         <div class="relative z-10 min-h-screen flex flex-col md:flex-row">
 
-            {{-- SIDEBAR: Gamitin ang existing navigation file --}}
+            {{-- SIDEBAR --}}
             @include('layouts.navigation')
 
             {{-- MAIN CONTENT AREA --}}
-            {{-- Added md:ml-64 para umusog ang content sa kanan kapag naka-desktop (dahil fixed ang sidebar) --}}
             <div class="flex-1 flex flex-col min-h-screen md:ml-64 transition-all duration-300">
                 
                 @if (isset($header))
-                    <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-20">
+                    {{-- Header na may konting transparency --}}
+                    <header class="bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-20">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                             {{ $header }}
                         </div>
@@ -71,7 +79,7 @@
                     {{ $slot }}
                 </main>
 
-                <footer class="bg-white/80 backdrop-blur-sm border-t border-gray-200 mt-auto py-6">
+                <footer class="bg-white/90 backdrop-blur-sm border-t border-gray-200 mt-auto py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500 font-medium uppercase tracking-wider">
                         &copy; {{ date('Y') }} National Academy of Sports. Student Portal.
                     </div>
