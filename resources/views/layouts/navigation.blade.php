@@ -49,7 +49,6 @@
     {{-- ================================================= --}}
     {{-- 3. SIDEBAR (Fixed)                                --}}
     {{-- ================================================= --}}
-    {{-- 👇 FIX: Added 'md:transition-none' para hindi mag-animate/flicker sa Desktop --}}
     <nav :class="{'translate-x-0': open, '-translate-x-full': !open}"
          class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-xl border-r border-white/20 z-50 shadow-2xl no-print 
                 transition-transform duration-300 ease-in-out 
@@ -63,11 +62,14 @@
         </div>
 
         {{-- 
-            👇 SCROLLABLE CONTAINER (REMOVED JS JUMP)
-            Tinanggal ko ang x-init at @scroll logic dito dahil ito ang nagpapatalon (Flicker) ng content.
+            👇 SCROLLABLE CONTAINER (WITH POSITION MEMORY)
+            FIX: Naglagay tayo ng x-init dito para ibalik ang scroll position agad-agad.
         --}}
         <div id="sidebar-menu" 
-             class="flex-1 overflow-y-auto no-scrollbar">
+             class="flex-1 overflow-y-auto no-scrollbar"
+             x-data
+             x-init="$el.scrollTop = sessionStorage.getItem('sidebarScroll') || 0"
+             @scroll.passive="sessionStorage.setItem('sidebarScroll', $el.scrollTop)">
 
             {{-- SIDEBAR HEADER --}}
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
