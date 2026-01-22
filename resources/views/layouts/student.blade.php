@@ -10,33 +10,32 @@
         {{-- Favicon --}}
         <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-        {{-- Fonts (Poppins) --}}
+        {{-- Fonts --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         
-        {{-- Icons (Boxicons) --}}
+        {{-- Icons --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-        {{-- Scripts & Styles --}}
+        {{-- Scripts --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
 
         <style>
-            /* 1. Global Font Override */
+            /* Global Font */
             * { font-family: 'Poppins', sans-serif !important; }
-            
             [x-cloak] { display: none !important; }
             
-            /* 2. Background Fix: Make body transparent so fixed bg shows through */
+            /* Background Fix: Ensure body is transparent */
             body {
-                background-color: transparent !important; 
+                background-color: transparent !important;
                 background-image: none !important;
                 min-height: 100vh;
-                overflow-y: auto; /* Allow scrolling */
+                overflow-y: auto; 
             }
 
-            /* 3. Custom Scrollbar */
+            /* Custom Scrollbar */
             .custom-scroll::-webkit-scrollbar { width: 6px; }
             .custom-scroll::-webkit-scrollbar-track { background: transparent; }
             .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
@@ -46,21 +45,19 @@
     
     <body class="font-sans antialiased text-gray-900 bg-transparent">
         
-        {{-- 👇 1. FIXED BACKGROUND IMAGE --}}
+        {{-- 👇 1. FIXED BACKGROUND IMAGE (Ito ang magpapalitaw ng BG) --}}
         <div class="fixed inset-0 z-[-1]">
-            {{-- Siguraduhin na tama ang path ng image mo --}}
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
             {{-- Light Overlay --}}
             <div class="absolute inset-0 bg-gray-50/90 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- 👇 2. MAIN CONTENT WRAPPER --}}
-        <div class="min-h-screen flex flex-col">
+        {{-- 👇 2. MAIN WRAPPER (Removed bg-gray-100) --}}
+        <div class="min-h-screen flex flex-col relative">
             
-            {{-- Navigation --}}
             @include('layouts.navigation')
 
-            {{-- Page Header --}}
+            {{-- Header --}}
             @if (isset($header))
                 <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-10">
                     <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
@@ -69,7 +66,7 @@
                 </header>
             @endif
 
-            {{-- Main Slot Content --}}
+            {{-- Main Content --}}
             <main class="flex-1">
                 {{ $slot }}
             </main>
