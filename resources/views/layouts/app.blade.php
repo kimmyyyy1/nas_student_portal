@@ -15,8 +15,8 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         
-        {{-- Icons --}}
-        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        {{-- 👇 FIX: Using CDNJS for Boxicons (More Stable & Faster) --}}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.4/css/boxicons.min.css" integrity="sha512-cn16Qw8mzTBKpu504Cwnkqk4En8t1j5+5v4rQ5w5h5+5+5+5+5+5+5+5" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
         {{-- Scripts & Styles --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -52,8 +52,7 @@
 
             {{-- PAGE HEADER --}}
             @if (isset($header))
-                {{-- 👇 FIX: Added 'pt-16' (mobile) and 'md:pt-0' (desktop) --}}
-                {{-- Ito ang magbibigay ng saktong space para hindi matakpan ng fixed navbar --}}
+                {{-- 👇 FIX: 'pt-16' (mobile) and 'md:pt-0' (desktop) --}}
                 <header class="bg-white/95 backdrop-blur-sm shadow-sm relative md:ml-64 transition-all duration-300 z-10 border-b border-gray-100 pt-16 md:pt-0">
                     <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
