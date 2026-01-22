@@ -15,7 +15,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         
-        {{-- 👇 FIX: Gamit ang Unpkg para siguradong lumabas ang Icons --}}
+        {{-- Icons (Boxicons) --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
         {{-- Scripts & Styles --}}
@@ -25,31 +25,37 @@
         <style>
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
+            
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar { width: 6px; }
+            ::-webkit-scrollbar-track { background: transparent; }
+            ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+            ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         </style>
     </head>
     
-    <body class="font-sans antialiased text-gray-900 bg-gray-100">
+    {{-- 👇 FIX: Tinanggal ang 'bg-gray-100' para lumabas ang background image --}}
+    <body class="font-sans antialiased text-gray-900 bg-transparent">
         
-        {{-- BACKGROUND IMAGE --}}
+        {{-- 👇 BACKGROUND IMAGE FIX --}}
         <div class="fixed inset-0 z-[-1]">
-            <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover opacity-20" alt="Background">
-            <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+            {{-- Siguraduhin na tama ang path ng image mo --}}
+            <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
+            {{-- Overlay para mabasa ang text --}}
+            <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
         </div>
 
         <div class="min-h-screen flex flex-col md:flex-row">
             
-            {{-- NAVIGATION (Sidebar/Navbar) --}}
-            {{-- Siguraduhin na ang navigation file mo ay tama ang layout --}}
+            {{-- NAVIGATION --}}
             @include('layouts.navigation')
 
             {{-- MAIN CONTENT WRAPPER --}}
-            {{-- 👇 FIX: Added 'w-full' at tamang spacing para sa mobile --}}
             <div class="flex-1 flex flex-col w-full md:ml-64 transition-all duration-300">
                 
                 {{-- PAGE HEADER --}}
                 @if (isset($header))
-                    {{-- 👇 FIX: Tinanggal ang sobrang padding na nagpapababa sa header --}}
-                    <header class="bg-white/90 backdrop-blur shadow-sm z-10 sticky top-0 md:relative">
+                    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-20 border-b border-gray-200/50">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                             {{ $header }}
                         </div>
