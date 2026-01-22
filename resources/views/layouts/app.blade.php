@@ -25,53 +25,52 @@
         <style>
             /* 1. Global Font Override */
             * { font-family: 'Poppins', sans-serif !important; }
-            
-            /* 2. Hide AlpineJS Cloak */
             [x-cloak] { display: none !important; }
             
-            /* 3. Custom Scrollbar Styling */
+            /* 👇 2. BULLETPROOF LAYOUT & BACKGROUND FIX 
+               Ang mga styles na ito ay may '!important' para hindi matibag ng npm run build.
+            */
+            body {
+                background-color: transparent !important; /* Siguradong transparent */
+                background-image: none !important;
+                height: 100vh !important; /* Lock screen height */
+                overflow: hidden !important; /* Bawal mag-scroll ang window */
+            }
+
+            /* Custom Scrollbar */
             .custom-scroll::-webkit-scrollbar { width: 6px; }
             .custom-scroll::-webkit-scrollbar-track { background: transparent; }
             .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
             .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(107, 114, 128, 0.8); }
-
-            /* 👇 4. "HARD LOCK" SA BACKGROUND
-               Ito ang pipigil sa npm run build na gawing gray ang background.
-               Kahit anong build mo, mananatili itong transparent dahil sa !important 
-            */
-            body {
-                background-color: transparent !important;
-                background-image: none !important;
-            }
         </style>
     </head>
     
-    {{-- 👇 LAYOUT SETTINGS: Locked Screen + Transparent Body --}}
-    <body class="font-sans antialiased text-gray-900 bg-transparent h-screen overflow-hidden">
+    {{-- Body Class --}}
+    <body class="font-sans antialiased text-gray-900 bg-transparent">
         
-        {{-- 👇 FIXED BACKGROUND IMAGE (Hindi gagalaw) --}}
+        {{-- 👇 PERMANENT BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            
-            {{-- 👇 OVERLAY SETTINGS (Adjust mo dito kung gusto mo mas malinaw/malabo) --}}
-            {{-- bg-white/40 = 40% opacity na puti (Katamtaman) --}}
+            {{-- Overlay: bg-white/40 para malinaw pero nababasa ang text --}}
             <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- 👇 MAIN WRAPPER (Block display, no flex row to prevent overlap) --}}
-        <div class="h-full">
+        {{-- 👇 MAIN LAYOUT WRAPPER (Fixed No-Scroll Issue) --}}
+        <div class="h-full flex flex-col md:flex-row">
             
-            {{-- SIDEBAR --}}
-            @include('layouts.navigation')
+            {{-- Sidebar --}}
+            <div class="shrink-0">
+                @include('layouts.navigation')
+            </div>
 
             {{-- 
-                👇 CONTENT AREA
-                - md:ml-64: Margin para sa Sidebar
-                - relative: Para maayos ang layering
+                👇 CONTENT AREA 
+                - Tinanggal ang margin-left logic sa blade at ginamitan ng flex.
+                - 'overflow-hidden' sa wrapper para sa loob lang mag-scroll.
             --}}
-            <div class="flex flex-col h-full md:ml-64 transition-all duration-300 relative">
+            <div class="flex-1 flex flex-col h-full overflow-hidden relative w-full md:ml-64">
                 
-                {{-- HEADER --}}
+                {{-- Header --}}
                 @if (isset($header))
                     <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 z-20 shrink-0">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
@@ -81,7 +80,8 @@
                 @endif
 
                 {{-- 
-                    👇 SCROLLABLE CONTENT (Dito lang magso-scroll)
+                    👇 MAIN SCROLLABLE AREA 
+                    - Ito lang ang pwedeng mag-scroll.
                 --}}
                 <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8">
                     {{ $slot }}
