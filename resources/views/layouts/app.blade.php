@@ -33,16 +33,18 @@
     </head>
     
     {{-- 👇 DITO ANG SUSI: 'bg-transparent' --}}
-    <body class="font-sans antialiased text-gray-900 bg-transparent h-screen overflow-hidden">
+    <body class="font-sans antialiased text-gray-900 bg-transparent">
         
         {{-- 👇 MALINAW NA BACKGROUND --}}
         <div class="fixed inset-0 z-[-1]">
+            {{-- Siguraduhin na tama ang path ng image mo --}}
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Manipis na overlay para malinaw --}}
-            <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+            {{-- Overlay para mabasa ang text --}}
+            <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
         </div>
 
-        <div class="flex h-screen overflow-hidden">
+        <div class="min-h-screen flex flex-col md:flex-row">
+            
             @include('layouts.navigation')
 
             <div class="flex-1 flex flex-col md:ml-64 h-full relative">
