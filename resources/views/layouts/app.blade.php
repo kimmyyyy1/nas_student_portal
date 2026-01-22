@@ -25,6 +25,8 @@
         <style>
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
+            
+            /* Custom Scrollbar Styling */
             .custom-scroll::-webkit-scrollbar { width: 6px; }
             .custom-scroll::-webkit-scrollbar-track { background: transparent; }
             .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
@@ -32,27 +34,34 @@
         </style>
     </head>
     
-    {{-- 👇 FIX 1: 'h-screen overflow-hidden' (Ito ang nagla-lock ng screen para "FIT" siya at bawal mag-scroll ang window) --}}
+    {{-- 👇 IMPORTANT: 'h-screen overflow-hidden' para FIT sa screen at bawal mag-scroll ang browser window --}}
     <body class="font-sans antialiased text-gray-900 bg-transparent h-screen overflow-hidden">
         
-        {{-- BACKGROUND (HINDI KO GINALAW) --}}
+        {{-- 👇 BACKGROUND IMAGE (Wala akong binago dito, 40% opacity) --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
+            {{-- Overlay --}}
             <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
         </div>
 
         {{-- 
-            👇 FIX 2: TINANGGAL ANG 'flex md:flex-row'. 
-            Ginawa kong simple 'h-full' div lang. 
-            Ito ang solusyon para HINDI lumagpas ang width (No Horizontal Scroll).
+            👇 LAYOUT FIX:
+            Gumamit tayo ng 'h-full' at tinanggal ang 'flex-row' sa main wrapper
+            para hindi mag-overlap ang width ng Sidebar at Content (No Horizontal Scroll).
         --}}
         <div class="h-full">
             
             @include('layouts.navigation')
 
-            {{-- CONTENT WRAPPER --}}
+            {{-- 
+                👇 CONTENT WRAPPER:
+                - 'md:ml-64': Space para sa sidebar
+                - 'h-full': Sakop ang buong height
+                - 'flex flex-col': Para maayos ang Header at Main
+            --}}
             <div class="flex flex-col h-full md:ml-64 transition-all duration-300 relative">
                 
+                {{-- PAGE HEADER --}}
                 @if (isset($header))
                     <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 z-20 shrink-0">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
@@ -61,7 +70,11 @@
                     </header>
                 @endif
 
-                {{-- 👇 FIX 3: DITO LANG ANG SCROLLBAR (SA LOOB) --}}
+                {{-- 
+                    👇 MAIN SCROLLABLE AREA:
+                    - 'overflow-y-auto': Dito lang magkaka-scroll (sa loob ng content)
+                    - 'custom-scroll': Design ng scrollbar
+                --}}
                 <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8">
                     {{ $slot }}
                 </main>
