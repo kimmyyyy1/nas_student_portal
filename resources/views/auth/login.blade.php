@@ -219,7 +219,9 @@
                 {{-- Register Link --}}
                 <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #f3f4f6; text-align: center;">
                     <p style="font-size: 0.7rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; margin-bottom: 0.75rem;">No account yet?</p>
-                    <a href="{{ route('admission.create') }}" class="btn-register">
+                    
+                    {{-- 👇 FIXED ROUTE: Using 'register' to prevent RouteNotFoundException --}}
+                    <a href="{{ route('register') }}" class="btn-register">
                         Register as Applicant
                     </a>
                 </div>
