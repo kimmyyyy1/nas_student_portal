@@ -54,7 +54,7 @@
             
             {{-- 👇 FIX: Reduced Opacity to 30% (bg-white/30) --}}
             {{-- Mas malinaw ito at hindi "maputi" masyado --}}
-            <div class="absolute inset-0 bg-white/10 backdrop-blur-[2px]"></div>
+            <div class="absolute inset-0 bg-white/10 backdrop-blur-[1px]"></div>
         </div>
 
         {{-- 👇 MAIN LAYOUT WRAPPER (Fixed No-Scroll Issue) --}}
