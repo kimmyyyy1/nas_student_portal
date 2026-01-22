@@ -20,8 +20,8 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6 sm:py-12">
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- Success Message --}}
             @if (session('status') === 'profile-updated')
@@ -39,15 +39,15 @@
             <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
                 
                 {{-- Header / Banner --}}
-                <div class="bg-indigo-700 p-8 flex items-center space-x-6">
+                <div class="bg-indigo-700 p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
                     <div class="flex-shrink-0">
-                        <div class="h-20 w-20 rounded-full bg-white flex items-center justify-center text-indigo-700 text-3xl font-bold border-4 border-indigo-300 shadow-md">
+                        <div class="h-20 w-20 rounded-full bg-white flex items-center justify-center text-indigo-700 text-3xl font-bold border-4 border-indigo-300 shadow-md mx-auto sm:mx-0">
                             {{ substr($user->name, 0, 1) }}
                         </div>
                     </div>
                     <div>
-                        <h1 class="text-3xl font-bold text-white">{{ $user->name }}</h1>
-                        <div class="flex items-center text-indigo-200 mt-1">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-white">{{ $user->name }}</h1>
+                        <div class="flex items-center justify-center sm:justify-start text-indigo-200 mt-1 text-sm sm:text-base">
                             <i class='bx bx-envelope mr-1'></i> {{ $user->email }}
                         </div>
                         <span class="inline-block mt-3 px-3 py-1 rounded-full bg-indigo-900 text-[10px] text-white font-bold uppercase tracking-widest border border-indigo-500">
@@ -57,19 +57,19 @@
                 </div>
 
                 {{-- Unified Form --}}
-                <form method="post" action="{{ route('profile.update') }}" class="p-8">
+                <form method="post" action="{{ route('profile.update') }}" class="p-6 sm:p-8">
                     @csrf
                     @method('patch')
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
                         
                         {{-- LEFT COLUMN: Basic Information --}}
                         <div>
-                            <h3 class="text-lg font-bold text-gray-800 mb-6 border-b pb-2 flex items-center">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4 sm:mb-6 border-b pb-2 flex items-center">
                                 <i class='bx bx-user-circle mr-2 text-indigo-600 text-xl'></i> Account Information
                             </h3>
 
-                            <div class="space-y-6">
+                            <div class="space-y-4 sm:space-y-6">
                                 {{-- 👇 MODIFIED: Name Field (ReadOnly if Student) --}}
                                 <div>
                                     <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
@@ -108,11 +108,11 @@
                         </div>
 
                         {{-- RIGHT COLUMN: Change Password --}}
-                        <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-inner">
+                        <div class="bg-gray-50 p-5 sm:p-6 rounded-xl border border-gray-200 shadow-inner">
                             <h3 class="text-lg font-bold text-gray-800 mb-2 flex items-center">
                                 <i class='bx bx-lock-alt mr-2 text-indigo-600 text-xl'></i> Security
                             </h3>
-                            <p class="text-xs text-gray-500 mb-6 border-b pb-3">
+                            <p class="text-xs text-gray-500 mb-4 sm:mb-6 border-b pb-3">
                                 Change Password (leave blank to keep current)
                             </p>
 
@@ -146,8 +146,8 @@
                     </div>
 
                     {{-- SINGLE SAVE BUTTON --}}
-                    <div class="mt-10 flex justify-end border-t border-gray-100 pt-6">
-                        <button type="submit" class="inline-flex items-center px-8 py-3 bg-indigo-700 border border-transparent rounded-lg font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-800 focus:bg-indigo-800 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <div class="mt-8 sm:mt-10 flex justify-end border-t border-gray-100 pt-6">
+                        <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3 bg-indigo-700 border border-transparent rounded-lg font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-800 focus:bg-indigo-800 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                             <i class='bx bx-save text-lg mr-2'></i> Save All Changes
                         </button>
                     </div>
