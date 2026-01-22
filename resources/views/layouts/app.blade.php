@@ -10,60 +10,58 @@
         {{-- Favicon --}}
         <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-        {{-- Google Fonts: Poppins --}}
+        {{-- Fonts --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         
-        {{-- 👇 FIX: Ibinalik sa Unpkg CDN para siguradong lumabas ang icons --}}
+        {{-- 👇 FIX: Gamit ang Unpkg para siguradong lumabas ang Icons --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
         {{-- Scripts & Styles --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
 
-        {{-- Custom Styles --}}
         <style>
             * { font-family: 'Poppins', sans-serif !important; }
-            
-            /* Scrollbar Styling */
-            ::-webkit-scrollbar { width: 8px; }
-            ::-webkit-scrollbar-track { background: #f1f1f1; }
-            ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-            ::-webkit-scrollbar-thumb:hover { background: #555; }
+            [x-cloak] { display: none !important; }
         </style>
     </head>
     
-    <body class="font-sans antialiased text-gray-900 overflow-x-hidden bg-gray-100">
+    <body class="font-sans antialiased text-gray-900 bg-gray-100">
         
         {{-- BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
-            <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Gradient overlay for text readability --}}
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-slate-900/80 to-black/80 backdrop-blur-[1px]"></div>
+            <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover opacity-20" alt="Background">
+            <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- MAIN WRAPPER --}}
-        <div class="min-h-screen flex flex-col">
+        <div class="min-h-screen flex flex-col md:flex-row">
             
-            {{-- NAVIGATION --}}
+            {{-- NAVIGATION (Sidebar/Navbar) --}}
+            {{-- Siguraduhin na ang navigation file mo ay tama ang layout --}}
             @include('layouts.navigation')
 
-            {{-- PAGE HEADER --}}
-            @if (isset($header))
-                {{-- 👇 FIX: Improved responsiveness for mobile headers --}}
-                <header class="bg-white/95 backdrop-blur-sm shadow-sm relative md:ml-64 transition-all duration-300 z-10 border-b border-gray-100">
-                    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
+            {{-- MAIN CONTENT WRAPPER --}}
+            {{-- 👇 FIX: Added 'w-full' at tamang spacing para sa mobile --}}
+            <div class="flex-1 flex flex-col w-full md:ml-64 transition-all duration-300">
+                
+                {{-- PAGE HEADER --}}
+                @if (isset($header))
+                    {{-- 👇 FIX: Tinanggal ang sobrang padding na nagpapababa sa header --}}
+                    <header class="bg-white/90 backdrop-blur shadow-sm z-10 sticky top-0 md:relative">
+                        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endif
 
-            {{-- PAGE CONTENT --}}
-            {{-- Adjusted padding and margin for proper mobile/desktop view --}}
-            <main class="flex-grow md:ml-64 px-0 md:px-4 transition-all duration-300">
-                {{ $slot }}
-            </main>
+                {{-- PAGE CONTENT --}}
+                <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                    {{ $slot }}
+                </main>
+
+            </div>
             
         </div>
 
