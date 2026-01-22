@@ -35,18 +35,7 @@
     {{-- 👇 FIX: 'py-2' mobile, 'md:py-12' desktop --}}
     <div class="py-2 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
-            
-            {{-- 🟢 MOBILE BACK BUTTON (HIDDEN ON MOBILE NOW) --}}
-            {{-- Added 'hidden md:inline-flex' to hide on mobile but show on desktop --}}
-            <div class="hidden md:inline-flex mb-3">
-                <a href="{{ route('training-plans.index') }}" 
-                   wire:navigate
-                   class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-full shadow-md text-gray-700 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all">
-                    <i class='bx bx-arrow-back mr-2 text-lg text-gray-600'></i>
-                    Back
-                </a>
-            </div>
-
+                     
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
                 <div class="p-6 text-gray-900">
                     
