@@ -28,10 +28,9 @@
         </style>
     </head>
     
-    {{-- 👇 FIX: Ginawang 'min-h-screen' at tinanggal ang 'overflow-hidden' para mawala ang flicker --}}
     <body class="font-sans antialiased text-gray-900 bg-gray-50 min-h-screen">
         
-        {{-- BACKGROUND IMAGE (Fixed Position) --}}
+        {{-- BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
             <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
@@ -43,10 +42,11 @@
             @include('layouts.navigation')
 
             {{-- MAIN CONTENT --}}
-            {{-- 👇 FIX: Hinahayaan nating mag-expand ang content naturally --}}
-            <div class="flex-1 flex flex-col w-full md:ml-64 transition-all duration-300">
+            {{-- ❌ TINANGGAL KO ANG 'transition-all duration-300' DITO --}}
+            {{-- ✅ ITO NA ANG FIX: --}}
+            <div class="flex-1 flex flex-col w-full md:ml-64">
                 
-                {{-- PAGE HEADER (Sticky) --}}
+                {{-- PAGE HEADER --}}
                 @if (isset($header))
                     <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-20">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
