@@ -23,45 +23,55 @@
         @livewireStyles
 
         <style>
+            /* 1. Global Font Override */
             * { font-family: 'Poppins', sans-serif !important; }
+            
+            /* 2. Hide AlpineJS Cloak */
             [x-cloak] { display: none !important; }
             
-            /* Custom Scrollbar Styling */
+            /* 3. Custom Scrollbar Styling */
             .custom-scroll::-webkit-scrollbar { width: 6px; }
             .custom-scroll::-webkit-scrollbar-track { background: transparent; }
             .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
             .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(107, 114, 128, 0.8); }
+
+            /* 👇 4. "HARD LOCK" SA BACKGROUND
+               Ito ang pipigil sa npm run build na gawing gray ang background.
+               Kahit anong build mo, mananatili itong transparent dahil sa !important 
+            */
+            body {
+                background-color: transparent !important;
+                background-image: none !important;
+            }
         </style>
     </head>
     
-    {{-- 👇 IMPORTANT: 'h-screen overflow-hidden' para FIT sa screen at bawal mag-scroll ang browser window --}}
+    {{-- 👇 LAYOUT SETTINGS: Locked Screen + Transparent Body --}}
     <body class="font-sans antialiased text-gray-900 bg-transparent h-screen overflow-hidden">
         
-        {{-- 👇 BACKGROUND IMAGE (Wala akong binago dito, 40% opacity) --}}
+        {{-- 👇 FIXED BACKGROUND IMAGE (Hindi gagalaw) --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Overlay --}}
+            
+            {{-- 👇 OVERLAY SETTINGS (Adjust mo dito kung gusto mo mas malinaw/malabo) --}}
+            {{-- bg-white/40 = 40% opacity na puti (Katamtaman) --}}
             <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- 
-            👇 LAYOUT FIX:
-            Gumamit tayo ng 'h-full' at tinanggal ang 'flex-row' sa main wrapper
-            para hindi mag-overlap ang width ng Sidebar at Content (No Horizontal Scroll).
-        --}}
+        {{-- 👇 MAIN WRAPPER (Block display, no flex row to prevent overlap) --}}
         <div class="h-full">
             
+            {{-- SIDEBAR --}}
             @include('layouts.navigation')
 
             {{-- 
-                👇 CONTENT WRAPPER:
-                - 'md:ml-64': Space para sa sidebar
-                - 'h-full': Sakop ang buong height
-                - 'flex flex-col': Para maayos ang Header at Main
+                👇 CONTENT AREA
+                - md:ml-64: Margin para sa Sidebar
+                - relative: Para maayos ang layering
             --}}
             <div class="flex flex-col h-full md:ml-64 transition-all duration-300 relative">
                 
-                {{-- PAGE HEADER --}}
+                {{-- HEADER --}}
                 @if (isset($header))
                     <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 z-20 shrink-0">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
@@ -71,9 +81,7 @@
                 @endif
 
                 {{-- 
-                    👇 MAIN SCROLLABLE AREA:
-                    - 'overflow-y-auto': Dito lang magkaka-scroll (sa loob ng content)
-                    - 'custom-scroll': Design ng scrollbar
+                    👇 SCROLLABLE CONTENT (Dito lang magso-scroll)
                 --}}
                 <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8">
                     {{ $slot }}
