@@ -15,7 +15,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         
-        {{-- Icons (Unpkg) --}}
+        {{-- Icons (Boxicons) --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
         {{-- Scripts & Styles --}}
@@ -26,47 +26,43 @@
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
             
-            /* Custom Scrollbar (Optional but looks good) */
-            ::-webkit-scrollbar { width: 8px; }
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar { width: 6px; }
             ::-webkit-scrollbar-track { background: transparent; }
-            ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
-            ::-webkit-scrollbar-thumb:hover { background: rgba(107, 114, 128, 0.8); }
+            ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+            ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         </style>
     </head>
     
-    {{-- 👇 FIX: Transparent body para lumusot ang background image --}}
-    <body class="font-sans antialiased text-gray-900 bg-transparent min-h-screen">
+    {{-- 👇 FIX: Tinanggal ang 'bg-gray-100' para lumabas ang background image --}}
+    <body class="font-sans antialiased text-gray-900 bg-transparent">
         
         {{-- 👇 BACKGROUND IMAGE FIX --}}
         <div class="fixed inset-0 z-[-1]">
+            {{-- Siguraduhin na tama ang path ng image mo --}}
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            
-            {{-- 👇 OVERLAY FIX: 
-                 'bg-black/30' -> Dark tint para lumutang ang white dashboard cards.
-                 'backdrop-blur-[2px]' -> Sakto lang ang labo, kita pa rin ang building. 
-            --}}
-            <div class="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
+            {{-- Overlay para mabasa ang text --}}
+            <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
         </div>
 
-        <div class="flex min-h-screen flex-col md:flex-row">
+        <div class="min-h-screen flex flex-col md:flex-row">
             
             {{-- NAVIGATION --}}
             @include('layouts.navigation')
 
-            {{-- MAIN CONTENT --}}
-            <div class="flex-1 flex flex-col w-full md:ml-64">
+            {{-- MAIN CONTENT WRAPPER --}}
+            <div class="flex-1 flex flex-col w-full md:ml-64 transition-all duration-300">
                 
-                {{-- PAGE HEADER (Sticky) --}}
+                {{-- PAGE HEADER --}}
                 @if (isset($header))
-                    {{-- White Header with slight transparency --}}
-                    <header class="bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-20">
+                    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-20 border-b border-gray-200/50">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                             {{ $header }}
                         </div>
                     </header>
                 @endif
 
-                {{-- CONTENT SLOT --}}
+                {{-- PAGE CONTENT --}}
                 <main class="flex-1 p-4 sm:p-6 lg:p-8">
                     {{ $slot }}
                 </main>
