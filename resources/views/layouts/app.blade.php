@@ -23,20 +23,28 @@
         @livewireStyles
 
         <style>
-            /* 1. Global Font Override (Poppins) */
+            /* 1. Global Font Override */
             * { font-family: 'Poppins', sans-serif !important; }
             
-            /* 👇 FIX: RESTORE ICON FONT 
-               Ito ang solusyon para hindi maging 'square' ang mga icons.
-               Binabalik natin ang font-family nila sa 'boxicons'.
+            /* 👇 2. ICON REPAIR KIT (FINAL FIX)
+               Ito ang aayos sa mga sirang (square) at nawawalang (missing) icons.
             */
-            i.bx, i.bxs, i.bxl {
-                font-family: 'boxicons' !important;
+            i.bx, i.bxs, i.bxl, .bx {
+                font-family: 'boxicons' !important; /* Ibalik sa Boxicons font */
+                font-weight: normal !important;     /* Bawal mag-bold (sanhi ng square icons) */
+                font-style: normal !important;      /* Bawal mag-italic */
+                line-height: 1 !important;          /* Ayusin ang alignment */
+                
+                /* Anti-Squash: Para hindi mawala/maipit sa mobile */
+                flex-shrink: 0 !important;          
+                min-width: 1.25rem; /* ~20px width siguradong may space */
+                display: inline-block;
+                text-align: center;
             }
 
             [x-cloak] { display: none !important; }
             
-            /* 2. BULLETPROOF LAYOUT FIX (100dvh para sa mobile scroll) */
+            /* 3. LAYOUT FIXES */
             body {
                 background-color: transparent !important;
                 background-image: none !important;
@@ -60,7 +68,7 @@
             <div class="absolute inset-0 bg-white/1 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- MAIN LAYOUT WRAPPER --}}
+        {{-- MAIN WRAPPER --}}
         <div class="h-full flex flex-col md:flex-row">
             
             {{-- Sidebar --}}
@@ -68,11 +76,7 @@
                 @include('layouts.navigation')
             </div>
 
-            {{-- 
-                CONTENT AREA 
-                - pt-16: Space para sa mobile header
-                - md:pt-0: Reset sa desktop
-            --}}
+            {{-- CONTENT AREA --}}
             <div class="flex-1 flex flex-col h-full overflow-hidden relative md:ml-64 pt-16 md:pt-0 transition-all duration-300">
                 
                 {{-- Header --}}
@@ -84,10 +88,7 @@
                     </header>
                 @endif
 
-                {{-- 
-                    MAIN SCROLLABLE AREA 
-                    - pb-20: Padding sa baba para hindi maputol sa mobile views
-                --}}
+                {{-- MAIN SCROLLABLE AREA --}}
                 <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
                     {{ $slot }}
                 </main>
