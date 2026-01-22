@@ -28,11 +28,13 @@
         </style>
     </head>
     
-    <body class="font-sans antialiased text-gray-900 bg-gray-50 min-h-screen">
+    {{-- 👇 FIX: Ginawang 'bg-transparent' para lumabas ang image sa likod --}}
+    <body class="font-sans antialiased text-gray-900 bg-transparent min-h-screen">
         
         {{-- BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
+            {{-- Overlay: Pwede mong bawasan ang opacity kung gusto mong mas malinaw ang image (e.g., bg-white/30) --}}
             <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
         </div>
 
@@ -42,8 +44,7 @@
             @include('layouts.navigation')
 
             {{-- MAIN CONTENT --}}
-            {{-- ❌ TINANGGAL KO ANG 'transition-all duration-300' DITO --}}
-            {{-- ✅ ITO NA ANG FIX: --}}
+            {{-- Walang transition-all dito para walang flicker --}}
             <div class="flex-1 flex flex-col w-full md:ml-64">
                 
                 {{-- PAGE HEADER --}}
