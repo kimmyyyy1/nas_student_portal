@@ -41,6 +41,8 @@
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
             
+            {{-- 👇 OVERLAY: 'bg-white/30' -> Manipis para kita ang blue sky --}}
+            <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
         </div>
 
         <div class="flex h-screen overflow-hidden">
