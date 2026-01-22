@@ -27,14 +27,12 @@
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
             
-            /* 👇 2. BULLETPROOF LAYOUT & BACKGROUND FIX 
-               Ang mga styles na ito ay may '!important' para hindi matibag ng npm run build.
-            */
+            /* 👇 2. BULLETPROOF LAYOUT & BACKGROUND FIX */
             body {
-                background-color: transparent !important; /* Siguradong transparent */
+                background-color: transparent !important;
                 background-image: none !important;
-                height: 100vh !important; /* Lock screen height */
-                overflow: hidden !important; /* Bawal mag-scroll ang window */
+                height: 100vh !important;
+                overflow: hidden !important;
             }
 
             /* Custom Scrollbar */
@@ -45,19 +43,16 @@
         </style>
     </head>
     
-    {{-- Body Class --}}
     <body class="font-sans antialiased text-gray-900 bg-transparent">
         
         {{-- 👇 PERMANENT BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            
-            {{-- 👇 FIX: Reduced Opacity to 30% (bg-white/30) --}}
-            {{-- Mas malinaw ito at hindi "maputi" masyado --}}
+            {{-- Overlay --}}
             <div class="absolute inset-0 bg-white/1 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- 👇 MAIN LAYOUT WRAPPER (Fixed No-Scroll Issue) --}}
+        {{-- 👇 MAIN LAYOUT WRAPPER --}}
         <div class="h-full flex flex-col md:flex-row">
             
             {{-- Sidebar --}}
@@ -66,11 +61,12 @@
             </div>
 
             {{-- 
-                👇 CONTENT AREA 
-                - Tinanggal ang margin-left logic sa blade at ginamitan ng flex.
-                - 'overflow-hidden' sa wrapper para sa loob lang mag-scroll.
+                👇 CONTENT AREA FIX:
+                - 'pt-16': Naglagay ng space sa taas para sa Mobile Header (Height 16).
+                - 'md:pt-0': Tinanggal ang space sa Desktop (kasi sa gilid ang sidebar).
+                - 'md:ml-64': Margin sa kaliwa para sa Desktop Sidebar.
             --}}
-            <div class="flex-1 flex flex-col h-full overflow-hidden relative w-full md:ml-64">
+            <div class="flex-1 flex flex-col h-full overflow-hidden relative w-full md:ml-64 pt-16 md:pt-0">
                 
                 {{-- Header --}}
                 @if (isset($header))
@@ -83,7 +79,6 @@
 
                 {{-- 
                     👇 MAIN SCROLLABLE AREA 
-                    - Ito lang ang pwedeng mag-scroll.
                 --}}
                 <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8">
                     {{ $slot }}
