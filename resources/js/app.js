@@ -1,13 +1,14 @@
 import './bootstrap';
 
-// 1. Import Packages
-import { inject } from '@vercel/analytics';
-import { injectSpeedInsights } from '@vercel/speed-insights';
+// AlpineJS (Optional: Kung gamit mo ito)
+// import Alpine from 'alpinejs';
+// window.Alpine = Alpine;
+// Alpine.start();
 
-// 2. Initialize Web Analytics (Visitor Tracking)
-inject({
-    mode: 'production',
-});
-
-// 3. Initialize Speed Insights (Performance Tracking)
-injectSpeedInsights();
+/* TINANGGAL KO MUNA ANG VERCEL ANALYTICS & SPEED INSIGHTS 
+   PARA MAWALA ANG BUILD ERROR.
+   
+   Kung kailangan mo ito sa future kapag nag-deploy ka na sa Vercel,
+   siguraduhing mag-run muna ng:
+   npm install @vercel/analytics @vercel/speed-insights
+*/
