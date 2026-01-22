@@ -13,6 +13,11 @@
         -ms-overflow-style: none;  /* IE and Edge */
         scrollbar-width: none;  /* Firefox */
     }
+
+    /* 👇 IMPORTANT: Force instant scrolling on sidebar to prevent jumping animation */
+    #sidebar-menu {
+        scroll-behavior: auto !important;
+    }
 </style>
 
 <div x-data="{ open: false }">
@@ -49,7 +54,6 @@
     {{-- ================================================= --}}
     {{-- 3. SIDEBAR (Fixed)                                --}}
     {{-- ================================================= --}}
-    {{-- 👇 FIX: Added 'md:transition-none' para hindi mag-animate/flicker sa Desktop --}}
     <nav :class="{'translate-x-0': open, '-translate-x-full': !open}"
          class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-xl border-r border-white/20 z-50 shadow-2xl no-print 
                 transition-transform duration-300 ease-in-out 
@@ -63,8 +67,8 @@
         </div>
 
         {{-- 
-            👇 SCROLLABLE CONTAINER (REMOVED JS JUMP)
-            Tinanggal ko ang x-init at @scroll logic dito dahil ito ang nagpapatalon (Flicker) ng content.
+            👇 SCROLLABLE CONTAINER (PURE JS RESTORE)
+            Tinanggal ang Alpine logic dito at inilipat sa script sa baba para mas mabilis.
         --}}
         <div id="sidebar-menu" 
              class="flex-1 overflow-y-auto no-scrollbar">
@@ -268,3 +272,24 @@
         </div>
     </nav>
 </div>
+
+{{-- 👇 FIX: FAST SCRIPT to restore scroll position instantly --}}
+<script>
+    (function() {
+        const sidebar = document.getElementById('sidebar-menu');
+        const key = 'sidebarScroll';
+        
+        if (sidebar) {
+            // Restore scroll immediately
+            const saved = sessionStorage.getItem(key);
+            if (saved) {
+                sidebar.scrollTop = parseInt(saved);
+            }
+            
+            // Listen for scroll events to save position
+            sidebar.addEventListener('scroll', () => {
+                sessionStorage.setItem(key, sidebar.scrollTop);
+            });
+        }
+    })();
+</script>
