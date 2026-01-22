@@ -25,21 +25,27 @@
         <style>
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
+            
+            /* Custom Scrollbar (Optional but looks good) */
+            ::-webkit-scrollbar { width: 8px; }
+            ::-webkit-scrollbar-track { background: transparent; }
+            ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
+            ::-webkit-scrollbar-thumb:hover { background: rgba(107, 114, 128, 0.8); }
         </style>
     </head>
     
-    {{-- 👇 FIX: 'bg-transparent' para lumabas ang image, 'min-h-screen' para walang flicker --}}
+    {{-- 👇 FIX: Transparent body para lumusot ang background image --}}
     <body class="font-sans antialiased text-gray-900 bg-transparent min-h-screen">
         
-        {{-- 👇 BACKGROUND IMAGE (Fixed Position) --}}
+        {{-- 👇 BACKGROUND IMAGE FIX --}}
         <div class="fixed inset-0 z-[-1]">
-            {{-- Image --}}
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
             
             {{-- 👇 OVERLAY FIX: 
-                 'bg-white/60' -> Saktong puti para mabasa ang text pero kita ang image.
-                 'backdrop-blur-[3px]' -> Hindi gaanong blurred, sakto lang. --}}
-            <div class="absolute inset-0 bg-white/60 backdrop-blur-[3px]"></div>
+                 'bg-black/30' -> Dark tint para lumutang ang white dashboard cards.
+                 'backdrop-blur-[2px]' -> Sakto lang ang labo, kita pa rin ang building. 
+            --}}
+            <div class="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
         </div>
 
         <div class="flex min-h-screen flex-col md:flex-row">
@@ -48,12 +54,12 @@
             @include('layouts.navigation')
 
             {{-- MAIN CONTENT --}}
-            {{-- Walang transition-all dito para hindi tumalon-talon --}}
             <div class="flex-1 flex flex-col w-full md:ml-64">
                 
                 {{-- PAGE HEADER (Sticky) --}}
                 @if (isset($header))
-                    <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-20">
+                    {{-- White Header with slight transparency --}}
+                    <header class="bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-20">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                             {{ $header }}
                         </div>
