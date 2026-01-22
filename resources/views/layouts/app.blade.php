@@ -48,12 +48,13 @@
     {{-- Body Class --}}
     <body class="font-sans antialiased text-gray-900 bg-transparent">
         
-        {{-- 👇 BACKGROUND IMAGE FIX --}}
+        {{-- 👇 PERMANENT BACKGROUND IMAGE --}}
         <div class="fixed inset-0 z-[-1]">
-            {{-- Siguraduhin na tama ang path ng image mo --}}
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            {{-- Overlay para mabasa ang text --}}
-            <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
+            
+            {{-- 👇 FIX: Reduced Opacity to 30% (bg-white/30) --}}
+            {{-- Mas malinaw ito at hindi "maputi" masyado --}}
+            <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
         </div>
 
         {{-- 👇 MAIN LAYOUT WRAPPER (Fixed No-Scroll Issue) --}}
