@@ -25,8 +25,6 @@
         <style>
             * { font-family: 'Poppins', sans-serif !important; }
             [x-cloak] { display: none !important; }
-            
-            /* Custom Scrollbar */
             .custom-scroll::-webkit-scrollbar { width: 6px; }
             .custom-scroll::-webkit-scrollbar-track { background: transparent; }
             .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
@@ -34,14 +32,13 @@
         </style>
     </head>
     
-    {{-- 👇 IMPORTANT: 'bg-transparent' (Wala dapat bg-gray-100 dito!) --}}
+    {{-- 👇 DITO ANG SUSI: 'bg-transparent' --}}
     <body class="font-sans antialiased text-gray-900 bg-transparent h-screen overflow-hidden">
         
-        {{-- 👇 BACKGROUND IMAGE --}}
+        {{-- 👇 MALINAW NA BACKGROUND --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            
-            {{-- 👇 OVERLAY: 'bg-white/30' -> Manipis para kita ang blue sky --}}
+            {{-- Manipis na overlay para malinaw --}}
             <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
         </div>
 
