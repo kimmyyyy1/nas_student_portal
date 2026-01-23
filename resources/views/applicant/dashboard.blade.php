@@ -2,14 +2,10 @@
     {{-- WRAPPER ID FOR AJAX UPDATES --}}
     <div id="dashboard-content" class="max-w-7xl mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
         
-        {{-- UPDATED Header Section --}}
-        {{-- Ginaya natin ang style sa Create Page: Horizontal Logo + Simple Text --}}
+        {{-- HEADER SECTION --}}
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 sm:mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div class="mb-4 md:mb-0 text-center md:text-left w-full md:w-auto">
-                {{-- 👇 LOGO: Horizontal, inalis ang malaking Title text --}}
                 <img src="{{ asset('images/nas/horizontal.png') }}" class="h-10 sm:h-12 md:h-16 object-contain mb-2 mx-auto md:mx-0" alt="NAS Logo">
-                
-                {{-- Welcome Message (Pinanatili ko ito dahil dashboard ito) --}}
                 <h1 class="text-base sm:text-lg font-bold text-gray-700 tracking-tight mt-2">
                     Welcome, <span class="text-indigo-700">{{ Auth::user()->first_name }}</span>!
                 </h1>
@@ -33,20 +29,9 @@
             </div>
         @endif
 
-        {{-- Error Message --}}
-        @if ($errors->any())
-            <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
-                <ul class="list-disc list-inside text-xs sm:text-sm">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
         @if($application)
             
-            {{-- Status Card --}}
+            {{-- STATUS CARD --}}
             <div id="status-section" class="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200 mb-6 sm:mb-8">
                 <div class="p-6 md:p-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -97,7 +82,7 @@
                         </div>
                     </div>
 
-                    {{-- Remarks Section --}}
+                    {{-- Registrar Remarks --}}
                     @if($application->assessment_score || $application->rejection_reason)
                         <div class="mt-4 p-4 rounded-lg border text-xs sm:text-sm {{ $application->status == 'Not Qualified' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-yellow-50 border-yellow-200 text-yellow-800' }}">
                             <h4 class="font-bold uppercase mb-1">Registrar Remarks:</h4>
@@ -118,7 +103,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
                 
-                {{-- Left Column: Profile Card --}}
+                {{-- LEFT COLUMN: PROFILE CARD --}}
                 <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
                     <div class="bg-indigo-900 px-6 py-4 border-b border-indigo-800">
                         <h3 class="text-white font-bold text-base sm:text-lg flex items-center">
@@ -149,17 +134,23 @@
                                 <span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Email Address</span>
                                 <p class="text-gray-900 text-sm truncate">{{ $application->email_address }}</p>
                             </div>
-                            <div>
+                            <div class="mb-3">
                                 <span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Age / Gender</span>
                                 <p class="text-gray-900 text-sm">{{ $application->age }} yrs old / {{ $application->gender }}</p>
+                            </div>
+                            <div>
+                                <span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Region / Province</span>
+                                <p class="text-gray-900 text-sm truncate">{{ $application->region }}</p>
+                                <p class="text-gray-700 text-xs">{{ $application->province }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                {{-- RIGHT COLUMN: INFO CARDS --}}
                 <div class="lg:col-span-2 space-y-6 sm:space-y-8">
                     
-                    {{-- Academic Info --}}
+                    {{-- 1. ACADEMIC & SPORTS INFO --}}
                     <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
                         <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                             <h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center">
@@ -169,30 +160,107 @@
                         </div>
                         <div class="p-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                {{-- Grade Level --}}
                                 <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
                                     <label class="text-[10px] sm:text-xs text-indigo-500 uppercase font-bold block">Grade Level Applied</label>
                                     <p class="text-base sm:text-lg font-bold text-indigo-900">{{ $application->grade_level_applied }}</p>
                                 </div>
+                                {{-- Focus Sport --}}
                                 <div class="bg-orange-50 p-4 rounded-lg border border-orange-100">
                                     <label class="text-[10px] sm:text-xs text-orange-500 uppercase font-bold block">Sport / Discipline</label>
-                                    <p class="text-base sm:text-lg font-bold text-orange-900">{{ $application->sport }}</p>
+                                    <p class="text-base sm:text-lg font-bold text-orange-900">
+                                        {{ $application->sport }}
+                                        @if($application->sport_specification)
+                                            <span class="block text-xs font-normal text-orange-700">({{ $application->sport_specification }})</span>
+                                        @endif
+                                    </p>
                                 </div>
+                                {{-- Previous School --}}
                                 <div>
                                     <label class="text-[10px] sm:text-xs text-gray-400 uppercase font-bold block">Previous School</label>
                                     <p class="text-sm font-semibold text-gray-700">{{ $application->previous_school }}</p>
                                     <span class="text-[10px] sm:text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ $application->school_type }}</span>
                                 </div>
-                                <div>
-                                    <label class="text-[10px] sm:text-xs text-gray-400 uppercase font-bold block">Palarong Pambansa</label>
-                                    <p class="text-sm font-semibold text-gray-700">
-                                        {{ $application->has_palaro_participation ? 'Yes (' . $application->palaro_year . ')' : 'None' }}
-                                    </p>
+                                {{-- Achievements --}}
+                                <div class="space-y-2">
+                                    <div>
+                                        <label class="text-[10px] sm:text-xs text-gray-400 uppercase font-bold block">Palarong Pambansa Finisher</label>
+                                        <p class="text-sm font-semibold text-gray-700">
+                                            @if($application->has_palaro_participation)
+                                                <span class="text-green-600">Yes</span> <span class="text-gray-500 text-xs">({{ $application->palaro_year }})</span>
+                                            @else
+                                                <span class="text-gray-400">No</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] sm:text-xs text-gray-400 uppercase font-bold block">Batang Pinoy Finisher</label>
+                                        <p class="text-sm font-semibold text-gray-700">
+                                            {{ $application->batang_pinoy_finisher ?? 'No' }}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Submitted Files Table --}}
+                    {{-- 2. BACKGROUND & SPECIAL CATEGORIES (NEW CARD) --}}
+                    <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Background & Special Categories
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                
+                                {{-- Special Groups Column --}}
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                                        <span class="text-sm font-medium text-gray-600">Indigenous People (IP)</span>
+                                        <div class="text-right">
+                                            <span class="text-sm font-bold {{ $application->is_ip ? 'text-green-600' : 'text-gray-400' }}">{{ $application->is_ip ? 'Yes' : 'No' }}</span>
+                                            @if($application->is_ip && $application->ip_group_name)
+                                                <div class="text-xs text-gray-500">{{ $application->ip_group_name }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                                        <span class="text-sm font-medium text-gray-600">Person w/ Disability (PWD)</span>
+                                        <div class="text-right">
+                                            <span class="text-sm font-bold {{ $application->is_pwd ? 'text-green-600' : 'text-gray-400' }}">{{ $application->is_pwd ? 'Yes' : 'No' }}</span>
+                                            @if($application->is_pwd && $application->pwd_disability)
+                                                <div class="text-xs text-gray-500">{{ $application->pwd_disability }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                                        <span class="text-sm font-medium text-gray-600">4Ps Beneficiary</span>
+                                        <span class="text-sm font-bold {{ $application->is_4ps ? 'text-green-600' : 'text-gray-400' }}">{{ $application->is_4ps ? 'Yes' : 'No' }}</span>
+                                    </div>
+                                </div>
+
+                                {{-- Background Info Column --}}
+                                <div class="bg-gray-50 p-4 rounded-lg text-sm space-y-3">
+                                    <div>
+                                        <label class="text-[10px] text-gray-400 uppercase font-bold block">Learned NAS via</label>
+                                        <p class="font-semibold text-gray-700">{{ $application->learn_about_nas ?? 'N/A' }}</p>
+                                        @if($application->referrer_name)
+                                            <p class="text-xs text-gray-500">Ref: {{ $application->referrer_name }}</p>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-gray-400 uppercase font-bold block">Attended Campaign?</label>
+                                        <p class="font-semibold text-gray-700">{{ $application->attended_campaign ?? 'No' }}</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 3. SUBMITTED FILES --}}
                     <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
                         <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
                             <h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center">
@@ -211,7 +279,7 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     @php
-                                        // Define Display Names
+                                        // Define Display Names matching Create/Edit
                                         $summaryDisplayName = [
                                             'scholarship_form' => 'Scholarship Application Form',
                                             'student_profile' => 'Student-Athlete Profile Form',
@@ -242,18 +310,15 @@
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4 text-center flex flex-col gap-1 items-center justify-center">
-                                                    {{-- 👇 RE-APPLIED GOOGLE DOCS FIX FOR PDF VIEWING --}}
                                                     @if(Str::endsWith(strtolower($path), '.pdf'))
                                                         <a href="https://docs.google.com/viewer?url={{ urlencode($path) }}&embedded=true" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center">
                                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                             View PDF
                                                         </a>
-                                                        {{-- Fallback --}}
                                                         <a href="{{ $path }}" download class="text-gray-400 hover:text-gray-600 text-[10px] font-medium hover:underline">
                                                             (Download)
                                                         </a>
                                                     @else
-                                                        {{-- For Images --}}
                                                         <a href="{{ $path }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center">
                                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                                             View Image
@@ -319,7 +384,6 @@
                                             @if($isUploaded)
                                                 <div class="flex items-center justify-between bg-white p-3 rounded border border-green-200 shadow-sm">
                                                     <span class="text-[10px] sm:text-xs text-green-700 font-bold italic">File has been uploaded.</span>
-                                                    {{-- RE-APPLIED GOOGLE DOCS FIX FOR QUALIFIED SECTION --}}
                                                     @if(Str::endsWith(strtolower($currentPath), '.pdf'))
                                                         <a href="https://docs.google.com/viewer?url={{ urlencode($currentPath) }}&embedded=true" target="_blank" class="text-[10px] sm:text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">
                                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -386,7 +450,6 @@
         @else
             {{-- No Application Found State --}}
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 text-center p-10 sm:p-16">
-                {{-- 👇 LOGO FOR EMPTY STATE (Centered stack logo) --}}
                 <img src="{{ asset('images/nas/stack.png') }}" 
                      class="h-20 sm:h-24 w-auto mx-auto mb-6 opacity-90 drop-shadow-sm hover:scale-105 transition-transform" 
                      alt="NAS Logo">
@@ -401,7 +464,7 @@
 
     </div>
 
-    {{-- 👇 LIVE UPDATE SCRIPT --}}
+    {{-- LIVE UPDATE SCRIPT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             setInterval(function() { updateDashboard(); }, 5000);

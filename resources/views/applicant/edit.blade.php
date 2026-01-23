@@ -114,10 +114,11 @@
                          </div>
                     </div>
 
-                    {{-- 2. ADDRESS INFORMATION (UPDATED WITH REGION FILTER) --}}
+                    {{-- 2. ADDRESS INFORMATION (UPDATED) --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                            
                             {{-- Region Dropdown --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Region *</label>
@@ -152,8 +153,6 @@
                     {{-- 3. ACADEMIC & SPORTS --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">3</span> Academic & Sports</h3>
-                        
-                        {{-- School & Grade --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('previous_school', $application->previous_school) }}"></div>
                             
@@ -227,7 +226,13 @@
                                     <input type="text" name="palaro_year" placeholder="Year Participated" value="{{ $application->palaro_year }}" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
-                            {{-- Placeholder for Batang Pinoy if needed, or other achievements --}}
+                            <div class="bg-gray-50 p-4 rounded-lg border">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Batang Pinoy Podium Finisher?</label>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center"><input type="radio" name="batang_pinoy_finisher" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="batang_pinoy_finisher" value="No" class="mr-2 text-indigo-600" checked> No</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -304,7 +309,7 @@
                         </div>
                     </div>
 
-                    {{-- 4. DESIGNATED GUARDIAN --}}
+                    {{-- 5. DESIGNATED GUARDIAN --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">4</span> Designated Guardian</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
@@ -365,14 +370,13 @@
         </div>
     </div>
 
-    {{-- ALPINE.JS LOGIC --}}
     <script>
         function applicantForm() {
             return {
                 age: '{{ $application->age }}',
                 selectedSport: '{{ $application->sport }}',
-                sportSpec: '{{ $application->sport_specification ?? '' }}', // Assuming you have a column for this or mixed in sport column
-                referralSource: '{{ $application->learn_about_nas ?? '' }}', // Need to ensure these columns exist or adapt
+                sportSpec: '{{ $application->sport_specification ?? '' }}', 
+                referralSource: '{{ $application->learn_about_nas ?? '' }}', 
                 referrerName: '{{ $application->referrer_name ?? '' }}',
                 isIP: '{{ $application->is_ip ? "Yes" : "No" }}',
                 ipGroup: '{{ $application->ip_group_name ?? '' }}',
@@ -405,7 +409,6 @@
                 },
 
                 init() {
-                    // Populate provinces on load based on saved region
                     if (this.selectedRegion) {
                         this.availableProvinces = this.regionsData[this.selectedRegion] || [];
                     }
@@ -413,7 +416,7 @@
 
                 updateProvinces() {
                     this.availableProvinces = this.regionsData[this.selectedRegion] || [];
-                    this.selectedProvince = ''; // Reset province selection
+                    this.selectedProvince = ''; 
                 },
 
                 calculateAge(dob) {
