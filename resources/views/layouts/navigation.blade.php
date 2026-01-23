@@ -6,7 +6,7 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Instant scroll restoration */
+    /* Instant scroll restoration (Pinipigilan ang smooth scroll para walang flicker) */
     #sidebar-menu { scroll-behavior: auto !important; }
 </style>
 
@@ -18,7 +18,7 @@
             <img src="{{ asset('images/nas/horizontal.png') }}" alt="NAS Logo" class="h-8 w-auto drop-shadow-sm">
         </div>
         
-        {{-- Hamburger with Click Effect --}}
+        {{-- Hamburger --}}
         <button @click="open = !open" class="p-2 rounded-md text-gray-600 hover:bg-black/5 focus:outline-none transition transform active:scale-90">
             <i class='bx bx-menu text-3xl'></i>
         </button>
@@ -39,17 +39,31 @@
                 transition-transform duration-300 ease-in-out 
                 md:translate-x-0 transform -translate-x-full md:transition-none flex flex-col">
         
-        {{-- Close Button with Click Effect --}}
+        {{-- Close Button --}}
         <div class="md:hidden absolute top-4 right-4 z-[60]">
              <button @click="open = false" class="text-gray-500 hover:text-red-600 bg-gray-100/80 rounded-full p-2 transition shadow-sm transform active:scale-90">
                 <i class='bx bx-x text-2xl leading-none'></i>
              </button>
         </div>
 
-        {{-- SCROLLABLE CONTAINER --}}
-        <div id="sidebar-menu" class="flex-1 overflow-y-auto no-scrollbar">
+        {{-- 
+            👇 SCROLLABLE CONTAINER (ANTI-FLICKER FIX)
+            Logic: x-init runs immediately upon render, restoring scroll before paint.
+        --}}
+        <div id="sidebar-menu" 
+             class="flex-1 overflow-y-auto no-scrollbar"
+             x-data="{
+                 init() {
+                     let saved = sessionStorage.getItem('sidebarScroll');
+                     if (saved) {
+                         this.$el.scrollTop = saved;
+                     }
+                 }
+             }"
+             x-init="init()"
+             @scroll.passive="sessionStorage.setItem('sidebarScroll', $el.scrollTop)">
 
-            {{-- HEADER LOGO (Animated) --}}
+            {{-- HEADER LOGO --}}
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
                 <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" wire:navigate 
                    class="block w-full px-6 transform active:scale-95 transition-transform duration-200">
@@ -60,14 +74,10 @@
             {{-- MENU ITEMS --}}
             <div class="px-3 space-y-1 pb-4">
                 
-                {{-- 👇 HELPERS: Animation Classes Added (active:scale-95) --}}
                 @php
-                    // For Main Dashboard items (Bolder font)
                     $navMainClass = "flex items-center px-4 py-3 text-sm font-bold rounded-lg transition-all duration-200 group transform active:scale-95";
-                    // For Sub-items (Medium font)
                     $navSubClass = "flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group transform active:scale-95";
                     
-                    // Colors
                     $activeIndigo = "bg-indigo-50 text-indigo-800 shadow-sm ring-1 ring-indigo-200";
                     $inactiveIndigo = "text-gray-600 hover:bg-gray-50 hover:text-indigo-700";
                     
@@ -219,16 +229,3 @@
         </div>
     </nav>
 </div>
-
-{{-- SCRIPT: Restore sidebar scroll position --}}
-<script>
-    (function() {
-        const sidebar = document.getElementById('sidebar-menu');
-        const key = 'sidebarScroll';
-        if (sidebar) {
-            const saved = sessionStorage.getItem(key);
-            if (saved) sidebar.scrollTop = parseInt(saved);
-            sidebar.addEventListener('scroll', () => sessionStorage.setItem(key, sidebar.scrollTop));
-        }
-    })();
-</script>
