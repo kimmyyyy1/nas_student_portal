@@ -103,7 +103,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
                 
-                {{-- Left Column: Profile Card --}}
+                {{-- LEFT COLUMN: PROFILE CARD --}}
                 <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
                     <div class="bg-indigo-900 px-6 py-4 border-b border-indigo-800">
                         <h3 class="text-white font-bold text-base sm:text-lg flex items-center">
@@ -134,9 +134,14 @@
                                 <span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Email Address</span>
                                 <p class="text-gray-900 text-sm truncate">{{ $application->email_address }}</p>
                             </div>
-                            <div>
+                            <div class="mb-3">
                                 <span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Age / Gender</span>
                                 <p class="text-gray-900 text-sm">{{ $application->age }} yrs old / {{ $application->gender }}</p>
+                            </div>
+                            <div>
+                                <span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Region / Province</span>
+                                <p class="text-gray-900 text-sm truncate">{{ $application->region }}</p>
+                                <p class="text-gray-700 text-xs">{{ $application->province }}</p>
                             </div>
                         </div>
                     </div>
@@ -274,16 +279,16 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     @php
-                                        // UPDATED DISPLAY NAMES MATCHING CREATE/EDIT
+                                        // UPDATED DISPLAY NAMES - CORRECTED AS REQUESTED
                                         $summaryDisplayName = [
                                             'scholarship_form'  => 'Scholarship Application Form',
                                             'student_profile'   => 'Student-Athlete’s Profile Form',
                                             'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
-                                            'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature',
-                                            'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature',
+                                            'coach_reco'        => 'Coach’s Recommendation Form with Coach’s valid Government-Issued ID with signature',
+                                            'adviser_reco'      => 'Adviser’s Recommendation Form with Adviser’s valid Government-Issued ID with signature',
                                             'birth_cert'        => 'PSA Birth Certificate',
                                             'report_card'       => 'Report Card (SF9)',
-                                            'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
+                                            'guardian_id'       => 'Designated Guardian’s valid Government-Issued ID with signature'
                                         ];
                                     @endphp
 
@@ -476,7 +481,7 @@
             if (alert) {
                 setTimeout(function() {
                     alert.style.opacity = '0';
-                    setTimeout(function() { alert.remove(); }, 500);
+                    setTimeout(function() { alert.remove(); }, 5000);
                 }, 5000);
             }
         });

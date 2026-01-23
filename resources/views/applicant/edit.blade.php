@@ -84,14 +84,13 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Birthday *</label>
-                                {{-- 👇 UPDATED: Uses Alpine for value binding to trigger age calc on load --}}
                                 <input type="date" 
                                        id="date_of_birth" 
                                        name="date_of_birth" 
                                        class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" 
                                        required 
-                                       x-model="dob"
-                                       @change="calculateAge()">
+                                       value="{{ old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d')) }}" 
+                                       @change="calculateAge($event.target.value)">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Age</label>
@@ -99,6 +98,7 @@
                                        id="age" 
                                        name="age" 
                                        class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" 
+                                       value="{{ old('age', $application->age) }}" 
                                        readonly 
                                        x-model="age">
                             </div>
@@ -125,6 +125,7 @@
                     {{-- 2. ADDRESS INFORMATION --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             {{-- Region Dropdown --}}
                             <div>
@@ -132,18 +133,18 @@
                                 <select name="region" x-model="selectedRegion" @change="updateProvinces()" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required>
                                     <option value="">Select Region</option>
                                     <template x-for="(provinces, region) in regionsData" :key="region">
-                                        <option :value="region" x-text="region"></option>
+                                        <option :value="region" x-text="region" :selected="region === '{{ $application->region }}'"></option>
                                     </template>
                                 </select>
                             </div>
 
-                            {{-- Province Dropdown --}}
+                            {{-- Province Dropdown (Filtered) --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Province *</label>
                                 <select name="province" x-model="selectedProvince" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required :disabled="!selectedRegion">
                                     <option value="">Select Province</option>
                                     <template x-for="province in availableProvinces" :key="province">
-                                        <option :value="province" x-text="province"></option>
+                                        <option :value="province" x-text="province" :selected="province === '{{ $application->province }}'"></option>
                                     </template>
                                 </select>
                             </div>
@@ -354,7 +355,7 @@
                         </p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                            {{-- 👇 UPDATED LABELS HERE --}}
+                            {{-- 👇 UPDATED REQUIREMENTS LABELS --}}
                             @foreach([
                                 'scholarship_form'  => 'Scholarship Application Form',
                                 'student_profile'   => 'Student-Athlete’s Profile Form',
@@ -362,7 +363,7 @@
                                 'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature',
                                 'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature',
                                 'birth_cert'        => 'PSA Birth Certificate',
-                                'report_card'       => 'Report Cards (Gr 5/6 or 6/7)',
+                                'report_card'       => 'Report Cards (SF9)',
                                 'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
                             ] as $key => $label)
                                 
@@ -453,7 +454,7 @@
                     this.selectedProvince = ''; // Reset province selection
                 },
 
-                calculateAge() {
+                calculateAge(dob) {
                     // Use the Alpine bound variable 'dob'
                     if (this.dob) {
                         let today = new Date();
