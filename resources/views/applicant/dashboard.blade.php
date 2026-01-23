@@ -2,14 +2,10 @@
     {{-- WRAPPER ID FOR AJAX UPDATES --}}
     <div id="dashboard-content" class="max-w-7xl mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
         
-        {{-- UPDATED Header Section --}}
-        {{-- Ginaya natin ang style sa Create Page: Horizontal Logo + Simple Text --}}
+        {{-- HEADER SECTION --}}
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 sm:mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div class="mb-4 md:mb-0 text-center md:text-left w-full md:w-auto">
-                {{-- 👇 LOGO: Horizontal, inalis ang malaking Title text --}}
                 <img src="{{ asset('images/nas/horizontal.png') }}" class="h-10 sm:h-12 md:h-16 object-contain mb-2 mx-auto md:mx-0" alt="NAS Logo">
-                
-                {{-- Welcome Message (Pinanatili ko ito dahil dashboard ito) --}}
                 <h1 class="text-base sm:text-lg font-bold text-gray-700 tracking-tight mt-2">
                     Welcome, <span class="text-indigo-700">{{ Auth::user()->first_name }}</span>!
                 </h1>
@@ -33,20 +29,9 @@
             </div>
         @endif
 
-        {{-- Error Message --}}
-        @if ($errors->any())
-            <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
-                <ul class="list-disc list-inside text-xs sm:text-sm">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
         @if($application)
             
-            {{-- Status Card --}}
+            {{-- STATUS CARD --}}
             <div id="status-section" class="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200 mb-6 sm:mb-8">
                 <div class="p-6 md:p-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -97,7 +82,7 @@
                         </div>
                     </div>
 
-                    {{-- Remarks Section --}}
+                    {{-- Registrar Remarks --}}
                     @if($application->assessment_score || $application->rejection_reason)
                         <div class="mt-4 p-4 rounded-lg border text-xs sm:text-sm {{ $application->status == 'Not Qualified' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-yellow-50 border-yellow-200 text-yellow-800' }}">
                             <h4 class="font-bold uppercase mb-1">Registrar Remarks:</h4>
@@ -289,16 +274,16 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     @php
-                                        // Define Display Names matching Create/Edit
+                                        // UPDATED DISPLAY NAMES MATCHING CREATE/EDIT
                                         $summaryDisplayName = [
                                             'scholarship_form'  => 'Scholarship Application Form',
                                             'student_profile'   => 'Student-Athlete’s Profile Form',
                                             'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
-                                            'coach_reco'        => 'Coach’s Recommendation Form (w/ Valid ID)',
-                                            'adviser_reco'      => 'Adviser’s Recommendation Form (w/ Valid ID)',
+                                            'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature',
+                                            'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature',
                                             'birth_cert'        => 'PSA Birth Certificate',
-                                            'report_card'       => 'Report Cards (Gr 5/6 or 6/7)',
-                                            'guardian_id'       => 'Guardian’s Valid ID w/ Signature'
+                                            'report_card'       => 'Report Card (SF9)',
+                                            'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
                                         ];
                                     @endphp
 

@@ -1,5 +1,5 @@
 <x-applicant-layout>
-    {{-- WRAPPER FOR MODAL STATE & ALPINE DATA --}}
+    {{-- WRAPPER FOR ALPINE DATA --}}
     <div x-data="applicantForm()" class="max-w-7xl mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
         
         <div class="text-center mb-6 sm:mb-10">
@@ -178,22 +178,22 @@
                             {{-- Conditional Sport Inputs --}}
                             <div x-show="selectedSport === 'Aquatics'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Aquatics event:</label>
-                                <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <input type="text" name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                             </div>
                             <div x-show="selectedSport === 'Athletics'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Athletics event:</label>
-                                <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <input type="text" name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                             </div>
                             <div x-show="selectedSport === 'Taekwondo'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Category:</label>
-                                <select name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <select name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                     <option value="Poomsae">Poomsae</option>
                                     <option value="Kyorugi">Kyorugi</option>
                                 </select>
                             </div>
                             <div x-show="selectedSport === 'Gymnastics'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Category:</label>
-                                <select name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <select name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                     <option value="Artistic">Artistic</option>
                                     <option value="Rhythmic">Rhythmic</option>
                                 </select>
@@ -313,15 +313,16 @@
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">6</span> Requirements Upload</h3>
                         <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 italic bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">Please upload clear copies (PDF, JPG, PNG). Max 5MB per file.</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            {{-- 👇 UPDATED REQUIREMENTS LABELS --}}
                             @foreach([
                                 'scholarship_form'  => 'Scholarship Application Form',
                                 'student_profile'   => 'Student-Athlete’s Profile Form',
                                 'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
-                                'coach_reco'        => 'Coach’s Recommendation Form (w/ Valid ID)',
-                                'adviser_reco'      => 'Adviser’s Recommendation Form (w/ Valid ID)',
+                                'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature',
+                                'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature',
                                 'birth_cert'        => 'PSA Birth Certificate',
-                                'report_card'       => 'Report Cards (Gr 5/6 or 6/7)',
-                                'guardian_id'       => 'Guardian’s Valid ID w/ Signature'
+                                'report_card'       => 'Report Card (SF9)',
+                                'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
                             ] as $key => $label)
                                 
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">

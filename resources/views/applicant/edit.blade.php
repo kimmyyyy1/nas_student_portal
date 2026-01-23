@@ -346,21 +346,22 @@
                         </p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            {{-- 👇 UPDATED LABELS --}}
                             @foreach([
                                 'scholarship_form'  => 'Scholarship Application Form',
                                 'student_profile'   => 'Student-Athlete’s Profile Form',
                                 'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
-                                'coach_reco'        => 'Coach’s Recommendation Form (w/ Valid ID)',
-                                'adviser_reco'      => 'Adviser’s Recommendation Form (w/ Valid ID)',
+                                'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature',
+                                'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature',
                                 'birth_cert'        => 'PSA Birth Certificate',
-                                'report_card'       => 'Report Cards (Gr 5/6 or 6/7)',
-                                'guardian_id'       => 'Guardian’s Valid ID w/ Signature'
+                                'report_card'       => 'Report Card (SF9)',
+                                'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
                             ] as $key => $label)
                                 
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                         <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
-                                            {{ $label }}
+                                            {{ $label }} <span class="text-red-600">*</span>
                                         </label>
                                         @if(isset($application->uploaded_files[$key]))
                                             <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
@@ -390,19 +391,17 @@
     <script>
         function applicantForm() {
             return {
-                age: '{{ $application->age }}',
-                selectedSport: '{{ $application->sport }}',
-                sportSpec: '{{ $application->sport_specification ?? '' }}', 
-                referralSource: '{{ $application->learn_about_nas ?? '' }}', 
-                referrerName: '{{ $application->referrer_name ?? '' }}',
-                isIP: '{{ $application->is_ip ? "Yes" : "No" }}',
-                ipGroup: '{{ $application->ip_group_name ?? '' }}',
-                isPWD: '{{ $application->is_pwd ? "Yes" : "No" }}',
-                pwdType: '{{ $application->pwd_disability ?? '' }}',
+                showPrivacyModal: false,
+                isSubmitting: false,
+                age: '',
+                selectedSport: '',
+                referralSource: '',
+                isIP: 'No',
+                isPWD: 'No',
                 
                 // Region & Province Data
-                selectedRegion: '{{ $application->region }}',
-                selectedProvince: '{{ $application->province }}',
+                selectedRegion: '',
+                selectedProvince: '',
                 availableProvinces: [],
                 regionsData: {
                     'Cordillera Administrative Region': ['Abra', 'Apayao', 'Benguet', 'Ifugao', 'Kalinga', 'Mountain Province'],
@@ -438,9 +437,12 @@
                 },
 
                 calculateAge(dob) {
-                    if (dob) {
+                    // Get the date string from the input (controlled by Alpine logic now)
+                    let inputDate = document.getElementById('date_of_birth').value;
+
+                    if (inputDate) {
                         let today = new Date();
-                        let birthDate = new Date(dob);
+                        let birthDate = new Date(inputDate);
                         let age = today.getFullYear() - birthDate.getFullYear();
                         let m = today.getMonth() - birthDate.getMonth();
                         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
