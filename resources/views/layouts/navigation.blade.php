@@ -6,31 +6,11 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Instant scroll restoration styling */
+    /* IMPORTANT: Force instant scrolling to prevent smooth-scroll flicker */
     #sidebar-menu { scroll-behavior: auto !important; }
 </style>
 
-{{-- 
-    👇 ALPINE DATA & LOGIC 
-    Added x-init to restore scroll position immediately upon component initialization.
---}}
-<div x-data="{ 
-        open: false,
-        restoreScroll() {
-            const sidebar = this.$refs.sidebar;
-            const key = 'sidebarScroll';
-            if (sidebar) {
-                const saved = sessionStorage.getItem(key);
-                if (saved) {
-                    sidebar.scrollTop = parseInt(saved);
-                }
-                sidebar.addEventListener('scroll', () => {
-                    sessionStorage.setItem(key, sidebar.scrollTop);
-                }, { passive: true });
-            }
-        }
-    }" 
-    x-init="restoreScroll()">
+<div x-data="{ open: false }">
 
     {{-- 1. MOBILE HEADER --}}
     <div class="md:hidden fixed top-0 left-0 w-full h-16 bg-white/90 backdrop-blur-md border-b border-gray-200/50 z-40 flex items-center justify-between px-4 shadow-sm transition-all duration-300">
@@ -65,10 +45,25 @@
         </div>
 
         {{-- 
-            👇 SCROLLABLE CONTAINER 
-            Added x-ref="sidebar" for Alpine to find it quickly.
+            👇 FLICKER-FREE SCROLLABLE CONTAINER 
+            Logic: Kinukuha agad ang saved position sa 'x-init' at inaapply agad.
         --}}
-        <div id="sidebar-menu" x-ref="sidebar" class="flex-1 overflow-y-auto no-scrollbar">
+        <div id="sidebar-menu" 
+             class="flex-1 overflow-y-auto no-scrollbar"
+             x-data="{
+                 init() {
+                     // Restore scroll instantly
+                     const saved = sessionStorage.getItem('sidebarScroll');
+                     if (saved) {
+                         this.$el.scrollTop = saved;
+                     }
+                 },
+                 saveScroll() {
+                     sessionStorage.setItem('sidebarScroll', this.$el.scrollTop);
+                 }
+             }"
+             x-init="init()"
+             @scroll.passive="saveScroll()">
 
             {{-- HEADER LOGO --}}
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
@@ -223,12 +218,12 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-xs font-bold rounded-md text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition transform active:scale-95">
+                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-xs font-bold rounded-md text-gray-700 bg-white hover:bg-gray-100 active:scale-95 transition transform">
                     <i class='bx bx-user mr-1 text-sm'></i> Profile
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="w-full flex items-center justify-center px-3 py-2 border border-transparent shadow-sm text-xs font-bold rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition transform active:scale-95">
+                    <button type="submit" class="w-full flex items-center justify-center px-3 py-2 border border-transparent shadow-sm text-xs font-bold rounded-md text-white bg-red-600 hover:bg-red-700 active:scale-95 transition transform">
                         <i class='bx bx-log-out mr-1 text-sm'></i> Sign Out
                     </button>
                 </form>
