@@ -124,27 +124,33 @@
                     {{-- 2. ADDRESS INFORMATION --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                            {{-- Region Dropdown --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Region *</label>
                                 <select name="region" x-model="selectedRegion" @change="updateProvinces()" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required>
                                     <option value="">Select Region</option>
                                     <template x-for="(provinces, region) in regionsData" :key="region">
-                                        <option :value="region" x-text="region"></option>
+                                        <option :value="region" x-text="region" :selected="region === '{{ $application->region }}'"></option>
                                     </template>
                                 </select>
                             </div>
+
+                            {{-- Province Dropdown (Filtered) --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Province *</label>
                                 <select name="province" x-model="selectedProvince" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required :disabled="!selectedRegion">
                                     <option value="">Select Province</option>
                                     <template x-for="province in availableProvinces" :key="province">
-                                        <option :value="province" x-text="province"></option>
+                                        <option :value="province" x-text="province" :selected="province === '{{ $application->province }}'"></option>
                                     </template>
                                 </select>
                             </div>
+
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Municipality/City *</label><input type="text" name="municipality_city" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('municipality_city', $application->municipality_city) }}"></div>
                         </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Barangay *</label><input type="text" name="barangay" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('barangay', $application->barangay) }}"></div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Street / House No.</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('street_address', $application->street_address) }}" required></div>
@@ -160,6 +166,7 @@
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">3</span> Academic & Sports</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('previous_school', $application->previous_school) }}"></div>
+                            
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">School Type *</label>
                                 <select name="school_type" class="w-full rounded-lg border-gray-300 shadow-sm h-11">
@@ -167,6 +174,7 @@
                                     <option value="Private" {{ old('school_type', $application->school_type) == 'Private' ? 'selected' : '' }}>Private</option>
                                 </select>
                             </div>
+                            
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Grade Level Applying For *</label>
                                 <select name="grade_level_applied" class="w-full rounded-lg border-gray-300 shadow-sm h-11" required>
@@ -192,6 +200,7 @@
                                 <option value="Weightlifting">Weightlifting</option>
                             </select>
 
+                            {{-- Conditional Sport Inputs --}}
                             <div x-show="selectedSport === 'Aquatics'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Aquatics event:</label>
                                 <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
@@ -238,12 +247,11 @@
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Batang Pinoy Podium Finisher?</label>
                                 <div class="flex space-x-4">
                                     <label class="flex items-center space-x-2">
-                                        {{-- Fixed: Manually check radio button value with server data if needed in x-init, but here name attribute works for submission --}}
-                                        <input type="radio" name="batang_pinoy_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" {{ old('batang_pinoy_finisher', $application->batang_pinoy_finisher) == 'Yes' ? 'checked' : '' }}>
+                                        <input type="radio" name="batang_pinoy_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" {{ $application->batang_pinoy_finisher == 'Yes' ? 'checked' : '' }}>
                                         <span class="text-sm font-medium text-gray-700">Yes</span>
                                     </label>
                                     <label class="flex items-center space-x-2">
-                                        <input type="radio" name="batang_pinoy_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" {{ old('batang_pinoy_finisher', $application->batang_pinoy_finisher) == 'No' ? 'checked' : '' }}>
+                                        <input type="radio" name="batang_pinoy_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" {{ $application->batang_pinoy_finisher == 'No' ? 'checked' : '' }}>
                                         <span class="text-sm font-medium text-gray-700">No</span>
                                     </label>
                                 </div>
@@ -256,6 +264,7 @@
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">4</span> Background Information</h3>
                         
                         <div class="grid grid-cols-1 gap-6 mb-6">
+                            {{-- Learn about NAS --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Where did you learn about NAS?</label>
                                 <select x-model="referralSource" name="learn_about_nas" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500">
@@ -270,11 +279,13 @@
                                 </select>
                             </div>
                             
+                            {{-- Conditional Referral Name --}}
                             <div x-show="referralSource === 'NAS Personnel / Student-Athlete Referral'" class="bg-yellow-50 p-4 rounded-md border border-yellow-200">
                                 <label class="block text-sm font-bold text-yellow-800 mb-1">If referred, write the name (One name only):</label>
                                 <input type="text" name="referrer_name" x-model="referrerName" class="w-full rounded-md border-gray-300 shadow-sm h-10">
                             </div>
 
+                            {{-- Articulation Campaign --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Have you attended any of our articulation campaign or visited an information booth?</label>
                                 <div class="flex space-x-6">
@@ -284,6 +295,7 @@
                             </div>
                         </div>
 
+                        {{-- Special Groups --}}
                         <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 space-y-4">
                             {{-- IP --}}
                             <div>
@@ -341,6 +353,7 @@
                         </p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            {{-- 👇 UPDATED LABELS HERE --}}
                             @foreach([
                                 'scholarship_form'  => 'Scholarship Application Form',
                                 'student_profile'   => 'Student-Athlete’s Profile Form',
@@ -348,14 +361,14 @@
                                 'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature',
                                 'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature',
                                 'birth_cert'        => 'PSA Birth Certificate',
-                                'report_card'       => 'Report Cards (Gr 5/6 or 6/7)',
+                                'report_card'       => 'Report Card (SF9)',
                                 'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
                             ] as $key => $label)
                                 
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                         <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
-                                            {{ $label }} <span class="text-red-600">*</span>
+                                            {{ $label }}
                                         </label>
                                         @if(isset($application->uploaded_files[$key]))
                                             <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
@@ -385,6 +398,11 @@
     <script>
         function applicantForm() {
             return {
+                showPrivacyModal: false,
+                isSubmitting: false,
+                
+                // Initialize variables with existing data from server
+                dob: @json(old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d'))),
                 age: @json(old('age', $application->age)),
                 selectedSport: @json(old('sport', $application->sport)),
                 sportSpec: @json(old('sport_specification', $application->sport_specification)), 
@@ -396,7 +414,6 @@
                 pwdType: @json(old('pwd_disability', $application->pwd_disability)),
                 hasPalaro: @json(old('palaro_finisher', $application->has_palaro_participation ? "Yes" : "No")),
                 palaroYear: @json(old('palaro_year', $application->palaro_year)),
-                dob: @json(old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d'))),
                 
                 // Region & Province Data
                 selectedRegion: @json(old('region', $application->region)),
