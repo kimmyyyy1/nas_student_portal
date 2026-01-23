@@ -62,7 +62,6 @@
                         <div class="grid grid-cols-1 md:grid-cols-1 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">LRN (Learner Reference No.) *</label>
-                                {{-- 👇 UPDATED: Added maxlength and oninput --}}
                                 <input type="text" name="lrn" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('lrn', $application->lrn) }}" placeholder="12-digit LRN" maxlength="12" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
                             </div>
                         </div>
@@ -85,10 +84,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Birthday *</label>
-                                {{-- 👇 FIXED: Removed native onchange, added Alpine @change --}}
-                                <input type="date" 
-                                       id="date_of_birth" 
-                                       name="date_of_birth" 
+                                <input type="date" id="date_of_birth" name="date_of_birth" 
                                        class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" 
                                        required 
                                        value="{{ old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d')) }}" 
@@ -96,14 +92,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Age</label>
-                                {{-- 👇 FIXED: Added x-model="age" to bind the result --}}
-                                <input type="number" 
-                                       id="age" 
-                                       name="age" 
-                                       class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" 
-                                       value="{{ old('age', $application->age) }}" 
-                                       readonly 
-                                       x-model="age">
+                                <input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" value="{{ old('age', $application->age) }}" readonly x-model="age">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sex *</label>
@@ -128,7 +117,6 @@
                     {{-- 2. ADDRESS INFORMATION (UPDATED WITH REGION FILTER) --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             {{-- Region Dropdown --}}
                             <div>
@@ -154,13 +142,11 @@
 
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Municipality/City *</label><input type="text" name="municipality_city" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('municipality_city', $application->municipality_city) }}"></div>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Barangay *</label><input type="text" name="barangay" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('barangay', $application->barangay) }}"></div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Street / House No.</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('street_address', $application->street_address) }}" required></div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Zip Code</label>
-                                {{-- 👇 UPDATED: Added maxlength and oninput --}}
                                 <input type="text" name="zip_code" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('zip_code', $application->zip_code) }}" required maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)">
                             </div>
                         </div>
@@ -236,17 +222,17 @@
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Palarong Pambansa Podium Finisher?</label>
                                 <div class="flex space-x-4">
                                     <label class="flex items-center"><input type="radio" name="palaro_finisher" value="Yes" class="mr-2 text-indigo-600" {{ $application->has_palaro_participation ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="palaro_finisher" value="No" class="mr-2 text-indigo-600" checked> No</label>
+                                    <label class="flex items-center"><input type="radio" name="palaro_finisher" value="No" class="mr-2 text-indigo-600" {{ !$application->has_palaro_participation ? 'checked' : '' }}> No</label>
                                 </div>
-                                <div class="mt-2" x-data="{ show: false }" x-show="document.querySelector('input[name=palaro_finisher]:checked')?.value === 'Yes'" @change="show = $event.target.value === 'Yes'">
-                                    <input type="text" name="palaro_year" placeholder="Year Participated" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <div class="mt-2" x-data="{ show: {{ $application->has_palaro_participation ? 'true' : 'false' }} }" x-show="document.querySelector('input[name=palaro_finisher]:checked')?.value === 'Yes'" @change="show = $event.target.value === 'Yes'">
+                                    <input type="text" name="palaro_year" placeholder="Year Participated" value="{{ $application->palaro_year }}" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Batang Pinoy Podium Finisher?</label>
                                 <div class="flex space-x-4">
-                                    <label class="flex items-center"><input type="radio" name="batang_pinoy_finisher" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="batang_pinoy_finisher" value="No" class="mr-2 text-indigo-600" checked> No</label>
+                                    <label class="flex items-center"><input type="radio" name="batang_pinoy_finisher" value="Yes" class="mr-2 text-indigo-600" {{ $application->batang_pinoy_finisher == 'Yes' ? 'checked' : '' }}> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="batang_pinoy_finisher" value="No" class="mr-2 text-indigo-600" {{ $application->batang_pinoy_finisher == 'No' ? 'checked' : '' }}> No</label>
                                 </div>
                             </div>
                         </div>
@@ -282,8 +268,8 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Have you attended any of our articulation campaign or visited an information booth?</label>
                                 <div class="flex space-x-6">
-                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="Yes" class="mr-2 text-indigo-600" {{ old('attended_campaign') == 'Yes' ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="No" class="mr-2 text-indigo-600" {{ old('attended_campaign') == 'No' ? 'checked' : '' }}> No</label>
+                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="Yes" class="mr-2 text-indigo-600" {{ old('attended_campaign', $application->attended_campaign) == 'Yes' ? 'checked' : '' }}> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="No" class="mr-2 text-indigo-600" {{ old('attended_campaign', $application->attended_campaign) == 'No' ? 'checked' : '' }}> No</label>
                                 </div>
                             </div>
                         </div>
@@ -318,8 +304,8 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Beneficiary of 4Ps?</label>
                                 <div class="flex space-x-4">
-                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="Yes" class="mr-2 text-indigo-600" {{ old('is_4ps') == 'Yes' ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="No" class="mr-2 text-indigo-600" {{ old('is_4ps') == 'No' ? 'checked' : '' }}> No</label>
+                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="Yes" class="mr-2 text-indigo-600" {{ old('is_4ps', $application->is_4ps ? 'Yes' : 'No') == 'Yes' ? 'checked' : '' }}> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="No" class="mr-2 text-indigo-600" {{ old('is_4ps', $application->is_4ps ? 'Yes' : 'No') == 'No' ? 'checked' : '' }}> No</label>
                                 </div>
                             </div>
                         </div>
@@ -346,7 +332,7 @@
                         </p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                            {{-- 👇 UPDATED LABELS --}}
+                            {{-- 👇 UPDATED LABELS HERE --}}
                             @foreach([
                                 'scholarship_form'  => 'Scholarship Application Form',
                                 'student_profile'   => 'Student-Athlete’s Profile Form',
@@ -361,7 +347,7 @@
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                         <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
-                                            {{ $label }} <span class="text-red-600">*</span>
+                                            {{ $label }}
                                         </label>
                                         @if(isset($application->uploaded_files[$key]))
                                             <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
@@ -391,17 +377,19 @@
     <script>
         function applicantForm() {
             return {
-                showPrivacyModal: false,
-                isSubmitting: false,
-                age: '',
-                selectedSport: '',
-                referralSource: '',
-                isIP: 'No',
-                isPWD: 'No',
+                age: '{{ $application->age }}',
+                selectedSport: '{{ $application->sport }}',
+                sportSpec: '{{ $application->sport_specification ?? '' }}', 
+                referralSource: '{{ $application->learn_about_nas ?? '' }}', 
+                referrerName: '{{ $application->referrer_name ?? '' }}',
+                isIP: '{{ $application->is_ip ? "Yes" : "No" }}',
+                ipGroup: '{{ $application->ip_group_name ?? '' }}',
+                isPWD: '{{ $application->is_pwd ? "Yes" : "No" }}',
+                pwdType: '{{ $application->pwd_disability ?? '' }}',
                 
                 // Region & Province Data
-                selectedRegion: '',
-                selectedProvince: '',
+                selectedRegion: '{{ $application->region }}',
+                selectedProvince: '{{ $application->province }}',
                 availableProvinces: [],
                 regionsData: {
                     'Cordillera Administrative Region': ['Abra', 'Apayao', 'Benguet', 'Ifugao', 'Kalinga', 'Mountain Province'],
@@ -425,7 +413,6 @@
                 },
 
                 init() {
-                    // Populate provinces on load based on saved region
                     if (this.selectedRegion) {
                         this.availableProvinces = this.regionsData[this.selectedRegion] || [];
                     }
@@ -433,7 +420,7 @@
 
                 updateProvinces() {
                     this.availableProvinces = this.regionsData[this.selectedRegion] || [];
-                    this.selectedProvince = ''; // Reset province selection
+                    this.selectedProvince = ''; 
                 },
 
                 calculateAge(dob) {
