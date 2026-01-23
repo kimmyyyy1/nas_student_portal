@@ -62,7 +62,8 @@
                         <div class="grid grid-cols-1 md:grid-cols-1 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">LRN (Learner Reference No.) *</label>
-                                <input type="text" name="lrn" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('lrn', $application->lrn) }}" placeholder="12-digit LRN">
+                                {{-- 👇 UPDATED: Added maxlength and oninput --}}
+                                <input type="text" name="lrn" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('lrn', $application->lrn) }}" placeholder="12-digit LRN" maxlength="12" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
                             </div>
                         </div>
 
@@ -114,11 +115,11 @@
                          </div>
                     </div>
 
-                    {{-- 2. ADDRESS INFORMATION (UPDATED) --}}
+                    {{-- 2. ADDRESS INFORMATION (UPDATED WITH REGION FILTER) --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                            
                             {{-- Region Dropdown --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Region *</label>
@@ -143,10 +144,15 @@
 
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Municipality/City *</label><input type="text" name="municipality_city" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('municipality_city', $application->municipality_city) }}"></div>
                         </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Barangay *</label><input type="text" name="barangay" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('barangay', $application->barangay) }}"></div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Street / House No.</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('street_address', $application->street_address) }}" required></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Zip Code</label><input type="text" name="zip_code" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('zip_code', $application->zip_code) }}" required></div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Zip Code</label>
+                                {{-- 👇 UPDATED: Added maxlength and oninput --}}
+                                <input type="text" name="zip_code" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('zip_code', $application->zip_code) }}" required maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)">
+                            </div>
                         </div>
                     </div>
 
@@ -220,10 +226,10 @@
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Palarong Pambansa Podium Finisher?</label>
                                 <div class="flex space-x-4">
                                     <label class="flex items-center"><input type="radio" name="palaro_finisher" value="Yes" class="mr-2 text-indigo-600" {{ $application->has_palaro_participation ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="palaro_finisher" value="No" class="mr-2 text-indigo-600" {{ !$application->has_palaro_participation ? 'checked' : '' }}> No</label>
+                                    <label class="flex items-center"><input type="radio" name="palaro_finisher" value="No" class="mr-2 text-indigo-600" checked> No</label>
                                 </div>
-                                <div class="mt-2" x-data="{ show: {{ $application->has_palaro_participation ? 'true' : 'false' }} }">
-                                    <input type="text" name="palaro_year" placeholder="Year Participated" value="{{ $application->palaro_year }}" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <div class="mt-2" x-data="{ show: false }" x-show="document.querySelector('input[name=palaro_finisher]:checked')?.value === 'Yes'" @change="show = $event.target.value === 'Yes'">
+                                    <input type="text" name="palaro_year" placeholder="Year Participated" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-lg border">
@@ -311,7 +317,7 @@
 
                     {{-- 5. DESIGNATED GUARDIAN --}}
                     <div class="mb-8 sm:mb-10">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">4</span> Designated Guardian</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">5</span> Designated Guardian</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Guardian Name *</label><input type="text" name="guardian_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_name', $application->guardian_name) }}"></div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Relationship *</label><input type="text" name="guardian_relationship" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_relationship', $application->guardian_relationship) }}"></div>
@@ -322,70 +328,92 @@
                         </div>
                     </div>
 
-                    {{-- 5. REQUIREMENTS --}}
+                    {{-- 6. REQUIREMENTS --}}
                     <div class="mb-8 sm:mb-12">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">5</span> Update Requirements</h3>
-                        <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 italic bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">
-                            <strong>Note:</strong> You only need to upload files below if you wish to <u>replace</u> your current submission. If left empty, your existing file will be kept.
-                        </p>
-                        
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">6</span> Requirements Upload</h3>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 italic bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">Please upload clear copies (PDF, JPG, PNG). Max 5MB per file.</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                            @foreach([
-                                'scholarship_form' => 'Scholarship Application Forms', 
-                                'student_profile' => 'Student-Athlete Profile Form', 
-                                'coach_reco' => 'Coach Recommendation Form', 
-                                'adviser_reco' => 'Adviser Recommendation Form', 
-                                'medical_clearance' => 'Physical Eval Clearance', 
-                                'birth_cert' => 'PSA Birth Certificate', 
-                                'report_card' => 'Report Card (SF10)', 
-                                'guardian_id' => 'Guardian Valid ID'
-                            ] as $key => $label)
-                                
+                            @foreach(['scholarship_form' => 'Scholarship Application Forms', 'student_profile' => 'Student-Athlete Profile Form', 'coach_reco' => 'Coach Recommendation Form', 'adviser_reco' => 'Adviser Recommendation Form', 'medical_clearance' => 'Physical Eval Clearance', 'birth_cert' => 'PSA Birth Certificate', 'report_card' => 'Report Card (SF10)', 'guardian_id' => 'Guardian Valid ID'] as $key => $label)
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
-                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
-                                        <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
-                                            {{ $label }}
-                                        </label>
-                                        @if(isset($application->uploaded_files[$key]))
-                                            <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
-                                        @else
-                                            <span class="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded inline-block self-start sm:self-auto">Missing</span>
-                                        @endif
-                                    </div>
-
+                                    <label class="text-sm font-bold text-gray-800 mb-3 block uppercase tracking-wide">
+                                        {{ $label }} <span class="text-red-600">*</span>
+                                    </label>
                                     <input type="file" name="files[{{ $key }}]" 
                                            class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
-                                           accept=".pdf,.jpg,.jpeg,.png">
+                                           accept=".pdf,.jpg,.jpeg,.png"
+                                           required>
                                 </div>
                             @endforeach
                         </div>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row justify-center pb-4 sm:pb-8 pt-4 gap-4">
-                        <a href="{{ route('applicant.dashboard') }}" class="w-full sm:w-auto text-center bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 sm:px-10 py-3 rounded-lg font-bold text-base sm:text-lg shadow-md transition">Cancel</a>
-                        <button type="submit" class="w-full sm:w-auto bg-indigo-700 hover:bg-indigo-800 text-white px-6 sm:px-10 py-3 rounded-lg font-bold text-base sm:text-lg shadow-md transition transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-300">UPDATE APPLICATION</button>
+                    {{-- SUBMIT BUTTON --}}
+                    <div class="flex justify-center pb-4 sm:pb-8 pt-4">
+                        <button type="button" 
+                                @click="if(document.getElementById('applicantForm').reportValidity()) { showPrivacyModal = true }" 
+                                class="w-full sm:w-auto bg-indigo-700 hover:bg-indigo-800 text-white px-6 sm:px-10 py-3 rounded-lg font-bold text-base sm:text-lg shadow-md transition transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-300 uppercase tracking-wide">
+                            REVIEW & SUBMIT APPLICATION
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
+
+        {{-- PRIVACY MODAL --}}
+        <div x-show="showPrivacyModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div x-show="showPrivacyModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div x-show="showPrivacyModal" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full border-t-8 border-indigo-700">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg sm:text-xl leading-6 font-extrabold text-gray-900" id="modal-title">Data Privacy Consent</h3>
+                                    <i class='bx bx-shield-quarter text-2xl sm:text-3xl text-indigo-600'></i>
+                                </div>
+                                <div class="mt-2 h-48 sm:h-64 overflow-y-auto text-xs sm:text-sm text-gray-600 bg-gray-50 p-3 sm:p-4 rounded border border-gray-200 text-justify">
+                                    <p class="mb-3 font-bold">Please read carefully:</p>
+                                    <p class="mb-3">In compliance with the <strong>Data Privacy Act of 2012 (RA 10173)</strong>, the National Academy of Sports (NAS) is committed to protecting your personal data.</p>
+                                    <p class="mb-3">By submitting this application form, you acknowledge and agree that:</p>
+                                    <ul class="list-disc ml-5 mb-3 space-y-2">
+                                        <li><strong>Collection:</strong> NAS collects your personal information solely for admission/scholarship purposes.</li>
+                                        <li><strong>Use:</strong> Your data will be used by authorized NAS personnel.</li>
+                                        <li><strong>Protection:</strong> NAS implements security measures to protect your data.</li>
+                                    </ul>
+                                    <p>You attest that all information provided is true and correct.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse flex-col gap-2 sm:gap-0">
+                        <button type="button" @click="isSubmitting = true; document.getElementById('applicantForm').submit();" :disabled="isSubmitting" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-700 text-sm sm:text-base font-medium text-white hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span x-show="!isSubmitting">I AGREE & SUBMIT APPLICATION</span>
+                            <span x-show="isSubmitting">Processing...</span>
+                        </button>
+                        <button type="button" @click="showPrivacyModal = false" class="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm sm:text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
+    {{-- ALPINE.JS LOGIC --}}
     <script>
         function applicantForm() {
             return {
-                age: '{{ $application->age }}',
-                selectedSport: '{{ $application->sport }}',
-                sportSpec: '{{ $application->sport_specification ?? '' }}', 
-                referralSource: '{{ $application->learn_about_nas ?? '' }}', 
-                referrerName: '{{ $application->referrer_name ?? '' }}',
-                isIP: '{{ $application->is_ip ? "Yes" : "No" }}',
-                ipGroup: '{{ $application->ip_group_name ?? '' }}',
-                isPWD: '{{ $application->is_pwd ? "Yes" : "No" }}',
-                pwdType: '{{ $application->pwd_disability ?? '' }}',
+                showPrivacyModal: false,
+                isSubmitting: false,
+                age: '',
+                selectedSport: '',
+                referralSource: '',
+                isIP: 'No',
+                isPWD: 'No',
                 
                 // Region & Province Data
-                selectedRegion: '{{ $application->region }}',
-                selectedProvince: '{{ $application->province }}',
+                selectedRegion: '',
+                selectedProvince: '',
                 availableProvinces: [],
                 regionsData: {
                     'Cordillera Administrative Region': ['Abra', 'Apayao', 'Benguet', 'Ifugao', 'Kalinga', 'Mountain Province'],
@@ -408,15 +436,9 @@
                     'BARMM': ['Basilan', 'Lanao del Sur', 'Maguindanao', 'Sulu', 'Tawi-Tawi']
                 },
 
-                init() {
-                    if (this.selectedRegion) {
-                        this.availableProvinces = this.regionsData[this.selectedRegion] || [];
-                    }
-                },
-
                 updateProvinces() {
                     this.availableProvinces = this.regionsData[this.selectedRegion] || [];
-                    this.selectedProvince = ''; 
+                    this.selectedProvince = ''; // Reset province selection
                 },
 
                 calculateAge(dob) {

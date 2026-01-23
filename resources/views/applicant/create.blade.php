@@ -51,7 +51,8 @@
                         <div class="grid grid-cols-1 md:grid-cols-1 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">LRN (Learner Reference No.) *</label>
-                                <input type="text" name="lrn" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('lrn') }}" placeholder="12-digit LRN">
+                                {{-- 👇 UPDATED: Added maxlength and oninput --}}
+                                <input type="text" name="lrn" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('lrn') }}" placeholder="12-digit LRN" maxlength="12" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
                             </div>
                         </div>
 
@@ -73,11 +74,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Birthday *</label>
-                                <input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('date_of_birth') }}" @change="calculateAge($event.target.value)">
+                                <input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('date_of_birth') }}" onchange="calculateAge()">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Age</label>
-                                <input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" value="{{ old('age') }}" readonly x-model="age">
+                                <input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" value="{{ old('age') }}" readonly>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sex *</label>
@@ -96,7 +97,7 @@
                          </div>
                     </div>
 
-                    {{-- 2. ADDRESS INFORMATION (UPDATED WITH REGION FILTER) --}}
+                    {{-- 2. ADDRESS INFORMATION --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
                         
@@ -129,7 +130,11 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Barangay *</label><input type="text" name="barangay" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('barangay') }}"></div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Street / House No.</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('street_address') }}" required></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Zip Code</label><input type="text" name="zip_code" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('zip_code') }}" required></div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Zip Code</label>
+                                {{-- 👇 UPDATED: Added maxlength and oninput --}}
+                                <input type="text" name="zip_code" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('zip_code') }}" required maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)">
+                            </div>
                         </div>
                     </div>
 
@@ -139,7 +144,7 @@
                         
                         {{-- School & Grade --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('previous_school') }}"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('previous_school') }}"></div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">School Type *</label>
                                 <select name="school_type" class="w-full rounded-lg border-gray-300 shadow-sm h-11">
@@ -204,6 +209,9 @@
                                 <div class="flex space-x-4">
                                     <label class="flex items-center"><input type="radio" name="palaro_finisher" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
                                     <label class="flex items-center"><input type="radio" name="palaro_finisher" value="No" class="mr-2 text-indigo-600" checked> No</label>
+                                </div>
+                                <div class="mt-2" x-data="{ show: false }" x-show="document.querySelector('input[name=palaro_finisher]:checked')?.value === 'Yes'" @change="show = $event.target.value === 'Yes'">
+                                    <input type="text" name="palaro_year" placeholder="Year Participated" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-lg border">
