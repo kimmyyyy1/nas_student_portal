@@ -11,11 +11,17 @@
         font-family: 'Poppins', sans-serif !important;
     }
 
-    /* Targetin natin lahat ng pasaway na elements (Tables, Inputs, Buttons, Headings) */
+    /* Targetin natin lahat ng pasaway na elements */
     body, h1, h2, h3, h4, h5, h6, 
     p, span, a, li, 
     button, input, select, textarea, label,
     table, td, th {
         font-family: 'Poppins', sans-serif !important;
     }
+}
+
+/* 👇 3. FINAL FIX: FORCE TRANSPARENT BODY 
+   Ito ang pipilit sa background na maging clear para lumabas ang image */
+body {
+    background-color: transparent !important;
 }

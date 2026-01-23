@@ -11,14 +11,32 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Training Plans') }}
             </h2>
-            <a href="{{ route('training-plans.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md shadow-sm transition-colors duration-200">
+            
+            {{-- 🟢 DESKTOP BUTTON (Hidden on Mobile) --}}
+            <a href="{{ route('training-plans.create') }}" class="hidden md:inline-flex bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm items-center gap-2 transition-colors duration-200">
+                {{-- SVG Plus Icon --}}
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
                 Create Plan
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6 md:py-12">
+        {{-- Added px-4 para hindi dikit sa gilid pag mobile --}}
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+            
+            {{-- 🟢 MOBILE ADD BUTTON (Visible only on Mobile) --}}
+            <div class="md:hidden mb-6">
+                <a href="{{ route('training-plans.create') }}" class="w-full flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md text-sm transition duration-150 ease-in-out">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create Plan
+                </a>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
                 <div class="p-6 text-gray-900">
                     

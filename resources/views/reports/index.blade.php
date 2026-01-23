@@ -1,15 +1,47 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Reports & Documents Generation') }}
-        </h2>
+        
+        {{-- ============================================================= --}}
+        {{-- 📱 MOBILE HEADER: Badge Lang (Clean Look)                     --}}
+        {{-- ============================================================= --}}
+        <div class="flex md:hidden items-center w-full py-2">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700 tracking-wide uppercase shadow-sm border border-gray-200">
+                <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                System Reports
+            </span>
+        </div>
+
+        {{-- ============================================================= --}}
+        {{-- 💻 DESKTOP HEADER: Title + Badge                              --}}
+        {{-- ============================================================= --}}
+        <div class="hidden md:flex items-center justify-between w-full py-2">
+            
+            {{-- KALIWA: Title Only (Removed Desktop Back Button too) --}}
+            <div class="flex items-center">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    {{ __('Reports & Documents Generation') }}
+                </h2>
+            </div>
+
+            {{-- KANAN: Badge --}}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 tracking-wide uppercase shadow-sm border border-gray-200">
+                <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                System Reports
+            </span>
+
+        </div>
+
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    {{-- 👇 FIX: py-4 sa mobile para tamang-tama ang taas --}}
+    <div class="py-4 md:py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+            
+            {{-- ❌ REMOVED: Wala na ang Back Button dito --}}
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+                {{-- CARD 1: Grade Sheets --}}
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500 hover:shadow-md transition">
                     <div class="p-6">
                         <div class="flex items-center mb-4">
@@ -21,12 +53,13 @@
                                 <p class="text-sm text-gray-500">Generate summary of grades per section.</p>
                             </div>
                         </div>
-                        <a href="{{ route('reports.grade_sheets') }}" class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded shadow transition transform hover:scale-105">
+                        <a href="{{ route('reports.grade_sheets') }}" wire:navigate class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded shadow transition transform hover:scale-105">
                             Generate Grade Sheets
                         </a>
                     </div>
                 </div>
 
+                {{-- CARD 2: Report Cards --}}
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-green-500 hover:shadow-md transition">
                     <div class="p-6">
                         <div class="flex items-center mb-4">
@@ -38,12 +71,13 @@
                                 <p class="text-sm text-gray-500">Generate individual learner progress report.</p>
                             </div>
                         </div>
-                        <a href="{{ route('reports.report_cards') }}" class="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow transition transform hover:scale-105">
+                        <a href="{{ route('reports.report_cards') }}" wire:navigate class="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow transition transform hover:scale-105">
                             Generate Report Cards
                         </a>
                     </div>
                 </div>
 
+                {{-- CARD 3: Academic Awardees --}}
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-yellow-500 hover:shadow-md transition">
                     <div class="p-6">
                         <div class="flex items-center mb-4">
@@ -55,12 +89,13 @@
                                 <p class="text-sm text-gray-500">List of honors and achievers.</p>
                             </div>
                         </div>
-                        <a href="{{ route('reports.awardees') }}" class="flex items-center justify-center w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded shadow transition transform hover:scale-105">
+                        <a href="{{ route('reports.awardees') }}" wire:navigate class="flex items-center justify-center w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded shadow transition transform hover:scale-105">
                             Generate Awardees List
                         </a>
                     </div>
                 </div>
 
+                {{-- CARD 4: Student Ranking --}}
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-indigo-600 hover:shadow-md transition">
                     <div class="p-6">
                         <div class="flex items-center mb-4">
@@ -73,7 +108,7 @@
                             </div>
                         </div>
                         
-                        <a href="{{ route('reports.ranking') }}" class="flex items-center justify-center w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3 px-4 rounded shadow transition transform hover:scale-105">
+                        <a href="{{ route('reports.ranking') }}" wire:navigate class="flex items-center justify-center w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3 px-4 rounded shadow transition transform hover:scale-105">
                             View Ranking
                         </a>
                     </div>

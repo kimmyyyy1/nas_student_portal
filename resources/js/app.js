@@ -1,13 +1,8 @@
 import './bootstrap';
 
-// 1. Import Packages
-import { inject } from '@vercel/analytics';
-import { injectSpeedInsights } from '@vercel/speed-insights';
+// Tinanggal muna ang Vercel/SpeedInsights para gumana ang build
+import Alpine from 'alpinejs';
 
-// 2. Initialize Web Analytics (Visitor Tracking)
-inject({
-    mode: 'production',
-});
+window.Alpine = Alpine;
 
-// 3. Initialize Speed Insights (Performance Tracking)
-injectSpeedInsights();
+Alpine.start();

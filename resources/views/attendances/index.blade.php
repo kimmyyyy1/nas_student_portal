@@ -21,23 +21,40 @@
              @update-header.window="title = $event.detail.title; showBack = $event.detail.showBack">
             
             {{-- DYNAMIC TITLE --}}
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight" x-text="title">
+            {{-- Added truncate/min-w-0 para hindi itulak ang layout sa mobile --}}
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight truncate min-w-0 mr-2" x-text="title">
                 {{ __('Attendance Checking') }}
             </h2>
 
-            {{-- DYNAMIC BACK BUTTON --}}
+            {{-- 🟢 DESKTOP BACK BUTTON (Hidden on Mobile) --}}
             <button x-show="showBack"
                     x-cloak
                     x-transition
                     onclick="document.getElementById('hidden-back-btn').click()"
-                    class="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer">
+                    class="hidden md:flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer shrink-0">
                 <i class='bx bx-arrow-back'></i> Back to Classes
             </button>
         </div>
     </x-slot>
 
-    <div class="py-12 font-poppins-override">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6 md:py-12 font-poppins-override">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+            
+            {{-- 🟢 MOBILE BACK BUTTON (Visible only on Mobile) --}}
+            {{-- May sariling Alpine Listener para sumunod sa logic ng Livewire --}}
+            <div x-data="{ showBack: false }"
+                 @update-header.window="showBack = $event.detail.showBack"
+                 x-show="showBack"
+                 x-cloak
+                 x-transition
+                 class="block md:hidden mb-6">
+                
+                <button onclick="document.getElementById('hidden-back-btn').click()"
+                        class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition cursor-pointer">
+                    <i class='bx bx-arrow-back mr-2'></i> Back to Classes
+                </button>
+            </div>
+
             {{-- Livewire Component --}}
             @livewire('attendance-manager')
         </div>

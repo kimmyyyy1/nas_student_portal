@@ -10,7 +10,7 @@
         {{-- Favicon --}}
         <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
-        {{-- Google Fonts: Poppins --}}
+        {{-- Fonts --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,70 +18,96 @@
         {{-- Icons --}}
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-        {{-- ❌ TINANGGAL NA NATIN ANG MANUAL VERCEL SCRIPT DITO --}}
-        {{-- Dahil nasa app.js na ang injection --}}
-
-        {{-- Scripts (Vite) --}}
+        {{-- Scripts & Styles --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
-        {{-- Livewire Styles --}}
         @livewireStyles
 
-        {{-- Custom Styles --}}
         <style>
-            * {
-                font-family: 'Poppins', sans-serif !important;
+            /* 1. Global Font Override */
+            * { font-family: 'Poppins', sans-serif !important; }
+            
+            /* 2. ICON REPAIR KIT */
+            i.bx, i.bxs, i.bxl, .bx {
+                font-family: 'boxicons' !important;
+                font-weight: normal !important;
+                font-style: normal !important;
+                line-height: 1 !important;
+                flex-shrink: 0 !important;          
+                min-width: 1.25rem;
+                display: inline-block;
+                text-align: center;
             }
 
-            /* Custom Scrollbar Style */
-            .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-            .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-            .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 5px; }
-            .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-        </style>
+            [x-cloak] { display: none !important; }
+            
+            /* 3. LAYOUT FIXES */
+            body {
+                background-color: transparent !important;
+                background-image: none !important;
+                height: 100dvh !important;
+                overflow: hidden !important;
+            }
 
-        <!-- Vercel Web Analytics -->
-        <script>
-            window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-        </script>
-        <script defer src="/_vercel/insights/script.js"></script>
+            /* Custom Scrollbar */
+            .custom-scroll::-webkit-scrollbar { width: 6px; }
+            .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+            .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
+            .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(107, 114, 128, 0.8); }
+
+            /* 👇 4. NEW: PAGE TRANSITION ANIMATION 
+               Ito ang magpapaganda ng pasok ng content (Fade Up Effect) 
+            */
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .animate-page-enter {
+                animation: fadeUp 0.3s ease-out forwards;
+            }
+        </style>
     </head>
     
-    <body class="font-sans antialiased text-gray-900">
+    <body class="font-sans antialiased text-gray-900 bg-transparent">
         
-        {{-- BACKGROUND IMAGE --}}
+        {{-- BACKGROUND --}}
         <div class="fixed inset-0 z-[-1]">
             <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="Background">
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-900/60 to-black/70 backdrop-blur-[2px]"></div>
+            <div class="absolute inset-0 bg-white/1 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- MAIN CONTENT WRAPPER --}}
-        <div class="min-h-screen relative">
+        {{-- MAIN WRAPPER --}}
+        <div class="h-full flex flex-col md:flex-row">
             
-            {{-- NAVIGATION --}}
-            @include('layouts.navigation')
+            {{-- Sidebar --}}
+            <div class="shrink-0">
+                @include('layouts.navigation')
+            </div>
 
-            {{-- PAGE HEADER --}}
-            @if (isset($header))
-                <header class="bg-white shadow relative md:ml-64 transition-all duration-300"> 
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
+            {{-- CONTENT AREA --}}
+            <div class="flex-1 flex flex-col h-full overflow-hidden relative md:ml-64 pt-16 md:pt-0 transition-all duration-300">
+                
+                {{-- Header --}}
+                @if (isset($header))
+                    <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 z-20 shrink-0">
+                        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endif
 
-            {{-- PAGE CONTENT --}}
-            <main class="md:ml-64 pt-6 px-4 transition-all duration-300"> 
-                {{ $slot }}
-            </main>
+                {{-- 
+                    👇 MAIN CONTENT WITH ANIMATION
+                    - Added 'animate-page-enter' class here
+                --}}
+                <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 animate-page-enter">
+                    {{ $slot }}
+                </main>
+
+            </div>
+            
         </div>
 
-        <!-- Vercel Speed Insights -->
-        <script>
-            window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-        </script>
-        <script defer src="/_vercel/speed-insights/script.js"></script>
-        {{-- Livewire Scripts --}}
         @livewireScripts
     </body>
 </html>
