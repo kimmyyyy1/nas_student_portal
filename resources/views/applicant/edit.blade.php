@@ -84,12 +84,13 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Birthday *</label>
+                                {{-- 👇 UPDATED: Uses Alpine for value binding to trigger age calc on load --}}
                                 <input type="date" 
                                        id="date_of_birth" 
                                        name="date_of_birth" 
                                        class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" 
                                        required 
-                                       value="{{ old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d')) }}" 
+                                       x-model="dob"
                                        @change="calculateAge()">
                             </div>
                             <div>
@@ -98,7 +99,6 @@
                                        id="age" 
                                        name="age" 
                                        class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" 
-                                       value="{{ old('age', $application->age) }}" 
                                        readonly 
                                        x-model="age">
                             </div>
@@ -125,7 +125,6 @@
                     {{-- 2. ADDRESS INFORMATION --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             {{-- Region Dropdown --}}
                             <div>
@@ -133,18 +132,18 @@
                                 <select name="region" x-model="selectedRegion" @change="updateProvinces()" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required>
                                     <option value="">Select Region</option>
                                     <template x-for="(provinces, region) in regionsData" :key="region">
-                                        <option :value="region" x-text="region" :selected="region === '{{ $application->region }}'"></option>
+                                        <option :value="region" x-text="region"></option>
                                     </template>
                                 </select>
                             </div>
 
-                            {{-- Province Dropdown (Filtered) --}}
+                            {{-- Province Dropdown --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Province *</label>
                                 <select name="province" x-model="selectedProvince" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required :disabled="!selectedRegion">
                                     <option value="">Select Province</option>
                                     <template x-for="province in availableProvinces" :key="province">
-                                        <option :value="province" x-text="province" :selected="province === '{{ $application->province }}'"></option>
+                                        <option :value="province" x-text="province"></option>
                                     </template>
                                 </select>
                             </div>
@@ -232,16 +231,16 @@
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Palarong Pambansa Podium Finisher?</label>
                                 <div class="flex space-x-4">
                                     <label class="flex items-center space-x-2">
-                                        <input type="radio" name="palaro_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" {{ $application->has_palaro_participation ? 'checked' : '' }}>
+                                        <input type="radio" name="palaro_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" x-model="hasPalaro">
                                         <span class="text-sm font-medium text-gray-700">Yes</span>
                                     </label>
                                     <label class="flex items-center space-x-2">
-                                        <input type="radio" name="palaro_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" {{ !$application->has_palaro_participation ? 'checked' : '' }}>
+                                        <input type="radio" name="palaro_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" x-model="hasPalaro">
                                         <span class="text-sm font-medium text-gray-700">No</span>
                                     </label>
                                 </div>
-                                <div class="mt-3" x-data="{ show: {{ $application->has_palaro_participation ? 'true' : 'false' }} }" x-show="document.querySelector('input[name=palaro_finisher]:checked')?.value === 'Yes'" @change="show = $event.target.value === 'Yes'">
-                                    <input type="text" name="palaro_year" placeholder="Year Participated" value="{{ $application->palaro_year }}" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <div class="mt-3" x-show="hasPalaro === 'Yes'">
+                                    <input type="text" name="palaro_year" placeholder="Year Participated" x-model="palaroYear" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
 
@@ -249,12 +248,10 @@
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Batang Pinoy Podium Finisher?</label>
                                 <div class="flex space-x-4">
                                     <label class="flex items-center space-x-2">
-                                        {{-- 👇 FIXED: Added proper radio button structure --}}
                                         <input type="radio" name="batang_pinoy_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" {{ $application->batang_pinoy_finisher == 'Yes' ? 'checked' : '' }}>
                                         <span class="text-sm font-medium text-gray-700">Yes</span>
                                     </label>
                                     <label class="flex items-center space-x-2">
-                                        {{-- 👇 FIXED: Added proper radio button structure --}}
                                         <input type="radio" name="batang_pinoy_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" {{ $application->batang_pinoy_finisher == 'No' ? 'checked' : '' }}>
                                         <span class="text-sm font-medium text-gray-700">No</span>
                                     </label>
@@ -404,19 +401,24 @@
             return {
                 showPrivacyModal: false,
                 isSubmitting: false,
-                age: '{{ $application->age }}',
-                selectedSport: '{{ $application->sport }}',
-                sportSpec: '{{ $application->sport_specification ?? '' }}', 
-                referralSource: '{{ $application->learn_about_nas ?? '' }}', 
-                referrerName: '{{ $application->referrer_name ?? '' }}',
-                isIP: '{{ $application->is_ip ? "Yes" : "No" }}',
-                ipGroup: '{{ $application->ip_group_name ?? '' }}',
-                isPWD: '{{ $application->is_pwd ? "Yes" : "No" }}',
-                pwdType: '{{ $application->pwd_disability ?? '' }}',
+                
+                // Initialize variables with existing data from server
+                dob: '{{ old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d')) }}',
+                age: '{{ old('age', $application->age) }}',
+                selectedSport: '{{ old('sport', $application->sport) }}',
+                sportSpec: '{{ old('sport_specification', $application->sport_specification) }}', 
+                referralSource: '{{ old('learn_about_nas', $application->learn_about_nas) }}', 
+                referrerName: '{{ old('referrer_name', $application->referrer_name) }}',
+                isIP: '{{ old('is_ip', $application->is_ip ? "Yes" : "No") }}',
+                ipGroup: '{{ old('ip_group_name', $application->ip_group_name) }}',
+                isPWD: '{{ old('is_pwd', $application->is_pwd ? "Yes" : "No") }}',
+                pwdType: '{{ old('pwd_disability', $application->pwd_disability) }}',
+                hasPalaro: '{{ old('palaro_finisher', $application->has_palaro_participation ? "Yes" : "No") }}',
+                palaroYear: '{{ old('palaro_year', $application->palaro_year) }}',
                 
                 // Region & Province Data
-                selectedRegion: '{{ $application->region }}',
-                selectedProvince: '{{ $application->province }}',
+                selectedRegion: '{{ old('region', $application->region) }}',
+                selectedProvince: '{{ old('province', $application->province) }}',
                 availableProvinces: [],
                 regionsData: {
                     'Cordillera Administrative Region': ['Abra', 'Apayao', 'Benguet', 'Ifugao', 'Kalinga', 'Mountain Province'],
@@ -440,6 +442,7 @@
                 },
 
                 init() {
+                    // Populate provinces on load based on saved region
                     if (this.selectedRegion) {
                         this.availableProvinces = this.regionsData[this.selectedRegion] || [];
                     }
@@ -447,16 +450,14 @@
 
                 updateProvinces() {
                     this.availableProvinces = this.regionsData[this.selectedRegion] || [];
-                    this.selectedProvince = ''; 
+                    this.selectedProvince = ''; // Reset province selection
                 },
 
-                calculateAge(dob) {
-                    // Get the date string from the input (controlled by Alpine logic now)
-                    let inputDate = document.getElementById('date_of_birth').value;
-
-                    if (inputDate) {
+                calculateAge() {
+                    // Use the Alpine bound variable 'dob'
+                    if (this.dob) {
                         let today = new Date();
-                        let birthDate = new Date(inputDate);
+                        let birthDate = new Date(this.dob);
                         let age = today.getFullYear() - birthDate.getFullYear();
                         let m = today.getMonth() - birthDate.getMonth();
                         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
