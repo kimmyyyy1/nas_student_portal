@@ -84,7 +84,9 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Birthday *</label>
-                                <input type="date" id="date_of_birth" name="date_of_birth" 
+                                <input type="date" 
+                                       id="date_of_birth" 
+                                       name="date_of_birth" 
                                        class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" 
                                        required 
                                        value="{{ old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d')) }}" 
@@ -92,7 +94,13 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Age</label>
-                                <input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" value="{{ old('age', $application->age) }}" readonly x-model="age">
+                                <input type="number" 
+                                       id="age" 
+                                       name="age" 
+                                       class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" 
+                                       value="{{ old('age', $application->age) }}" 
+                                       readonly 
+                                       x-model="age">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sex *</label>
@@ -114,9 +122,10 @@
                          </div>
                     </div>
 
-                    {{-- 2. ADDRESS INFORMATION (UPDATED WITH REGION FILTER) --}}
+                    {{-- 2. ADDRESS INFORMATION --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             {{-- Region Dropdown --}}
                             <div>
@@ -142,6 +151,7 @@
 
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Municipality/City *</label><input type="text" name="municipality_city" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('municipality_city', $application->municipality_city) }}"></div>
                         </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Barangay *</label><input type="text" name="barangay" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('barangay', $application->barangay) }}"></div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Street / House No.</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('street_address', $application->street_address) }}" required></div>
@@ -221,18 +231,33 @@
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Palarong Pambansa Podium Finisher?</label>
                                 <div class="flex space-x-4">
-                                    <label class="flex items-center"><input type="radio" name="palaro_finisher" value="Yes" class="mr-2 text-indigo-600" {{ $application->has_palaro_participation ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="palaro_finisher" value="No" class="mr-2 text-indigo-600" {{ !$application->has_palaro_participation ? 'checked' : '' }}> No</label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="palaro_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" {{ $application->has_palaro_participation ? 'checked' : '' }}>
+                                        <span class="text-sm font-medium text-gray-700">Yes</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="palaro_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" {{ !$application->has_palaro_participation ? 'checked' : '' }}>
+                                        <span class="text-sm font-medium text-gray-700">No</span>
+                                    </label>
                                 </div>
-                                <div class="mt-2" x-data="{ show: {{ $application->has_palaro_participation ? 'true' : 'false' }} }" x-show="document.querySelector('input[name=palaro_finisher]:checked')?.value === 'Yes'" @change="show = $event.target.value === 'Yes'">
+                                <div class="mt-3" x-data="{ show: {{ $application->has_palaro_participation ? 'true' : 'false' }} }" x-show="document.querySelector('input[name=palaro_finisher]:checked')?.value === 'Yes'" @change="show = $event.target.value === 'Yes'">
                                     <input type="text" name="palaro_year" placeholder="Year Participated" value="{{ $application->palaro_year }}" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
+
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Batang Pinoy Podium Finisher?</label>
                                 <div class="flex space-x-4">
-                                    <label class="flex items-center"><input type="radio" name="batang_pinoy_finisher" value="Yes" class="mr-2 text-indigo-600" {{ $application->batang_pinoy_finisher == 'Yes' ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="batang_pinoy_finisher" value="No" class="mr-2 text-indigo-600" {{ $application->batang_pinoy_finisher == 'No' ? 'checked' : '' }}> No</label>
+                                    <label class="flex items-center space-x-2">
+                                        {{-- 👇 FIXED: Added proper radio button structure --}}
+                                        <input type="radio" name="batang_pinoy_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" {{ $application->batang_pinoy_finisher == 'Yes' ? 'checked' : '' }}>
+                                        <span class="text-sm font-medium text-gray-700">Yes</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        {{-- 👇 FIXED: Added proper radio button structure --}}
+                                        <input type="radio" name="batang_pinoy_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" {{ $application->batang_pinoy_finisher == 'No' ? 'checked' : '' }}>
+                                        <span class="text-sm font-medium text-gray-700">No</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -340,14 +365,14 @@
                                 'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature',
                                 'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature',
                                 'birth_cert'        => 'PSA Birth Certificate',
-                                'report_card'       => 'Report Card (SF9)',
+                                'report_card'       => 'Report Cards (Gr 5/6 or 6/7)',
                                 'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
                             ] as $key => $label)
                                 
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                         <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
-                                            {{ $label }}
+                                            {{ $label }} <span class="text-red-600">*</span>
                                         </label>
                                         @if(isset($application->uploaded_files[$key]))
                                             <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
@@ -377,6 +402,8 @@
     <script>
         function applicantForm() {
             return {
+                showPrivacyModal: false,
+                isSubmitting: false,
                 age: '{{ $application->age }}',
                 selectedSport: '{{ $application->sport }}',
                 sportSpec: '{{ $application->sport_specification ?? '' }}', 
