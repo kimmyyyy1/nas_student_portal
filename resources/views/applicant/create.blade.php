@@ -1,9 +1,8 @@
 <x-applicant-layout>
-    {{-- 👇 WRAPPER FOR MODAL STATE --}}
-    <div x-data="{ showPrivacyModal: false, isSubmitting: false }" class="max-w-7xl mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
+    {{-- WRAPPER FOR MODAL STATE & ALPINE DATA --}}
+    <div x-data="applicantForm()" class="max-w-7xl mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
         
         <div class="text-center mb-6 sm:mb-10">
-            {{-- HEADER LOGO --}}
             <img src="{{ asset('images/nas/horizontal.png') }}" class="h-10 sm:h-12 md:h-16 mx-auto mb-3 sm:mb-4 drop-shadow-sm object-contain" alt="NAS Logo">
             <p class="text-xs sm:text-sm text-gray-500 mt-1 uppercase tracking-widest font-bold">Based on SAIS Guidelines</p>
         </div>
@@ -13,7 +12,6 @@
 
             <div class="p-6 sm:p-8 md:p-12 text-gray-900">
                 
-                {{-- ERROR MESSAGES --}}
                 @if ($errors->any())
                     <div class="mb-6 sm:mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-md text-sm shadow-sm">
                         <p class="font-bold mb-2">Please check required fields:</p>
@@ -23,7 +21,6 @@
                     </div>
                 @endif
 
-                {{-- 👇 ADDED ID="applicantForm" para matawag sa Javascript --}}
                 <form id="applicantForm" method="POST" action="{{ route('applicant.store') }}" enctype="multipart/form-data">
                     @csrf 
 
@@ -76,11 +73,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Birthday *</label>
-                                <input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('date_of_birth') }}" onchange="calculateAge()">
+                                <input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('date_of_birth') }}" @change="calculateAge($event.target.value)">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Age</label>
-                                <input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" value="{{ old('age') }}" readonly>
+                                <input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" value="{{ old('age') }}" readonly x-model="age">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sex *</label>
@@ -99,34 +96,36 @@
                          </div>
                     </div>
 
-                    {{-- SPECIAL CATEGORIES --}}
-                    <div class="bg-blue-50 p-4 sm:p-6 rounded-xl border border-blue-100 mb-8 sm:mb-10">
-                        <span class="block text-sm font-bold text-blue-800 mb-3 sm:mb-4 uppercase tracking-wide">Special Categories (Check if applicable):</span>
-                        <div class="flex flex-col gap-2 sm:gap-3">
-                            <div class="flex flex-col sm:flex-row gap-2 sm:gap-6">
-                                <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-100 rounded transition"><input type="checkbox" name="categories[]" value="Indigenous People" {{ (is_array(old('categories')) && in_array('Indigenous People', old('categories'))) ? 'checked' : '' }} class="rounded text-indigo-600 shadow-sm w-5 h-5"> <span class="text-sm font-semibold text-gray-700">Indigenous People (IP)</span></label>
-                                <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-100 rounded transition"><input type="checkbox" name="categories[]" value="PWD" {{ (is_array(old('categories')) && in_array('PWD', old('categories'))) ? 'checked' : '' }} class="rounded text-indigo-600 shadow-sm w-5 h-5"> <span class="text-sm font-semibold text-gray-700">Person with Disability (PWD)</span></label>
-                                <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-100 rounded transition"><input type="checkbox" name="categories[]" value="4Ps Beneficiary" {{ (is_array(old('categories')) && in_array('4Ps Beneficiary', old('categories'))) ? 'checked' : '' }} class="rounded text-indigo-600 shadow-sm w-5 h-5"> <span class="text-sm font-semibold text-gray-700">4Ps Beneficiary</span></label>
-                            </div>
-                            
-                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mt-1 sm:mt-2 w-full">
-                                <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-100 rounded transition shrink-0">
-                                    <input type="checkbox" id="chk_others" name="categories[]" value="Others" {{ (is_array(old('categories')) && in_array('Others', old('categories'))) ? 'checked' : '' }} class="rounded text-indigo-600 shadow-sm w-5 h-5" onchange="toggleOthersInput()"> 
-                                    <span class="text-sm font-semibold text-gray-700">Others:</span>
-                                </label>
-                                <input type="text" id="other_details" name="other_category_details" value="{{ old('other_category_details') }}" class="w-full sm:w-1/2 rounded-lg border-gray-300 shadow-sm h-10 focus:border-indigo-500 hidden" placeholder="Please specify category details...">
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 2. ADDRESS INFORMATION --}}
+                    {{-- 2. ADDRESS INFORMATION (UPDATED WITH REGION FILTER) --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Region *</label><input type="text" name="region" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('region') }}"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Province *</label><input type="text" name="province" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('province') }}"></div>
+                            {{-- Region Dropdown --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Region *</label>
+                                <select name="region" x-model="selectedRegion" @change="updateProvinces()" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required>
+                                    <option value="">Select Region</option>
+                                    <template x-for="(provinces, region) in regionsData" :key="region">
+                                        <option :value="region" x-text="region"></option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            {{-- Province Dropdown (Filtered) --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Province *</label>
+                                <select name="province" x-model="selectedProvince" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required :disabled="!selectedRegion">
+                                    <option value="">Select Province</option>
+                                    <template x-for="province in availableProvinces" :key="province">
+                                        <option :value="province" x-text="province"></option>
+                                    </template>
+                                </select>
+                            </div>
+
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Municipality/City *</label><input type="text" name="municipality_city" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('municipality_city') }}"></div>
                         </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Barangay *</label><input type="text" name="barangay" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('barangay') }}"></div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Street / House No.</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('street_address') }}" required></div>
@@ -137,50 +136,162 @@
                     {{-- 3. ACADEMIC & SPORTS --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">3</span> Academic & Sports</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('previous_school') }}"></div>
-                            
-                            {{-- DYNAMIC & CLEANED SPORTS DROPDOWN --}}
+                        
+                        {{-- School & Grade --}}
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('previous_school') }}"></div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Sport and Subcategory *</label>
-                                <select name="sport" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required>
-                                    <option value="" disabled selected>-- Select Sport --</option>
-                                    
-                                    @if(isset($teams) && count($teams) > 0)
-                                        @foreach($teams as $team)
-                                            @php
-                                                // Remove "NAS " from the start and " Team" from the end
-                                                $sportName = str_replace(['NAS ', ' Team'], '', $team->team_name);
-                                            @endphp
-                                            <option value="{{ $sportName }}" {{ old('sport') == $sportName ? 'selected' : '' }}>
-                                                {{ $sportName }}
-                                            </option>
-                                        @endforeach
-                                    @else
-                                        <option value="" disabled>No sports available.</option>
-                                    @endif
+                                <label class="block text-sm font-bold text-gray-700 mb-2">School Type *</label>
+                                <select name="school_type" class="w-full rounded-lg border-gray-300 shadow-sm h-11">
+                                    <option value="Public">Public</option>
+                                    <option value="Private">Private</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">School Type *</label><select name="school_type" class="w-full rounded-lg border-gray-300 shadow-sm h-11"><option value="Public">Public</option><option value="Private">Private</option></select></div>
-                            
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Grade Level Applying For *</label>
                                 <select name="grade_level_applied" class="w-full rounded-lg border-gray-300 shadow-sm h-11" required>
                                     <option value="">Select</option>
-                                    <option value="Grade 7" {{ old('grade_level_applied') == 'Grade 7' ? 'selected' : '' }}>Grade 7</option>
-                                    <option value="Grade 8" {{ old('grade_level_applied') == 'Grade 8' ? 'selected' : '' }}>Grade 8</option>
+                                    <option value="Grade 7">Grade 7</option>
+                                    <option value="Grade 8">Grade 8</option>
                                 </select>
                             </div>
-                            
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Palarong Pambansa Year</label><input type="text" name="palaro_year" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" placeholder="If yes, enter year" value="{{ old('palaro_year') }}"><div class="mt-2 flex items-center"><input type="checkbox" name="has_palaro_participation" value="1" {{ old('has_palaro_participation') ? 'checked' : '' }} class="mr-2 rounded text-indigo-600 shadow-sm w-4 h-4"> <span class="text-xs text-gray-600 font-medium">Check if participated</span></div></div>
+                        </div>
+
+                        {{-- FOCUS SPORTS --}}
+                        <div class="bg-indigo-50 p-6 rounded-lg mb-6 border border-indigo-100">
+                            <label class="block text-sm font-bold text-indigo-900 mb-3 uppercase tracking-wide">Focus Sports *</label>
+                            <select name="sport" x-model="selectedSport" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 mb-4" required>
+                                <option value="">-- Select Sport --</option>
+                                <option value="Aquatics">Aquatics (Swimming)</option>
+                                <option value="Athletics">Athletics (Track and Field)</option>
+                                <option value="Badminton">Badminton</option>
+                                <option value="Gymnastics">Gymnastics</option>
+                                <option value="Judo">Judo</option>
+                                <option value="Table Tennis">Table Tennis</option>
+                                <option value="Taekwondo">Taekwondo</option>
+                                <option value="Weightlifting">Weightlifting</option>
+                            </select>
+
+                            {{-- Conditional Sport Inputs --}}
+                            <div x-show="selectedSport === 'Aquatics'" class="mt-2">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Aquatics event:</label>
+                                <input type="text" name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                            </div>
+                            <div x-show="selectedSport === 'Athletics'" class="mt-2">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Athletics event:</label>
+                                <input type="text" name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                            </div>
+                            <div x-show="selectedSport === 'Taekwondo'" class="mt-2">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Category:</label>
+                                <select name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                    <option value="Poomsae">Poomsae</option>
+                                    <option value="Kyorugi">Kyorugi</option>
+                                </select>
+                            </div>
+                            <div x-show="selectedSport === 'Gymnastics'" class="mt-2">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Category:</label>
+                                <select name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                    <option value="Artistic">Artistic</option>
+                                    <option value="Rhythmic">Rhythmic</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {{-- Achievements --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 p-4 rounded-lg border">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Palarong Pambansa Podium Finisher?</label>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center"><input type="radio" name="palaro_finisher" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="palaro_finisher" value="No" class="mr-2 text-indigo-600" checked> No</label>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg border">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Batang Pinoy Podium Finisher?</label>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center"><input type="radio" name="batang_pinoy_finisher" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="batang_pinoy_finisher" value="No" class="mr-2 text-indigo-600" checked> No</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    {{-- 4. DESIGNATED GUARDIAN --}}
+                    {{-- 4. ADDITIONAL INFORMATION --}}
                     <div class="mb-8 sm:mb-10">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">4</span> Designated Guardian</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">4</span> Background Information</h3>
+                        
+                        <div class="grid grid-cols-1 gap-6 mb-6">
+                            {{-- Learn about NAS --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Where did you learn about NAS?</label>
+                                <select x-model="referralSource" name="learn_about_nas" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500">
+                                    <option value="">Select</option>
+                                    <option value="NASCENT SAS Facebook Page">NASCENT SAS Facebook Page</option>
+                                    <option value="NAS Social Media Page">NAS Social Media Page</option>
+                                    <option value="NAS Personnel / Student-Athlete Referral">NAS Personnel / Student-Athlete Referral</option>
+                                    <option value="National Sports Association / Coach">National Sports Association / Coach</option>
+                                    <option value="News">News</option>
+                                    <option value="Local Government Unit">Local Government Unit</option>
+                                    <option value="School">School</option>
+                                </select>
+                            </div>
+                            
+                            {{-- Conditional Referral Name --}}
+                            <div x-show="referralSource === 'NAS Personnel / Student-Athlete Referral'" class="bg-yellow-50 p-4 rounded-md border border-yellow-200">
+                                <label class="block text-sm font-bold text-yellow-800 mb-1">If referred, write the name (One name only):</label>
+                                <input type="text" name="referrer_name" class="w-full rounded-md border-gray-300 shadow-sm h-10">
+                            </div>
+
+                            {{-- Articulation Campaign --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Have you attended any of our articulation campaign or visited an information booth?</label>
+                                <div class="flex space-x-6">
+                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="No" class="mr-2 text-indigo-600" checked> No</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Special Groups --}}
+                        <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 space-y-4">
+                            {{-- IP --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Member of Indigenous Group?</label>
+                                <div class="flex space-x-4 mb-2">
+                                    <label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
+                                    <label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="No" class="mr-2 text-indigo-600"> No</label>
+                                </div>
+                                <div x-show="isIP === 'Yes'">
+                                    <input type="text" name="ip_group_name" placeholder="If yes, specify IP Group" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                </div>
+                            </div>
+
+                            {{-- PWD --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Person with Disability?</label>
+                                <div class="flex space-x-4 mb-2">
+                                    <label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
+                                    <label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="No" class="mr-2 text-indigo-600"> No</label>
+                                </div>
+                                <div x-show="isPWD === 'Yes'">
+                                    <input type="text" name="pwd_disability" placeholder="If yes, specify disability" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                </div>
+                            </div>
+
+                            {{-- 4Ps --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Beneficiary of 4Ps?</label>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="No" class="mr-2 text-indigo-600" checked> No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 5. DESIGNATED GUARDIAN --}}
+                    <div class="mb-8 sm:mb-10">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">5</span> Designated Guardian</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Guardian Name *</label><input type="text" name="guardian_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_name') }}"></div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Relationship *</label><input type="text" name="guardian_relationship" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_relationship') }}"></div>
@@ -191,9 +302,9 @@
                         </div>
                     </div>
 
-                    {{-- 5. REQUIREMENTS --}}
+                    {{-- 6. REQUIREMENTS --}}
                     <div class="mb-8 sm:mb-12">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">5</span> Requirements Upload</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">6</span> Requirements Upload</h3>
                         <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 italic bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">Please upload clear copies (PDF, JPG, PNG). Max 5MB per file.</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                             @foreach(['scholarship_form' => 'Scholarship Application Forms', 'student_profile' => 'Student-Athlete Profile Form', 'coach_reco' => 'Coach Recommendation Form', 'adviser_reco' => 'Adviser Recommendation Form', 'medical_clearance' => 'Physical Eval Clearance', 'birth_cert' => 'PSA Birth Certificate', 'report_card' => 'Report Card (SF10)', 'guardian_id' => 'Guardian Valid ID'] as $key => $label)
@@ -210,10 +321,7 @@
                         </div>
                     </div>
 
-                    {{-- 
-                        👇 BUTTON NA NAGBUBUKAS NG MODAL (TYPE="BUTTON") 
-                        Hindi ito magsusubmit. Ichecheck muna nito kung valid ang form.
-                    --}}
+                    {{-- SUBMIT BUTTON --}}
                     <div class="flex justify-center pb-4 sm:pb-8 pt-4">
                         <button type="button" 
                                 @click="if(document.getElementById('applicantForm').reportValidity()) { showPrivacyModal = true }" 
@@ -225,91 +333,39 @@
             </div>
         </div>
 
-        {{-- 
-            👇 DATA PRIVACY CONSENT MODAL 
-            Lumalabas lang ito kapag valid na ang form at pinindot ang button sa taas.
-        --}}
-        <div x-show="showPrivacyModal" 
-             style="display: none;" 
-             class="fixed inset-0 z-50 overflow-y-auto" 
-             aria-labelledby="modal-title" 
-             role="dialog" 
-             aria-modal="true">
-            
-            {{-- Backdrop --}}
+        {{-- PRIVACY MODAL --}}
+        <div x-show="showPrivacyModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div x-show="showPrivacyModal"
-                     x-transition:enter="ease-out duration-300"
-                     x-transition:enter-start="opacity-0"
-                     x-transition:enter-end="opacity-100"
-                     x-transition:leave="ease-in duration-200"
-                     x-transition:leave-start="opacity-100"
-                     x-transition:leave-end="opacity-0"
-                     class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
-                     aria-hidden="true"></div>
-
+                <div x-show="showPrivacyModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                {{-- Modal Panel --}}
-                <div x-show="showPrivacyModal"
-                     x-transition:enter="ease-out duration-300"
-                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave="ease-in duration-200"
-                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full border-t-8 border-indigo-700">
-                    
+                <div x-show="showPrivacyModal" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full border-t-8 border-indigo-700">
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div class="sm:flex sm:items-start">
                             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h3 class="text-lg sm:text-xl leading-6 font-extrabold text-gray-900" id="modal-title">
-                                        Data Privacy Consent
-                                    </h3>
+                                    <h3 class="text-lg sm:text-xl leading-6 font-extrabold text-gray-900" id="modal-title">Data Privacy Consent</h3>
                                     <i class='bx bx-shield-quarter text-2xl sm:text-3xl text-indigo-600'></i>
                                 </div>
-                                
                                 <div class="mt-2 h-48 sm:h-64 overflow-y-auto text-xs sm:text-sm text-gray-600 bg-gray-50 p-3 sm:p-4 rounded border border-gray-200 text-justify">
                                     <p class="mb-3 font-bold">Please read carefully:</p>
-                                    <p class="mb-3">
-                                        In compliance with the <strong>Data Privacy Act of 2012 (RA 10173)</strong>, the National Academy of Sports (NAS) is committed to protecting your personal data.
-                                    </p>
-                                    <p class="mb-3">
-                                        By submitting this application form, you acknowledge and agree that:
-                                    </p>
+                                    <p class="mb-3">In compliance with the <strong>Data Privacy Act of 2012 (RA 10173)</strong>, the National Academy of Sports (NAS) is committed to protecting your personal data.</p>
+                                    <p class="mb-3">By submitting this application form, you acknowledge and agree that:</p>
                                     <ul class="list-disc ml-5 mb-3 space-y-2">
-                                        <li><strong>Collection:</strong> NAS collects your personal information (name, age, academic records, sports profile, etc.) solely for the purpose of admission, scholarship evaluation, and student records management.</li>
-                                        <li><strong>Use:</strong> Your data will be used by authorized NAS personnel (Registrar, Coaches, Medical Staff) to assess your qualification for the NAS Scholarship Program.</li>
-                                        <li><strong>Protection:</strong> NAS implements reasonable security measures to protect your data against unauthorized access, alteration, or disclosure.</li>
-                                        <li><strong>Retention:</strong> Your data will be retained as long as necessary for the fulfillment of the stated purposes and in accordance with applicable laws.</li>
+                                        <li><strong>Collection:</strong> NAS collects your personal information solely for admission/scholarship purposes.</li>
+                                        <li><strong>Use:</strong> Your data will be used by authorized NAS personnel.</li>
+                                        <li><strong>Protection:</strong> NAS implements security measures to protect your data.</li>
                                     </ul>
-                                    <p>
-                                        You attest that all information provided in this application is true and correct. Any falsification of documents may be grounds for disqualification.
-                                    </p>
+                                    <p>You attest that all information provided is true and correct.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse flex-col gap-2 sm:gap-0">
-                        {{-- 
-                            👇 REAL SUBMIT BUTTON 
-                            Ito ang pipindutin para mag-submit talaga. Gumagamit ito ng Javascript para i-submit ang form sa likod.
-                        --}}
-                        <button type="button" 
-                                @click="isSubmitting = true; document.getElementById('applicantForm').submit();"
-                                :disabled="isSubmitting"
-                                class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-700 text-sm sm:text-base font-medium text-white hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button type="button" @click="isSubmitting = true; document.getElementById('applicantForm').submit();" :disabled="isSubmitting" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-700 text-sm sm:text-base font-medium text-white hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 disabled:opacity-50 disabled:cursor-not-allowed">
                             <span x-show="!isSubmitting">I AGREE & SUBMIT APPLICATION</span>
                             <span x-show="isSubmitting">Processing...</span>
                         </button>
-                        
-                        <button type="button" 
-                                @click="showPrivacyModal = false" 
-                                class="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm sm:text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Cancel
-                        </button>
+                        <button type="button" @click="showPrivacyModal = false" class="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm sm:text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -317,41 +373,61 @@
 
     </div>
 
+    {{-- ALPINE.JS LOGIC --}}
     <script>
-        // Calculate Age Logic
-        function calculateAge() {
-            var dob = document.getElementById('date_of_birth').value;
-            if (dob) {
-                var today = new Date();
-                var birthDate = new Date(dob);
-                var age = today.getFullYear() - birthDate.getFullYear();
-                var m = today.getMonth() - birthDate.getMonth();
-                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                    age--;
+        function applicantForm() {
+            return {
+                showPrivacyModal: false,
+                isSubmitting: false,
+                age: '',
+                selectedSport: '',
+                referralSource: '',
+                isIP: 'No',
+                isPWD: 'No',
+                
+                // Region & Province Data
+                selectedRegion: '',
+                selectedProvince: '',
+                availableProvinces: [],
+                regionsData: {
+                    'Cordillera Administrative Region': ['Abra', 'Apayao', 'Benguet', 'Ifugao', 'Kalinga', 'Mountain Province'],
+                    'Region 1: Ilocos Region': ['Ilocos Norte', 'Ilocos Sur', 'La Union', 'Pangasinan'],
+                    'Region 2: Cagayan Valley': ['Batanes', 'Cagayan', 'Isabela', 'Nueva Vizcaya', 'Quirino'],
+                    'Region 3: Central Luzon': ['Aurora', 'Bataan', 'Bulacan', 'Nueva Ecija', 'Pampanga', 'Tarlac', 'Zambales'],
+                    'Region IV-A: CALABARZON': ['Batangas', 'Cavite', 'Laguna', 'Quezon', 'Rizal'],
+                    'Region IV-B: MIMAROPA': ['Marinduque', 'Occidental Mindoro', 'Oriental Mindoro', 'Palawan', 'Romblon'],
+                    'Region 5: Bicol Region': ['Albay', 'Camarines Norte', 'Camarines Sur', 'Catanduanes', 'Masbate', 'Sorsogon'],
+                    'National Capital Region': ['Metro Manila'],
+                    'Region 6: Western Visayas': ['Aklan', 'Antique', 'Capiz', 'Guimaras', 'Iloilo', 'Negros Occidental'],
+                    'Region 7: Central Visayas': ['Bohol', 'Cebu', 'Siquijor'],
+                    'Region 8: Eastern Visayas': ['Biliran', 'Eastern Samar', 'Leyte', 'Northern Samar', 'Samar', 'Southern Leyte'],
+                    'Negros Island Region': ['Negros Occidental', 'Negros Oriental', 'Siquijor'],
+                    'Region 9: Zamboanga Peninsula': ['Zamboanga Del Norte', 'Zamboanga del Sur', 'Zamboanga Sibugay'],
+                    'Region 10: Northern Mindanao': ['Bukidnon', 'Camiguin', 'Lanao Del Norte', 'Misamis Occidental', 'Misamis Oriental'],
+                    'Region 11: Davao Region': ['Compostela Valley', 'Davao del Norte', 'Davao del Sur', 'Davao Occidental', 'Davao Oriental'],
+                    'Region 12: SOCCSKSARGEN': ['Cotabato', 'Sarangani', 'South Cotabato', 'Sultan Kudarat'],
+                    'Region 13: CARAGA': ['Agusan del Norte', 'Agusan del Sur', 'Dinagat Islands', 'Surigao del Norte', 'Surigao del Sur'],
+                    'BARMM': ['Basilan', 'Lanao del Sur', 'Maguindanao', 'Sulu', 'Tawi-Tawi']
+                },
+
+                updateProvinces() {
+                    this.availableProvinces = this.regionsData[this.selectedRegion] || [];
+                    this.selectedProvince = ''; // Reset province selection
+                },
+
+                calculateAge(dob) {
+                    if (dob) {
+                        let today = new Date();
+                        let birthDate = new Date(dob);
+                        let age = today.getFullYear() - birthDate.getFullYear();
+                        let m = today.getMonth() - birthDate.getMonth();
+                        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                            age--;
+                        }
+                        this.age = age;
+                    }
                 }
-                document.getElementById('age').value = age;
             }
         }
-
-        // Toggle Others Input Logic
-        function toggleOthersInput() {
-            var chk = document.getElementById('chk_others');
-            var input = document.getElementById('other_details');
-            if(chk.checked) {
-                input.classList.remove('hidden');
-                input.required = true;
-                input.focus();
-            } else {
-                input.classList.add('hidden');
-                input.required = false;
-                input.value = ''; // Clear value if unchecked
-            }
-        }
-
-        // Init functions on load
-        window.addEventListener('load', function() {
-            calculateAge();
-            toggleOthersInput(); // Check initial state (useful for old input retrieval)
-        });
     </script>
 </x-applicant-layout>
