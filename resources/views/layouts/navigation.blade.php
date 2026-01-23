@@ -2,7 +2,7 @@
 <style>
     nav.fixed { will-change: transform; z-index: 50; }
     
-    /* Hide scrollbar */
+    /* Hide scrollbar but keep functionality */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
@@ -30,9 +30,10 @@
     </div>
 
     {{-- 3. SIDEBAR --}}
+    {{-- ADDED: h-[100dvh] para sakop ang buong height ng screen --}}
     <nav :class="{'translate-x-0': open, '-translate-x-full': !open}"
          class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-xl border-r border-white/20 z-50 shadow-2xl no-print 
-                transition-transform duration-300 ease-in-out 
+                transition-transform duration-300 ease-in-out h-[100dvh]
                 md:translate-x-0 transform -translate-x-full md:transition-none flex flex-col">
         
         <div class="md:hidden absolute top-4 right-4 z-[60]">
@@ -42,12 +43,12 @@
         </div>
 
         {{-- 
-            👇 MAGIC FIX: @persist 
-            Sinasabi nito sa Livewire na HUWAG i-refresh ang element na ito.
-            Mananatili ang scroll position nito kahit lumipat ng page.
+            👇 SCROLLABLE AREA (FIXED)
+            Added: min-h-0 (Crucial for flexbox scrolling)
+            Logic: Ito ang nag-pepersist ng scroll position.
         --}}
-        @persist('sidebar-scroll-container')
-        <div class="flex-1 overflow-y-auto no-scrollbar flex flex-col h-full">
+        @persist('sidebar-menu-container')
+        <div class="flex-1 overflow-y-auto min-h-0 no-scrollbar flex flex-col">
 
             {{-- HEADER LOGO --}}
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
@@ -58,7 +59,7 @@
             </div>
 
             {{-- MENU ITEMS --}}
-            <div class="px-3 space-y-1 pb-4 flex-1">
+            <div class="px-3 space-y-1 pb-4">
                 
                 @php
                     $navMainClass = "flex items-center px-4 py-3 text-sm font-bold rounded-lg transition-all duration-200 group transform active:scale-95";
@@ -184,37 +185,37 @@
                         <i class='bx bx-cog text-lg mr-3 {{ request()->routeIs('staff.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> User Management
                     </a>
                 @endif
+            </div>
+        </div>
+        @endpersist
 
-                {{-- USER PROFILE & LOGOUT SECTION --}}
-                <div class="mt-auto border-t border-gray-200/50 pt-4 bg-white/50 backdrop-blur-sm sticky bottom-0">
-                    <div class="flex items-center mb-3 px-2">
-                        <div class="flex-shrink-0">
-                            <div class="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                                {{ substr(Auth::user()->name, 0, 1) }}
-                            </div>
-                        </div>
-                        <div class="ml-3 w-full min-w-0">
-                            <p class="text-sm font-bold text-gray-900 truncate">{{ Auth::user()->name }}</p>
-                            <p class="text-xs text-gray-500 truncate capitalize">{{ Auth::user()->role }}</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2 px-2">
-                        <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-xs font-bold rounded-md text-gray-700 bg-white hover:bg-gray-100 active:scale-95 transition transform">
-                            <i class='bx bx-user mr-1 text-sm'></i> Profile
-                        </a>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="w-full flex items-center justify-center px-3 py-2 border border-transparent shadow-sm text-xs font-bold rounded-md text-white bg-red-600 hover:bg-red-700 active:scale-95 transition transform">
-                                <i class='bx bx-log-out mr-1 text-sm'></i> Sign Out
-                            </button>
-                        </form>
+        {{-- USER PROFILE & LOGOUT SECTION --}}
+        {{-- Naka-sticky sa bottom, hiwalay sa scrollable area --}}
+        <div class="shrink-0 p-4 border-t border-gray-200/50 bg-gray-50/80 backdrop-blur-sm mt-auto">
+            <div class="flex items-center mb-3">
+                <div class="flex-shrink-0">
+                    <div class="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                        {{ substr(Auth::user()->name, 0, 1) }}
                     </div>
                 </div>
+                <div class="ml-3 w-full min-w-0">
+                    <p class="text-sm font-bold text-gray-900 truncate">{{ Auth::user()->name }}</p>
+                    <p class="text-xs text-gray-500 truncate capitalize">{{ Auth::user()->role }}</p>
+                </div>
+            </div>
 
-            </div> {{-- End Menu Items --}}
-        </div> {{-- End @persist --}}
-        @endpersist
+            <div class="grid grid-cols-2 gap-2">
+                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-xs font-bold rounded-md text-gray-700 bg-white hover:bg-gray-100 active:scale-95 transition transform">
+                    <i class='bx bx-user mr-1 text-sm'></i> Profile
+                </a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center justify-center px-3 py-2 border border-transparent shadow-sm text-xs font-bold rounded-md text-white bg-red-600 hover:bg-red-700 active:scale-95 transition transform">
+                        <i class='bx bx-log-out mr-1 text-sm'></i> Sign Out
+                    </button>
+                </form>
+            </div>
+        </div>
 
     </nav>
 </div>
