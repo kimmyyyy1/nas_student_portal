@@ -51,7 +51,6 @@
                         <div class="grid grid-cols-1 md:grid-cols-1 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">LRN (Learner Reference No.) *</label>
-                                {{-- 👇 UPDATED: Added maxlength and oninput --}}
                                 <input type="text" name="lrn" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('lrn') }}" placeholder="12-digit LRN" maxlength="12" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
                             </div>
                         </div>
@@ -74,11 +73,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Birthday *</label>
-                                <input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('date_of_birth') }}" onchange="calculateAge()">
+                                <input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('date_of_birth') }}" @change="calculateAge()">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Age</label>
-                                <input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" value="{{ old('age') }}" readonly>
+                                <input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" value="{{ old('age') }}" readonly x-model="age">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sex *</label>
@@ -132,7 +131,6 @@
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Street / House No.</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('street_address') }}" required></div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Zip Code</label>
-                                {{-- 👇 UPDATED: Added maxlength and oninput --}}
                                 <input type="text" name="zip_code" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('zip_code') }}" required maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)">
                             </div>
                         </div>
@@ -141,10 +139,9 @@
                     {{-- 3. ACADEMIC & SPORTS --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">3</span> Academic & Sports</h3>
-                        
-                        {{-- School & Grade --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended *</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('previous_school') }}"></div>
+                            
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">School Type *</label>
                                 <select name="school_type" class="w-full rounded-lg border-gray-300 shadow-sm h-11">
@@ -152,6 +149,7 @@
                                     <option value="Private">Private</option>
                                 </select>
                             </div>
+                            
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Grade Level Applying For *</label>
                                 <select name="grade_level_applied" class="w-full rounded-lg border-gray-300 shadow-sm h-11" required>
@@ -180,22 +178,22 @@
                             {{-- Conditional Sport Inputs --}}
                             <div x-show="selectedSport === 'Aquatics'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Aquatics event:</label>
-                                <input type="text" name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                             </div>
                             <div x-show="selectedSport === 'Athletics'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Athletics event:</label>
-                                <input type="text" name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                             </div>
                             <div x-show="selectedSport === 'Taekwondo'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Category:</label>
-                                <select name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <select name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                     <option value="Poomsae">Poomsae</option>
                                     <option value="Kyorugi">Kyorugi</option>
                                 </select>
                             </div>
                             <div x-show="selectedSport === 'Gymnastics'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Category:</label>
-                                <select name="sport_specification" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                <select name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                     <option value="Artistic">Artistic</option>
                                     <option value="Rhythmic">Rhythmic</option>
                                 </select>
@@ -247,7 +245,7 @@
                             {{-- Conditional Referral Name --}}
                             <div x-show="referralSource === 'NAS Personnel / Student-Athlete Referral'" class="bg-yellow-50 p-4 rounded-md border border-yellow-200">
                                 <label class="block text-sm font-bold text-yellow-800 mb-1">If referred, write the name (One name only):</label>
-                                <input type="text" name="referrer_name" class="w-full rounded-md border-gray-300 shadow-sm h-10">
+                                <input type="text" name="referrer_name" x-model="referrerName" class="w-full rounded-md border-gray-300 shadow-sm h-10">
                             </div>
 
                             {{-- Articulation Campaign --}}
@@ -270,7 +268,7 @@
                                     <label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="No" class="mr-2 text-indigo-600"> No</label>
                                 </div>
                                 <div x-show="isIP === 'Yes'">
-                                    <input type="text" name="ip_group_name" placeholder="If yes, specify IP Group" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                    <input type="text" name="ip_group_name" x-model="ipGroup" placeholder="If yes, specify IP Group" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
 
@@ -282,7 +280,7 @@
                                     <label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="No" class="mr-2 text-indigo-600"> No</label>
                                 </div>
                                 <div x-show="isPWD === 'Yes'">
-                                    <input type="text" name="pwd_disability" placeholder="If yes, specify disability" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                    <input type="text" name="pwd_disability" x-model="pwdType" placeholder="If yes, specify disability" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
 
@@ -315,7 +313,17 @@
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">6</span> Requirements Upload</h3>
                         <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 italic bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">Please upload clear copies (PDF, JPG, PNG). Max 5MB per file.</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                            @foreach(['scholarship_form' => 'Scholarship Application Forms', 'student_profile' => 'Student-Athlete Profile Form', 'coach_reco' => 'Coach Recommendation Form', 'adviser_reco' => 'Adviser Recommendation Form', 'medical_clearance' => 'Physical Eval Clearance', 'birth_cert' => 'PSA Birth Certificate', 'report_card' => 'Report Card (SF10)', 'guardian_id' => 'Guardian Valid ID'] as $key => $label)
+                            @foreach([
+                                'scholarship_form'  => 'Scholarship Application Form',
+                                'student_profile'   => 'Student-Athlete’s Profile Form',
+                                'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
+                                'coach_reco'        => 'Coach’s Recommendation Form (w/ Valid ID)',
+                                'adviser_reco'      => 'Adviser’s Recommendation Form (w/ Valid ID)',
+                                'birth_cert'        => 'PSA Birth Certificate',
+                                'report_card'       => 'Report Cards (Gr 5/6 or 6/7)',
+                                'guardian_id'       => 'Guardian’s Valid ID w/ Signature'
+                            ] as $key => $label)
+                                
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
                                     <label class="text-sm font-bold text-gray-800 mb-3 block uppercase tracking-wide">
                                         {{ $label }} <span class="text-red-600">*</span>
@@ -423,7 +431,10 @@
                     this.selectedProvince = ''; // Reset province selection
                 },
 
-                calculateAge(dob) {
+                calculateAge() {
+                    // Get the date string from the input (controlled by Alpine logic now)
+                    let dob = document.getElementById('date_of_birth').value;
+
                     if (dob) {
                         let today = new Date();
                         let birthDate = new Date(dob);

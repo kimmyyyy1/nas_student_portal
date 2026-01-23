@@ -2,10 +2,14 @@
     {{-- WRAPPER ID FOR AJAX UPDATES --}}
     <div id="dashboard-content" class="max-w-7xl mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
         
-        {{-- HEADER SECTION --}}
+        {{-- UPDATED Header Section --}}
+        {{-- Ginaya natin ang style sa Create Page: Horizontal Logo + Simple Text --}}
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 sm:mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div class="mb-4 md:mb-0 text-center md:text-left w-full md:w-auto">
+                {{-- 👇 LOGO: Horizontal, inalis ang malaking Title text --}}
                 <img src="{{ asset('images/nas/horizontal.png') }}" class="h-10 sm:h-12 md:h-16 object-contain mb-2 mx-auto md:mx-0" alt="NAS Logo">
+                
+                {{-- Welcome Message (Pinanatili ko ito dahil dashboard ito) --}}
                 <h1 class="text-base sm:text-lg font-bold text-gray-700 tracking-tight mt-2">
                     Welcome, <span class="text-indigo-700">{{ Auth::user()->first_name }}</span>!
                 </h1>
@@ -29,9 +33,20 @@
             </div>
         @endif
 
+        {{-- Error Message --}}
+        @if ($errors->any())
+            <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
+                <ul class="list-disc list-inside text-xs sm:text-sm">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         @if($application)
             
-            {{-- STATUS CARD --}}
+            {{-- Status Card --}}
             <div id="status-section" class="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200 mb-6 sm:mb-8">
                 <div class="p-6 md:p-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -82,7 +97,7 @@
                         </div>
                     </div>
 
-                    {{-- Registrar Remarks --}}
+                    {{-- Remarks Section --}}
                     @if($application->assessment_score || $application->rejection_reason)
                         <div class="mt-4 p-4 rounded-lg border text-xs sm:text-sm {{ $application->status == 'Not Qualified' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-yellow-50 border-yellow-200 text-yellow-800' }}">
                             <h4 class="font-bold uppercase mb-1">Registrar Remarks:</h4>
@@ -103,7 +118,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
                 
-                {{-- LEFT COLUMN: PROFILE CARD --}}
+                {{-- Left Column: Profile Card --}}
                 <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
                     <div class="bg-indigo-900 px-6 py-4 border-b border-indigo-800">
                         <h3 class="text-white font-bold text-base sm:text-lg flex items-center">
@@ -134,14 +149,9 @@
                                 <span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Email Address</span>
                                 <p class="text-gray-900 text-sm truncate">{{ $application->email_address }}</p>
                             </div>
-                            <div class="mb-3">
+                            <div>
                                 <span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Age / Gender</span>
                                 <p class="text-gray-900 text-sm">{{ $application->age }} yrs old / {{ $application->gender }}</p>
-                            </div>
-                            <div>
-                                <span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Region / Province</span>
-                                <p class="text-gray-900 text-sm truncate">{{ $application->region }}</p>
-                                <p class="text-gray-700 text-xs">{{ $application->province }}</p>
                             </div>
                         </div>
                     </div>
@@ -281,19 +291,14 @@
                                     @php
                                         // Define Display Names matching Create/Edit
                                         $summaryDisplayName = [
-                                            'scholarship_form' => 'Scholarship Application Form',
-                                            'student_profile' => 'Student-Athlete Profile Form',
-                                            'id_picture' => '2x2 ID Picture',
-                                            'sf10' => 'SF10 / Form 137',
-                                            'report_card' => 'Report Card (SF9)',
-                                            'adviser_reco' => 'Adviser Recommendation',
-                                            'guardian_id' => 'Guardian Valid ID',
-                                            'good_moral' => 'Good Moral Certificate',
-                                            'psa_birth_cert' => 'PSA Birth Certificate', 
-                                            'birth_cert' => 'PSA Birth Certificate', 
-                                            'medical_cert' => 'Medical Certificate',
-                                            'medical_clearance' => 'Medical Clearance Form',
-                                            'coach_reco' => 'Coach Recommendation',
+                                            'scholarship_form'  => 'Scholarship Application Form',
+                                            'student_profile'   => 'Student-Athlete’s Profile Form',
+                                            'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
+                                            'coach_reco'        => 'Coach’s Recommendation Form (w/ Valid ID)',
+                                            'adviser_reco'      => 'Adviser’s Recommendation Form (w/ Valid ID)',
+                                            'birth_cert'        => 'PSA Birth Certificate',
+                                            'report_card'       => 'Report Cards (Gr 5/6 or 6/7)',
+                                            'guardian_id'       => 'Guardian’s Valid ID w/ Signature'
                                         ];
                                     @endphp
 
@@ -384,7 +389,6 @@
                                             @if($isUploaded)
                                                 <div class="flex items-center justify-between bg-white p-3 rounded border border-green-200 shadow-sm">
                                                     <span class="text-[10px] sm:text-xs text-green-700 font-bold italic">File has been uploaded.</span>
-                                                    {{-- RE-APPLIED GOOGLE DOCS FIX FOR QUALIFIED SECTION --}}
                                                     @if(Str::endsWith(strtolower($currentPath), '.pdf'))
                                                         <a href="https://docs.google.com/viewer?url={{ urlencode($currentPath) }}&embedded=true" target="_blank" class="text-[10px] sm:text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">
                                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
