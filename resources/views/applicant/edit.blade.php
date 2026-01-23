@@ -124,7 +124,6 @@
                     {{-- 2. ADDRESS INFORMATION --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             {{-- Region Dropdown --}}
                             <div>
@@ -132,18 +131,18 @@
                                 <select name="region" x-model="selectedRegion" @change="updateProvinces()" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required>
                                     <option value="">Select Region</option>
                                     <template x-for="(provinces, region) in regionsData" :key="region">
-                                        <option :value="region" x-text="region" :selected="region === '{{ $application->region }}'"></option>
+                                        <option :value="region" x-text="region"></option>
                                     </template>
                                 </select>
                             </div>
 
-                            {{-- Province Dropdown (Filtered) --}}
+                            {{-- Province Dropdown --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Province *</label>
                                 <select name="province" x-model="selectedProvince" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required :disabled="!selectedRegion">
                                     <option value="">Select Province</option>
                                     <template x-for="province in availableProvinces" :key="province">
-                                        <option :value="province" x-text="province" :selected="province === '{{ $application->province }}'"></option>
+                                        <option :value="province" x-text="province"></option>
                                     </template>
                                 </select>
                             </div>
@@ -243,9 +242,11 @@
                                     <input type="text" name="palaro_year" placeholder="Year Participated" x-model="palaroYear" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
+
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Batang Pinoy Podium Finisher?</label>
                                 <div class="flex space-x-4">
+                                    {{-- Use standard PHP conditional for checked attribute here since it's simple --}}
                                     <label class="flex items-center space-x-2">
                                         <input type="radio" name="batang_pinoy_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" {{ $application->batang_pinoy_finisher == 'Yes' ? 'checked' : '' }}>
                                         <span class="text-sm font-medium text-gray-700">Yes</span>
@@ -289,8 +290,8 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Have you attended any of our articulation campaign or visited an information booth?</label>
                                 <div class="flex space-x-6">
-                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="Yes" class="mr-2 text-indigo-600" {{ old('attended_campaign', $application->attended_campaign) == 'Yes' ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="No" class="mr-2 text-indigo-600" {{ old('attended_campaign', $application->attended_campaign) == 'No' ? 'checked' : '' }}> No</label>
+                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="Yes" class="mr-2 text-indigo-600" {{ $application->attended_campaign == 'Yes' ? 'checked' : '' }}> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="No" class="mr-2 text-indigo-600" {{ $application->attended_campaign == 'No' ? 'checked' : '' }}> No</label>
                                 </div>
                             </div>
                         </div>
@@ -325,8 +326,8 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Beneficiary of 4Ps?</label>
                                 <div class="flex space-x-4">
-                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="Yes" class="mr-2 text-indigo-600" {{ old('is_4ps', $application->is_4ps ? 'Yes' : 'No') == 'Yes' ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="No" class="mr-2 text-indigo-600" {{ old('is_4ps', $application->is_4ps ? 'Yes' : 'No') == 'No' ? 'checked' : '' }}> No</label>
+                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="Yes" class="mr-2 text-indigo-600" {{ $application->is_4ps ? 'checked' : '' }}> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="No" class="mr-2 text-indigo-600" {{ !$application->is_4ps ? 'checked' : '' }}> No</label>
                                 </div>
                             </div>
                         </div>
@@ -368,7 +369,7 @@
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                         <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
-                                            {{ $label }}
+                                            {{ $label }} <span class="text-red-600">*</span>
                                         </label>
                                         @if(isset($application->uploaded_files[$key]))
                                             <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
@@ -401,18 +402,28 @@
                 showPrivacyModal: false,
                 isSubmitting: false,
                 
-                // Initialize variables with existing data from server
+                // Initialize variables with existing data from server using properly formatted JSON
+                // Using ternary operators to convert boolean/tinyint to "Yes"/"No" strings for radio buttons
                 dob: @json(old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d'))),
                 age: @json(old('age', $application->age)),
                 selectedSport: @json(old('sport', $application->sport)),
                 sportSpec: @json(old('sport_specification', $application->sport_specification)), 
                 referralSource: @json(old('learn_about_nas', $application->learn_about_nas)), 
                 referrerName: @json(old('referrer_name', $application->referrer_name)),
+                
+                // Convert boolean to "Yes" or "No" string
                 isIP: @json(old('is_ip', $application->is_ip ? "Yes" : "No")),
+                
                 ipGroup: @json(old('ip_group_name', $application->ip_group_name)),
+                
+                // Convert boolean to "Yes" or "No" string
                 isPWD: @json(old('is_pwd', $application->is_pwd ? "Yes" : "No")),
+                
                 pwdType: @json(old('pwd_disability', $application->pwd_disability)),
+                
+                // Convert boolean to "Yes" or "No" string for Palaro
                 hasPalaro: @json(old('palaro_finisher', $application->has_palaro_participation ? "Yes" : "No")),
+                
                 palaroYear: @json(old('palaro_year', $application->palaro_year)),
                 
                 // Region & Province Data
@@ -446,7 +457,7 @@
                         this.availableProvinces = this.regionsData[this.selectedRegion] || [];
                     }
                     
-                    // Re-calculate age if dob exists but age is empty for some reason
+                    // Re-calculate age if dob exists but age is empty
                     if (this.dob && !this.age) {
                         this.calculateAge();
                     }
