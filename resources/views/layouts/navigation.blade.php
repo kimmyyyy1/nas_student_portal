@@ -2,11 +2,11 @@
 <style>
     nav.fixed { will-change: transform; z-index: 50; }
     
-    /* Hide scrollbar */
+    /* Hide scrollbar aesthetics */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Instant scroll restoration */
+    /* IMPORTANT: Force instant scrolling to prevent smooth-scroll flicker */
     #sidebar-menu { scroll-behavior: auto !important; }
 </style>
 
@@ -18,7 +18,6 @@
             <img src="{{ asset('images/nas/horizontal.png') }}" alt="NAS Logo" class="h-8 w-auto drop-shadow-sm">
         </div>
         
-        {{-- Hamburger with Click Effect --}}
         <button @click="open = !open" class="p-2 rounded-md text-gray-600 hover:bg-black/5 focus:outline-none transition transform active:scale-90">
             <i class='bx bx-menu text-3xl'></i>
         </button>
@@ -33,23 +32,37 @@
          class="fixed inset-0 bg-gray-900/60 z-40 md:hidden backdrop-blur-[2px]">
     </div>
 
-    {{-- 3. SIDEBAR --}}
+    {{-- 3. SIDEBAR (Original Layout) --}}
     <nav :class="{'translate-x-0': open, '-translate-x-full': !open}"
          class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-xl border-r border-white/20 z-50 shadow-2xl no-print 
                 transition-transform duration-300 ease-in-out 
                 md:translate-x-0 transform -translate-x-full md:transition-none flex flex-col">
         
-        {{-- Close Button with Click Effect --}}
         <div class="md:hidden absolute top-4 right-4 z-[60]">
              <button @click="open = false" class="text-gray-500 hover:text-red-600 bg-gray-100/80 rounded-full p-2 transition shadow-sm transform active:scale-90">
                 <i class='bx bx-x text-2xl leading-none'></i>
              </button>
         </div>
 
-        {{-- SCROLLABLE CONTAINER --}}
-        <div id="sidebar-menu" class="flex-1 overflow-y-auto no-scrollbar">
+        {{-- 
+            👇 SCROLLABLE CONTAINER (ANTI-FLICKER FIX)
+            Binago: Nilagyan ng x-init direct sa element para mabilis ma-restore ang scroll bago pa makita ng mata.
+        --}}
+        <div id="sidebar-menu" 
+             class="flex-1 overflow-y-auto no-scrollbar flex flex-col"
+             x-data="{
+                 init() {
+                     // Kuhanin agad ang saved position at i-apply
+                     let saved = sessionStorage.getItem('sidebarScroll');
+                     if (saved) {
+                         this.$el.scrollTop = parseInt(saved);
+                     }
+                 }
+             }"
+             x-init="init()"
+             @scroll.passive="sessionStorage.setItem('sidebarScroll', $el.scrollTop)">
 
-            {{-- HEADER LOGO (Animated) --}}
+            {{-- HEADER LOGO --}}
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
                 <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" wire:navigate 
                    class="block w-full px-6 transform active:scale-95 transition-transform duration-200">
@@ -58,16 +71,12 @@
             </div>
 
             {{-- MENU ITEMS --}}
-            <div class="px-3 space-y-1 pb-4">
+            <div class="px-3 space-y-1 pb-4 flex-1">
                 
-                {{-- 👇 HELPERS: Animation Classes Added (active:scale-95) --}}
                 @php
-                    // For Main Dashboard items (Bolder font)
                     $navMainClass = "flex items-center px-4 py-3 text-sm font-bold rounded-lg transition-all duration-200 group transform active:scale-95";
-                    // For Sub-items (Medium font)
                     $navSubClass = "flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group transform active:scale-95";
                     
-                    // Colors
                     $activeIndigo = "bg-indigo-50 text-indigo-800 shadow-sm ring-1 ring-indigo-200";
                     $inactiveIndigo = "text-gray-600 hover:bg-gray-50 hover:text-indigo-700";
                     
@@ -206,12 +215,12 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-xs font-bold rounded-md text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition transform active:scale-95">
+                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-xs font-bold rounded-md text-gray-700 bg-white hover:bg-gray-100 active:scale-95 transition transform">
                     <i class='bx bx-user mr-1 text-sm'></i> Profile
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="w-full flex items-center justify-center px-3 py-2 border border-transparent shadow-sm text-xs font-bold rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition transform active:scale-95">
+                    <button type="submit" class="w-full flex items-center justify-center px-3 py-2 border border-transparent shadow-sm text-xs font-bold rounded-md text-white bg-red-600 hover:bg-red-700 active:scale-95 transition transform">
                         <i class='bx bx-log-out mr-1 text-sm'></i> Sign Out
                     </button>
                 </form>
@@ -219,16 +228,3 @@
         </div>
     </nav>
 </div>
-
-{{-- SCRIPT: Restore sidebar scroll position --}}
-<script>
-    (function() {
-        const sidebar = document.getElementById('sidebar-menu');
-        const key = 'sidebarScroll';
-        if (sidebar) {
-            const saved = sessionStorage.getItem(key);
-            if (saved) sidebar.scrollTop = parseInt(saved);
-            sidebar.addEventListener('scroll', () => sessionStorage.setItem(key, sidebar.scrollTop));
-        }
-    })();
-</script>
