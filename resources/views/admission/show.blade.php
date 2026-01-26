@@ -26,6 +26,7 @@
             .grid { display: block !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .check-box { border: 1px solid #000 !important; }
+            .admin-input { display: none !important; }
         }
     </style>
 
@@ -40,6 +41,7 @@
             
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
+                {{-- MAIN CONTENT (PRINTABLE) --}}
                 <div id="print-area" class="md:col-span-3 bg-white shadow-xl rounded-lg overflow-hidden border border-gray-300 p-8 md:p-10 relative">
                         
                     <div class="flex flex-col items-center justify-center text-center mb-6 pb-4 border-b-2 border-black">
@@ -49,14 +51,15 @@
                         <p class="text-xs italic text-gray-600">New Clark City, Capas, Tarlac</p>
                     </div>
 
+                    {{-- I. APPLICANT INFORMATION --}}
                     <div class="mb-6">
                         <div class="bg-gray-200 border border-gray-400 px-3 py-1 mb-4">
                             <h3 class="text-sm font-bold text-gray-800 uppercase">I. Applicant Information</h3>
                         </div>
                         
                         <div class="flex flex-col md:flex-row gap-6">
+                            {{-- ID Picture --}}
                             <div class="w-40 h-40 bg-gray-100 border border-gray-400 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                                {{-- 👇 FIXED IMAGE: Removed asset('storage/...') --}}
                                 @if(isset($application->uploaded_files['id_picture']))
                                     <img src="{{ $application->uploaded_files['id_picture'] }}" class="w-full h-full object-cover">
                                 @else
@@ -91,60 +94,93 @@
                             </div>
                         </div>
 
+                        {{-- Address --}}
                         <div class="mt-4 pt-2">
-                            <div class="grid grid-cols-4 gap-4 mb-2">
-                                <div class="col-span-1"><label class="block text-[10px] text-gray-500 uppercase font-bold">Region</label><div class="text-xs font-bold">{{ $application->region }}</div></div>
-                                <div class="col-span-1"><label class="block text-[10px] text-gray-500 uppercase font-bold">Province</label><div class="text-xs font-bold">{{ $application->province }}</div></div>
-                                <div class="col-span-1"><label class="block text-[10px] text-gray-500 uppercase font-bold">City/Municipality</label><div class="text-xs font-bold">{{ $application->municipality_city }}</div></div>
-                                <div class="col-span-1"><label class="block text-[10px] text-gray-500 uppercase font-bold">Barangay</label><div class="text-xs font-bold">{{ $application->barangay }}</div></div>
+                            <label class="block text-[10px] text-gray-500 uppercase font-bold mb-1">Permanent Address</label>
+                            <div class="grid grid-cols-4 gap-4 mb-2 text-xs border-b border-gray-300 pb-1">
+                                <div><span class="text-gray-500">Region:</span> <br><strong>{{ $application->region }}</strong></div>
+                                <div><span class="text-gray-500">Province:</span> <br><strong>{{ $application->province }}</strong></div>
+                                <div><span class="text-gray-500">City/Muni:</span> <br><strong>{{ $application->municipality_city }}</strong></div>
+                                <div><span class="text-gray-500">Barangay:</span> <br><strong>{{ $application->barangay }}</strong></div>
                             </div>
-                            <label class="block text-[10px] text-gray-500 uppercase font-bold">Street Address</label>
-                            <div class="text-sm font-bold text-gray-900 border-b border-gray-300 mb-2">{{ $application->street_address }} (Zip: {{ $application->zip_code }})</div>
-                            
-                            @php
-                                // Logic para sa Others (Fail-safe check)
-                                $others_text = $application->others_specify 
-                                            ?? $application->other_category_details 
-                                            ?? $application->other_category 
-                                            ?? $application->others
-                                            ?? '';
-                                $is_others = (bool)($application->is_others ?? false) || !empty($others_text);
-                            @endphp
+                            <div class="text-sm font-bold text-gray-900">
+                                {{ $application->street_address }} (Zip Code: {{ $application->zip_code }})
+                            </div>
+                        </div>
 
-                            <div class="flex flex-wrap gap-4 mt-3">
+                        {{-- Special Categories --}}
+                        <div class="mt-4 pt-2 border-t border-gray-200">
+                            <label class="block text-[10px] text-gray-500 uppercase font-bold mb-2">Background & Special Categories</label>
+                            <div class="grid grid-cols-3 gap-4">
                                 <div class="flex items-center">
                                     <div class="check-box">@if($application->is_ip) <span class="text-black font-bold text-xs">✓</span> @endif</div>
-                                    <span class="text-[10px] font-bold uppercase text-gray-700">Indigenous People (IP)</span>
+                                    <div>
+                                        <span class="text-[10px] font-bold uppercase text-gray-700">IP Member</span>
+                                        @if($application->is_ip) <div class="text-[10px] text-black">({{ $application->ip_group_name }})</div> @endif
+                                    </div>
                                 </div>
                                 <div class="flex items-center">
                                     <div class="check-box">@if($application->is_pwd) <span class="text-black font-bold text-xs">✓</span> @endif</div>
-                                    <span class="text-[10px] font-bold uppercase text-gray-700">PWD</span>
+                                    <div>
+                                        <span class="text-[10px] font-bold uppercase text-gray-700">PWD</span>
+                                        @if($application->is_pwd) <div class="text-[10px] text-black">({{ $application->pwd_disability }})</div> @endif
+                                    </div>
                                 </div>
                                 <div class="flex items-center">
                                     <div class="check-box">@if($application->is_4ps) <span class="text-black font-bold text-xs">✓</span> @endif</div>
                                     <span class="text-[10px] font-bold uppercase text-gray-700">4Ps Beneficiary</span>
                                 </div>
-                                <div class="flex items-center">
-                                    <div class="check-box">@if($is_others) <span class="text-black font-bold text-xs">✓</span> @endif</div>
-                                    <span class="text-[10px] font-bold uppercase text-gray-700 mr-1">Others:</span>
-                                    <span class="text-[10px] font-bold uppercase text-black border-b border-gray-400 px-1 min-w-[50px]">{{ $others_text }}</span>
-                                </div>
+                            </div>
+                            
+                            {{-- Referral Info --}}
+                            <div class="mt-3 text-xs">
+                                <span class="text-gray-500 font-bold">Learned NAS via:</span> {{ $application->learn_about_nas }}
+                                @if($application->referrer_name)
+                                    | <span class="text-gray-500 font-bold">Referred by:</span> {{ $application->referrer_name }}
+                                @endif
                             </div>
                         </div>
                     </div>
 
+                    {{-- II. ACADEMIC & SPORTS PROFILE --}}
                     <div class="mb-6">
                         <div class="bg-gray-200 border border-gray-400 px-3 py-1 mb-4">
                             <h3 class="text-sm font-bold text-gray-800 uppercase">II. Academic & Sports Profile</h3>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
-                            <div class="col-span-2"><label class="block text-[10px] text-gray-500 uppercase font-bold">Last School Attended</label><div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->previous_school }} ({{ $application->school_type }})</div></div>
-                            <div><label class="block text-[10px] text-gray-500 uppercase font-bold">Applied Grade</label><div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->grade_level_applied }}</div></div>
-                            <div><label class="block text-[10px] text-gray-500 uppercase font-bold">Sport</label><div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->sport }}</div></div>
-                            <div class="col-span-4"><label class="block text-[10px] text-gray-500 uppercase font-bold">Palarong Pambansa Participation</label><div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->has_palaro_participation ? 'YES (Year: ' . $application->palaro_year . ')' : 'NO' }}</div></div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] text-gray-500 uppercase font-bold">Last School Attended</label>
+                                <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->previous_school }} ({{ $application->school_type }})</div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-500 uppercase font-bold">Applied Grade</label>
+                                <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->grade_level_applied }}</div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-500 uppercase font-bold">Sport</label>
+                                <div class="font-bold text-gray-900 border-b border-gray-300">
+                                    {{ $application->sport }} 
+                                    @if($application->sport_specification) 
+                                        <span class="text-xs font-normal">({{ $application->sport_specification }})</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] text-gray-500 uppercase font-bold">Palarong Pambansa Finisher</label>
+                                <div class="font-bold text-gray-900 border-b border-gray-300">
+                                    {{ $application->has_palaro_participation ? 'YES' : 'NO' }}
+                                </div>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] text-gray-500 uppercase font-bold">Batang Pinoy Finisher</label>
+                                <div class="font-bold text-gray-900 border-b border-gray-300">
+                                    {{ $application->batang_pinoy_finisher == 'Yes' ? 'YES' : 'NO' }}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
+                    {{-- III. GUARDIAN INFORMATION --}}
                     <div class="mb-6">
                         <div class="bg-gray-200 border border-gray-400 px-3 py-1 mb-4">
                             <h3 class="text-sm font-bold text-gray-800 uppercase">III. Guardian Information</h3>
@@ -157,78 +193,114 @@
                         </div>
                     </div>
 
+                    {{-- IV. SUBMITTED DOCUMENTS --}}
                     <div>
                         <div class="bg-gray-200 border border-gray-400 px-3 py-1 mb-4">
-                            <h3 class="text-sm font-bold text-gray-800 uppercase">IV. Submitted Documents Checklist</h3>
+                            <h3 class="text-sm font-bold text-gray-800 uppercase">IV. Submitted Documents & Remarks</h3>
                         </div>
-                        <div class="grid grid-cols-2 md:grid-cols-2 gap-y-3 gap-x-2 text-xs">
-                            @php
-                                $files = $application->uploaded_files ?? [];
-                                $docs = [
-                                    'scholarship_form' => 'Scholarship Application Form',
-                                    'student_profile' => 'Student-Athlete Profile Form',
-                                    'coach_reco' => 'Coach Recommendation Form',
-                                    'adviser_reco' => 'Adviser Recommendation Form',
-                                    'medical_clearance' => 'Medical/Physical Clearance',
-                                    'guardian_id' => 'Guardian Valid ID',
-                                    'psa_birth_cert' => 'PSA Birth Certificate',
-                                    'good_moral' => 'Good Moral Certificate',
-                                    'sf10' => 'Form 137 (SF10)',
-                                    'report_card' => 'Report Card (SF9)',
-                                    'id_picture' => '2x2 ID Picture'
-                                ];
-                            @endphp
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[600px]">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase">
+                                        <th class="px-4 py-3 font-bold w-1/3">Document Name</th>
+                                        <th class="px-4 py-3 font-bold text-center">Status</th>
+                                        <th class="px-4 py-3 font-bold text-center">View</th>
+                                        <th class="px-4 py-3 font-bold w-1/3 no-print">Admin Remarks (For Applicant)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 text-xs">
+                                    @php
+                                        $files = $application->uploaded_files ?? [];
+                                        $remarks = $application->document_remarks ?? []; 
+                                        $docs = [
+                                            'scholarship_form' => 'Scholarship Application Form',
+                                            'student_profile' => 'Student-Athlete Profile Form',
+                                            'medical_clearance' => 'Medical/Physical Clearance',
+                                            'coach_reco' => 'Coach Recommendation Form',
+                                            'adviser_reco' => 'Adviser Recommendation Form',
+                                            'birth_cert' => 'PSA Birth Certificate',
+                                            'report_card' => 'Report Card (SF9)',
+                                            'guardian_id' => 'Guardian Valid ID'
+                                        ];
+                                    @endphp
 
-                            @foreach($docs as $key => $label)
-                                <div class="flex items-center">
-                                    <div class="check-box">
-                                        @if(isset($files[$key])) <span class="text-black font-bold text-xs">✓</span> @endif
-                                    </div>
-                                    <span class="{{ isset($files[$key]) ? 'text-gray-900 font-bold' : 'text-gray-400' }}">
-                                        {{ $label }}
-                                        @if(isset($files[$key]))
-                                            {{-- 👇 FIXED LINK: Removed asset('storage/...') --}}
-                                            <a href="{{ $files[$key] }}" target="_blank" class="no-print ml-1 text-blue-600 hover:underline">(View)</a>
-                                        @endif
-                                    </span>
-                                </div>
-                            @endforeach
+                                    @foreach($docs as $key => $label)
+                                        @php
+                                            $isUploaded = isset($files[$key]) && !empty($files[$key]);
+                                            $hasRemark = isset($remarks[$key]) && !empty($remarks[$key]);
+                                        @endphp
+                                        <tr class="hover:bg-gray-50 transition {{ $hasRemark ? 'bg-red-50' : ($isUploaded ? 'bg-green-50' : '') }}">
+                                            <td class="px-4 py-3 font-bold text-gray-900">
+                                                {{ $label }}
+                                            </td>
+                                            <td class="px-4 py-3 text-center">
+                                                @if($isUploaded)
+                                                    {{-- Logic: If NO remark + Uploaded = UPDATED/SUBMITTED --}}
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">
+                                                        UPLOADED
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">
+                                                        MISSING
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-3 text-center">
+                                                @if($isUploaded)
+                                                    <a href="{{ $files[$key] }}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold underline no-print">VIEW</a>
+                                                @else
+                                                    <span class="text-gray-400">-</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-2 no-print">
+                                                <input type="text" 
+                                                       name="document_remarks[{{ $key }}]" 
+                                                       form="update-status-form" 
+                                                       value="{{ $remarks[$key] ?? '' }}"
+                                                       class="w-full border-gray-300 rounded text-xs px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500 admin-input" 
+                                                       placeholder="Add remark here...">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
                 </div>
 
+                {{-- SIDEBAR: ADMIN ACTIONS (No Print) --}}
                 <div class="md:col-span-1 no-print">
                     <div class="bg-white shadow-xl rounded-lg border-t-4 border-indigo-600 sticky top-6">
                         <div class="p-6">
                             <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Update Status</h3>
                             
-                            <form method="POST" action="{{ route('admission.process', $application->id) }}">
+                            <form id="update-status-form" method="POST" action="{{ route('admission.process', $application->id) }}">
                                 @csrf
                                 @method('PATCH')
 
                                 <div class="mb-4">
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
                                     <select name="status" id="status" class="w-full border-gray-300 rounded text-sm font-bold text-gray-800">
-                                        <option value="Pending Review" {{ $application->status == 'Pending Review' ? 'selected' : '' }}>Pending Review</option>
+                                        <option value="Pending" {{ in_array($application->status, ['Pending', 'Pending Review']) ? 'selected' : '' }}>Pending Review</option>
                                         <option value="For Assessment" {{ $application->status == 'For Assessment' ? 'selected' : '' }}>For Assessment</option>
                                         <option value="Qualified" {{ $application->status == 'Qualified' ? 'selected' : '' }}>Qualified</option>
                                         <option value="Waitlisted" {{ $application->status == 'Waitlisted' ? 'selected' : '' }}>Waitlisted</option>
-                                        <option value="Not Qualified" {{ $application->status == 'Not Qualified' ? 'selected' : '' }}>Not Qualified</option>
+                                        <option value="Not Qualified" {{ in_array($application->status, ['Not Qualified', 'Rejected', 'Failed']) ? 'selected' : '' }}>Not Qualified</option>
                                     </select>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Remarks</label>
-                                    <textarea name="assessment_score" rows="3" class="w-full border-gray-300 rounded text-sm">{{ $application->assessment_score }}</textarea>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">General Remarks / Assessment</label>
+                                    <textarea name="assessment_score" rows="3" class="w-full border-gray-300 rounded text-sm" placeholder="Internal notes or general feedback...">{{ $application->assessment_score }}</textarea>
                                 </div>
 
                                 <div class="mb-4 hidden" id="rejection-div">
-                                    <label class="block text-xs font-bold text-red-600 uppercase mb-1">Reason for Rejection</label>
-                                    <textarea name="rejection_reason" rows="2" class="w-full border-red-300 bg-red-50 rounded text-sm text-red-700">{{ $application->rejection_reason }}</textarea>
+                                    <label class="block text-xs font-bold text-red-600 uppercase mb-1">Reason for Rejection (Visible to Student)</label>
+                                    <textarea name="rejection_reason" rows="2" class="w-full border-red-300 bg-red-50 rounded text-sm text-red-700" placeholder="State reason...">{{ $application->rejection_reason }}</textarea>
                                 </div>
 
-                                <button type="submit" class="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3 rounded shadow">
+                                <button type="submit" class="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3 rounded shadow transition transform hover:scale-105">
                                     SAVE UPDATES
                                 </button>
                             </form>
@@ -236,6 +308,7 @@
 
                         @if($application->status == 'Qualified')
                             <div class="bg-green-100 p-4 text-center border-t border-green-200">
+                                <p class="text-xs text-green-800 mb-2">Applicant is qualified.</p>
                                 <a href="{{ route('official-enrollment.show', $application->id) }}" class="block w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded shadow text-sm">
                                     PROCEED TO ENROLLMENT
                                 </a>
@@ -243,21 +316,25 @@
                         @endif
                     </div>
                 </div>
-
             </div>
+
         </div>
     </div>
 
     <script>
         const statusSelect = document.getElementById('status');
         const rejectionDiv = document.getElementById('rejection-div');
+        
         function toggleReject() {
-            if(statusSelect.value === 'Not Qualified') {
+            // Check for various "Not Qualified" statuses
+            const rejectedStatuses = ['Not Qualified', 'Rejected', 'Failed'];
+            if(rejectedStatuses.includes(statusSelect.value)) {
                 rejectionDiv.classList.remove('hidden');
             } else {
                 rejectionDiv.classList.add('hidden');
             }
         }
+        
         statusSelect.addEventListener('change', toggleReject);
         toggleReject(); 
     </script>

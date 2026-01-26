@@ -21,12 +21,18 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('applicant.update') }}" enctype="multipart/form-data">
+                <form id="applicantForm" method="POST" action="{{ route('applicant.update') }}" enctype="multipart/form-data">
                     @csrf 
                     @method('PATCH')
 
+                    {{-- GET REMARKS DATA --}}
+                    @php
+                        $remarks = $application->document_remarks ?? [];
+                        $idPicRemark = $remarks['id_picture'] ?? null;
+                    @endphp
+
                     {{-- ID PICTURE UPLOAD SECTION --}}
-                    <div class="mb-8 sm:mb-10 bg-indigo-50 p-6 sm:p-8 rounded-xl border border-indigo-100 flex flex-col md:flex-row items-center gap-6 sm:gap-8">
+                    <div class="mb-8 sm:mb-10 bg-indigo-50 p-6 sm:p-8 rounded-xl border {{ $idPicRemark ? 'border-red-500 ring-2 ring-red-200' : 'border-indigo-100' }} flex flex-col md:flex-row items-center gap-6 sm:gap-8">
                         <div class="flex-shrink-0 text-center">
                             <div style="width: 150px; height: 150px; sm:width: 200px; sm:height: 200px;" class="w-40 h-40 sm:w-52 sm:h-52 bg-white border-4 border-dashed border-indigo-300 flex items-center justify-center text-indigo-400 rounded-lg overflow-hidden relative shadow-sm mx-auto">
                                 @if(isset($application->uploaded_files['id_picture']))
@@ -38,14 +44,30 @@
                                 @endif
                                 <img id="preview" class="absolute inset-0 w-full h-full object-cover hidden z-20 bg-white">
                             </div>
-                            @if(isset($application->uploaded_files['id_picture']))
+                            @if(isset($application->uploaded_files['id_picture']) && !$idPicRemark)
                                 <p class="text-xs text-green-600 font-bold mt-2">✔ Current Photo Loaded</p>
                             @endif
                         </div>
                         <div class="flex-1 w-full text-center md:text-left">
-                            <h3 class="text-lg sm:text-xl font-bold text-indigo-900 mb-2">Update ID Picture</h3>
-                            <p class="text-xs sm:text-sm text-indigo-700 mb-4">Upload only if you want to replace the current photo. (Max 5MB)</p>
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-lg sm:text-xl font-bold text-indigo-900">Update ID Picture</h3>
+                                @if($idPicRemark)
+                                    <span class="text-xs font-bold text-red-700 bg-red-100 px-2 py-1 rounded animate-pulse">ACTION REQUIRED</span>
+                                @endif
+                            </div>
+
+                            @if($idPicRemark)
+                                <div class="mb-3 p-3 bg-red-100 border-l-4 border-red-600 text-red-800 text-xs rounded text-left">
+                                    <strong>⚠️ ADMIN REMARK:</strong> {{ $idPicRemark }}
+                                    <p class="mt-1 italic font-normal">You must upload a new photo to proceed.</p>
+                                </div>
+                            @else
+                                <p class="text-xs sm:text-sm text-indigo-700 mb-4">Upload only if you want to replace the current photo. (Max 5MB)</p>
+                            @endif
+                            
+                            {{-- LOGIC: Required ONLY if there is a remark --}}
                             <input type="file" name="id_picture" accept="image/*" 
+                                   {{ $idPicRemark ? 'required' : '' }}
                                    onchange="document.getElementById('preview').src = window.URL.createObjectURL(this.files[0]); document.getElementById('preview').classList.remove('hidden');" 
                                    class="block w-full text-xs sm:text-sm text-slate-500 file:mr-4 file:py-2 sm:file:py-3 file:px-4 sm:file:px-6 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer transition mx-auto md:mx-0 shadow-sm border border-gray-300 rounded-md bg-white">
                         </div>
@@ -82,7 +104,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Birthday *</label>
-                                <input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required x-model="dob" @change="calculateAge()">
+                                <input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('date_of_birth') }}" x-model="dob" @change="calculateAge()">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Age</label>
@@ -276,8 +298,8 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Have you attended any of our articulation campaign or visited an information booth?</label>
                                 <div class="flex space-x-6">
-                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="Yes" class="mr-2 text-indigo-600" {{ $application->attended_campaign == 'Yes' ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="No" class="mr-2 text-indigo-600" {{ $application->attended_campaign == 'No' ? 'checked' : '' }}> No</label>
+                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="Yes" class="mr-2 text-indigo-600" {{ old('attended_campaign', $application->attended_campaign) == 'Yes' ? 'checked' : '' }}> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="attended_campaign" value="No" class="mr-2 text-indigo-600" {{ old('attended_campaign', $application->attended_campaign) == 'No' ? 'checked' : '' }}> No</label>
                                 </div>
                             </div>
                         </div>
@@ -314,8 +336,8 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Beneficiary of 4Ps?</label>
                                 <div class="flex space-x-4">
-                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="Yes" class="mr-2 text-indigo-600" {{ $application->is_4ps ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="No" class="mr-2 text-indigo-600" {{ !$application->is_4ps ? 'checked' : '' }}> No</label>
+                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="Yes" class="mr-2 text-indigo-600" {{ old('is_4ps', $application->is_4ps ? 'Yes' : 'No') == 'Yes' ? 'checked' : '' }}> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="No" class="mr-2 text-indigo-600" {{ old('is_4ps', $application->is_4ps ? 'Yes' : 'No') == 'No' ? 'checked' : '' }}> No</label>
                                 </div>
                             </div>
                         </div>
@@ -353,30 +375,65 @@
                         </p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                            @foreach([
-                                'scholarship_form'  => 'Scholarship Application Form',
-                                'student_profile'   => 'Student-Athlete’s Profile Form',
-                                'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
-                                'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature',
-                                'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature',
-                                'birth_cert'        => 'PSA Birth Certificate',
-                                'report_card'       => 'Report Card (SF9)',
-                                'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
-                            ] as $key => $label)
+                            @php
+                                $uploaded = $application->uploaded_files ?? [];
+                                $remarks = $application->document_remarks ?? []; // Retrieve remarks
                                 
-                                <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
+                                $requiredFields = [
+                                    'scholarship_form'  => 'Scholarship Application Form',
+                                    'student_profile'   => 'Student-Athlete’s Profile Form',
+                                    'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
+                                    'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature',
+                                    'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature',
+                                    'birth_cert'        => 'PSA Birth Certificate',
+                                    'report_card'       => 'Report Card (SF9)',
+                                    'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
+                                ];
+                            @endphp
+
+                            @foreach($requiredFields as $key => $label)
+                                @php
+                                    $isUploaded = isset($uploaded[$key]) && !empty($uploaded[$key]);
+                                    $hasRemark = isset($remarks[$key]) && !empty($remarks[$key]);
+
+                                    // Determine visual style
+                                    if ($hasRemark) {
+                                        // Error state: Red box, action needed
+                                        $containerClass = 'bg-red-50 border-red-500 shadow-md ring-2 ring-red-200';
+                                        $statusBadge = '<span class="text-xs font-bold text-red-700 bg-red-100 px-2 py-1 rounded inline-block self-start sm:self-auto">ACTION REQUIRED</span>';
+                                    } elseif ($isUploaded) {
+                                        // Good state: Green box
+                                        $containerClass = 'bg-gray-50 border-green-400 shadow-sm';
+                                        $statusBadge = '<span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>';
+                                    } else {
+                                        // Default/Missing state
+                                        $containerClass = 'bg-gray-50 border-gray-200 shadow-sm';
+                                        $statusBadge = '<span class="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded inline-block self-start sm:self-auto">Missing</span>';
+                                    }
+                                @endphp
+                                
+                                <div class="p-4 sm:p-5 rounded-xl border {{ $containerClass }} flex flex-col hover:shadow-md transition relative">
+                                    
+                                    {{-- Header: Label & Status --}}
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                         <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
                                             {{ $label }} <span class="text-red-600">*</span>
                                         </label>
-                                        @if(isset($application->uploaded_files[$key]))
-                                            <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
-                                        @else
-                                            <span class="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded inline-block self-start sm:self-auto">Missing</span>
-                                        @endif
+                                        {!! $statusBadge !!}
                                     </div>
 
+                                    {{-- Admin Remark Display --}}
+                                    @if($hasRemark)
+                                        <div class="mb-3 p-3 bg-red-100 border-l-4 border-red-600 text-red-800 text-xs rounded">
+                                            <strong>⚠️ ADMIN REMARK:</strong> {{ $remarks[$key] }}
+                                            <p class="mt-1 italic font-normal">Please upload a correct/clearer copy below to resolve this issue.</p>
+                                        </div>
+                                    @endif
+
+                                    {{-- File Input --}}
                                     <input type="file" name="files[{{ $key }}]" 
+                                           {{-- ADDED REQUIRED IF HAS REMARK --}}
+                                           {{ $hasRemark ? 'required' : '' }}
                                            class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
                                            accept=".pdf,.jpg,.jpeg,.png">
                                 </div>

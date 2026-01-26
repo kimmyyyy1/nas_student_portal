@@ -76,19 +76,59 @@ class ApplicantPortalController extends Controller
         return view('applicant.edit', compact('application', 'teams'));
     }
 
+    // --- UPDATED UPDATE METHOD (With Remarks Clearing) ---
     public function update(Request $request): RedirectResponse
     {
+        // 1. Get Application
         $application = Applicant::where('user_id', Auth::id())->firstOrFail();
         
+        // Check Lock Status
         if (in_array($application->status, ['Enrolled'])) {
             return redirect()->route('applicant.dashboard')->with('error', 'Application is locked.');
         }
 
+        // 2. Validate Inputs
         $validated = $this->validateApplication($request, true);
         
-        // Map data passing existing application to merge files
+        // 3. Prepare Data (Text Fields)
+        // We use mapInputData but need to manually handle file merging & remarks clearing
         $data = $this->mapInputData($validated, $request, $application);
 
+        // 4. Handle Remarks Clearing (Crucial Step)
+        // We need to check if specific files were uploaded and remove their corresponding remarks
+        $remarks = $application->document_remarks ?? [];
+        $hasNewUploads = false;
+
+        // Check ID Picture Upload
+        if ($request->hasFile('id_picture')) {
+            if (isset($remarks['id_picture'])) {
+                unset($remarks['id_picture']); // Clear remark
+                $hasNewUploads = true;
+            }
+        }
+
+        // Check Document Uploads
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $key => $file) {
+                if (isset($remarks[$key])) {
+                    unset($remarks[$key]); // Clear remark for specific file
+                    $hasNewUploads = true;
+                }
+            }
+        }
+
+        // Update Remarks in Data array
+        $data['document_remarks'] = $remarks;
+
+        // 5. Update Application Status Logic
+        // If there were remarks and we cleared some, and now remarks are empty, we can reset status
+        // Or if status was "Not Qualified" / "For Assessment" due to docs, maybe move back to "Pending Review"
+        if ($hasNewUploads) {
+            // Optional: Reset status if all issues are resolved, or keep as is for Admin to re-check
+            // $data['status'] = 'Pending Review'; 
+        }
+
+        // 6. Execute Update
         $application->update($data);
 
         return redirect()->route('applicant.dashboard')->with('success', 'Application updated successfully!');

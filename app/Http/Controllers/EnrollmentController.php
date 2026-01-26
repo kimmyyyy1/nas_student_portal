@@ -31,7 +31,7 @@ class EnrollmentController extends Controller
             $status = $request->status;
             
             if ($status === 'Pending') {
-                $query->whereIn('status', ['Pending', 'pending', 'For Assessment']);
+                $query->whereIn('status', ['Pending', 'pending', 'For Assessment', 'Pending Review']);
             } 
             elseif ($status === 'Qualified') {
                 $query->whereIn('status', ['Qualified', 'qualified']);
@@ -53,7 +53,7 @@ class EnrollmentController extends Controller
         $totalSubmitted = Applicant::count(); // ✅ FIXED
         
         // 2. Breakdown per Status
-        $countPending    = Applicant::whereIn('status', ['Pending', 'pending', 'For Assessment'])->count(); // ✅ FIXED
+        $countPending    = Applicant::whereIn('status', ['Pending', 'pending', 'For Assessment', 'Pending Review'])->count(); // ✅ FIXED
         $countQualified  = Applicant::whereIn('status', ['Qualified', 'qualified'])->count(); // ✅ FIXED
         $countWaitlisted = Applicant::whereIn('status', ['Waitlisted', 'waitlisted'])->count(); // ✅ FIXED
         $countRejected   = Applicant::whereIn('status', ['Not Qualified', 'not qualified', 'Rejected', 'Failed'])->count(); // ✅ FIXED
@@ -79,14 +79,15 @@ class EnrollmentController extends Controller
         return view('admission.show', compact('application'));
     }
     
-    // --- UPDATED PROCESS FUNCTION ---
+    // --- UPDATED PROCESS FUNCTION (Handles Status, Remarks, and Document Feedback) ---
     public function process(Request $request, $id): RedirectResponse {
         $application = Applicant::findOrFail($id); // ✅ FIXED
         
         $validated = $request->validate([
             'status' => 'required|string', 
-            'assessment_score' => 'nullable|string', 
-            'rejection_reason' => 'nullable|string'
+            'assessment_score' => 'nullable|string', // General Remarks
+            'rejection_reason' => 'nullable|string',
+            'document_remarks' => 'nullable|array'   // ✨ NEW: Document-specific feedback
         ]);
 
         // Logic para sa rejection reason
@@ -97,9 +98,11 @@ class EnrollmentController extends Controller
         // FIX: I-save ang current date/time sa 'date_checked'
         $validated['date_checked'] = now(); 
 
+        // Update ang record. Dahil sa $casts sa Model, ang 'document_remarks' 
+        // ay automatic na magiging JSON string sa database.
         $application->update($validated);
         
-        return back()->with('success', "Status updated successfully.");
+        return back()->with('success', "Application status and remarks updated successfully.");
     }
 
     // --- REPLACED PDF GENERATION WITH PRINT VIEW ---

@@ -38,14 +38,14 @@ class Applicant extends Model
         'school_type',
         'grade_level_applied',
         'sport',
-        'sport_specification', // Added based on your form
+        'sport_specification',
         
         // Achievements
         'has_palaro_participation',
-        'palaro_year',
+        'palaro_year', // Pwede itong manatili kahit di ginagamit sa form, basta nasa DB
         'batang_pinoy_finisher',
 
-        // Background & Special Categories (CHECKBOXES / RADIOS)
+        // Background & Special Categories
         'learn_about_nas',
         'referrer_name',
         'attended_campaign',
@@ -64,14 +64,24 @@ class Applicant extends Model
         // System Fields
         'uploaded_files',
         'status',
-        'assessment_score',
+        'assessment_score', // Remarks (Text)
         'rejection_reason',
+        
+        // ✨ NEW FIELDS (Idinagdag para sa Admin Process)
+        'document_remarks', 
+        'date_checked',
     ];
 
     protected $casts = [
+        // Arrays (JSON Columns)
         'uploaded_files' => 'array',
+        'document_remarks' => 'array', // ✨ Mahalaga ito para sa document feedback
+        
+        // Dates
         'date_of_birth' => 'date',
-        // Boolean casting para automatic na 1 or 0 sa database
+        'date_checked' => 'datetime',
+        
+        // Booleans (Automatic 1 or 0 conversion)
         'has_palaro_participation' => 'boolean',
         'is_ip' => 'boolean',
         'is_pwd' => 'boolean',
