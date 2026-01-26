@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EnrollmentApplication;
+use App\Models\Applicant; // ✅ FIXED: Changed from EnrollmentApplication to Applicant
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -13,7 +13,7 @@ class EnrollmentController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = EnrollmentApplication::query();
+        $query = Applicant::query(); // ✅ FIXED
 
         // 1. Search Logic
         if ($request->has('search') && $request->search != '') {
@@ -50,13 +50,13 @@ class EnrollmentController extends Controller
         // --- STATS LOGIC (ITO ANG NAGBIBILANG) ---
         
         // 1. TOTAL SUBMITTED: Lahat ng record sa database (Walang filter)
-        $totalSubmitted = EnrollmentApplication::count(); 
+        $totalSubmitted = Applicant::count(); // ✅ FIXED
         
         // 2. Breakdown per Status
-        $countPending    = EnrollmentApplication::whereIn('status', ['Pending', 'pending', 'For Assessment'])->count();
-        $countQualified  = EnrollmentApplication::whereIn('status', ['Qualified', 'qualified'])->count();
-        $countWaitlisted = EnrollmentApplication::whereIn('status', ['Waitlisted', 'waitlisted'])->count();
-        $countRejected   = EnrollmentApplication::whereIn('status', ['Not Qualified', 'not qualified', 'Rejected', 'Failed'])->count();
+        $countPending    = Applicant::whereIn('status', ['Pending', 'pending', 'For Assessment'])->count(); // ✅ FIXED
+        $countQualified  = Applicant::whereIn('status', ['Qualified', 'qualified'])->count(); // ✅ FIXED
+        $countWaitlisted = Applicant::whereIn('status', ['Waitlisted', 'waitlisted'])->count(); // ✅ FIXED
+        $countRejected   = Applicant::whereIn('status', ['Not Qualified', 'not qualified', 'Rejected', 'Failed'])->count(); // ✅ FIXED
         // ----------------------------------------
 
         // 3. Table Data (Pagination)
@@ -73,7 +73,7 @@ class EnrollmentController extends Controller
     }
 
     public function show($id): View {
-        $application = EnrollmentApplication::findOrFail($id);
+        $application = Applicant::findOrFail($id); // ✅ FIXED
         // Update timestamp if created matches updated (fresh record)
         if ($application->created_at == $application->updated_at) $application->touch(); 
         return view('admission.show', compact('application'));
@@ -81,7 +81,7 @@ class EnrollmentController extends Controller
     
     // --- UPDATED PROCESS FUNCTION ---
     public function process(Request $request, $id): RedirectResponse {
-        $application = EnrollmentApplication::findOrFail($id);
+        $application = Applicant::findOrFail($id); // ✅ FIXED
         
         $validated = $request->validate([
             'status' => 'required|string', 
@@ -104,7 +104,7 @@ class EnrollmentController extends Controller
 
     // --- REPLACED PDF GENERATION WITH PRINT VIEW ---
     public function generatePdf($id) {
-        $application = EnrollmentApplication::findOrFail($id);
+        $application = Applicant::findOrFail($id); // ✅ FIXED
         
         // Instead of using DomPDF which requires GD extension, we return a blade view
         // designed for printing. This shifts the rendering to the client's browser.
