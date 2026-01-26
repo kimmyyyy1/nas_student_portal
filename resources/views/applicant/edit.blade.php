@@ -29,7 +29,6 @@
                     <div class="mb-8 sm:mb-10 bg-indigo-50 p-6 sm:p-8 rounded-xl border border-indigo-100 flex flex-col md:flex-row items-center gap-6 sm:gap-8">
                         <div class="flex-shrink-0 text-center">
                             <div style="width: 150px; height: 150px; sm:width: 200px; sm:height: 200px;" class="w-40 h-40 sm:w-52 sm:h-52 bg-white border-4 border-dashed border-indigo-300 flex items-center justify-center text-indigo-400 rounded-lg overflow-hidden relative shadow-sm mx-auto">
-                                
                                 @if(isset($application->uploaded_files['id_picture']))
                                     <img src="{{ $application->uploaded_files['id_picture'] }}" class="absolute inset-0 w-full h-full object-cover z-10" id="current-preview">
                                 @else
@@ -37,7 +36,6 @@
                                         <span class="text-xs text-center px-2 font-bold uppercase tracking-wider">2x2 Photo<br>Preview</span>
                                     </div>
                                 @endif
-                                
                                 <img id="preview" class="absolute inset-0 w-full h-full object-cover hidden z-20 bg-white">
                             </div>
                             @if(isset($application->uploaded_files['id_picture']))
@@ -84,22 +82,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Birthday *</label>
-                                <input type="date" 
-                                       id="date_of_birth" 
-                                       name="date_of_birth" 
-                                       class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" 
-                                       required 
-                                       x-model="dob"
-                                       @change="calculateAge()">
+                                <input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required x-model="dob" @change="calculateAge()">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Age</label>
-                                <input type="number" 
-                                       id="age" 
-                                       name="age" 
-                                       class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" 
-                                       readonly 
-                                       x-model="age">
+                                <input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold" readonly x-model="age">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sex *</label>
@@ -131,7 +118,7 @@
                                 <select name="region" x-model="selectedRegion" @change="updateProvinces()" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required>
                                     <option value="">Select Region</option>
                                     <template x-for="(provinces, region) in regionsData" :key="region">
-                                        <option :value="region" x-text="region"></option>
+                                        <option :value="region" x-text="region" :selected="region == selectedRegion"></option>
                                     </template>
                                 </select>
                             </div>
@@ -142,7 +129,7 @@
                                 <select name="province" x-model="selectedProvince" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required :disabled="!selectedRegion">
                                     <option value="">Select Province</option>
                                     <template x-for="province in availableProvinces" :key="province">
-                                        <option :value="province" x-text="province"></option>
+                                        <option :value="province" x-text="province" :selected="province == selectedProvince"></option>
                                     </template>
                                 </select>
                             </div>
@@ -226,27 +213,26 @@
 
                         {{-- Achievements --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {{-- PALARONG PAMBANSA --}}
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Palarong Pambansa Podium Finisher?</label>
                                 <div class="flex space-x-4">
                                     <label class="flex items-center space-x-2">
-                                        <input type="radio" name="palaro_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" x-model="hasPalaro">
+                                        <input type="radio" name="palaro_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" 
+                                        {{ old('palaro_finisher', $application->has_palaro_participation ? 'Yes' : 'No') == 'Yes' ? 'checked' : '' }}>
                                         <span class="text-sm font-medium text-gray-700">Yes</span>
                                     </label>
                                     <label class="flex items-center space-x-2">
-                                        <input type="radio" name="palaro_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" x-model="hasPalaro">
+                                        <input type="radio" name="palaro_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4"
+                                        {{ old('palaro_finisher', $application->has_palaro_participation ? 'Yes' : 'No') == 'No' ? 'checked' : '' }}>
                                         <span class="text-sm font-medium text-gray-700">No</span>
                                     </label>
-                                </div>
-                                <div class="mt-3" x-show="hasPalaro === 'Yes'">
-                                    <input type="text" name="palaro_year" placeholder="Year Participated" x-model="palaroYear" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
 
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Batang Pinoy Podium Finisher?</label>
                                 <div class="flex space-x-4">
-                                    {{-- Use standard PHP conditional for checked attribute here since it's simple --}}
                                     <label class="flex items-center space-x-2">
                                         <input type="radio" name="batang_pinoy_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" {{ $application->batang_pinoy_finisher == 'Yes' ? 'checked' : '' }}>
                                         <span class="text-sm font-medium text-gray-700">Yes</span>
@@ -260,7 +246,7 @@
                         </div>
                     </div>
 
-                    {{-- 4. ADDITIONAL INFORMATION --}}
+                    {{-- 4. BACKGROUND INFORMATION --}}
                     <div class="mb-8 sm:mb-10">
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">4</span> Background Information</h3>
                         
@@ -306,7 +292,8 @@
                                     <label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="No" class="mr-2 text-indigo-600"> No</label>
                                 </div>
                                 <div x-show="isIP === 'Yes'">
-                                    <input type="text" name="ip_group_name" x-model="ipGroup" placeholder="If yes, specify IP Group" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                    {{-- ADDED REQUIRED ATTRIBUTE IF YES --}}
+                                    <input type="text" name="ip_group_name" x-model="ipGroup" :required="isIP === 'Yes'" placeholder="If yes, specify IP Group" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
 
@@ -318,7 +305,8 @@
                                     <label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="No" class="mr-2 text-indigo-600"> No</label>
                                 </div>
                                 <div x-show="isPWD === 'Yes'">
-                                    <input type="text" name="pwd_disability" x-model="pwdType" placeholder="If yes, specify disability" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
+                                    {{-- ADDED REQUIRED ATTRIBUTE IF YES --}}
+                                    <input type="text" name="pwd_disability" x-model="pwdType" :required="isPWD === 'Yes'" placeholder="If yes, specify disability" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
 
@@ -341,7 +329,18 @@
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Relationship *</label><input type="text" name="guardian_relationship" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_relationship', $application->guardian_relationship) }}"></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Contact Number *</label><input type="text" name="guardian_contact" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_contact', $application->guardian_contact) }}"></div>
+                            {{-- CONTACT NUMBER UPDATED (Max Length & Numeric Only) --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Contact Number *</label>
+                                <input type="text" 
+                                       name="guardian_contact" 
+                                       class="w-full rounded-lg border-gray-300 h-11" 
+                                       required 
+                                       value="{{ old('guardian_contact', $application->guardian_contact) }}" 
+                                       maxlength="11" 
+                                       placeholder="09XXXXXXXXX"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)">
+                            </div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="guardian_email" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('guardian_email', $application->guardian_email) }}"></div>
                         </div>
                     </div>
@@ -354,7 +353,6 @@
                         </p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                            {{-- 👇 UPDATED LABELS HERE --}}
                             @foreach([
                                 'scholarship_form'  => 'Scholarship Application Form',
                                 'student_profile'   => 'Student-Athlete’s Profile Form',
@@ -402,8 +400,7 @@
                 showPrivacyModal: false,
                 isSubmitting: false,
                 
-                // Initialize variables with existing data from server using properly formatted JSON
-                // Using ternary operators to convert boolean/tinyint to "Yes"/"No" strings for radio buttons
+                // Initialize variables with existing data
                 dob: @json(old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d'))),
                 age: @json(old('age', $application->age)),
                 selectedSport: @json(old('sport', $application->sport)),
@@ -411,20 +408,11 @@
                 referralSource: @json(old('learn_about_nas', $application->learn_about_nas)), 
                 referrerName: @json(old('referrer_name', $application->referrer_name)),
                 
-                // Convert boolean to "Yes" or "No" string
                 isIP: @json(old('is_ip', $application->is_ip ? "Yes" : "No")),
-                
                 ipGroup: @json(old('ip_group_name', $application->ip_group_name)),
                 
-                // Convert boolean to "Yes" or "No" string
                 isPWD: @json(old('is_pwd', $application->is_pwd ? "Yes" : "No")),
-                
                 pwdType: @json(old('pwd_disability', $application->pwd_disability)),
-                
-                // Convert boolean to "Yes" or "No" string for Palaro
-                hasPalaro: @json(old('palaro_finisher', $application->has_palaro_participation ? "Yes" : "No")),
-                
-                palaroYear: @json(old('palaro_year', $application->palaro_year)),
                 
                 // Region & Province Data
                 selectedRegion: @json(old('region', $application->region)),
@@ -453,8 +441,8 @@
 
                 init() {
                     // Populate provinces on load based on saved region
-                    if (this.selectedRegion) {
-                        this.availableProvinces = this.regionsData[this.selectedRegion] || [];
+                    if (this.selectedRegion && this.regionsData[this.selectedRegion]) {
+                        this.availableProvinces = this.regionsData[this.selectedRegion];
                     }
                     
                     // Re-calculate age if dob exists but age is empty
@@ -465,7 +453,7 @@
 
                 updateProvinces() {
                     this.availableProvinces = this.regionsData[this.selectedRegion] || [];
-                    this.selectedProvince = ''; // Reset province selection
+                    this.selectedProvince = ''; // Reset province selection ONLY when changing region
                 },
 
                 calculateAge() {

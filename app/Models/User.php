@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne; // Import HasOne
 
 class User extends Authenticatable
 {
@@ -55,5 +56,14 @@ class User extends Authenticatable
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
+    }
+
+    /**
+     * Relasyon: Ang User ay may isang Applicant Form.
+     * ITO ANG KULANG KANINA!
+     */
+    public function applicant(): HasOne
+    {
+        return $this->hasOne(Applicant::class);
     }
 }

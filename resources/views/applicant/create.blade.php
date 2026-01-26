@@ -126,15 +126,14 @@
                             <div x-show="selectedSport === 'Gymnastics'" class="mt-2"><label class="block text-xs font-bold text-gray-600 mb-1">Category:</label><select name="sport_specification" class="w-full rounded-md border-gray-300 h-10 text-sm"><option value="Artistic">Artistic</option><option value="Rhythmic">Rhythmic</option></select></div>
                         </div>
 
-                        {{-- Achievements --}}
+                        {{-- Achievements (UPDATED: Wala na yung Year Input) --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Palarong Pambansa Podium Finisher?</label>
                                 <div class="flex space-x-4">
-                                    <label class="flex items-center space-x-2"><input type="radio" name="palaro_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" x-model="hasPalaro"><span class="text-sm font-medium text-gray-700">Yes</span></label>
-                                    <label class="flex items-center space-x-2"><input type="radio" name="palaro_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" x-model="hasPalaro"><span class="text-sm font-medium text-gray-700">No</span></label>
+                                    <label class="flex items-center space-x-2"><input type="radio" name="palaro_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4"><span class="text-sm font-medium text-gray-700">Yes</span></label>
+                                    <label class="flex items-center space-x-2"><input type="radio" name="palaro_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" checked><span class="text-sm font-medium text-gray-700">No</span></label>
                                 </div>
-                                <div class="mt-3" x-show="hasPalaro === 'Yes'"><input type="text" name="palaro_year" placeholder="Year Participated" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm"></div>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Batang Pinoy Podium Finisher?</label>
@@ -177,12 +176,16 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Member of Indigenous Group?</label>
                                 <div class="flex space-x-4 mb-2"><label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="Yes" class="mr-2 text-indigo-600"> Yes</label><label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="No" class="mr-2 text-indigo-600"> No</label></div>
-                                <div x-show="isIP === 'Yes'"><input type="text" name="ip_group_name" placeholder="If yes, specify IP Group" class="w-full rounded-md border-gray-300 h-10 text-sm"></div>
+                                
+                                {{-- REQUIRED VALIDATION --}}
+                                <div x-show="isIP === 'Yes'"><input type="text" name="ip_group_name" placeholder="If yes, specify IP Group" class="w-full rounded-md border-gray-300 h-10 text-sm" :required="isIP === 'Yes'"></div>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Person with Disability?</label>
                                 <div class="flex space-x-4 mb-2"><label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="Yes" class="mr-2 text-indigo-600"> Yes</label><label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="No" class="mr-2 text-indigo-600"> No</label></div>
-                                <div x-show="isPWD === 'Yes'"><input type="text" name="pwd_disability" placeholder="If yes, specify disability" class="w-full rounded-md border-gray-300 h-10 text-sm"></div>
+                                
+                                {{-- REQUIRED VALIDATION --}}
+                                <div x-show="isPWD === 'Yes'"><input type="text" name="pwd_disability" placeholder="If yes, specify disability" class="w-full rounded-md border-gray-300 h-10 text-sm" :required="isPWD === 'Yes'"></div>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Beneficiary of 4Ps?</label>
@@ -199,25 +202,36 @@
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Relationship *</label><input type="text" name="guardian_relationship" class="w-full rounded-lg border-gray-300 h-11" required value="{{ old('guardian_relationship') }}"></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Contact Number *</label><input type="text" name="guardian_contact" class="w-full rounded-lg border-gray-300 h-11" required value="{{ old('guardian_contact') }}"></div>
+                            {{-- CONTACT NUMBER UPDATED (Max Length & Numeric Only) --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Contact Number *</label>
+                                <input type="text" 
+                                       name="guardian_contact" 
+                                       class="w-full rounded-lg border-gray-300 h-11" 
+                                       required 
+                                       value="{{ old('guardian_contact') }}" 
+                                       maxlength="11" 
+                                       placeholder="09XXXXXXXXX"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)">
+                            </div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="guardian_email" class="w-full rounded-lg border-gray-300 h-11" value="{{ old('guardian_email') }}"></div>
                         </div>
                     </div>
 
-                    {{-- 6. REQUIREMENTS --}}
+                    {{-- 6. REQUIREMENTS (RESTORED TO CARD/GRID LAYOUT) --}}
                     <div class="mb-8">
                         <h3 class="text-lg font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs mr-2">6</span> Requirements Upload</h3>
                         <p class="text-xs text-gray-600 mb-6 italic bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">Please upload clear copies (PDF, JPG, PNG). Max 5MB per file.</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             @foreach([
-                                'scholarship_form' => 'Scholarship Application Form', 
-                                'student_profile' => 'Student-Athlete’s Profile Form', 
-                                'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
-                                'coach_reco' => 'Coach’s Recommendation Form with Coach’s valid Government-Issued ID with signature', 
-                                'adviser_reco' => 'Adviser’s Recommendation Form with Adviser’s valid Government-Issued ID with signature', 
-                                'birth_cert' => 'PSA Birth Certificate', 
-                                'report_card' => 'Grade 5 and 6 Report Card (for incoming Grade 7) or Grade 6 and 7 Report Card (for incoming Grade 8)', 
-                                'guardian_id' => 'Designated Guardian’s valid Government-Issued ID with signature'
+                                'scholarship_form'  => 'Scholarship Application Form', 
+                                'student_profile'   => 'Student-Athlete’s Profile Form', 
+                                'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form', 
+                                'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature', 
+                                'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature', 
+                                'birth_cert'        => 'PSA Birth Certificate', 
+                                'report_card'       => 'Report Card (SF9)', 
+                                'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
                             ] as $key => $label)
                                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
                                     <label class="text-sm font-bold text-gray-800 mb-3 block uppercase tracking-wide">{{ $label }} <span class="text-red-600">*</span></label>
@@ -275,7 +289,7 @@
                 referralSource: '',
                 isIP: 'No',
                 isPWD: 'No',
-                hasPalaro: 'No',
+                // TANGGAL NA ANG 'hasPalaro' DITO
                 selectedRegion: '',
                 selectedProvince: '',
                 availableProvinces: [],
