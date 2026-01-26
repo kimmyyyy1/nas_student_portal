@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Student;
-use App\Models\EnrollmentApplication;
+use App\Models\Applicant; // ✅ FIXED: Changed from EnrollmentApplication
 use App\Models\Section;
 use App\Models\Team;
 use App\Models\User;
@@ -34,7 +34,7 @@ class DashboardController extends Controller
         // =========================================================
         if ($user->role === 'teacher') {
             
-            // Hanapin ang staff record gamit ang email
+            // Find staff record using email
             $staff = Staff::where('email', $user->email)->first();
 
             $advisorySection = null;
@@ -43,14 +43,14 @@ class DashboardController extends Controller
             $staffError = null;
 
             if ($staff) {
-                // Check kung may advisory section
+                // Check if has advisory section
                 $advisorySection = Section::where('adviser_id', $staff->id)->first();
 
                 if ($advisorySection) {
                     $advisoryCount = Student::where('section_id', $advisorySection->id)->count();
                 }
 
-                // Kunin ang schedule ng teacher
+                // Get teacher schedule
                 $mySchedules = Schedule::with(['subject', 'section'])
                                 ->where('staff_id', $staff->id)
                                 ->orderBy('day')
@@ -74,7 +74,9 @@ class DashboardController extends Controller
         
         // Initial Data for Blade View (Page Load)
         $totalStudents = Student::count(); 
-        $totalApplicants = EnrollmentApplication::where('status', 'Pending')->count();
+        
+        // ✅ FIXED: Use Applicant model instead of EnrollmentApplication
+        $totalApplicants = Applicant::where('status', 'Pending')->count();
         
         $activeSections = Section::count(); 
         $sportsTeams = Team::count();       
@@ -132,4 +134,4 @@ class DashboardController extends Controller
             'upcomingPlans' => 0, // Update this if you have an Events model
         ]);
     }
-}   
+}
