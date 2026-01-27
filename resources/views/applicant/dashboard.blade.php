@@ -84,9 +84,10 @@
                 </div>
             </div>
 
+            {{-- MAIN LAYOUT GRID --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
                 
-                {{-- LEFT COLUMN: PROFILE CARD & BACKGROUND INFO --}}
+                {{-- LEFT COLUMN: PROFILE CARD --}}
                 <div class="lg:col-span-1 space-y-6 sm:space-y-8">
                     
                     {{-- 1. PROFILE CARD --}}
@@ -118,7 +119,7 @@
                         </div>
                     </div>
 
-                    {{-- 2. BACKGROUND & SPECIAL CATEGORIES --}}
+                    {{-- 2. BACKGROUND & SPECIAL CATEGORIES (MOVED HERE) --}}
                     <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
                         <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center"><h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center"><svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Background</h3></div>
                         <div class="p-6">
@@ -183,12 +184,24 @@
                         </div>
                     </div>
 
-                    {{-- 4. SUBMITTED FILES (UPDATED: REMOVED UPDATE BUTTON) --}}
+                    {{-- 4. SUBMITTED FILES (WITH UPDATE LOGIC) --}}
                     @php
-                        $reqKeys = ['scholarship_form', 'student_profile', 'medical_clearance', 'coach_reco', 'adviser_reco', 'birth_cert', 'report_card', 'guardian_id'];
+                        $reqKeys = [
+                            // 👇 ADDED ID PICTURE TO THE LIST
+                            'id_picture' => '2x2 ID Picture', 
+                            'scholarship_form' => 'Scholarship Application Form',
+                            'student_profile' => 'Student-Athlete’s Profile Form',
+                            'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
+                            'coach_reco' => 'Coach’s Recommendation Form',
+                            'adviser_reco' => 'Adviser’s Recommendation Form',
+                            'birth_cert' => 'PSA Birth Certificate',
+                            'report_card' => 'Report Card (SF9)',
+                            'guardian_id' => 'Guardian’s Valid ID'
+                        ];
+                        
                         $uploadedCount = 0;
                         if(isset($application->uploaded_files)) {
-                            foreach($reqKeys as $key) {
+                            foreach($reqKeys as $key => $label) {
                                 if(isset($application->uploaded_files[$key]) && !empty($application->uploaded_files[$key])) {
                                     $uploadedCount++;
                                 }
@@ -196,7 +209,7 @@
                         }
                         $reqStatus = ($uploadedCount == count($reqKeys)) ? 'Complete' : 'Incomplete';
                         $reqColor = ($reqStatus == 'Complete') ? 'bg-green-100 text-green-700 border-green-200' : 'bg-orange-100 text-orange-700 border-orange-200';
-                        $remarks = $application->document_remarks ?? []; // Retrieve remarks
+                        $remarks = $application->document_remarks ?? []; 
                     @endphp
 
                     <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
@@ -221,58 +234,49 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
-                                    @php
-                                        // Unified naming consistent with Edit form
-                                        $summaryDisplayName = [
-                                            'scholarship_form' => 'Scholarship Application Form',
-                                            'student_profile' => 'Student-Athlete’s Profile Form',
-                                            'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
-                                            'coach_reco' => 'Coach’s Recommendation Form',
-                                            'adviser_reco' => 'Adviser’s Recommendation Form',
-                                            'birth_cert' => 'PSA Birth Certificate',
-                                            'report_card' => 'Report Card (SF9)',
-                                            'guardian_id' => 'Guardian’s Valid ID'
-                                        ];
-                                    @endphp
-                                    @if(isset($application->uploaded_files))
-                                        @foreach($application->uploaded_files as $key => $path)
-                                            @if($key !== 'id_picture') {{-- Skip ID picture in this table --}}
-                                                @php $hasRemark = isset($remarks[$key]) && !empty($remarks[$key]); @endphp
-                                                <tr class="hover:bg-gray-50 transition {{ $hasRemark ? 'bg-red-50' : '' }}">
-                                                    <td class="px-6 py-4 text-xs sm:text-sm font-medium text-gray-900">{{ $summaryDisplayName[$key] ?? ucfirst(str_replace('_', ' ', $key)) }}</td>
-                                                    
-                                                    <td class="px-6 py-4 text-center">
-                                                        @if($hasRemark)
-                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 animate-pulse">⚠ NEEDS UPDATE</span>
-                                                        @else
-                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>SUBMITTED</span>
-                                                        @endif
-                                                    </td>
-                                                    
-                                                    <td class="px-6 py-4 text-center flex flex-col gap-1 items-center justify-center">
-                                                        @if(Str::endsWith(strtolower($path), '.pdf'))
-                                                            <a href="https://docs.google.com/viewer?url={{ urlencode($path) }}&embedded=true" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>View PDF</a>
-                                                        @else
-                                                            <a href="{{ $path }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>View Image</a>
-                                                        @endif
-                                                    </td>
+                                    @foreach($reqKeys as $key => $label)
+                                        @php
+                                            $path = $application->uploaded_files[$key] ?? null;
+                                            $hasRemark = isset($remarks[$key]) && !empty($remarks[$key]);
+                                            $isUploaded = !empty($path);
+                                        @endphp
+                                        <tr class="hover:bg-gray-50 transition {{ $hasRemark ? 'bg-red-50' : '' }}">
+                                            <td class="px-6 py-4 text-xs sm:text-sm font-medium text-gray-900">{{ $label }}</td>
+                                            
+                                            <td class="px-6 py-4 text-center">
+                                                @if($hasRemark)
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 animate-pulse">⚠ NEEDS UPDATE</span>
+                                                @elseif($isUploaded)
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>SUBMITTED</span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600">MISSING</span>
+                                                @endif
+                                            </td>
+                                            
+                                            <td class="px-6 py-4 text-center flex flex-col gap-1 items-center justify-center">
+                                                @if($isUploaded)
+                                                    @if(Str::endsWith(strtolower($path), '.pdf'))
+                                                        <a href="https://docs.google.com/viewer?url={{ urlencode($path) }}&embedded=true" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>View PDF</a>
+                                                    @else
+                                                        <a href="{{ $path }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>View Image</a>
+                                                    @endif
+                                                @else
+                                                    <span class="text-gray-400">-</span>
+                                                @endif
+                                            </td>
 
-                                                    <td class="px-6 py-4 text-xs">
-                                                        @if($hasRemark)
-                                                            <div class="text-red-700 font-bold flex items-start mb-1">
-                                                                <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                                                {{ $remarks[$key] }}
-                                                            </div>
-                                                        @else
-                                                            <span class="text-gray-400 italic text-[10px]">Good</span>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
-                                    @else
-                                        <tr><td colspan="4" class="px-6 py-4 text-center text-gray-500 italic text-xs sm:text-sm">No files uploaded yet.</td></tr>
-                                    @endif
+                                            <td class="px-6 py-4 text-xs">
+                                                @if($hasRemark)
+                                                    <div class="text-red-700 font-bold flex items-start mb-1">
+                                                        <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                        {{ $remarks[$key] }}
+                                                    </div>
+                                                @else
+                                                    <span class="text-gray-400 italic text-[10px]">Good</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -301,7 +305,15 @@
                                         @php
                                             $isUploaded = isset($uploaded[$field]) && !empty($uploaded[$field]);
                                             if (!$isUploaded) { $allFilesUploaded = false; }
-                                            $label = $summaryDisplayName[$field] ?? strtoupper(str_replace('_', ' ', $field));
+                                            // Make label nice
+                                            $niceLabels = [
+                                                'sf10' => 'Report Card (SF10)',
+                                                'good_moral' => 'Good Moral Certificate',
+                                                'psa_birth_cert' => 'PSA Birth Certificate',
+                                                'medical_cert' => 'Medical Certificate',
+                                                'coach_reco' => 'Coach Recommendation'
+                                            ];
+                                            $label = $niceLabels[$field] ?? strtoupper(str_replace('_', ' ', $field));
                                             $currentPath = $uploaded[$field] ?? null;
                                         @endphp
                                         <div class="border-2 rounded-lg p-4 transition-all {{ $isUploaded ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-300 shadow-md' }}">

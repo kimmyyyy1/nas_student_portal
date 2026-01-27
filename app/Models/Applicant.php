@@ -42,7 +42,7 @@ class Applicant extends Model
         
         // Achievements
         'has_palaro_participation',
-        'palaro_year', // Pwede itong manatili kahit di ginagamit sa form, basta nasa DB
+        'palaro_year', 
         'batang_pinoy_finisher',
 
         // Background & Special Categories
@@ -67,15 +67,17 @@ class Applicant extends Model
         'assessment_score', // Remarks (Text)
         'rejection_reason',
         
-        // ✨ NEW FIELDS (Idinagdag para sa Admin Process)
+        // ✨ NEW FIELDS (Idinagdag para sa Admin Process & File Updates)
         'document_remarks', 
         'date_checked',
+        'file_timestamps', // <--- IDAGDAG ITO para sa individual file tracking
     ];
 
     protected $casts = [
         // Arrays (JSON Columns)
         'uploaded_files' => 'array',
-        'document_remarks' => 'array', // ✨ Mahalaga ito para sa document feedback
+        'document_remarks' => 'array', 
+        'file_timestamps' => 'array', // <--- IDAGDAG ITO (JSON to Array)
         
         // Dates
         'date_of_birth' => 'date',

@@ -27,6 +27,7 @@
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .check-box { border: 1px solid #000 !important; }
             .admin-input { display: none !important; }
+            .pencil-icon { display: none !important; }
         }
     </style>
 
@@ -58,10 +59,24 @@
                         </div>
                         
                         <div class="flex flex-col md:flex-row gap-6">
-                            {{-- ID Picture --}}
-                            <div class="w-40 h-40 bg-gray-100 border border-gray-400 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                            {{-- ID Picture Preview (Top Section) --}}
+                            <div class="w-40 h-40 bg-gray-100 border border-gray-400 flex-shrink-0 flex items-center justify-center overflow-hidden relative group">
                                 @if(isset($application->uploaded_files['id_picture']))
                                     <img src="{{ $application->uploaded_files['id_picture'] }}" class="w-full h-full object-cover">
+                                    
+                                    {{-- CHECK SPECIFIC TIMESTAMP FOR ID PICTURE (Top Badge) --}}
+                                    @php
+                                        $fileTimestamps = $application->file_timestamps ?? [];
+                                        $idPicTime = isset($fileTimestamps['id_picture']) ? \Carbon\Carbon::parse($fileTimestamps['id_picture']) : null;
+                                        $lastCheck = $application->date_checked;
+                                        $isIdUpdated = $idPicTime && $lastCheck && $idPicTime->gt($lastCheck);
+                                    @endphp
+
+                                    @if($isIdUpdated)
+                                        <div class="absolute bottom-0 left-0 w-full bg-blue-600 text-white text-[10px] text-center py-1 font-bold no-print">
+                                            UPDATED
+                                        </div>
+                                    @endif
                                 @else
                                     <span class="text-gray-400 text-xs font-bold">2x2 PHOTO</span>
                                 @endif
@@ -205,14 +220,19 @@
                                         <th class="px-4 py-3 font-bold w-1/3">Document Name</th>
                                         <th class="px-4 py-3 font-bold text-center">Status</th>
                                         <th class="px-4 py-3 font-bold text-center">View</th>
-                                        <th class="px-4 py-3 font-bold w-1/3 no-print">Admin Remarks (For Applicant)</th>
+                                        <th class="px-4 py-3 font-bold w-1/3 no-print">Admin Remarks (Editable)</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 text-xs">
                                     @php
                                         $files = $application->uploaded_files ?? [];
                                         $remarks = $application->document_remarks ?? []; 
+                                        $fileTimestamps = $application->file_timestamps ?? [];
+                                        $lastAdminCheck = $application->date_checked;
+                                        
                                         $docs = [
+                                            // 👇 Added ID Picture here so you can add remarks/check status
+                                            'id_picture' => '2x2 ID Picture', 
                                             'scholarship_form' => 'Scholarship Application Form',
                                             'student_profile' => 'Student-Athlete Profile Form',
                                             'medical_clearance' => 'Medical/Physical Clearance',
@@ -225,20 +245,32 @@
                                     @endphp
 
                                     @foreach($docs as $key => $label)
-                                        @php
-                                            $isUploaded = isset($files[$key]) && !empty($files[$key]);
-                                            $hasRemark = isset($remarks[$key]) && !empty($remarks[$key]);
-                                        @endphp
-                                        <tr class="hover:bg-gray-50 transition {{ $hasRemark ? 'bg-red-50' : ($isUploaded ? 'bg-green-50' : '') }}">
+                                        <tr class="hover:bg-gray-50 transition">
                                             <td class="px-4 py-3 font-bold text-gray-900">
                                                 {{ $label }}
                                             </td>
                                             <td class="px-4 py-3 text-center">
+                                                @php
+                                                    $isUploaded = isset($files[$key]) && !empty($files[$key]);
+                                                    $fileUpdatedTime = isset($fileTimestamps[$key]) ? \Carbon\Carbon::parse($fileTimestamps[$key]) : null;
+                                                    
+                                                    // Modified Logic: Specific file timestamp > Last admin check date
+                                                    $isModified = $isUploaded && $fileUpdatedTime && $lastAdminCheck && $fileUpdatedTime->gt($lastAdminCheck);
+                                                @endphp
+
                                                 @if($isUploaded)
-                                                    {{-- Logic: If NO remark + Uploaded = UPDATED/SUBMITTED --}}
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">
-                                                        UPLOADED
-                                                    </span>
+                                                    @if($isModified) 
+                                                        <div class="flex flex-col items-center">
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200 shadow-sm animate-pulse">
+                                                                UPDATED
+                                                            </span>
+                                                            <span class="text-[9px] text-gray-500 mt-1 font-mono">{{ $fileUpdatedTime->format('M d, h:i A') }}</span>
+                                                        </div>
+                                                    @else
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">
+                                                            UPLOADED
+                                                        </span>
+                                                    @endif
                                                 @else
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">
                                                         MISSING
@@ -246,19 +278,24 @@
                                                 @endif
                                             </td>
                                             <td class="px-4 py-3 text-center">
-                                                @if($isUploaded)
+                                                @if(isset($files[$key]) && !empty($files[$key]))
                                                     <a href="{{ $files[$key] }}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold underline no-print">VIEW</a>
                                                 @else
                                                     <span class="text-gray-400">-</span>
                                                 @endif
                                             </td>
-                                            <td class="px-4 py-2 no-print">
-                                                <input type="text" 
-                                                       name="document_remarks[{{ $key }}]" 
-                                                       form="update-status-form" 
-                                                       value="{{ $remarks[$key] ?? '' }}"
-                                                       class="w-full border-gray-300 rounded text-xs px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500 admin-input" 
-                                                       placeholder="Add remark here...">
+                                            <td class="px-4 py-2 no-print relative group">
+                                                <div class="relative">
+                                                    <input type="text" 
+                                                           name="document_remarks[{{ $key }}]" 
+                                                           form="update-status-form" 
+                                                           value="{{ $remarks[$key] ?? '' }}"
+                                                           class="w-full border border-gray-300 rounded text-xs px-3 py-2 pr-8 focus:ring-indigo-500 focus:border-indigo-500 admin-input shadow-sm transition-colors group-hover:border-indigo-300" 
+                                                           placeholder="Type remarks here...">
+                                                    <svg class="w-4 h-4 text-gray-400 absolute right-2 top-2.5 pencil-icon pointer-events-none group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                                    </svg>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
