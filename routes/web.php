@@ -73,7 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 👇 AJAX ROUTES (For Live Dashboard Updates)
     Route::get('/recent-activity', [DashboardController::class, 'getRecentActivity'])->name('recent.activity');
-    Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats'); // NEW ROUTE ADDED
+    Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
 
     // --- USER PROFILE ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -90,6 +90,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/edit', [ApplicantPortalController::class, 'edit'])->name('edit');
         Route::patch('/edit', [ApplicantPortalController::class, 'update'])->name('update');
         Route::post('/submit-requirements', [ApplicantPortalController::class, 'submitRequirements'])->name('submit_requirements');
+        
+        // 👇 NEW ROUTE: Proxy View for Cloudinary Files (To keep Favicon/Domain)
+        // Usage: route('applicant.view_file', ['id' => $id, 'type' => $type])
+        Route::get('/view-file/{id}/{type}', [ApplicantPortalController::class, 'viewFile'])->name('view_file');
     });
 
     // ==========================================

@@ -119,7 +119,7 @@
                         </div>
                     </div>
 
-                    {{-- 2. BACKGROUND & SPECIAL CATEGORIES (MOVED HERE) --}}
+                    {{-- 2. BACKGROUND & SPECIAL CATEGORIES --}}
                     <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
                         <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center"><h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center"><svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Background</h3></div>
                         <div class="p-6">
@@ -184,10 +184,10 @@
                         </div>
                     </div>
 
-                    {{-- 4. SUBMITTED FILES (WITH UPDATE LOGIC) --}}
+                    {{-- 4. SUBMITTED FILES (UPDATED: WITH REMARKS & PROXY VIEW) --}}
                     @php
                         $reqKeys = [
-                            // 👇 ADDED ID PICTURE TO THE LIST
+                            // 👇 ADDED ID PICTURE HERE
                             'id_picture' => '2x2 ID Picture', 
                             'scholarship_form' => 'Scholarship Application Form',
                             'student_profile' => 'Student-Athlete’s Profile Form',
@@ -198,7 +198,7 @@
                             'report_card' => 'Report Card (SF9)',
                             'guardian_id' => 'Guardian’s Valid ID'
                         ];
-                        
+
                         $uploadedCount = 0;
                         if(isset($application->uploaded_files)) {
                             foreach($reqKeys as $key => $label) {
@@ -255,10 +255,21 @@
                                             
                                             <td class="px-6 py-4 text-center flex flex-col gap-1 items-center justify-center">
                                                 @if($isUploaded)
+                                                    {{-- Gumawa ng Local View Route --}}
+                                                    @php
+                                                        $viewUrl = route('applicant.view_file', ['id' => $application->id, 'type' => $key]);
+                                                    @endphp
+
                                                     @if(Str::endsWith(strtolower($path), '.pdf'))
-                                                        <a href="https://docs.google.com/viewer?url={{ urlencode($path) }}&embedded=true" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>View PDF</a>
+                                                        <a href="{{ $viewUrl }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center">
+                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                            View PDF
+                                                        </a>
                                                     @else
-                                                        <a href="{{ $path }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>View Image</a>
+                                                        <a href="{{ $viewUrl }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center">
+                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                            View Image
+                                                        </a>
                                                     @endif
                                                 @else
                                                     <span class="text-gray-400">-</span>
@@ -305,7 +316,6 @@
                                         @php
                                             $isUploaded = isset($uploaded[$field]) && !empty($uploaded[$field]);
                                             if (!$isUploaded) { $allFilesUploaded = false; }
-                                            // Make label nice
                                             $niceLabels = [
                                                 'sf10' => 'Report Card (SF10)',
                                                 'good_moral' => 'Good Moral Certificate',
@@ -324,7 +334,16 @@
                                             @if($isUploaded)
                                                 <div class="flex items-center justify-between bg-white p-3 rounded border border-green-200 shadow-sm">
                                                     <span class="text-[10px] sm:text-xs text-green-700 font-bold italic">File has been uploaded.</span>
-                                                    @if(Str::endsWith(strtolower($currentPath), '.pdf')) <a href="https://docs.google.com/viewer?url={{ urlencode($currentPath) }}&embedded=true" target="_blank" class="text-[10px] sm:text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">VIEW PDF</a> @else <a href="{{ $currentPath }}" target="_blank" class="text-[10px] sm:text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">VIEW</a> @endif
+                                                    
+                                                    @php
+                                                        $viewUrl = route('applicant.view_file', ['id' => $application->id, 'type' => $field]);
+                                                    @endphp
+
+                                                    @if(Str::endsWith(strtolower($currentPath), '.pdf')) 
+                                                        <a href="{{ $viewUrl }}" target="_blank" class="text-[10px] sm:text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">VIEW PDF</a> 
+                                                    @else 
+                                                        <a href="{{ $viewUrl }}" target="_blank" class="text-[10px] sm:text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">VIEW</a> 
+                                                    @endif
                                                 </div>
                                             @else
                                                 <div class="bg-white p-2 rounded border border-red-200"><p class="text-[10px] text-red-500 font-bold mb-1 uppercase tracking-wide">Select file to upload:</p><input type="file" name="{{ $field }}" required class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-red-100 file:text-red-700 hover:file:bg-red-200 cursor-pointer"></div>

@@ -10,11 +10,13 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http; // 👈 IMPORTANT: Para sa viewFile proxy
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
 
 class ApplicantPortalController extends Controller
 {
+    // --- CONSTRUCTOR: INITIALIZE CLOUDINARY ---
     public function __construct()
     {
         Configuration::instance([
@@ -48,12 +50,13 @@ class ApplicantPortalController extends Controller
     {
         $validated = $this->validateApplication($request);
         
-        // Map data using helper (timestamps are handled in helper for create)
+        // Map data using helper
         $data = $this->mapInputData($validated, $request);
         
         $data['user_id'] = Auth::id();
-        $data['status'] = 'Pending'; 
+        $data['status'] = 'Pending'; // Set initial status
 
+        // Create Record
         Applicant::create($data);
 
         return redirect()->route('applicant.dashboard')->with('success', 'Application submitted successfully!');
@@ -71,54 +74,63 @@ class ApplicantPortalController extends Controller
         return view('applicant.edit', compact('application', 'teams'));
     }
 
-    // --- UPDATED UPDATE METHOD ---
+    // --- UPDATED UPDATE METHOD (With Remarks Clearing & Timestamps) ---
     public function update(Request $request): RedirectResponse
     {
+        // 1. Get Application
         $application = Applicant::where('user_id', Auth::id())->firstOrFail();
         
+        // Check Lock Status
         if (in_array($application->status, ['Enrolled'])) {
             return redirect()->route('applicant.dashboard')->with('error', 'Application is locked.');
         }
 
+        // 2. Validate Inputs
         $validated = $this->validateApplication($request, true);
         
-        // 1. Map basic data
+        // 3. Prepare Data (Text Fields)
         $data = $this->mapInputData($validated, $request, $application);
 
-        // 2. Handle Remarks Clearing & Timestamp Updating
+        // 4. Handle Remarks Clearing & Timestamp Updating
         $remarks = $application->document_remarks ?? [];
         $fileTimestamps = $application->file_timestamps ?? []; // Get existing timestamps
         $hasNewUploads = false;
 
-        // Check ID Picture Upload
+        // A. Check ID Picture Upload
         if ($request->hasFile('id_picture')) {
+            // Clear Remark if exists
             if (isset($remarks['id_picture'])) {
                 unset($remarks['id_picture']); 
             }
-            $fileTimestamps['id_picture'] = now()->toDateTimeString(); // Set specific timestamp
+            // Update Timestamp for this specific file
+            $fileTimestamps['id_picture'] = now()->toDateTimeString(); 
             $hasNewUploads = true;
         }
 
-        // Check Document Uploads
+        // B. Check Document Uploads
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
+                // Clear Remark if exists
                 if (isset($remarks[$key])) {
                     unset($remarks[$key]); 
                 }
-                $fileTimestamps[$key] = now()->toDateTimeString(); // Set specific timestamp
+                // Update Timestamp for this specific file
+                $fileTimestamps[$key] = now()->toDateTimeString();
                 $hasNewUploads = true;
             }
         }
 
+        // Save updated arrays
         $data['document_remarks'] = $remarks;
-        $data['file_timestamps'] = $fileTimestamps; // Save to DB
+        $data['file_timestamps'] = $fileTimestamps; 
 
+        // 5. Execute Update
         $application->update($data);
 
         return redirect()->route('applicant.dashboard')->with('success', 'Application updated successfully!');
     }
 
-    // --- UPDATED SUBMIT REQUIREMENTS METHOD ---
+    // --- SUBMIT REQUIREMENTS (Dashboard) ---
     public function submitRequirements(Request $request): RedirectResponse
     {
         $application = Applicant::where('user_id', Auth::id())->first();
@@ -128,7 +140,7 @@ class ApplicantPortalController extends Controller
         }
 
         $currentFiles = $application->uploaded_files ?? [];
-        $fileTimestamps = $application->file_timestamps ?? []; // Get existing
+        $fileTimestamps = $application->file_timestamps ?? []; // Get existing timestamps
         $fields = ['sf10', 'good_moral', 'psa_birth_cert', 'medical_cert', 'coach_reco'];
         $hasChanges = false;
 
@@ -145,7 +157,10 @@ class ApplicantPortalController extends Controller
                     ]);
                     
                     $currentFiles[$field] = $upload['secure_url'];
-                    $fileTimestamps[$field] = now()->toDateTimeString(); // Update Timestamp
+                    
+                    // Update Timestamp for this specific file
+                    $fileTimestamps[$field] = now()->toDateTimeString(); 
+                    
                     $hasChanges = true;
                 } catch (\Exception $e) {
                     return back()->withErrors(['msg' => 'Upload failed for ' . $field . ': ' . $e->getMessage()]);
@@ -155,7 +170,7 @@ class ApplicantPortalController extends Controller
 
         if ($hasChanges) {
             $application->uploaded_files = $currentFiles;
-            $application->file_timestamps = $fileTimestamps; // Save
+            $application->file_timestamps = $fileTimestamps; // Save timestamps
             $application->save();
             return back()->with('success', 'Upload Successful! Requirements have been updated.');
         }
@@ -163,27 +178,81 @@ class ApplicantPortalController extends Controller
         return back()->with('success', 'No new files were selected.');
     }
 
+    // --- NEW METHOD: PROXY FILE VIEW (Keeps Favicon/Domain) ---
+    public function viewFile($id, $type)
+    {
+        // 1. Find Applicant
+        $applicant = Applicant::findOrFail($id);
+
+        // 2. Security Check: Only Owner or Admin (Adjust Admin check based on your middleware/logic)
+        if (Auth::id() !== $applicant->user_id && Auth::user()->role !== 'admin' && Auth::user()->role !== 'registrar') {
+            abort(403, 'Unauthorized access.');
+        }
+
+        // 3. Get URL from array
+        $files = $applicant->uploaded_files ?? [];
+        $url = $files[$type] ?? null;
+
+        if (!$url) {
+            abort(404, 'File not found.');
+        }
+
+        // 4. Fetch content from Cloudinary
+        try {
+            $response = Http::get($url);
+
+            if ($response->failed()) {
+                abort(404, 'File could not be retrieved from storage.');
+            }
+
+            $fileContent = $response->body();
+            
+            // 5. Determine MIME Type
+            $extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
+            $mimeTypes = [
+                'pdf'  => 'application/pdf',
+                'jpg'  => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png'  => 'image/png',
+            ];
+            
+            $contentType = $mimeTypes[strtolower($extension)] ?? 'application/octet-stream';
+
+            // 6. Return response to browser
+            return response($fileContent, 200, [
+                'Content-Type' => $contentType,
+                'Content-Disposition' => 'inline; filename="' . $type . '.' . $extension . '"',
+            ]);
+
+        } catch (\Exception $e) {
+            abort(404, 'Error loading file.');
+        }
+    }
+
     // --- HELPER METHODS ---
 
     private function mapInputData($validated, $request, $existingApp = null)
     {
+        // Start with validated data
         $data = $validated;
+        
+        // Calculate Age
         $data['age'] = Carbon::parse($validated['date_of_birth'])->age;
         
+        // Handle Boolean Conversions
         $data['is_ip'] = ($request->input('is_ip') === 'Yes');
         $data['is_pwd'] = ($request->input('is_pwd') === 'Yes');
         $data['is_4ps'] = ($request->input('is_4ps') === 'Yes');
         $data['has_palaro_participation'] = ($request->input('palaro_finisher') === 'Yes');
         
+        // Handle Direct Strings
         $data['batang_pinoy_finisher'] = $request->input('batang_pinoy_finisher');
         $data['palaro_year'] = $request->input('palaro_year');
 
-        // Handle File Uploads (Cloudinary)
+        // Handle File Uploads (Cloudinary) - Mostly used for 'store' method
         $currentFiles = $existingApp ? ($existingApp->uploaded_files ?? []) : [];
-        
-        // Note: Timestamps for 'create' are handled implicitly by 'created_at', 
-        // but for 'update' the controller method above overwrites this logic for specific files.
-        
+        $fileTimestamps = $existingApp ? ($existingApp->file_timestamps ?? []) : [];
+
         // 1. ID Picture
         if ($request->hasFile('id_picture')) {
             try {
@@ -192,6 +261,9 @@ class ApplicantPortalController extends Controller
                     'resource_type' => 'auto'
                 ]);
                 $currentFiles['id_picture'] = $upload['secure_url'];
+                
+                // Note: The 'update' method overrides this to set timestamp, 
+                // but we keep this basic logic here for 'store'
             } catch (\Exception $e) {}
         }
 
@@ -210,6 +282,7 @@ class ApplicantPortalController extends Controller
         
         $data['uploaded_files'] = $currentFiles;
         
+        // Remove keys not in DB
         unset($data['files']);
         unset($data['palaro_finisher']); 
 
