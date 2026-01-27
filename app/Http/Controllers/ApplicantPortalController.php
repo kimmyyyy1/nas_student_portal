@@ -10,7 +10,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Http; // 👈 IMPORTANT: Para sa viewFile proxy
+use Illuminate\Support\Facades\Http; // 👈 IMPORTANT: Kailangan ito para sa viewFile
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
 
@@ -74,7 +74,7 @@ class ApplicantPortalController extends Controller
         return view('applicant.edit', compact('application', 'teams'));
     }
 
-    // --- UPDATED UPDATE METHOD (With Remarks Clearing & Timestamps) ---
+    // --- UPDATE METHOD (With Remarks Clearing & Timestamps) ---
     public function update(Request $request): RedirectResponse
     {
         // 1. Get Application
@@ -184,7 +184,8 @@ class ApplicantPortalController extends Controller
         // 1. Find Applicant
         $applicant = Applicant::findOrFail($id);
 
-        // 2. Security Check: Only Owner or Admin (Adjust Admin check based on your middleware/logic)
+        // 2. Security Check: Only Owner or Admin 
+        // (Add 'registrar' or other roles here if needed)
         if (Auth::id() !== $applicant->user_id && Auth::user()->role !== 'admin' && Auth::user()->role !== 'registrar') {
             abort(403, 'Unauthorized access.');
         }
@@ -197,7 +198,7 @@ class ApplicantPortalController extends Controller
             abort(404, 'File not found.');
         }
 
-        // 4. Fetch content from Cloudinary
+        // 4. Fetch content from Cloudinary using Laravel HTTP Client
         try {
             $response = Http::get($url);
 
@@ -207,7 +208,7 @@ class ApplicantPortalController extends Controller
 
             $fileContent = $response->body();
             
-            // 5. Determine MIME Type
+            // 5. Determine MIME Type based on URL extension
             $extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
             $mimeTypes = [
                 'pdf'  => 'application/pdf',
@@ -218,11 +219,16 @@ class ApplicantPortalController extends Controller
             
             $contentType = $mimeTypes[strtolower($extension)] ?? 'application/octet-stream';
 
-            // 6. Return response to browser
-            return response($fileContent, 200, [
-                'Content-Type' => $contentType,
-                'Content-Disposition' => 'inline; filename="' . $type . '.' . $extension . '"',
-            ]);
+            // 6. Convert to Base64 to embed in Blade View
+            // Ito ang solusyon para lumabas ang Favicon: Hindi raw file ang return, kundi HTML view.
+            $base64 = base64_encode($fileContent);
+            $src = 'data:' . $contentType . ';base64,' . $base64;
+            
+            $fileType = (strtolower($extension) === 'pdf') ? 'pdf' : 'image';
+            $fileName = strtoupper(str_replace('_', ' ', $type));
+
+            // Return the Blade View Wrapper
+            return view('applicant.file-viewer', compact('src', 'fileType', 'fileName'));
 
         } catch (\Exception $e) {
             abort(404, 'Error loading file.');
@@ -261,9 +267,6 @@ class ApplicantPortalController extends Controller
                     'resource_type' => 'auto'
                 ]);
                 $currentFiles['id_picture'] = $upload['secure_url'];
-                
-                // Note: The 'update' method overrides this to set timestamp, 
-                // but we keep this basic logic here for 'store'
             } catch (\Exception $e) {}
         }
 
