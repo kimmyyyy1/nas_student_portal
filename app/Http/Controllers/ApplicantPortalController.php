@@ -10,7 +10,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Http; // 👈 IMPORTANT: Kailangan ito para sa viewFile
+use Illuminate\Support\Facades\Http; 
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
 
@@ -93,16 +93,14 @@ class ApplicantPortalController extends Controller
 
         // 4. Handle Remarks Clearing & Timestamp Updating
         $remarks = $application->document_remarks ?? [];
-        $fileTimestamps = $application->file_timestamps ?? []; // Get existing timestamps
+        $fileTimestamps = $application->file_timestamps ?? []; 
         $hasNewUploads = false;
 
         // A. Check ID Picture Upload
         if ($request->hasFile('id_picture')) {
-            // Clear Remark if exists
             if (isset($remarks['id_picture'])) {
                 unset($remarks['id_picture']); 
             }
-            // Update Timestamp for this specific file
             $fileTimestamps['id_picture'] = now()->toDateTimeString(); 
             $hasNewUploads = true;
         }
@@ -110,11 +108,9 @@ class ApplicantPortalController extends Controller
         // B. Check Document Uploads
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
-                // Clear Remark if exists
                 if (isset($remarks[$key])) {
                     unset($remarks[$key]); 
                 }
-                // Update Timestamp for this specific file
                 $fileTimestamps[$key] = now()->toDateTimeString();
                 $hasNewUploads = true;
             }
@@ -130,7 +126,7 @@ class ApplicantPortalController extends Controller
         return redirect()->route('applicant.dashboard')->with('success', 'Application updated successfully!');
     }
 
-    // --- SUBMIT REQUIREMENTS (Dashboard) ---
+    // --- SUBMIT REQUIREMENTS (Dashboard - FIXED) ---
     public function submitRequirements(Request $request): RedirectResponse
     {
         $application = Applicant::where('user_id', Auth::id())->first();
@@ -139,29 +135,44 @@ class ApplicantPortalController extends Controller
             return back()->withErrors(['msg' => 'Application record not found.']);
         }
 
+        // 1. Load Current Data
         $currentFiles = $application->uploaded_files ?? [];
-        $fileTimestamps = $application->file_timestamps ?? []; // Get existing timestamps
-        $fields = ['sf10', 'good_moral', 'psa_birth_cert', 'medical_cert', 'coach_reco'];
+        $remarks = $application->document_remarks ?? []; // 👇 Kunin ang current remarks
+        $fileTimestamps = $application->file_timestamps ?? []; 
+        
+        // Listahan ng lahat ng pwedeng i-upload sa Dashboard
+        $fields = ['sf10', 'good_moral', 'psa_birth_cert', 'medical_cert', 'coach_reco', 'id_picture', 'adviser_reco', 'guardian_id', 'scholarship_form', 'student_profile'];
+        
         $hasChanges = false;
 
         foreach ($fields as $field) {
             if ($request->hasFile($field)) {
+                
+                // Validate Upload
                 $request->validate([
                     $field => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
                 ]);
 
                 try {
+                    // Upload to Cloudinary
                     $upload = (new UploadApi())->upload($request->file($field)->getRealPath(), [
                         'folder' => 'nas_student_portal/requirements',
                         'resource_type' => 'auto'
                     ]);
                     
+                    // Update File URL
                     $currentFiles[$field] = $upload['secure_url'];
                     
-                    // Update Timestamp for this specific file
+                    // Update Timestamp
                     $fileTimestamps[$field] = now()->toDateTimeString(); 
                     
+                    // 👇 CRITICAL FIX: Tanggalin ang remark kapag may bagong upload
+                    if (isset($remarks[$field])) {
+                        unset($remarks[$field]);
+                    }
+                    
                     $hasChanges = true;
+
                 } catch (\Exception $e) {
                     return back()->withErrors(['msg' => 'Upload failed for ' . $field . ': ' . $e->getMessage()]);
                 }
@@ -170,27 +181,25 @@ class ApplicantPortalController extends Controller
 
         if ($hasChanges) {
             $application->uploaded_files = $currentFiles;
-            $application->file_timestamps = $fileTimestamps; // Save timestamps
+            $application->document_remarks = $remarks; // 👇 I-save ang malinis na remarks
+            $application->file_timestamps = $fileTimestamps;
             $application->save();
-            return back()->with('success', 'Upload Successful! Requirements have been updated.');
+            
+            return back()->with('success', 'Upload Successful! Requirements have been updated and sent for review.');
         }
 
-        return back()->with('success', 'No new files were selected.');
+        return back()->with('warning', 'No new files were selected to upload.');
     }
 
-    // --- NEW METHOD: PROXY FILE VIEW (Keeps Favicon/Domain) ---
+    // --- PROXY FILE VIEW ---
     public function viewFile($id, $type)
     {
-        // 1. Find Applicant
         $applicant = Applicant::findOrFail($id);
 
-        // 2. Security Check: Only Owner or Admin 
-        // (Add 'registrar' or other roles here if needed)
         if (Auth::id() !== $applicant->user_id && Auth::user()->role !== 'admin' && Auth::user()->role !== 'registrar') {
             abort(403, 'Unauthorized access.');
         }
 
-        // 3. Get URL from array
         $files = $applicant->uploaded_files ?? [];
         $url = $files[$type] ?? null;
 
@@ -198,7 +207,6 @@ class ApplicantPortalController extends Controller
             abort(404, 'File not found.');
         }
 
-        // 4. Fetch content from Cloudinary using Laravel HTTP Client
         try {
             $response = Http::get($url);
 
@@ -207,9 +215,8 @@ class ApplicantPortalController extends Controller
             }
 
             $fileContent = $response->body();
-            
-            // 5. Determine MIME Type based on URL extension
             $extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
+            
             $mimeTypes = [
                 'pdf'  => 'application/pdf',
                 'jpg'  => 'image/jpeg',
@@ -218,16 +225,12 @@ class ApplicantPortalController extends Controller
             ];
             
             $contentType = $mimeTypes[strtolower($extension)] ?? 'application/octet-stream';
-
-            // 6. Convert to Base64 to embed in Blade View
-            // Ito ang solusyon para lumabas ang Favicon: Hindi raw file ang return, kundi HTML view.
             $base64 = base64_encode($fileContent);
             $src = 'data:' . $contentType . ';base64,' . $base64;
             
             $fileType = (strtolower($extension) === 'pdf') ? 'pdf' : 'image';
             $fileName = strtoupper(str_replace('_', ' ', $type));
 
-            // Return the Blade View Wrapper
             return view('applicant.file-viewer', compact('src', 'fileType', 'fileName'));
 
         } catch (\Exception $e) {
@@ -239,27 +242,24 @@ class ApplicantPortalController extends Controller
 
     private function mapInputData($validated, $request, $existingApp = null)
     {
-        // Start with validated data
         $data = $validated;
         
-        // Calculate Age
-        $data['age'] = Carbon::parse($validated['date_of_birth'])->age;
+        if (isset($validated['date_of_birth'])) {
+            $data['age'] = Carbon::parse($validated['date_of_birth'])->age;
+        }
         
         // Handle Boolean Conversions
-        $data['is_ip'] = ($request->input('is_ip') === 'Yes');
-        $data['is_pwd'] = ($request->input('is_pwd') === 'Yes');
-        $data['is_4ps'] = ($request->input('is_4ps') === 'Yes');
-        $data['has_palaro_participation'] = ($request->input('palaro_finisher') === 'Yes');
+        if ($request->has('is_ip')) $data['is_ip'] = ($request->input('is_ip') === 'Yes');
+        if ($request->has('is_pwd')) $data['is_pwd'] = ($request->input('is_pwd') === 'Yes');
+        if ($request->has('is_4ps')) $data['is_4ps'] = ($request->input('is_4ps') === 'Yes');
+        if ($request->has('palaro_finisher')) $data['has_palaro_participation'] = ($request->input('palaro_finisher') === 'Yes');
         
-        // Handle Direct Strings
         $data['batang_pinoy_finisher'] = $request->input('batang_pinoy_finisher');
         $data['palaro_year'] = $request->input('palaro_year');
 
         // Handle File Uploads (Cloudinary) - Mostly used for 'store' method
         $currentFiles = $existingApp ? ($existingApp->uploaded_files ?? []) : [];
-        $fileTimestamps = $existingApp ? ($existingApp->file_timestamps ?? []) : [];
-
-        // 1. ID Picture
+        
         if ($request->hasFile('id_picture')) {
             try {
                 $upload = (new UploadApi())->upload($request->file('id_picture')->getRealPath(), [
@@ -270,7 +270,6 @@ class ApplicantPortalController extends Controller
             } catch (\Exception $e) {}
         }
 
-        // 2. Document Files
         if ($request->has('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
@@ -285,7 +284,6 @@ class ApplicantPortalController extends Controller
         
         $data['uploaded_files'] = $currentFiles;
         
-        // Remove keys not in DB
         unset($data['files']);
         unset($data['palaro_finisher']); 
 

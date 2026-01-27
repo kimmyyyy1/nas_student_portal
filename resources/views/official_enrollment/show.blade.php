@@ -35,30 +35,36 @@
                     
                     {{-- 1. STUDENT PROFILE CARD --}}
                     <div class="bg-white shadow-sm rounded-xl p-6 border border-gray-200 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                        {{-- Profile Picture Logic --}}
+                        
+                        {{-- Profile Picture Logic (FORCE FIX) --}}
                         <div class="flex-shrink-0">
                             @php
-                                // 1. Retrieve the 'uploaded_files' data safely
-                                $files = $application->uploaded_files; 
-                                
-                                // 2. Check for 'id_picture' key in array or property in object
+                                // 1. Kunin ang raw data
+                                $files = $application->uploaded_files;
+
+                                // 2. FORCE DECODE: Kung string ito (JSON), i-convert sa Array.
+                                if (is_string($files)) {
+                                    $files = json_decode($files, true);
+                                }
+
+                                // 3. Check kung may 'id_picture'
                                 $idPic = null;
-                                if (is_array($files) && isset($files['id_picture'])) {
+                                if (is_array($files) && isset($files['id_picture']) && !empty($files['id_picture'])) {
                                     $idPic = $files['id_picture'];
-                                } elseif (is_object($files) && isset($files->id_picture)) {
+                                } elseif (is_object($files) && isset($files->id_picture) && !empty($files->id_picture)) {
                                     $idPic = $files->id_picture;
                                 }
                             @endphp
 
                             <div class="h-24 w-24 rounded-full border-4 border-indigo-100 overflow-hidden shadow-sm bg-gray-100 relative group">
                                 @if($idPic)
-                                    {{-- TRY 1: Use the Proxy Route (Secure) --}}
+                                    {{-- DIRECT URL: Gagamitin natin directly ang link para sure na lumabas --}}
                                     <img class="w-full h-full object-cover" 
-                                         src="{{ route('applicant.view_file', ['id' => $application->id, 'type' => 'id_picture']) }}" 
+                                         src="{{ $idPic }}" 
                                          alt="ID Photo"
                                          onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($application->first_name . '+' . $application->last_name) }}&background=6366f1&color=fff&size=128&bold=true';">
                                 @else
-                                    {{-- FALLBACK: Initials if NO data exists at all --}}
+                                    {{-- FALLBACK: Initials --}}
                                     <div class="w-full h-full flex items-center justify-center bg-indigo-500 text-white font-bold text-2xl">
                                         {{ substr($application->first_name, 0, 1) }}{{ substr($application->last_name, 0, 1) }}
                                     </div>
@@ -119,8 +125,8 @@
                                     ];
                                     $existingRemarks = $application->document_remarks ?? [];
                                     
-                                    // Retrieve files again for loop usage
-                                    $filesLoop = $application->uploaded_files;
+                                    // Use the SAFE DECODED files from above
+                                    $filesLoop = $files; 
                                 @endphp
 
                                 @foreach($docs as $key => $label)
