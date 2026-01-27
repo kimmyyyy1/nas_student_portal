@@ -145,6 +145,13 @@
                             <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold text-red-100 bg-red-600 rounded-full shadow-sm">{{ $pendingAdmissionsCount }}</span>
                         @endif
                     </a>
+
+                    {{-- 👇 ADDED: Enrollment Link --}}
+                    <a href="{{ route('official-enrollment.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('official-enrollment.*') ? $activeBlue : $inactiveBlue }}">
+                        <i class='bx bx-user-plus text-lg mr-3 {{ request()->routeIs('official-enrollment.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i>
+                        Enrollment
+                    </a>
+
                     <a href="{{ route('students.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('students.*') ? $activeBlue : $inactiveBlue }}">
                         <i class='bx bx-user-pin text-lg mr-3 {{ request()->routeIs('students.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Student Directory
                     </a>

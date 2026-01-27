@@ -92,7 +92,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/submit-requirements', [ApplicantPortalController::class, 'submitRequirements'])->name('submit_requirements');
         
         // 👇 NEW ROUTE: Proxy View for Cloudinary Files (To keep Favicon/Domain)
-        // Usage: route('applicant.view_file', ['id' => $id, 'type' => $type])
         Route::get('/view-file/{id}/{type}', [ApplicantPortalController::class, 'viewFile'])->name('view_file');
     });
 
@@ -116,9 +115,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/admission/{id}', [EnrollmentController::class, 'process'])->name('admission.process');
     Route::get('/admission/{id}/pdf', [EnrollmentController::class, 'generatePdf'])->name('admission.pdf');
 
-    // Official Enrollment
+    // Official Enrollment (Qualified Applicants)
+    Route::get('/official-enrollment', [OfficialEnrollmentController::class, 'index'])->name('official-enrollment.index');
     Route::get('/official-enrollment/process/{id}', [OfficialEnrollmentController::class, 'show'])->name('official-enrollment.show');
     Route::post('/official-enrollment/store/{id}', [OfficialEnrollmentController::class, 'store'])->name('official-enrollment.store');
+    
+    // 👇 NEW ROUTE: Save Remarks & Return to Applicant
+    Route::patch('/official-enrollment/return/{id}', [OfficialEnrollmentController::class, 'returnToApplicant'])->name('official-enrollment.return');
 
     // ==========================================
     //  ACADEMIC RESOURCES

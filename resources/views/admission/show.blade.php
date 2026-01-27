@@ -115,7 +115,7 @@
                             <div class="grid grid-cols-4 gap-4 mb-2 text-xs border-b border-gray-300 pb-1">
                                 <div><span class="text-gray-500">Region:</span> <br><strong>{{ $application->region }}</strong></div>
                                 <div><span class="text-gray-500">Province:</span> <br><strong>{{ $application->province }}</strong></div>
-                                <div><span class="text-gray-500">City/Muni:</span> <br><strong>{{ $application->municipality_city }}</strong></div>
+                                <div><span class="text-gray-500">City/Municipal:</span> <br><strong>{{ $application->municipality_city }}</strong></div>
                                 <div><span class="text-gray-500">Barangay:</span> <br><strong>{{ $application->barangay }}</strong></div>
                             </div>
                             <div class="text-sm font-bold text-gray-900">

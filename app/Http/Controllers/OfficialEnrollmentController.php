@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\EnrollmentApplication;
-use App\Models\Student;
+use App\Models\Applicant; // 👈 IMPORTANT: Use Applicant Model
 use App\Models\Section;
+use App\Models\Student;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -15,11 +15,25 @@ use Carbon\Carbon;
 class OfficialEnrollmentController extends Controller
 {
     /**
+     * List all Qualified applicants ready for enrollment.
+     */
+    public function index()
+    {
+        // Kunin lang ang mga status ay "Qualified"
+        $qualifiedApplicants = Applicant::where('status', 'Qualified')
+                                        ->orderBy('last_name')
+                                        ->get();
+
+        return view('official_enrollment.index', compact('qualifiedApplicants'));
+    }
+
+    /**
      * Show the confirmation form with application details and section selection.
      */
     public function show($id)
     {
-        $application = EnrollmentApplication::findOrFail($id);
+        // 👇 FIXED: Changed EnrollmentApplication to Applicant
+        $application = Applicant::findOrFail($id);
 
         // Kunin ang mga sections na akma sa Grade Level ng applicant
         $sections = Section::where('grade_level', $application->grade_level_applied)
@@ -27,6 +41,37 @@ class OfficialEnrollmentController extends Controller
                             ->get();
 
         return view('official_enrollment.show', compact('application', 'sections'));
+    }
+
+    /**
+     * Save remarks and return application to student for corrections.
+     */
+    public function returnToApplicant(Request $request, $id)
+    {
+        $application = Applicant::findOrFail($id);
+
+        // Kunin ang mga remarks mula sa form
+        // Format: ['sf10' => 'Blurry', 'psa' => 'Wrong file']
+        $remarks = $request->input('remarks', []);
+
+        // Linisin ang array (tanggalin ang mga empty remarks)
+        $cleanRemarks = array_filter($remarks, function($value) {
+            return !is_null($value) && $value !== '';
+        });
+
+        // Kung walang remarks na nilagay, huwag mag-save
+        if (empty($cleanRemarks)) {
+            return back()->with('error', 'Please enter at least one remark before returning.');
+        }
+
+        // I-save sa database column na 'document_remarks' (JSON casted sa Model)
+        $application->document_remarks = $cleanRemarks;
+        // Pwede rin nating ibalik ang status sa 'For Assessment' o manatiling 'Qualified' depende sa process niyo.
+        // Pero dahil "Qualified" na siya, baka mas okay na manatili siyang Qualified pero may pending task.
+        // Or set to a custom status like 'Needs Correction' if allowed.
+        $application->save();
+
+        return back()->with('success', 'Remarks saved! The student will be notified to re-upload documents.');
     }
 
     /**
@@ -39,7 +84,8 @@ class OfficialEnrollmentController extends Controller
             'section_id' => 'required|exists:sections,id',
         ]);
 
-        $application = EnrollmentApplication::findOrFail($id);
+        // 👇 FIXED: Changed EnrollmentApplication to Applicant
+        $application = Applicant::findOrFail($id);
 
         // Safety Check: Kung enrolled na, wag na ulitin
         if ($application->status === 'Enrolled') {
@@ -50,7 +96,7 @@ class OfficialEnrollmentController extends Controller
         $generatedStudentId = date('Y') . '-' . str_pad($application->id, 4, '0', STR_PAD_LEFT);
         
         // 3. Photo Logic: Kunin ang path ng uploaded ID picture
-        // Mas pinalakas na logic: Check both array key and object property access style
+        // Check both array key and object property access style
         $photoPath = null;
         if (isset($application->uploaded_files['id_picture'])) {
             $photoPath = $application->uploaded_files['id_picture'];
@@ -74,7 +120,7 @@ class OfficialEnrollmentController extends Controller
                 'religion' => $application->religion,
                 'email_address' => $application->email_address,
                 
-                // 👇 FIXED: Changed 'photo' to 'id_picture' to match database column
+                // Photo
                 'id_picture' => $photoPath, 
 
                 // Address

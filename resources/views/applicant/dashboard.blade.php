@@ -1,7 +1,7 @@
 <x-applicant-layout>
     <div id="dashboard-content" class="max-w-7xl mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
         
-        {{-- HEADER --}}
+        {{-- HEADER (Always Visible) --}}
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 sm:mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div class="mb-4 md:mb-0 text-center md:text-left w-full md:w-auto">
                 <img src="{{ asset('images/nas/horizontal.png') }}" class="h-10 sm:h-12 md:h-16 object-contain mb-2 mx-auto md:mx-0" alt="NAS Logo">
@@ -24,7 +24,7 @@
         @endif
 
         @if($application)
-            {{-- STATUS CARD --}}
+            {{-- STATUS CARD (Always Visible - Progress Bar) --}}
             <div id="status-section" class="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200 mb-6 sm:mb-8">
                 <div class="p-6 md:p-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -84,225 +84,16 @@
                 </div>
             </div>
 
-            {{-- MAIN LAYOUT GRID --}}
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
-                
-                {{-- LEFT COLUMN: PROFILE CARD --}}
-                <div class="lg:col-span-1 space-y-6 sm:space-y-8">
-                    
-                    {{-- 1. PROFILE CARD --}}
-                    <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
-                        <div class="bg-indigo-900 px-6 py-4 border-b border-indigo-800">
-                            <h3 class="text-white font-bold text-base sm:text-lg flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                Student Profile
-                            </h3>
-                        </div>
-                        <div class="p-6 text-center">
-                            <div class="inline-block relative">
-                                {{-- SAFE CHECK FOR ID PICTURE --}}
-                                @if(isset($application->uploaded_files['id_picture']))
-                                    <img src="{{ $application->uploaded_files['id_picture'] }}" class="h-24 w-24 sm:h-32 sm:w-32 rounded-full object-cover border-4 border-indigo-100 shadow-md mx-auto" alt="Student Photo">
-                                @else
-                                    <div class="h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-100 mx-auto">
-                                        <span class="text-gray-400 text-2xl sm:text-3xl font-bold">{{ substr($application->first_name, 0, 1) }}</span>
-                                    </div>
-                                @endif
-                            </div>
-                            <h2 class="mt-4 text-lg sm:text-xl font-bold text-gray-900">{{ $application->last_name }}, {{ $application->first_name }}</h2>
-                            <p class="text-indigo-600 font-medium text-sm sm:text-base">{{ $application->middle_name }}</p>
-                            <div class="mt-6 border-t border-gray-100 pt-4 text-left">
-                                <div class="mb-3"><span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Learner Ref No. (LRN)</span><p class="text-gray-900 font-mono font-bold text-sm sm:text-base break-words">{{ $application->lrn }}</p></div>
-                                <div class="mb-3"><span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Email Address</span><p class="text-gray-900 text-sm truncate">{{ $application->email_address }}</p></div>
-                                <div><span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Region / Province</span><p class="text-gray-900 text-sm truncate">{{ $application->region }}</p><p class="text-gray-700 text-xs">{{ $application->province }}</p></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 2. BACKGROUND & SPECIAL CATEGORIES --}}
-                    <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
-                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center"><h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center"><svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Background</h3></div>
-                        <div class="p-6">
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-center border-b border-gray-100 pb-2"><span class="text-xs sm:text-sm font-medium text-gray-600">IP Member</span><div class="text-right"><span class="text-xs sm:text-sm font-bold {{ $application->is_ip ? 'text-green-600' : 'text-gray-400' }}">{{ $application->is_ip ? 'Yes' : 'No' }}</span>@if($application->is_ip && $application->ip_group_name)<div class="text-[10px] text-gray-500">{{ $application->ip_group_name }}</div>@endif</div></div>
-                                <div class="flex justify-between items-center border-b border-gray-100 pb-2"><span class="text-xs sm:text-sm font-medium text-gray-600">PWD</span><div class="text-right"><span class="text-xs sm:text-sm font-bold {{ $application->is_pwd ? 'text-green-600' : 'text-gray-400' }}">{{ $application->is_pwd ? 'Yes' : 'No' }}</span>@if($application->is_pwd && $application->pwd_disability)<div class="text-[10px] text-gray-500">{{ $application->pwd_disability }}</div>@endif</div></div>
-                                <div class="flex justify-between items-center"><span class="text-xs sm:text-sm font-medium text-gray-600">4Ps Member</span><span class="text-xs sm:text-sm font-bold {{ $application->is_4ps ? 'text-green-600' : 'text-gray-400' }}">{{ $application->is_4ps ? 'Yes' : 'No' }}</span></div>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg text-sm space-y-2 mt-4">
-                                <div>
-                                    <label class="text-[10px] text-gray-400 uppercase font-bold block">Learned NAS via</label>
-                                    <p class="font-semibold text-gray-700 text-xs sm:text-sm">{{ $application->learn_about_nas ?? 'N/A' }}</p>
-                                    @if($application->referrer_name)
-                                        <p class="text-[10px] text-gray-500 mt-1 pt-1 border-t border-gray-200">
-                                            <span class="font-bold text-gray-600">Referred by:</span> {{ $application->referrer_name }}
-                                        </p>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- RIGHT COLUMN (Academic & Requirements) --}}
-                <div class="lg:col-span-2 space-y-6 sm:space-y-8">
-                    
-                    {{-- 3. ACADEMIC & SPORTS INFO --}}
-                    <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
-                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center"><h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center"><svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>Academic & Sports Information</h3></div>
-                        <div class="p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                                <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100"><label class="text-[10px] sm:text-xs text-indigo-500 uppercase font-bold block">Grade Level Applied</label><p class="text-base sm:text-lg font-bold text-indigo-900">{{ $application->grade_level_applied }}</p></div>
-                                <div class="bg-orange-50 p-4 rounded-lg border border-orange-100"><label class="text-[10px] sm:text-xs text-orange-500 uppercase font-bold block">Sport / Discipline</label><p class="text-base sm:text-lg font-bold text-orange-900">{{ $application->sport }} @if($application->sport_specification) <span class="block text-xs font-normal text-orange-700">({{ $application->sport_specification }})</span> @endif</p></div>
-                                <div><label class="text-[10px] sm:text-xs text-gray-400 uppercase font-bold block">Previous School</label><p class="text-sm font-semibold text-gray-700">{{ $application->previous_school }}</p><span class="text-[10px] sm:text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ $application->school_type }}</span></div>
-                                
-                                <div class="space-y-2">
-                                    {{-- Palarong Pambansa --}}
-                                    <div>
-                                        <label class="text-[10px] sm:text-xs text-gray-400 uppercase font-bold block">Palarong Pambansa Finisher</label>
-                                        <p class="text-sm font-semibold text-gray-700">
-                                            @if($application->has_palaro_participation) 
-                                                <span class="text-green-600">Yes</span> 
-                                            @else 
-                                                <span class="text-gray-400">No</span> 
-                                            @endif
-                                        </p>
-                                    </div>
-
-                                    {{-- Batang Pinoy --}}
-                                    <div>
-                                        <label class="text-[10px] sm:text-xs text-gray-400 uppercase font-bold block">Batang Pinoy Finisher</label>
-                                        <p class="text-sm font-semibold text-gray-700">
-                                            @if($application->batang_pinoy_finisher == 'Yes') 
-                                                <span class="text-green-600">Yes</span> 
-                                            @else 
-                                                <span class="text-gray-400">No</span> 
-                                            @endif
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 4. SUBMITTED FILES (UPDATED: WITH REMARKS & PROXY VIEW) --}}
-                    @php
-                        $reqKeys = [
-                            // 👇 ADDED ID PICTURE HERE
-                            'id_picture' => '2x2 ID Picture', 
-                            'scholarship_form' => 'Scholarship Application Form',
-                            'student_profile' => 'Student-Athlete’s Profile Form',
-                            'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
-                            'coach_reco' => 'Coach’s Recommendation Form',
-                            'adviser_reco' => 'Adviser’s Recommendation Form',
-                            'birth_cert' => 'PSA Birth Certificate',
-                            'report_card' => 'Report Card (SF9)',
-                            'guardian_id' => 'Guardian’s Valid ID'
-                        ];
-
-                        $uploadedCount = 0;
-                        if(isset($application->uploaded_files)) {
-                            foreach($reqKeys as $key => $label) {
-                                if(isset($application->uploaded_files[$key]) && !empty($application->uploaded_files[$key])) {
-                                    $uploadedCount++;
-                                }
-                            }
-                        }
-                        $reqStatus = ($uploadedCount == count($reqKeys)) ? 'Complete' : 'Incomplete';
-                        $reqColor = ($reqStatus == 'Complete') ? 'bg-green-100 text-green-700 border-green-200' : 'bg-orange-100 text-orange-700 border-orange-200';
-                        $remarks = $application->document_remarks ?? []; 
-                    @endphp
-
-                    <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
-                        {{-- FLEX HEADER WITH STATUS BADGE --}}
-                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                            <h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                Submitted Requirements
-                            </h3>
-                            <span class="text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full border {{ $reqColor }} uppercase tracking-wide">
-                                {{ $reqStatus }} ({{ $uploadedCount }}/{{ count($reqKeys) }})
-                            </span>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-[600px]">
-                                <thead>
-                                    <tr class="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase">
-                                        <th class="px-6 py-3 font-bold w-1/3">Document Name</th>
-                                        <th class="px-6 py-3 font-bold text-center">Status</th>
-                                        <th class="px-6 py-3 font-bold text-center">Action</th>
-                                        <th class="px-6 py-3 font-bold text-left w-1/3">Remarks</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    @foreach($reqKeys as $key => $label)
-                                        @php
-                                            $path = $application->uploaded_files[$key] ?? null;
-                                            $hasRemark = isset($remarks[$key]) && !empty($remarks[$key]);
-                                            $isUploaded = !empty($path);
-                                        @endphp
-                                        <tr class="hover:bg-gray-50 transition {{ $hasRemark ? 'bg-red-50' : '' }}">
-                                            <td class="px-6 py-4 text-xs sm:text-sm font-medium text-gray-900">{{ $label }}</td>
-                                            
-                                            <td class="px-6 py-4 text-center">
-                                                @if($hasRemark)
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 animate-pulse">⚠ NEEDS UPDATE</span>
-                                                @elseif($isUploaded)
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>SUBMITTED</span>
-                                                @else
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600">MISSING</span>
-                                                @endif
-                                            </td>
-                                            
-                                            <td class="px-6 py-4 text-center flex flex-col gap-1 items-center justify-center">
-                                                @if($isUploaded)
-                                                    {{-- Gumawa ng Local View Route --}}
-                                                    @php
-                                                        $viewUrl = route('applicant.view_file', ['id' => $application->id, 'type' => $key]);
-                                                    @endphp
-
-                                                    @if(Str::endsWith(strtolower($path), '.pdf'))
-                                                        <a href="{{ $viewUrl }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center">
-                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                                            View PDF
-                                                        </a>
-                                                    @else
-                                                        <a href="{{ $viewUrl }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center">
-                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                                            View Image
-                                                        </a>
-                                                    @endif
-                                                @else
-                                                    <span class="text-gray-400">-</span>
-                                                @endif
-                                            </td>
-
-                                            <td class="px-6 py-4 text-xs">
-                                                @if($hasRemark)
-                                                    <div class="text-red-700 font-bold flex items-start mb-1">
-                                                        <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                                        {{ $remarks[$key] }}
-                                                    </div>
-                                                @else
-                                                    <span class="text-gray-400 italic text-[10px]">Good</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- 4. QUALIFIED / SUBMIT REQUIREMENTS SECTION --}}
+            {{-- 👇 LOGIC SWITCH: IF QUALIFIED, SHOW UPLOAD FORM ONLY. ELSE, SHOW FULL PROFILE. --}}
+            
             @if($application->status == 'Qualified')
-                <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-sm">
+                {{-- A. QUALIFIED VIEW (FOCUSED ON ENROLLMENT) --}}
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-sm animate-fade-in-up">
                     <div class="flex flex-col md:flex-row items-start">
                         <div class="flex-shrink-0 mb-4 md:mb-0"><svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div>
                         <div class="ml-0 md:ml-4 w-full">
                             <h3 class="text-lg sm:text-xl font-bold text-blue-900">Next Step: Submit Enrollment Requirements</h3>
-                            <p class="text-xs sm:text-sm text-blue-700 mt-1 mb-6">Congratulations! Please upload the remaining digital copies to finalize your enrollment.</p>
+                            <p class="text-xs sm:text-sm text-blue-700 mt-1 mb-6">Congratulations! You are qualified. Please upload the remaining digital copies to finalize your enrollment.</p>
                             
                             <form id="uploadForm" action="{{ route('applicant.submit_requirements') }}" method="POST" enctype="multipart/form-data" class="bg-white p-4 sm:p-6 rounded-xl border border-blue-100 shadow-sm">
                                 @csrf
@@ -334,11 +125,9 @@
                                             @if($isUploaded)
                                                 <div class="flex items-center justify-between bg-white p-3 rounded border border-green-200 shadow-sm">
                                                     <span class="text-[10px] sm:text-xs text-green-700 font-bold italic">File has been uploaded.</span>
-                                                    
                                                     @php
                                                         $viewUrl = route('applicant.view_file', ['id' => $application->id, 'type' => $field]);
                                                     @endphp
-
                                                     @if(Str::endsWith(strtolower($currentPath), '.pdf')) 
                                                         <a href="{{ $viewUrl }}" target="_blank" class="text-[10px] sm:text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-bold transition flex items-center">VIEW PDF</a> 
                                                     @else 
@@ -365,7 +154,216 @@
                         </div>
                     </div>
                 </div>
+
+            @else
+                {{-- B. STANDARD VIEW (PROFILE, BACKGROUND, ACADEMICS - Hidden if Qualified) --}}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
+                    
+                    {{-- LEFT COLUMN: PROFILE CARD --}}
+                    <div class="lg:col-span-1 space-y-6 sm:space-y-8">
+                        
+                        {{-- 1. PROFILE CARD --}}
+                        <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
+                            <div class="bg-indigo-900 px-6 py-4 border-b border-indigo-800">
+                                <h3 class="text-white font-bold text-base sm:text-lg flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    Student Profile
+                                </h3>
+                            </div>
+                            <div class="p-6 text-center">
+                                <div class="inline-block relative">
+                                    @if(isset($application->uploaded_files['id_picture']))
+                                        <img src="{{ $application->uploaded_files['id_picture'] }}" class="h-24 w-24 sm:h-32 sm:w-32 rounded-full object-cover border-4 border-indigo-100 shadow-md mx-auto" alt="Student Photo">
+                                    @else
+                                        <div class="h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-100 mx-auto">
+                                            <span class="text-gray-400 text-2xl sm:text-3xl font-bold">{{ substr($application->first_name, 0, 1) }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+                                <h2 class="mt-4 text-lg sm:text-xl font-bold text-gray-900">{{ $application->last_name }}, {{ $application->first_name }}</h2>
+                                <p class="text-indigo-600 font-medium text-sm sm:text-base">{{ $application->middle_name }}</p>
+                                <div class="mt-6 border-t border-gray-100 pt-4 text-left">
+                                    <div class="mb-3"><span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Learner Ref No. (LRN)</span><p class="text-gray-900 font-mono font-bold text-sm sm:text-base break-words">{{ $application->lrn }}</p></div>
+                                    <div class="mb-3"><span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Email Address</span><p class="text-gray-900 text-sm truncate">{{ $application->email_address }}</p></div>
+                                    <div><span class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider block">Region / Province</span><p class="text-gray-900 text-sm truncate">{{ $application->region }}</p><p class="text-gray-700 text-xs">{{ $application->province }}</p></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 2. BACKGROUND & SPECIAL CATEGORIES --}}
+                        <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
+                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center"><h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center"><svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Background</h3></div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center border-b border-gray-100 pb-2"><span class="text-xs sm:text-sm font-medium text-gray-600">IP Member</span><div class="text-right"><span class="text-xs sm:text-sm font-bold {{ $application->is_ip ? 'text-green-600' : 'text-gray-400' }}">{{ $application->is_ip ? 'Yes' : 'No' }}</span>@if($application->is_ip && $application->ip_group_name)<div class="text-[10px] text-gray-500">{{ $application->ip_group_name }}</div>@endif</div></div>
+                                    <div class="flex justify-between items-center border-b border-gray-100 pb-2"><span class="text-xs sm:text-sm font-medium text-gray-600">PWD</span><div class="text-right"><span class="text-xs sm:text-sm font-bold {{ $application->is_pwd ? 'text-green-600' : 'text-gray-400' }}">{{ $application->is_pwd ? 'Yes' : 'No' }}</span>@if($application->is_pwd && $application->pwd_disability)<div class="text-[10px] text-gray-500">{{ $application->pwd_disability }}</div>@endif</div></div>
+                                    <div class="flex justify-between items-center"><span class="text-xs sm:text-sm font-medium text-gray-600">4Ps Member</span><span class="text-xs sm:text-sm font-bold {{ $application->is_4ps ? 'text-green-600' : 'text-gray-400' }}">{{ $application->is_4ps ? 'Yes' : 'No' }}</span></div>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg text-sm space-y-2 mt-4">
+                                    <div>
+                                        <label class="text-[10px] text-gray-400 uppercase font-bold block">Learned NAS via</label>
+                                        <p class="font-semibold text-gray-700 text-xs sm:text-sm">{{ $application->learn_about_nas ?? 'N/A' }}</p>
+                                        @if($application->referrer_name)
+                                            <p class="text-[10px] text-gray-500 mt-1 pt-1 border-t border-gray-200">
+                                                <span class="font-bold text-gray-600">Referred by:</span> {{ $application->referrer_name }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- RIGHT COLUMN (Academic & Requirements) --}}
+                    <div class="lg:col-span-2 space-y-6 sm:space-y-8">
+                        
+                        {{-- 3. ACADEMIC & SPORTS INFO --}}
+                        <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
+                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center"><h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center"><svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>Academic & Sports Information</h3></div>
+                            <div class="p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100"><label class="text-[10px] sm:text-xs text-indigo-500 uppercase font-bold block">Grade Level Applied</label><p class="text-base sm:text-lg font-bold text-indigo-900">{{ $application->grade_level_applied }}</p></div>
+                                    <div class="bg-orange-50 p-4 rounded-lg border border-orange-100"><label class="text-[10px] sm:text-xs text-orange-500 uppercase font-bold block">Sport / Discipline</label><p class="text-base sm:text-lg font-bold text-orange-900">{{ $application->sport }} @if($application->sport_specification) <span class="block text-xs font-normal text-orange-700">({{ $application->sport_specification }})</span> @endif</p></div>
+                                    <div><label class="text-[10px] sm:text-xs text-gray-400 uppercase font-bold block">Previous School</label><p class="text-sm font-semibold text-gray-700">{{ $application->previous_school }}</p><span class="text-[10px] sm:text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ $application->school_type }}</span></div>
+                                    
+                                    <div class="space-y-2">
+                                        {{-- Palarong Pambansa --}}
+                                        <div>
+                                            <label class="text-[10px] sm:text-xs text-gray-400 uppercase font-bold block">Palarong Pambansa Finisher</label>
+                                            <p class="text-sm font-semibold text-gray-700">
+                                                @if($application->has_palaro_participation) 
+                                                    <span class="text-green-600">Yes</span> 
+                                                @else 
+                                                    <span class="text-gray-400">No</span> 
+                                                @endif
+                                            </p>
+                                        </div>
+
+                                        {{-- Batang Pinoy --}}
+                                        <div>
+                                            <label class="text-[10px] sm:text-xs text-gray-400 uppercase font-bold block">Batang Pinoy Finisher</label>
+                                            <p class="text-sm font-semibold text-gray-700">
+                                                @if($application->batang_pinoy_finisher == 'Yes') 
+                                                    <span class="text-green-600">Yes</span> 
+                                                @else 
+                                                    <span class="text-gray-400">No</span> 
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 4. SUBMITTED FILES LIST --}}
+                        @php
+                            $reqKeys = [
+                                'id_picture' => '2x2 ID Picture', 
+                                'scholarship_form' => 'Scholarship Application Form',
+                                'student_profile' => 'Student-Athlete’s Profile Form',
+                                'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
+                                'coach_reco' => 'Coach’s Recommendation Form',
+                                'adviser_reco' => 'Adviser’s Recommendation Form',
+                                'birth_cert' => 'PSA Birth Certificate',
+                                'report_card' => 'Report Card (SF9)',
+                                'guardian_id' => 'Guardian’s Valid ID'
+                            ];
+
+                            $uploadedCount = 0;
+                            if(isset($application->uploaded_files)) {
+                                foreach($reqKeys as $key => $label) {
+                                    if(isset($application->uploaded_files[$key]) && !empty($application->uploaded_files[$key])) {
+                                        $uploadedCount++;
+                                    }
+                                }
+                            }
+                            $reqStatus = ($uploadedCount == count($reqKeys)) ? 'Complete' : 'Incomplete';
+                            $reqColor = ($reqStatus == 'Complete') ? 'bg-green-100 text-green-700 border-green-200' : 'bg-orange-100 text-orange-700 border-orange-200';
+                            $remarks = $application->document_remarks ?? []; 
+                        @endphp
+
+                        <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
+                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="text-gray-800 font-bold text-base sm:text-lg flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    Submitted Requirements
+                                </h3>
+                                <span class="text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full border {{ $reqColor }} uppercase tracking-wide">
+                                    {{ $reqStatus }} ({{ $uploadedCount }}/{{ count($reqKeys) }})
+                                </span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse min-w-[600px]">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase">
+                                            <th class="px-6 py-3 font-bold w-1/3">Document Name</th>
+                                            <th class="px-6 py-3 font-bold text-center">Status</th>
+                                            <th class="px-6 py-3 font-bold text-center">Action</th>
+                                            <th class="px-6 py-3 font-bold text-left w-1/3">Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        @foreach($reqKeys as $key => $label)
+                                            @php
+                                                $path = $application->uploaded_files[$key] ?? null;
+                                                $hasRemark = isset($remarks[$key]) && !empty($remarks[$key]);
+                                                $isUploaded = !empty($path);
+                                            @endphp
+                                            <tr class="hover:bg-gray-50 transition {{ $hasRemark ? 'bg-red-50' : '' }}">
+                                                <td class="px-6 py-4 text-xs sm:text-sm font-medium text-gray-900">{{ $label }}</td>
+                                                
+                                                <td class="px-6 py-4 text-center">
+                                                    @if($hasRemark)
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 animate-pulse">⚠ NEEDS UPDATE</span>
+                                                    @elseif($isUploaded)
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>SUBMITTED</span>
+                                                    @else
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600">MISSING</span>
+                                                    @endif
+                                                </td>
+                                                
+                                                <td class="px-6 py-4 text-center flex flex-col gap-1 items-center justify-center">
+                                                    @if($isUploaded)
+                                                        @php
+                                                            $viewUrl = route('applicant.view_file', ['id' => $application->id, 'type' => $key]);
+                                                        @endphp
+
+                                                        @if(Str::endsWith(strtolower($path), '.pdf'))
+                                                            <a href="{{ $viewUrl }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center">
+                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                                View PDF
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ $viewUrl }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] sm:text-xs font-bold uppercase hover:underline flex items-center">
+                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                                View Image
+                                                            </a>
+                                                        @endif
+                                                    @else
+                                                        <span class="text-gray-400">-</span>
+                                                    @endif
+                                                </td>
+
+                                                <td class="px-6 py-4 text-xs">
+                                                    @if($hasRemark)
+                                                        <div class="text-red-700 font-bold flex items-start mb-1">
+                                                            <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                            {{ $remarks[$key] }}
+                                                        </div>
+                                                    @else
+                                                        <span class="text-gray-400 italic text-[10px]">Good</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             @endif
+
         @else
             {{-- NO APPLICATION STATE --}}
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 text-center p-10 sm:p-16">
