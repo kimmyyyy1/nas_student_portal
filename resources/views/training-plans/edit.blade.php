@@ -1,26 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
-        
-        {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER: Compact Badge & Live Indicator              --}}
-        {{-- ============================================================= --}}
         <div class="flex md:hidden items-center justify-between w-full py-1">
-            
-            {{-- Badge --}}
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 uppercase shadow-sm border border-purple-200">
                 <i class='bx bxs-edit mr-1.5 text-sm'></i> Edit Plan
             </span>
-
-            {{-- Live Indicator --}}
             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
                 <span class="w-1.5 h-1.5 bg-red-600 rounded-full mr-1"></span> LIVE
             </span>
-
         </div>
 
-        {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Standard View                              --}}
-        {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
                 {{ __('Edit Training Plan') }}: <span class="text-indigo-600 ml-2">{{ $trainingPlan->plan_name }}</span>
@@ -29,17 +17,13 @@
                 </span>
             </h2>
         </div>
-
     </x-slot>
 
-    {{-- 👇 FIX: 'py-2' mobile, 'md:py-12' desktop --}}
     <div class="py-2 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
-            
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
                 <div class="p-6 text-gray-900">
                     
-                    {{-- Error Handling --}}
                     @if ($errors->any())
                         <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded shadow-sm text-sm">
                             <div class="flex items-center mb-2">
@@ -68,15 +52,16 @@
                                        value="{{ old('plan_name', $trainingPlan->plan_name) }}" required>
                             </div>
 
-                            {{-- Assign Team --}}
+                            {{-- Assign Focus Sport (DROPDOWN FIXED) --}}
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Assign Team</label>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Assign Focus Sport</label>
                                 <select name="team_id" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm cursor-pointer">
-                                    <option value="">-- Select Team --</option>
+                                    <option value="">-- Select Focus Sport --</option>
                                     @foreach($teams as $team)
                                         <option value="{{ $team->id }}" 
                                             {{ (old('team_id', $trainingPlan->team_id) == $team->id) ? 'selected' : '' }}>
-                                            {{ $team->team_name }}
+                                            {{-- 👇 FIXED: DISPLAY ONLY SPORT NAME --}}
+                                            {{ $team->sport }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -119,7 +104,7 @@
                         </div>
 
                     </form>
-                </div>a
+                </div> 
             </div>
         </div>
     </div>

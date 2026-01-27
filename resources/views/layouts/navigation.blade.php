@@ -17,8 +17,6 @@
         <div class="flex items-center">
             <img src="{{ asset('images/nas/horizontal.png') }}" alt="NAS Logo" class="h-8 w-auto drop-shadow-sm">
         </div>
-        
-        {{-- Hamburger with Click Effect --}}
         <button @click="open = !open" class="p-2 rounded-md text-gray-600 hover:bg-black/5 focus:outline-none transition transform active:scale-90">
             <i class='bx bx-menu text-3xl'></i>
         </button>
@@ -39,17 +37,13 @@
                 transition-transform duration-300 ease-in-out 
                 md:translate-x-0 transform -translate-x-full md:transition-none flex flex-col">
         
-        {{-- Close Button with Click Effect --}}
         <div class="md:hidden absolute top-4 right-4 z-[60]">
              <button @click="open = false" class="text-gray-500 hover:text-red-600 bg-gray-100/80 rounded-full p-2 transition shadow-sm transform active:scale-90">
                 <i class='bx bx-x text-2xl leading-none'></i>
              </button>
         </div>
 
-        {{-- SCROLLABLE CONTAINER --}}
         <div id="sidebar-menu" class="flex-1 overflow-y-auto no-scrollbar">
-
-            {{-- HEADER LOGO (Animated) --}}
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
                 <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" wire:navigate 
                    class="block w-full px-6 transform active:scale-95 transition-transform duration-200">
@@ -57,17 +51,11 @@
                 </a>
             </div>
 
-            {{-- MENU ITEMS --}}
             <div class="px-3 space-y-1 pb-4">
-                
-                {{-- 👇 HELPERS: Animation Classes Added (active:scale-95) --}}
                 @php
-                    // For Main Dashboard items (Bolder font)
                     $navMainClass = "flex items-center px-4 py-3 text-sm font-bold rounded-lg transition-all duration-200 group transform active:scale-95";
-                    // For Sub-items (Medium font)
                     $navSubClass = "flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group transform active:scale-95";
                     
-                    // Colors
                     $activeIndigo = "bg-indigo-50 text-indigo-800 shadow-sm ring-1 ring-indigo-200";
                     $inactiveIndigo = "text-gray-600 hover:bg-gray-50 hover:text-indigo-700";
                     
@@ -79,20 +67,17 @@
                 @endphp
 
                 @if(Auth::user()->role === 'student')
-                    <a href="{{ route('student.dashboard') }}" wire:navigate
-                       class="{{ $navMainClass }} {{ request()->routeIs('student.dashboard') ? $activeIndigo : $inactiveIndigo }}">
+                    <a href="{{ route('student.dashboard') }}" wire:navigate class="{{ $navMainClass }} {{ request()->routeIs('student.dashboard') ? $activeIndigo : $inactiveIndigo }}">
                         <i class='bx bxs-dashboard text-xl mr-3 {{ request()->routeIs('student.dashboard') ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600' }}'></i>
                         My Dashboard
                     </a>
 
                 @elseif(Auth::user()->role === 'teacher')
-                    <a href="{{ route('dashboard') }}" wire:navigate
-                       class="{{ $navMainClass }} {{ request()->routeIs('dashboard') ? $activeIndigo : $inactiveIndigo }}">
+                    <a href="{{ route('dashboard') }}" wire:navigate class="{{ $navMainClass }} {{ request()->routeIs('dashboard') ? $activeIndigo : $inactiveIndigo }}">
                         <i class='bx bxs-dashboard text-xl mr-3 {{ request()->routeIs('dashboard') ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600' }}'></i>
                         Teacher Dashboard
                     </a>
                     <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Class Management</p></div>
-                    
                     <a href="{{ route('teacher.advisory') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('teacher.advisory') ? $activeBlue : $inactiveBlue }}">
                         <i class='bx bx-chalkboard text-lg mr-3 {{ request()->routeIs('teacher.advisory') ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600' }}'></i> My Advisory Class
                     </a>
@@ -107,12 +92,10 @@
                     </a>
 
                 @elseif(Auth::user()->role === 'coach')
-                    <a href="{{ route('dashboard') }}" wire:navigate
-                       class="{{ $navMainClass }} {{ request()->routeIs('dashboard') ? 'bg-orange-50 text-orange-800 shadow-sm ring-1 ring-orange-200' : 'text-gray-600 hover:bg-gray-50 hover:text-orange-700' }}">
+                    <a href="{{ route('dashboard') }}" wire:navigate class="{{ $navMainClass }} {{ request()->routeIs('dashboard') ? 'bg-orange-50 text-orange-800 shadow-sm ring-1 ring-orange-200' : 'text-gray-600 hover:bg-gray-50 hover:text-orange-700' }}">
                         <i class='bx bxs-dashboard text-xl mr-3 {{ request()->routeIs('dashboard') ? 'text-orange-600' : 'text-gray-400 group-hover:text-orange-600' }}'></i> Coach Dashboard
                     </a>
                     <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Sports Management</p></div>
-                    
                     <a href="{{ route('teams.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('teams.*') ? $activeOrange : $inactiveOrange }}">
                         <i class='bx bx-trophy text-lg mr-3 {{ request()->routeIs('teams.*') ? 'text-orange-600' : 'text-gray-400 group-hover:text-orange-600' }}'></i> Sports Teams
                     </a>
@@ -130,12 +113,16 @@
                     </a>
 
                 @else
-                    {{-- ADMIN --}}
+                    {{-- ========================================================================= --}}
+                    {{-- 👑 ADMIN DASHBOARD (APPLIES TO 'admin', 'registrar', 'ict support', etc.) --}}
+                    {{-- ========================================================================= --}}
+                    
                     <a href="{{ route('dashboard') }}" wire:navigate
                        class="{{ $navMainClass }} {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-800 shadow-sm ring-1 ring-blue-200' : 'text-gray-600 hover:bg-gray-50 hover:text-blue-700' }}">
                         <i class='bx bxs-dashboard text-xl mr-3 {{ request()->routeIs('dashboard') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Admin Dashboard
                     </a>
 
+                    {{-- 🔹 ENROLLMENT GROUP (Visible to EVERYONE) --}}
                     <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Enrollment</p></div>
                     
                     <a href="{{ route('admission.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('admission.*') ? $activeBlue : $inactiveBlue }}">
@@ -146,7 +133,6 @@
                         @endif
                     </a>
 
-                    {{-- 👇 ADDED: Enrollment Link --}}
                     <a href="{{ route('official-enrollment.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('official-enrollment.*') ? $activeBlue : $inactiveBlue }}">
                         <i class='bx bx-user-plus text-lg mr-3 {{ request()->routeIs('official-enrollment.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i>
                         Enrollment
@@ -156,49 +142,59 @@
                         <i class='bx bx-user-pin text-lg mr-3 {{ request()->routeIs('students.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Student Directory
                     </a>
 
-                    <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Academics</p></div>
-                    
-                    <a href="{{ route('sections.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('sections.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-chalkboard text-lg mr-3 {{ request()->routeIs('sections.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Sections & Classes
-                    </a>
-                    <a href="{{ route('subjects.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('subjects.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-book text-lg mr-3 {{ request()->routeIs('subjects.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Subjects
-                    </a>
-                    <a href="{{ route('schedules.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('schedules.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-calendar text-lg mr-3 {{ request()->routeIs('schedules.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Class Schedules
-                    </a>
-                    <a href="{{ route('grades.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('grades.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-bar-chart-alt-2 text-lg mr-3 {{ request()->routeIs('grades.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Grades
-                    </a>
-                    <a href="{{ route('attendances.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('attendances.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-check-circle text-lg mr-3 {{ request()->routeIs('attendances.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Attendance
-                    </a>
+                    {{-- 
+                        🚫 RESTRICTED SECTIONS 
+                        Logic: Show these ONLY if the user is NOT "Registrar".
+                        If user name contains "Registrar", hide them. 
+                        Otherwise (like ICT Support), show them.
+                    --}}
+                    @if(Auth::user()->name !== 'Registrar') 
 
-                    <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Sports</p></div>
-                    
-                    <a href="{{ route('teams.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('teams.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-trophy text-lg mr-3 {{ request()->routeIs('teams.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Sports Teams
-                    </a>
-                    <a href="{{ route('training-plans.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('training-plans.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-run text-lg mr-3 {{ request()->routeIs('training-plans.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Training Plans
-                    </a>
-                    <a href="{{ route('medical-records.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('medical-records.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-pulse text-lg mr-3 {{ request()->routeIs('medical-records.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Medical Records
-                    </a>
+                        <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Academics</p></div>
+                        
+                        <a href="{{ route('sections.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('sections.*') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bx-chalkboard text-lg mr-3 {{ request()->routeIs('sections.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Sections & Classes
+                        </a>
+                        <a href="{{ route('subjects.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('subjects.*') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bx-book text-lg mr-3 {{ request()->routeIs('subjects.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Subjects
+                        </a>
+                        <a href="{{ route('schedules.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('schedules.*') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bx-calendar text-lg mr-3 {{ request()->routeIs('schedules.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Class Schedules
+                        </a>
+                        <a href="{{ route('grades.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('grades.*') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bx-bar-chart-alt-2 text-lg mr-3 {{ request()->routeIs('grades.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Grades
+                        </a>
+                        <a href="{{ route('attendances.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('attendances.*') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bx-check-circle text-lg mr-3 {{ request()->routeIs('attendances.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Attendance
+                        </a>
 
-                    <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">System</p></div>
-                    
-                    <a href="{{ route('reports.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('reports.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bxs-report text-lg mr-3 {{ request()->routeIs('reports.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Reports & Forms
-                    </a>
-                    <a href="{{ route('staff.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('staff.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-cog text-lg mr-3 {{ request()->routeIs('staff.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> User Management
-                    </a>
+                        <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Sports</p></div>
+                        
+                        <a href="{{ route('teams.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('teams.*') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bx-trophy text-lg mr-3 {{ request()->routeIs('teams.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Sports Teams
+                        </a>
+                        <a href="{{ route('training-plans.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('training-plans.*') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bx-run text-lg mr-3 {{ request()->routeIs('training-plans.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Training Plans
+                        </a>
+                        <a href="{{ route('medical-records.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('medical-records.*') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bx-pulse text-lg mr-3 {{ request()->routeIs('medical-records.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Medical Records
+                        </a>
+
+                        <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">System</p></div>
+                        
+                        <a href="{{ route('reports.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('reports.*') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bxs-report text-lg mr-3 {{ request()->routeIs('reports.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Reports & Forms
+                        </a>
+                        <a href="{{ route('staff.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('staff.*') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bx-cog text-lg mr-3 {{ request()->routeIs('staff.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> User Management
+                        </a>
+
+                    @endif
+
                 @endif
             </div>
         </div>
 
-        {{-- USER PROFILE & LOGOUT --}}
         <div class="p-4 border-t border-gray-200/50 bg-gray-50/80 shrink-0 backdrop-blur-sm mt-auto">
             <div class="flex items-center mb-3">
                 <div class="flex-shrink-0">

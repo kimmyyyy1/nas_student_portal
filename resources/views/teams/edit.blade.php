@@ -23,7 +23,7 @@
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
-                {{ __('Edit Team') }}: <span class="text-indigo-600 ml-2">{{ $team->team_name }}</span>
+                {{ __('Edit Team') }}
                 <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
                     <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
                 </span>
@@ -59,28 +59,16 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             
-                            {{-- Team Name --}}
+                            {{-- Focus Sports (Text Input) --}}
                             <div>
-                                <label for="team_name" class="block text-xs font-bold text-gray-500 uppercase mb-1">Team Name</label>
-                                <input type="text" name="team_name" id="team_name" 
+                                <label for="sport" class="block text-xs font-bold text-gray-500 uppercase mb-1">Focus Sports</label>
+                                <input type="text" name="sport" id="sport" 
                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" 
-                                       value="{{ old('team_name', $team->team_name) }}" required>
-                            </div>
-
-                            {{-- Sport --}}
-                            <div>
-                                <label for="sport" class="block text-xs font-bold text-gray-500 uppercase mb-1">Sport</label>
-                                <select name="sport" id="sport" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm cursor-pointer" required>
-                                    <option value="">-- Select Sport --</option>
-                                    @foreach(['Taekwondo', 'Table Tennis', 'Judo', 'Gymnastics', 'Badminton', 'Athletics', 'Aquatics', 'Arnis', 'Archery', 'Wrestling', 'Weightlifting'] as $s)
-                                        <option value="{{ $s }}" {{ (old('sport', $team->sport) == $s) ? 'selected' : '' }}>{{ $s }}</option>
-                                    @endforeach
-                                    <option value="Other" {{ (old('sport', $team->sport) == 'Other') ? 'selected' : '' }}>Other</option>
-                                </select>
+                                       value="{{ old('sport', $team->sport) }}" required>
                             </div>
                             
                             {{-- Coach Name --}}
-                            <div class="md:col-span-2">
+                            <div>
                                 <label for="coach_name" class="block text-xs font-bold text-gray-500 uppercase mb-1">Coach Name (Optional)</label>
                                 <input type="text" name="coach_name" id="coach_name" 
                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" 

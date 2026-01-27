@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Team;
 use Illuminate\Http\Request;
-
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-// Tandaan: Pwede tayong magdagdag ng 'Rule' dito kung kailangan ng unique validation
 
 class TeamController extends Controller
 {
@@ -16,7 +14,8 @@ class TeamController extends Controller
      */
     public function index(): View
     {
-        $teams = Team::latest()->get();
+        // Order by Focus Sport alphabetically
+        $teams = Team::orderBy('sport')->get();
         return view('teams.index', compact('teams'));
     }
 
@@ -33,15 +32,20 @@ class TeamController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // 1. Validate ONLY sport and coach (REMOVE team_name here)
         $validatedData = $request->validate([
-            'team_name' => 'required|string|max:255',
             'sport' => 'required|string|max:255',
             'coach_name' => 'nullable|string|max:255',
         ]);
 
+        // 2. Auto-generate Team Name based on Sport
+        // Format: "Sport Name" + " Team" (e.g., "Badminton Team")
+        $validatedData['team_name'] = $validatedData['sport'] . ' Team';
+
+        // 3. Create
         Team::create($validatedData);
 
-        return redirect()->route('teams.index')->with('success', 'Team added successfully.');
+        return redirect()->route('teams.index')->with('success', 'Focus Sport added successfully.');
     }
 
     /**
@@ -55,40 +59,37 @@ class TeamController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Team $team): View // Pinuno na natin ito
+    public function edit(Team $team): View
     {
-        // Ipakita ang edit view at ipasa ang team data
         return view('teams.edit', compact('team'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Team $team): RedirectResponse // Pinuno na natin ito
+    public function update(Request $request, Team $team): RedirectResponse
     {
-        // 1. I-validate
+        // 1. Validate ONLY sport and coach
         $validatedData = $request->validate([
-            'team_name' => 'required|string|max:255',
             'sport' => 'required|string|max:255',
             'coach_name' => 'nullable|string|max:255',
         ]);
 
-        // 2. I-update
+        // 2. Auto-update Team Name based on new Sport
+        $validatedData['team_name'] = $validatedData['sport'] . ' Team';
+
+        // 3. Update
         $team->update($validatedData);
 
-        // 3. Bumalik sa listahan
-        return redirect()->route('teams.index')->with('success', 'Team updated successfully.');
+        return redirect()->route('teams.index')->with('success', 'Focus Sport updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Team $team): RedirectResponse // Pinuno na natin ito
+    public function destroy(Team $team): RedirectResponse
     {
-        // Burahin ang team
         $team->delete();
-
-        // Bumalik sa listahan
-        return redirect()->route('teams.index')->with('success', 'Team deleted successfully.');
+        return redirect()->route('teams.index')->with('success', 'Focus Sport deleted successfully.');
     }
 }
