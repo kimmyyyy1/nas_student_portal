@@ -1,10 +1,11 @@
 <x-applicant-layout>
-    {{-- WRAPPER FOR ALPINE DATA --}}
     <div x-data="applicantForm()" class="max-w-7xl mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
         
         <div class="text-center mb-6 sm:mb-10">
             <img src="{{ asset('images/nas/horizontal.png') }}" class="h-10 sm:h-12 md:h-16 mx-auto mb-3 sm:mb-4 drop-shadow-sm object-contain" alt="NAS Logo">
-            <p class="text-xs sm:text-sm text-gray-500 mt-1 uppercase tracking-widest font-bold">Based on SAIS Guidelines</p>
+            <h2 class="text-sm sm:text-base md:text-lg font-extrabold text-gray-700 uppercase tracking-wide leading-tight max-w-2xl mx-auto">
+                Edit Application: NASCENT SAS
+            </h2>
         </div>
 
         <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
@@ -25,21 +26,11 @@
                     @csrf 
                     @method('PATCH')
 
-                    {{-- GET REMARKS DATA --}}
-                    @php
-                        $remarks = $application->document_remarks ?? [];
-                        $idPicRemark = $remarks['id_picture'] ?? null;
-                        $hasIdPic = isset($application->uploaded_files['id_picture']);
-                        
-                        // Logic: Show input ONLY if there is a remark OR if there is no file yet
-                        $showIdInput = $idPicRemark || !$hasIdPic;
-                    @endphp
-
                     {{-- ID PICTURE UPLOAD SECTION --}}
-                    <div class="mb-8 sm:mb-10 bg-indigo-50 p-6 sm:p-8 rounded-xl border {{ $idPicRemark ? 'border-red-500 ring-2 ring-red-200' : 'border-indigo-100' }} flex flex-col md:flex-row items-center gap-6 sm:gap-8">
+                    <div class="mb-8 sm:mb-10 bg-indigo-50 p-6 sm:p-8 rounded-xl border border-indigo-100 flex flex-col md:flex-row items-center gap-6 sm:gap-8">
                         <div class="flex-shrink-0 text-center">
                             <div style="width: 150px; height: 150px; sm:width: 200px; sm:height: 200px;" class="w-40 h-40 sm:w-52 sm:h-52 bg-white border-4 border-dashed border-indigo-300 flex items-center justify-center text-indigo-400 rounded-lg overflow-hidden relative shadow-sm mx-auto">
-                                @if($hasIdPic)
+                                @if($application->uploaded_files['id_picture'] ?? false)
                                     <img src="{{ $application->uploaded_files['id_picture'] }}" class="absolute inset-0 w-full h-full object-cover z-10" id="current-preview">
                                 @else
                                     <div id="preview-text" class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
@@ -48,41 +39,12 @@
                                 @endif
                                 <img id="preview" class="absolute inset-0 w-full h-full object-cover hidden z-20 bg-white">
                             </div>
-                            @if($hasIdPic && !$idPicRemark)
-                                <p class="text-xs text-green-600 font-bold mt-2">✔ Photo Accepted</p>
-                            @endif
                         </div>
-                        
                         <div class="flex-1 w-full text-center md:text-left">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-lg sm:text-xl font-bold text-indigo-900">ID Picture</h3>
-                                @if($idPicRemark)
-                                    <span class="text-xs font-bold text-red-700 bg-red-100 px-2 py-1 rounded animate-pulse">ACTION REQUIRED</span>
-                                @elseif($hasIdPic)
-                                    <span class="text-xs font-bold text-green-700 bg-green-100 px-2 py-1 rounded">GOOD</span>
-                                @endif
-                            </div>
-
-                            @if($idPicRemark)
-                                <div class="mb-3 p-3 bg-red-100 border-l-4 border-red-600 text-red-800 text-xs rounded text-left">
-                                    <strong>⚠️ ADMIN REMARK:</strong> {{ $idPicRemark }}
-                                    <p class="mt-1 italic font-normal">Please upload a new photo to resolve this.</p>
-                                </div>
-                            @endif
-                            
-                            {{-- CONDITIONALLY SHOW INPUT --}}
-                            @if($showIdInput)
-                                <p class="text-xs sm:text-sm text-indigo-700 mb-4">Upload a clear 2x2 photo. (Max 5MB)</p>
-                                <input type="file" name="id_picture" accept="image/*" 
-                                       {{ $idPicRemark ? 'required' : '' }}
-                                       onchange="document.getElementById('preview').src = window.URL.createObjectURL(this.files[0]); document.getElementById('preview').classList.remove('hidden');" 
-                                       class="block w-full text-xs sm:text-sm text-slate-500 file:mr-4 file:py-2 sm:file:py-3 file:px-4 sm:file:px-6 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer transition mx-auto md:mx-0 shadow-sm border border-gray-300 rounded-md bg-white">
-                            @else
-                                <div class="bg-green-50 border border-green-200 text-green-800 p-3 rounded-md text-sm">
-                                    <p class="font-bold">✅ This photo has been accepted.</p>
-                                    <p class="text-xs mt-1">No further action is required for this item.</p>
-                                </div>
-                            @endif
+                            <h3 class="text-lg sm:text-xl font-bold text-indigo-900 mb-2">Update ID Picture</h3>
+                            <p class="text-xs sm:text-sm text-indigo-700 mb-4">Requirement: 2x2 size, formal attire, white background. (Max 5MB)</p>
+                            <input type="file" name="id_picture" accept="image/*" onchange="document.getElementById('preview').src = window.URL.createObjectURL(this.files[0]); document.getElementById('preview').classList.remove('hidden');" 
+                            class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 sm:file:py-3 file:px-4 sm:file:px-6 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer transition mx-auto md:mx-0 shadow-sm border border-gray-300 rounded-md bg-white">
                         </div>
                     </div>
 
@@ -106,7 +68,7 @@
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Birthday</label><input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300" required value="{{ old('date_of_birth') }}" x-model="dob" @change="calculateAge()"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Birthday</label><input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300" required value="{{ old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d')) }}" x-model="dob" @change="calculateAge()"></div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Age</label><input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 bg-gray-100" readonly x-model="age"></div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Sex</label>
@@ -385,6 +347,57 @@
                                     @endif
                                 </div>
                             @endforeach
+
+                            {{-- DYNAMIC REQUIREMENTS --}}
+                            
+                            {{-- Taekwondo: Kukkiwon Certificate --}}
+                            <div x-show="selectedSport === 'Taekwondo'" class="p-4 sm:p-5 rounded-xl border bg-gray-50 border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+                                    <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
+                                        Kukkiwon Certificate <span class="text-red-600">*</span>
+                                    </label>
+                                </div>
+                                <input type="file" name="files[kukkiwon_cert]" 
+                                       class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
+                                       accept=".pdf,.jpg,.jpeg,.png" :required="selectedSport === 'Taekwondo'">
+                            </div>
+
+                            {{-- IP: Certification --}}
+                            <div x-show="isIP === 'Yes'" class="p-4 sm:p-5 rounded-xl border bg-gray-50 border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+                                    <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
+                                        IP Certification <span class="text-red-600">*</span>
+                                    </label>
+                                </div>
+                                <input type="file" name="files[ip_cert]" 
+                                       class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
+                                       accept=".pdf,.jpg,.jpeg,.png" :required="isIP === 'Yes'">
+                            </div>
+
+                            {{-- PWD: ID --}}
+                            <div x-show="isPWD === 'Yes'" class="p-4 sm:p-5 rounded-xl border bg-gray-50 border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+                                    <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
+                                        PWD ID <span class="text-red-600">*</span>
+                                    </label>
+                                </div>
+                                <input type="file" name="files[pwd_id]" 
+                                       class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
+                                       accept=".pdf,.jpg,.jpeg,.png" :required="isPWD === 'Yes'">
+                            </div>
+
+                            {{-- 4Ps: ID or Certification --}}
+                            <div x-show="is4Ps === 'Yes'" class="p-4 sm:p-5 rounded-xl border bg-gray-50 border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+                                    <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
+                                        4Ps ID or Certification <span class="text-red-600">*</span>
+                                    </label>
+                                </div>
+                                <input type="file" name="files[4ps_id]" 
+                                       class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
+                                       accept=".pdf,.jpg,.jpeg,.png" :required="is4Ps === 'Yes'">
+                            </div>
+
                         </div>
                     </div>
 
@@ -411,6 +424,10 @@
                 ipGroup: @json(old('ip_group_name', $application->ip_group_name)),
                 isPWD: @json(old('is_pwd', $application->is_pwd ? "Yes" : "No")),
                 pwdType: @json(old('pwd_disability', $application->pwd_disability)),
+                
+                // Added for 4Ps
+                is4Ps: @json(old('is_4ps', $application->is_4ps ? "Yes" : "No")),
+
                 selectedRegion: @json(old('region', $application->region)),
                 selectedProvince: @json(old('province', $application->province)),
                 availableProvinces: [],

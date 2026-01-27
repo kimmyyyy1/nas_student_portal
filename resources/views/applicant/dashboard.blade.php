@@ -114,7 +114,6 @@
                                             $isUploaded = isset($uploaded[$field]) && !empty($uploaded[$field]);
                                             $hasRemark = isset($remarks[$field]) && !empty($remarks[$field]);
                                             
-                                            // If not uploaded OR has a remark, it's not "done" yet.
                                             if (!$isUploaded || $hasRemark) { 
                                                 $allFilesUploaded = false; 
                                             }
@@ -325,7 +324,12 @@
                                                 'adviser_reco' => 'Adviser’s Recommendation Form',
                                                 'birth_cert' => 'PSA Birth Certificate',
                                                 'report_card' => 'Report Card (SF9)',
-                                                'guardian_id' => 'Guardian’s Valid ID'
+                                                'guardian_id' => 'Guardian’s Valid ID',
+                                                // Added new fields based on updated logic
+                                                'kukkiwon_cert' => 'Kukkiwon Certificate',
+                                                'ip_cert' => 'IP Certification',
+                                                'pwd_id' => 'PWD ID',
+                                                '4ps_id' => '4Ps ID/Certification'
                                             ];
                                             
                                             // SAFE DECODE AGAIN
@@ -339,6 +343,13 @@
                                                 $path = $uploadedList[$key] ?? null;
                                                 $hasRemark = isset($remarksList[$key]) && !empty($remarksList[$key]);
                                                 $isUploaded = !empty($path);
+
+                                                // Filter: Only show the "Special" requirements if they are actually uploaded
+                                                // Otherwise the list looks too long with irrelevant N/A items
+                                                $isSpecial = in_array($key, ['kukkiwon_cert', 'ip_cert', 'pwd_id', '4ps_id']);
+                                                if ($isSpecial && !$isUploaded) {
+                                                    continue; // Skip loop if special doc is not present
+                                                }
                                             @endphp
                                             <tr class="hover:bg-gray-50 transition {{ $hasRemark ? 'bg-red-50' : '' }}">
                                                 <td class="px-6 py-4 text-xs sm:text-sm font-medium text-gray-900">{{ $label }}</td>
