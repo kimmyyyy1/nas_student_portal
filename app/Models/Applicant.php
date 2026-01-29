@@ -69,6 +69,7 @@ class Applicant extends Model
         
         // ✨ NEW FIELDS (Idinagdag para sa Admin Process & File Updates)
         'document_remarks', 
+        'document_statuses',
         'date_checked',
         'file_timestamps', // <--- IDAGDAG ITO para sa individual file tracking
     ];
@@ -77,6 +78,7 @@ class Applicant extends Model
         // Arrays (JSON Columns)
         'uploaded_files' => 'array',
         'document_remarks' => 'array', 
+        'document_statuses' => 'array',
         'file_timestamps' => 'array', // <--- IDAGDAG ITO (JSON to Array)
         
         // Dates

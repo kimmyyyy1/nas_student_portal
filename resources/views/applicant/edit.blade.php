@@ -26,73 +26,110 @@
                     @csrf 
                     @method('PATCH')
 
-                    {{-- ID PICTURE UPLOAD SECTION --}}
-                    <div class="mb-8 sm:mb-10 bg-indigo-50 p-6 sm:p-8 rounded-xl border border-indigo-100 flex flex-col md:flex-row items-center gap-6 sm:gap-8">
-                        <div class="flex-shrink-0 text-center">
-                            <div style="width: 150px; height: 150px; sm:width: 200px; sm:height: 200px;" class="w-40 h-40 sm:w-52 sm:h-52 bg-white border-4 border-dashed border-indigo-300 flex items-center justify-center text-indigo-400 rounded-lg overflow-hidden relative shadow-sm mx-auto">
-                                @if($application->uploaded_files['id_picture'] ?? false)
-                                    <img src="{{ $application->uploaded_files['id_picture'] }}" class="absolute inset-0 w-full h-full object-cover z-10" id="current-preview">
-                                @else
-                                    <div id="preview-text" class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-                                        <span class="text-xs text-center px-2 font-bold uppercase tracking-wider">2x2 Photo<br>Preview</span>
-                                    </div>
-                                @endif
-                                <img id="preview" class="absolute inset-0 w-full h-full object-cover hidden z-20 bg-white">
-                            </div>
-                        </div>
-                        <div class="flex-1 w-full text-center md:text-left">
-                            <h3 class="text-lg sm:text-xl font-bold text-indigo-900 mb-2">Update ID Picture</h3>
-                            <p class="text-xs sm:text-sm text-indigo-700 mb-4">Requirement: 2x2 size, formal attire, white background. (Max 5MB)</p>
-                            <input type="file" name="id_picture" accept="image/*" onchange="document.getElementById('preview').src = window.URL.createObjectURL(this.files[0]); document.getElementById('preview').classList.remove('hidden');" 
-                            class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 sm:file:py-3 file:px-4 sm:file:px-6 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer transition mx-auto md:mx-0 shadow-sm border border-gray-300 rounded-md bg-white">
-                        </div>
-                    </div>
-
-                    {{-- 1. APPLICANT INFORMATION --}}
+                    {{-- 1. PERSONAL INFORMATION (Bio-data Layout) --}}
                     <div class="mb-8 sm:mb-10">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center">
-                            <span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">1</span> Applicant Information
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center">
+                            <span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">1</span> 
+                            PERSONAL INFORMATION
                         </h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">LRN</label>
-                                <input type="text" name="lrn" class="w-full rounded-lg border-gray-300 shadow-sm h-11 bg-gray-100 text-gray-600 cursor-not-allowed" required value="{{ old('lrn', $application->lrn) }}" readonly>
+
+                        {{-- FLEX CONTAINER: Left (Inputs) | Right (Photo) --}}
+                        <div class="flex flex-col-reverse md:flex-row gap-8 items-start">
+                            
+                            {{-- === LEFT COLUMN: ALL TEXT INPUTS === --}}
+                            <div class="flex-1 w-full space-y-6">
+                                
+                                {{-- LRN --}}
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Learner Reference Number (LRN):</label>
+                                    <p class="text-xs text-gray-500 mb-2 italic">(limit input to 12 numeric characters only)</p>
+                                    <input type="text" name="lrn" 
+                                           class="w-full rounded-lg border-gray-300 shadow-sm h-11 bg-gray-100 text-gray-600 cursor-not-allowed focus:border-indigo-500 focus:ring-indigo-500 font-mono text-lg tracking-wide" 
+                                           required value="{{ old('lrn', $application->lrn) }}" 
+                                           readonly>
+                                </div>
+
+                                {{-- NAME GRID --}}
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Last Name:</label>
+                                        <input type="text" name="last_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 uppercase" required value="{{ old('last_name', $application->last_name) }}">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">First Name:</label>
+                                        <input type="text" name="first_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 uppercase" required value="{{ old('first_name', $application->first_name) }}">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Middle Name:</label>
+                                        <input type="text" name="middle_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 uppercase" placeholder="Write N/A if not applicable" value="{{ old('middle_name', $application->middle_name) }}">
+                                    </div>
+                                </div>
+
+                                {{-- BIRTH & SEX GRID --}}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Date of Birth:</label>
+                                        <input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d')) }}" x-model="dob" @change="calculateAge()">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-bold text-gray-700 mb-2">Age:</label>
+                                            <input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed h-11 text-gray-600 font-bold text-center" value="{{ old('age', $application->age) }}" readonly x-model="age">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-bold text-gray-700 mb-2">Sex:</label>
+                                            <select name="gender" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required>
+                                                <option value="Boy" {{ old('gender', $application->gender) == 'Boy' ? 'selected' : '' }}>Boy</option>
+                                                <option value="Girl" {{ old('gender', $application->gender) == 'Girl' ? 'selected' : '' }}>Girl</option>
+                                                {{-- Fallback for existing data if stored as Male/Female --}}
+                                                <option value="Male" {{ old('gender', $application->gender) == 'Male' ? 'selected' : '' }} hidden>Boy</option>
+                                                <option value="Female" {{ old('gender', $application->gender) == 'Female' ? 'selected' : '' }} hidden>Girl</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Place of Birth *</label>
+                                        <input type="text" name="birthplace" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('birthplace', $application->birthplace) }}">
+                                    </div>
+                                </div>
+
+                                {{-- RELIGION & EMAIL --}}
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                     <div><label class="block text-sm font-bold text-gray-700 mb-2">Religion</label><input type="text" name="religion" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('religion', $application->religion) }}"></div>
+                                     <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="email_address" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 h-11 text-gray-500" required value="{{ $application->email_address }}" readonly></div>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Last Name</label><input type="text" name="last_name" class="w-full rounded-lg border-gray-300" required value="{{ old('last_name', $application->last_name) }}"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">First Name</label><input type="text" name="first_name" class="w-full rounded-lg border-gray-300" required value="{{ old('first_name', $application->first_name) }}"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Middle Name</label><input type="text" name="middle_name" class="w-full rounded-lg border-gray-300" value="{{ old('middle_name', $application->middle_name) }}"></div>
-                        </div>
+                            {{-- === RIGHT COLUMN: PHOTO UPLOAD === --}}
+                            <div class="w-full md:w-64 flex-shrink-0 flex flex-col items-center">
+                                <label class="block text-sm font-bold text-gray-700 mb-2 text-center">Recent 2X2 Photograph <br><span class="font-normal text-xs text-gray-500">(White Background)</span></label>
+                                
+                                <div style="width: 200px; height: 200px;" class="bg-white border-4 border-dashed border-indigo-300 flex items-center justify-center text-indigo-400 rounded-lg overflow-hidden relative shadow-sm mb-3">
+                                    @if($application->uploaded_files['id_picture'] ?? false)
+                                        <img src="{{ $application->uploaded_files['id_picture'] }}" class="absolute inset-0 w-full h-full object-cover z-10" id="current-preview">
+                                    @else
+                                        <div id="preview-text" class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                                            <span class="text-xs text-center px-2 font-bold uppercase tracking-wider text-indigo-300">Photo<br>Preview</span>
+                                        </div>
+                                    @endif
+                                    <img id="preview" class="absolute inset-0 w-full h-full object-cover hidden z-20 bg-white">
+                                </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Birthday</label><input type="date" id="date_of_birth" name="date_of_birth" class="w-full rounded-lg border-gray-300" required value="{{ old('date_of_birth', \Carbon\Carbon::parse($application->date_of_birth)->format('Y-m-d')) }}" x-model="dob" @change="calculateAge()"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Age</label><input type="number" id="age" name="age" class="w-full rounded-lg border-gray-300 bg-gray-100" readonly x-model="age"></div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Sex</label>
-                                <select name="gender" class="w-full rounded-lg border-gray-300" required>
-                                    <option value="Male" {{ old('gender', $application->gender) == 'Male' ? 'selected' : '' }}>Male</option>
-                                    <option value="Female" {{ old('gender', $application->gender) == 'Female' ? 'selected' : '' }}>Female</option>
-                                </select>
+                                <input type="file" name="id_picture" accept="image/*" 
+                                       onchange="document.getElementById('preview').src = window.URL.createObjectURL(this.files[0]); document.getElementById('preview').classList.remove('hidden');" 
+                                       class="block w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer text-center">
                             </div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Place of Birth</label><input type="text" name="birthplace" class="w-full rounded-lg border-gray-300" required value="{{ old('birthplace', $application->birthplace) }}"></div>
-                        </div>
 
-                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Religion</label><input type="text" name="religion" class="w-full rounded-lg border-gray-300" value="{{ old('religion', $application->religion) }}"></div>
-                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="email_address" class="w-full rounded-lg border-gray-300 bg-gray-100" required value="{{ $application->email_address }}" readonly></div>
-                         </div>
+                        </div>
                     </div>
 
                     {{-- 2. ADDRESS INFORMATION --}}
                     <div class="mb-8 sm:mb-10">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">2</span> Address Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Region</label>
-                                <select name="region" x-model="selectedRegion" @change="updateProvinces()" class="w-full rounded-lg border-gray-300" required>
+                                <select name="region" x-model="selectedRegion" @change="updateProvinces()" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required>
                                     <option value="">Select Region</option>
                                     <template x-for="(provinces, region) in regionsData" :key="region">
                                         <option :value="region" x-text="region" :selected="region == selectedRegion"></option>
@@ -101,39 +138,37 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Province</label>
-                                <select name="province" x-model="selectedProvince" class="w-full rounded-lg border-gray-300" required :disabled="!selectedRegion">
+                                <select name="province" x-model="selectedProvince" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required :disabled="!selectedRegion">
                                     <option value="">Select Province</option>
                                     <template x-for="province in availableProvinces" :key="province">
                                         <option :value="province" x-text="province" :selected="province == selectedProvince"></option>
                                     </template>
                                 </select>
                             </div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Municipality/City</label><input type="text" name="municipality_city" class="w-full rounded-lg border-gray-300" required value="{{ old('municipality_city', $application->municipality_city) }}"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Municipality/City</label><input type="text" name="municipality_city" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('municipality_city', $application->municipality_city) }}"></div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Barangay</label><input type="text" name="barangay" class="w-full rounded-lg border-gray-300" required value="{{ old('barangay', $application->barangay) }}"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Street</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300" value="{{ old('street_address', $application->street_address) }}" required></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Zip Code</label><input type="text" name="zip_code" class="w-full rounded-lg border-gray-300" value="{{ old('zip_code', $application->zip_code) }}" required maxlength="4"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Barangay</label><input type="text" name="barangay" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('barangay', $application->barangay) }}"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Street / House No.</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('street_address', $application->street_address) }}" required></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Zip Code</label><input type="text" name="zip_code" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('zip_code', $application->zip_code) }}" required maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"></div>
                         </div>
                     </div>
 
                     {{-- 3. ACADEMIC & SPORTS --}}
                     <div class="mb-8 sm:mb-10">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">3</span> Academic & Sports</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300" required value="{{ old('previous_school', $application->previous_school) }}"></div>
-                            
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">3</span> Academic & Sports</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Last School Attended</label><input type="text" name="previous_school" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500" required value="{{ old('previous_school', $application->previous_school) }}"></div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">School Type</label>
-                                <select name="school_type" class="w-full rounded-lg border-gray-300">
+                                <select name="school_type" class="w-full rounded-lg border-gray-300 shadow-sm h-11">
                                     <option value="Public" {{ old('school_type', $application->school_type) == 'Public' ? 'selected' : '' }}>Public</option>
                                     <option value="Private" {{ old('school_type', $application->school_type) == 'Private' ? 'selected' : '' }}>Private</option>
                                 </select>
                             </div>
-                            
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Grade Level Applying For</label>
-                                <select name="grade_level_applied" class="w-full rounded-lg border-gray-300" required>
+                                <select name="grade_level_applied" class="w-full rounded-lg border-gray-300 shadow-sm h-11" required>
                                     <option value="Grade 7" {{ old('grade_level_applied', $application->grade_level_applied) == 'Grade 7' ? 'selected' : '' }}>Grade 7</option>
                                     <option value="Grade 8" {{ old('grade_level_applied', $application->grade_level_applied) == 'Grade 8' ? 'selected' : '' }}>Grade 8</option>
                                 </select>
@@ -143,7 +178,7 @@
                         {{-- FOCUS SPORTS --}}
                         <div class="bg-indigo-50 p-6 rounded-lg mb-6 border border-indigo-100">
                             <label class="block text-sm font-bold text-indigo-900 mb-3 uppercase tracking-wide">Focus Sports</label>
-                            <select name="sport" x-model="selectedSport" class="w-full rounded-lg border-gray-300 mb-4" required>
+                            <select name="sport" x-model="selectedSport" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500 mb-4" required>
                                 <option value="">-- Select Sport --</option>
                                 <option value="Aquatics">Aquatics (Swimming)</option>
                                 <option value="Athletics">Athletics (Track and Field)</option>
@@ -158,22 +193,22 @@
                             {{-- Conditional Sport Inputs --}}
                             <div x-show="selectedSport === 'Aquatics'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Aquatics event:</label>
-                                <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300">
+                                <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                             </div>
                             <div x-show="selectedSport === 'Athletics'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Athletics event:</label>
-                                <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300">
+                                <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                             </div>
                             <div x-show="selectedSport === 'Taekwondo'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Category:</label>
-                                <select name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300">
+                                <select name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                     <option value="Poomsae">Poomsae</option>
                                     <option value="Kyorugi">Kyorugi</option>
                                 </select>
                             </div>
                             <div x-show="selectedSport === 'Gymnastics'" class="mt-2">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Category:</label>
-                                <select name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300">
+                                <select name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                     <option value="Artistic">Artistic</option>
                                     <option value="Rhythmic">Rhythmic</option>
                                 </select>
@@ -201,11 +236,11 @@
 
                     {{-- 4. BACKGROUND INFO --}}
                     <div class="mb-8 sm:mb-10">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">4</span> Background Information</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">4</span> Background Information</h3>
                         <div class="grid grid-cols-1 gap-6 mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Where did you learn about NAS?</label>
-                                <select x-model="referralSource" name="learn_about_nas" class="w-full rounded-lg border-gray-300">
+                                <select x-model="referralSource" name="learn_about_nas" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500">
                                     <option value="">Select</option>
                                     <option value="NASCENT SAS Facebook Page">NASCENT SAS Facebook Page</option>
                                     <option value="NAS Social Media Page">NAS Social Media Page</option>
@@ -218,7 +253,7 @@
                             </div>
                             <div x-show="referralSource === 'NAS Personnel / Student-Athlete Referral'" class="bg-yellow-50 p-4 rounded-md border border-yellow-200">
                                 <label class="block text-sm font-bold text-yellow-800 mb-1">If referred, write the name:</label>
-                                <input type="text" name="referrer_name" x-model="referrerName" class="w-full rounded-md border-gray-300">
+                                <input type="text" name="referrer_name" x-model="referrerName" class="w-full rounded-md border-gray-300 shadow-sm h-10">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Attended articulation campaign?</label>
@@ -232,47 +267,47 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Indigenous Group?</label>
                                 <div class="flex space-x-4 mb-2">
-                                    <label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="Yes" class="mr-2"> Yes</label>
-                                    <label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="No" class="mr-2"> No</label>
+                                    <label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
+                                    <label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="No" class="mr-2 text-indigo-600"> No</label>
                                 </div>
-                                <div x-show="isIP === 'Yes'"><input type="text" name="ip_group_name" x-model="ipGroup" :required="isIP === 'Yes'" placeholder="Specify IP Group" class="w-full rounded-md border-gray-300"></div>
+                                <div x-show="isIP === 'Yes'"><input type="text" name="ip_group_name" x-model="ipGroup" :required="isIP === 'Yes'" placeholder="Specify IP Group" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm" :required="isIP === 'Yes'"></div>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">PWD?</label>
                                 <div class="flex space-x-4 mb-2">
-                                    <label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="Yes" class="mr-2"> Yes</label>
-                                    <label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="No" class="mr-2"> No</label>
+                                    <label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
+                                    <label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="No" class="mr-2 text-indigo-600"> No</label>
                                 </div>
-                                <div x-show="isPWD === 'Yes'"><input type="text" name="pwd_disability" x-model="pwdType" :required="isPWD === 'Yes'" placeholder="Specify disability" class="w-full rounded-md border-gray-300"></div>
+                                <div x-show="isPWD === 'Yes'"><input type="text" name="pwd_disability" x-model="pwdType" :required="isPWD === 'Yes'" placeholder="Specify disability" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm" :required="isPWD === 'Yes'"></div>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">4Ps?</label>
                                 <div class="flex space-x-4">
-                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="Yes" class="mr-2" {{ old('is_4ps', $application->is_4ps ? 'Yes' : 'No') == 'Yes' ? 'checked' : '' }}> Yes</label>
-                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="No" class="mr-2" {{ old('is_4ps', $application->is_4ps ? 'Yes' : 'No') == 'No' ? 'checked' : '' }}> No</label>
+                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="Yes" class="mr-2 text-indigo-600" {{ old('is_4ps', $application->is_4ps ? 'Yes' : 'No') == 'Yes' ? 'checked' : '' }}> Yes</label>
+                                    <label class="flex items-center"><input type="radio" name="is_4ps" value="No" class="mr-2 text-indigo-600" {{ old('is_4ps', $application->is_4ps ? 'Yes' : 'No') == 'No' ? 'checked' : '' }}> No</label>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- 5. GUARDIAN INFO --}}
+                    {{-- 5. PARENTS' & DESIGNATED GUARDIAN'S INFORMATION --}}
                     <div class="mb-8 sm:mb-10">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">5</span> Designated Guardian</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Guardian Name</label><input type="text" name="guardian_name" class="w-full rounded-lg border-gray-300" required value="{{ old('guardian_name', $application->guardian_name) }}"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Relationship</label><input type="text" name="guardian_relationship" class="w-full rounded-lg border-gray-300" required value="{{ old('guardian_relationship', $application->guardian_relationship) }}"></div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">5</span> PARENTS' & DESIGNATED GUARDIAN'S INFORMATION</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Designated Guardian *</label><input type="text" name="guardian_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_name', $application->guardian_name) }}"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Relationship to the Applicant *</label><input type="text" name="guardian_relationship" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_relationship', $application->guardian_relationship) }}"></div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Contact Number</label><input type="text" name="guardian_contact" class="w-full rounded-lg border-gray-300" required value="{{ old('guardian_contact', $application->guardian_contact) }}" maxlength="11"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="guardian_email" class="w-full rounded-lg border-gray-300" value="{{ old('guardian_email', $application->guardian_email) }}"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Contact Number *</label><input type="text" name="guardian_contact" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_contact', $application->guardian_contact) }}" maxlength="11"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="guardian_email" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('guardian_email', $application->guardian_email) }}"></div>
                         </div>
                     </div>
 
                     {{-- 6. REQUIREMENTS UPLOAD (UPDATED LOGIC) --}}
                     <div class="mb-8 sm:mb-12">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-4 sm:mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">6</span> Requirements Upload</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">6</span> Requirements Upload</h3>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             @php
                                 $uploaded = $application->uploaded_files ?? [];
                                 $remarks = $application->document_remarks ?? []; 
@@ -281,11 +316,12 @@
                                     'scholarship_form'  => 'Scholarship Application Form',
                                     'student_profile'   => 'Student-Athlete’s Profile Form',
                                     'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
-                                    'coach_reco'        => 'Coach’s Recommendation Form w/ Valid ID & Signature',
-                                    'adviser_reco'      => 'Adviser’s Recommendation Form w/ Valid ID & Signature',
+                                    // Optional Fields
+                                    'coach_reco'        => 'Coach’s Recommendation Form with Coach’s Valid Government-Issued ID with Signature',
+                                    'adviser_reco'      => 'Adviser’s Recommendation Form with Adviser’s Valid Government-Issued ID with Signature',
                                     'birth_cert'        => 'PSA Birth Certificate',
                                     'report_card'       => 'Report Card (SF9)',
-                                    'guardian_id'       => 'Designated Guardian’s Valid ID w/ Signature'
+                                    'guardian_id'       => 'Designated Guardian’s Valid Government-Issued ID with Signature'
                                 ];
                             @endphp
 
@@ -293,6 +329,7 @@
                                 @php
                                     $isUploaded = isset($uploaded[$key]) && !empty($uploaded[$key]);
                                     $hasRemark = isset($remarks[$key]) && !empty($remarks[$key]);
+                                    $isOptional = in_array($key, ['coach_reco', 'adviser_reco']);
 
                                     // Logic: SHOW INPUT ONLY IF (Has Remark) OR (Not Uploaded yet)
                                     $showInput = $hasRemark || !$isUploaded;
@@ -309,7 +346,11 @@
                                     } else {
                                         // Default/Missing state
                                         $containerClass = 'bg-gray-50 border-gray-200 shadow-sm';
-                                        $statusBadge = '<span class="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded inline-block self-start sm:self-auto">Missing</span>';
+                                        if ($isOptional) {
+                                            $statusBadge = '<span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded inline-block self-start sm:self-auto">OPTIONAL</span>';
+                                        } else {
+                                            $statusBadge = '<span class="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded inline-block self-start sm:self-auto">Missing</span>';
+                                        }
                                     }
                                 @endphp
                                 
@@ -318,7 +359,8 @@
                                     {{-- Header: Label & Status --}}
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                         <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
-                                            {{ $label }} <span class="text-red-600">*</span>
+                                            {{ $label }} 
+                                            @if(!$isOptional) <span class="text-red-600">*</span> @endif
                                         </label>
                                         {!! $statusBadge !!}
                                     </div>
@@ -334,8 +376,8 @@
                                     {{-- CONDITIONAL FILE INPUT --}}
                                     @if($showInput)
                                         <input type="file" name="files[{{ $key }}]" 
-                                               {{-- Required ONLY if there is a remark/issue --}}
-                                               {{ $hasRemark ? 'required' : '' }}
+                                               {{-- Required ONLY if NOT optional and has remark or standard req --}}
+                                               {{ ($hasRemark || !$isOptional) ? 'required' : '' }}
                                                class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
                                                accept=".pdf,.jpg,.jpeg,.png">
                                     @else
@@ -356,10 +398,18 @@
                                     <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
                                         Kukkiwon Certificate <span class="text-red-600">*</span>
                                     </label>
+                                    @if(isset($uploaded['kukkiwon_cert']) && !empty($uploaded['kukkiwon_cert']))
+                                        <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
+                                    @endif
                                 </div>
-                                <input type="file" name="files[kukkiwon_cert]" 
-                                       class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
-                                       accept=".pdf,.jpg,.jpeg,.png" :required="selectedSport === 'Taekwondo'">
+                                @if(!isset($uploaded['kukkiwon_cert']) || empty($uploaded['kukkiwon_cert']) || isset($remarks['kukkiwon_cert']))
+                                    @if(isset($remarks['kukkiwon_cert']))
+                                        <div class="mb-3 p-3 bg-red-100 border-l-4 border-red-600 text-red-800 text-xs rounded"><strong>⚠️ ADMIN REMARK:</strong> {{ $remarks['kukkiwon_cert'] }}</div>
+                                    @endif
+                                    <input type="file" name="files[kukkiwon_cert]" class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png" :required="selectedSport === 'Taekwondo'">
+                                @else
+                                    <div class="text-xs text-green-800 italic mt-1 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Document submitted.</div>
+                                @endif
                             </div>
 
                             {{-- IP: Certification --}}
@@ -368,10 +418,18 @@
                                     <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
                                         IP Certification <span class="text-red-600">*</span>
                                     </label>
+                                    @if(isset($uploaded['ip_cert']) && !empty($uploaded['ip_cert']))
+                                        <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
+                                    @endif
                                 </div>
-                                <input type="file" name="files[ip_cert]" 
-                                       class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
-                                       accept=".pdf,.jpg,.jpeg,.png" :required="isIP === 'Yes'">
+                                @if(!isset($uploaded['ip_cert']) || empty($uploaded['ip_cert']) || isset($remarks['ip_cert']))
+                                    @if(isset($remarks['ip_cert']))
+                                        <div class="mb-3 p-3 bg-red-100 border-l-4 border-red-600 text-red-800 text-xs rounded"><strong>⚠️ ADMIN REMARK:</strong> {{ $remarks['ip_cert'] }}</div>
+                                    @endif
+                                    <input type="file" name="files[ip_cert]" class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png" :required="isIP === 'Yes'">
+                                @else
+                                    <div class="text-xs text-green-800 italic mt-1 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Document submitted.</div>
+                                @endif
                             </div>
 
                             {{-- PWD: ID --}}
@@ -380,10 +438,18 @@
                                     <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
                                         PWD ID <span class="text-red-600">*</span>
                                     </label>
+                                    @if(isset($uploaded['pwd_id']) && !empty($uploaded['pwd_id']))
+                                        <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
+                                    @endif
                                 </div>
-                                <input type="file" name="files[pwd_id]" 
-                                       class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
-                                       accept=".pdf,.jpg,.jpeg,.png" :required="isPWD === 'Yes'">
+                                @if(!isset($uploaded['pwd_id']) || empty($uploaded['pwd_id']) || isset($remarks['pwd_id']))
+                                    @if(isset($remarks['pwd_id']))
+                                        <div class="mb-3 p-3 bg-red-100 border-l-4 border-red-600 text-red-800 text-xs rounded"><strong>⚠️ ADMIN REMARK:</strong> {{ $remarks['pwd_id'] }}</div>
+                                    @endif
+                                    <input type="file" name="files[pwd_id]" class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png" :required="isPWD === 'Yes'">
+                                @else
+                                    <div class="text-xs text-green-800 italic mt-1 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Document submitted.</div>
+                                @endif
                             </div>
 
                             {{-- 4Ps: ID or Certification --}}
@@ -392,10 +458,18 @@
                                     <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
                                         4Ps ID or Certification <span class="text-red-600">*</span>
                                     </label>
+                                    @if(isset($uploaded['4ps_id']) && !empty($uploaded['4ps_id']))
+                                        <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded inline-block self-start sm:self-auto">✔ File on Record</span>
+                                    @endif
                                 </div>
-                                <input type="file" name="files[4ps_id]" 
-                                       class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
-                                       accept=".pdf,.jpg,.jpeg,.png" :required="is4Ps === 'Yes'">
+                                @if(!isset($uploaded['4ps_id']) || empty($uploaded['4ps_id']) || isset($remarks['4ps_id']))
+                                    @if(isset($remarks['4ps_id']))
+                                        <div class="mb-3 p-3 bg-red-100 border-l-4 border-red-600 text-red-800 text-xs rounded"><strong>⚠️ ADMIN REMARK:</strong> {{ $remarks['4ps_id'] }}</div>
+                                    @endif
+                                    <input type="file" name="files[4ps_id]" class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png" :required="is4Ps === 'Yes'">
+                                @else
+                                    <div class="text-xs text-green-800 italic mt-1 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Document submitted.</div>
+                                @endif
                             </div>
 
                         </div>

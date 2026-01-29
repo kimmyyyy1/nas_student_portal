@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http; 
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
+use Illuminate\Support\Facades\Validator;
 
 class ApplicantPortalController extends Controller
 {
@@ -48,6 +49,9 @@ class ApplicantPortalController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // 👇 FIX: Bigyan ng 5 minutes (300s) bago mag-timeout dahil sa bagal ng Cloudinary upload
+        set_time_limit(300);
+
         $validated = $this->validateApplication($request);
         
         // Map data using helper
@@ -74,9 +78,12 @@ class ApplicantPortalController extends Controller
         return view('applicant.edit', compact('application', 'teams'));
     }
 
-    // --- UPDATE METHOD (With Remarks Clearing & Timestamps) ---
+    // --- UPDATE METHOD ---
     public function update(Request $request): RedirectResponse
     {
+        // 👇 FIX: Bigyan ng 5 minutes (300s)
+        set_time_limit(300);
+
         // 1. Get Application
         $application = Applicant::where('user_id', Auth::id())->firstOrFail();
         
@@ -91,8 +98,9 @@ class ApplicantPortalController extends Controller
         // 3. Prepare Data (Text Fields)
         $data = $this->mapInputData($validated, $request, $application);
 
-        // 4. Handle Remarks Clearing & Timestamp Updating
+        // 4. Handle Remarks Clearing, Status & Timestamp Updating
         $remarks = $application->document_remarks ?? [];
+        $statuses = $application->document_statuses ?? [];
         $fileTimestamps = $application->file_timestamps ?? []; 
         $hasNewUploads = false;
 
@@ -101,6 +109,7 @@ class ApplicantPortalController extends Controller
             if (isset($remarks['id_picture'])) {
                 unset($remarks['id_picture']); 
             }
+            $statuses['id_picture'] = 'pending_review';
             $fileTimestamps['id_picture'] = now()->toDateTimeString(); 
             $hasNewUploads = true;
         }
@@ -111,6 +120,7 @@ class ApplicantPortalController extends Controller
                 if (isset($remarks[$key])) {
                     unset($remarks[$key]); 
                 }
+                $statuses[$key] = 'pending_review';
                 $fileTimestamps[$key] = now()->toDateTimeString();
                 $hasNewUploads = true;
             }
@@ -118,6 +128,7 @@ class ApplicantPortalController extends Controller
 
         // Save updated arrays
         $data['document_remarks'] = $remarks;
+        $data['document_statuses'] = $statuses;
         $data['file_timestamps'] = $fileTimestamps; 
 
         // 5. Execute Update
@@ -126,9 +137,12 @@ class ApplicantPortalController extends Controller
         return redirect()->route('applicant.dashboard')->with('success', 'Application updated successfully!');
     }
 
-    // --- SUBMIT REQUIREMENTS (Dashboard - FIXED) ---
+    // --- SUBMIT REQUIREMENTS (Dashboard) ---
     public function submitRequirements(Request $request): RedirectResponse
     {
+        // 👇 FIX: Bigyan ng 5 minutes (300s) dahil maraming files ito
+        set_time_limit(300);
+
         $application = Applicant::where('user_id', Auth::id())->first();
 
         if (!$application) {
@@ -137,51 +151,68 @@ class ApplicantPortalController extends Controller
 
         // 1. Load Current Data
         $currentFiles = $application->uploaded_files ?? [];
-        $remarks = $application->document_remarks ?? []; // 👇 Kunin ang current remarks
+        $remarks = $application->document_remarks ?? [];
+        $statuses = $application->document_statuses ?? [];
         $fileTimestamps = $application->file_timestamps ?? []; 
-        
-        // Listahan ng lahat ng pwedeng i-upload sa Dashboard
-        $fields = ['sf10', 'good_moral', 'psa_birth_cert', 'medical_cert', 'coach_reco', 'id_picture', 'adviser_reco', 'guardian_id', 'scholarship_form', 'student_profile'];
         
         $hasChanges = false;
 
-        foreach ($fields as $field) {
-            if ($request->hasFile($field)) {
+        // 2. Define Allowed Keys
+        $allowedKeys = [
+            'id_picture', 'scholarship_form', 'student_profile', 'medical_clearance', 
+            'coach_reco', 'adviser_reco', 'birth_cert', 'report_card', 'guardian_id',
+            'kukkiwon_cert', 'ip_cert', 'pwd_id', '4ps_id'
+        ];
+
+        // 3. Process Uploads (Iterate over 'files' array)
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $key => $file) {
                 
-                // Validate Upload
-                $request->validate([
-                    $field => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-                ]);
+                // Security Check
+                if (!in_array($key, $allowedKeys)) {
+                    continue; 
+                }
+
+                // Validate File
+                $validator = Validator::make(
+                    ['file' => $file], 
+                    ['file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120']
+                );
+
+                if ($validator->fails()) {
+                    return back()->withErrors(['msg' => "File upload error for {$key}: " . $validator->errors()->first()]);
+                }
 
                 try {
                     // Upload to Cloudinary
-                    $upload = (new UploadApi())->upload($request->file($field)->getRealPath(), [
+                    $upload = (new UploadApi())->upload($file->getRealPath(), [
                         'folder' => 'nas_student_portal/requirements',
                         'resource_type' => 'auto'
                     ]);
                     
-                    // Update File URL
-                    $currentFiles[$field] = $upload['secure_url'];
+                    // Update File URL & Timestamp
+                    $currentFiles[$key] = $upload['secure_url'];
+                    $fileTimestamps[$key] = now()->toDateTimeString(); 
+                    $statuses[$key] = 'pending_review'; // Set status for review
                     
-                    // Update Timestamp
-                    $fileTimestamps[$field] = now()->toDateTimeString(); 
-                    
-                    // 👇 CRITICAL FIX: Tanggalin ang remark kapag may bagong upload
-                    if (isset($remarks[$field])) {
-                        unset($remarks[$field]);
+                    // Clear Remark if exists
+                    if (isset($remarks[$key])) {
+                        unset($remarks[$key]);
                     }
                     
                     $hasChanges = true;
 
                 } catch (\Exception $e) {
-                    return back()->withErrors(['msg' => 'Upload failed for ' . $field . ': ' . $e->getMessage()]);
+                    return back()->withErrors(['msg' => 'Upload failed for ' . $key . ': ' . $e->getMessage()]);
                 }
             }
         }
 
+        // 4. Save Changes
         if ($hasChanges) {
             $application->uploaded_files = $currentFiles;
-            $application->document_remarks = $remarks; // 👇 I-save ang malinis na remarks
+            $application->document_remarks = $remarks;
+            $application->document_statuses = $statuses;
             $application->file_timestamps = $fileTimestamps;
             $application->save();
             
@@ -194,6 +225,9 @@ class ApplicantPortalController extends Controller
     // --- PROXY FILE VIEW ---
     public function viewFile($id, $type)
     {
+        // 👇 FIX: Bigyan din ng time limit ang pag-view kung mabagal mag-load si Cloudinary
+        set_time_limit(120); 
+
         $applicant = Applicant::findOrFail($id);
 
         if (Auth::id() !== $applicant->user_id && Auth::user()->role !== 'admin' && Auth::user()->role !== 'registrar') {
@@ -259,7 +293,9 @@ class ApplicantPortalController extends Controller
 
         // Handle File Uploads (Cloudinary) - Mostly used for 'store' method
         $currentFiles = $existingApp ? ($existingApp->uploaded_files ?? []) : [];
+        $fileTimestamps = $existingApp ? ($existingApp->file_timestamps ?? []) : [];
         
+        // Handle ID Picture
         if ($request->hasFile('id_picture')) {
             try {
                 $upload = (new UploadApi())->upload($request->file('id_picture')->getRealPath(), [
@@ -267,10 +303,12 @@ class ApplicantPortalController extends Controller
                     'resource_type' => 'auto'
                 ]);
                 $currentFiles['id_picture'] = $upload['secure_url'];
+                $fileTimestamps['id_picture'] = now()->toDateTimeString();
             } catch (\Exception $e) {}
         }
 
-        if ($request->has('files')) {
+        // Handle Document Files (Array)
+        if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
                     $upload = (new UploadApi())->upload($file->getRealPath(), [
@@ -278,12 +316,15 @@ class ApplicantPortalController extends Controller
                         'resource_type' => 'auto'
                     ]);
                     $currentFiles[$key] = $upload['secure_url'];
+                    $fileTimestamps[$key] = now()->toDateTimeString();
                 } catch (\Exception $e) {}
             }
         }
         
         $data['uploaded_files'] = $currentFiles;
+        $data['file_timestamps'] = $fileTimestamps;
         
+        // Remove non-DB fields
         unset($data['files']);
         unset($data['palaro_finisher']); 
 
@@ -342,7 +383,10 @@ class ApplicantPortalController extends Controller
             $rules['files.*'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['id_picture'] = 'nullable|image|max:5120';
         } else {
-            $rules['files.*'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // Note: Validation for file presence is mostly handled by HTML required attribute 
+            // because conditional requirements (like kukkiwon) are hard to do in basic array validation.
+            // We ensure files.* are valid types if present.
+            $rules['files.*'] = 'file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['id_picture'] = 'required|image|max:5120';
         }
 

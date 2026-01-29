@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Applicant; // ✅ FIXED: Changed from EnrollmentApplication to Applicant
+use App\Models\Applicant; // Siguraduhin na tama ang Model Name mo
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-// use Barryvdh\DomPDF\Facade\Pdf; // Commented out: Hindi na kailangan para sa Client-Side Print
 use Carbon\Carbon;
 
 class EnrollmentController extends Controller
 {
+    // --- 1. INDEX (DASHBOARD / LIST) ---
     public function index(Request $request): View
     {
-        $query = Applicant::query(); // ✅ FIXED
+        $query = Applicant::query();
 
-        // 1. Search Logic
+        // Search Logic
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -26,7 +26,7 @@ class EnrollmentController extends Controller
             });
         }
 
-        // 2. Filter Logic (Kapag kinlick ang cards)
+        // Filter Logic
         if ($request->has('status') && $request->status != '') {
             $status = $request->status;
             
@@ -47,19 +47,14 @@ class EnrollmentController extends Controller
             }
         }
 
-        // --- STATS LOGIC (ITO ANG NAGBIBILANG) ---
-        
-        // 1. TOTAL SUBMITTED: Lahat ng record sa database (Walang filter)
-        $totalSubmitted = Applicant::count(); // ✅ FIXED
-        
-        // 2. Breakdown per Status
-        $countPending    = Applicant::whereIn('status', ['Pending', 'pending', 'For Assessment', 'Pending Review'])->count(); // ✅ FIXED
-        $countQualified  = Applicant::whereIn('status', ['Qualified', 'qualified'])->count(); // ✅ FIXED
-        $countWaitlisted = Applicant::whereIn('status', ['Waitlisted', 'waitlisted'])->count(); // ✅ FIXED
-        $countRejected   = Applicant::whereIn('status', ['Not Qualified', 'not qualified', 'Rejected', 'Failed'])->count(); // ✅ FIXED
-        // ----------------------------------------
+        // Statistics
+        $totalSubmitted = Applicant::count();
+        $countPending    = Applicant::whereIn('status', ['Pending', 'pending', 'For Assessment', 'Pending Review'])->count();
+        $countQualified  = Applicant::whereIn('status', ['Qualified', 'qualified'])->count();
+        $countWaitlisted = Applicant::whereIn('status', ['Waitlisted', 'waitlisted'])->count();
+        $countRejected   = Applicant::whereIn('status', ['Not Qualified', 'not qualified', 'Rejected', 'Failed'])->count();
 
-        // 3. Table Data (Pagination)
+        // Pagination
         $applications = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('admission.index', compact(
@@ -72,46 +67,99 @@ class EnrollmentController extends Controller
         ));
     }
 
+    // --- 2. SHOW (REVIEW PAGE) ---
     public function show($id): View {
-        $application = Applicant::findOrFail($id); // ✅ FIXED
-        // Update timestamp if created matches updated (fresh record)
-        if ($application->created_at == $application->updated_at) $application->touch(); 
+        $application = Applicant::findOrFail($id);
+        
+        // Optional: Update timestamp if freshly created to fix sorting
+        if ($application->created_at == $application->updated_at) {
+            $application->touch(); 
+        }
+
         return view('admission.show', compact('application'));
     }
     
-    // --- UPDATED PROCESS FUNCTION (Handles Status, Remarks, and Document Feedback) ---
+    // --- 3. PROCESS (SAVE UPDATES) ---
     public function process(Request $request, $id): RedirectResponse {
-        $application = Applicant::findOrFail($id); // ✅ FIXED
+        $application = Applicant::findOrFail($id);
         
+        // Validate Inputs
         $validated = $request->validate([
             'status' => 'required|string', 
             'assessment_score' => 'nullable|string', // General Remarks
             'rejection_reason' => 'nullable|string',
-            'document_remarks' => 'nullable|array'   // ✨ NEW: Document-specific feedback
+            'document_remarks' => 'nullable|array'   // Document-specific feedback
         ]);
 
-        // Logic para sa rejection reason
+        // Auto-clear rejection reason if not rejected
         if ($validated['status'] !== 'Not Qualified') {
             $validated['rejection_reason'] = null;
         }
 
-        // FIX: I-save ang current date/time sa 'date_checked'
+        // Update 'date_checked' timestamp
         $validated['date_checked'] = now(); 
 
-        // Update ang record. Dahil sa $casts sa Model, ang 'document_remarks' 
-        // ay automatic na magiging JSON string sa database.
+        // Get current statuses, or initialize an empty array
+        $statuses = $application->document_statuses ?? [];
+
+        // Loop through the submitted remarks to update statuses
+        if (isset($validated['document_remarks'])) {
+            foreach ($validated['document_remarks'] as $key => $remark) {
+                if (!empty($remark)) {
+                    // If a remark is added/present, set status to 'needs_update'
+                    $statuses[$key] = 'needs_update';
+                } elseif (isset($statuses[$key]) && $statuses[$key] === 'needs_update') {
+                    // If a remark is cleared for a doc that needed an update, clear its status.
+                    // This prevents clearing 'pending_review' or 'approved' statuses.
+                    unset($statuses[$key]);
+                }
+            }
+        }
+        
+        // Add the updated statuses to the data to be saved
+        $validated['document_statuses'] = $statuses;
+
+        // Update Database
         $application->update($validated);
         
         return back()->with('success', "Application status and remarks updated successfully.");
     }
 
-    // --- REPLACED PDF GENERATION WITH PRINT VIEW ---
-    public function generatePdf($id) {
-        $application = Applicant::findOrFail($id); // ✅ FIXED
+    // --- 4. APPROVE DOCUMENT ---
+    public function approveDocument(Request $request, $id, $doc_key): RedirectResponse
+    {
+        $application = Applicant::findOrFail($id);
         
-        // Instead of using DomPDF which requires GD extension, we return a blade view
-        // designed for printing. This shifts the rendering to the client's browser.
-        // This is the FIX for the Vercel 500 Error.
+        $statuses = $application->document_statuses ?? [];
+        
+        // Set the specific document's status to 'approved'
+        $statuses[$doc_key] = 'approved';
+        
+        $application->update(['document_statuses' => $statuses]);
+        
+        return back()->with('success', 'Document approved successfully.');
+    }
+
+    // --- 5. DECLINE DOCUMENT ---
+    public function declineDocument(Request $request, $id, $doc_key): RedirectResponse
+    {
+        $application = Applicant::findOrFail($id);
+        
+        $statuses = $application->document_statuses ?? [];
+        
+        // Set the specific document's status back to 'needs_update'
+        $statuses[$doc_key] = 'needs_update';
+        
+        $application->update(['document_statuses' => $statuses]);
+        
+        return back()->with('success', 'Document declined. Please add a remark.');
+    }
+
+    // --- 6. PRINT PREVIEW ---
+    public function generatePdf($id) {
+        $application = Applicant::findOrFail($id);
+        
+        // Return view designed for printing
         return view('admission.print', compact('application'));
     }
 }

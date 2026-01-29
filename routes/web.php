@@ -113,6 +113,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admission', [EnrollmentController::class, 'index'])->name('admission.index');
     Route::get('/admission/{id}', [EnrollmentController::class, 'show'])->name('admission.show');
     Route::patch('/admission/{id}', [EnrollmentController::class, 'process'])->name('admission.process');
+    Route::get('/admission/approve_document/{id}/{doc_key}', [EnrollmentController::class, 'approveDocument'])->name('admission.approve_document');
+    Route::get('/admission/decline_document/{id}/{doc_key}', [EnrollmentController::class, 'declineDocument'])->name('admission.decline_document');
     Route::get('/admission/{id}/pdf', [EnrollmentController::class, 'generatePdf'])->name('admission.pdf');
 
     // Official Enrollment (Qualified Applicants)
