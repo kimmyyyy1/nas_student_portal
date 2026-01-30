@@ -29,7 +29,7 @@ class AdmissionAccepted extends Mailable
      */
     public function build()
     {
-        return $this->subject('NAS Admission Approved: Your Student Portal Credentials')
+        return $this->subject('NASCENT SAS Application Approved: Your Student Portal Credentials')
                     ->view('emails.admission_accepted');
     }
 }
