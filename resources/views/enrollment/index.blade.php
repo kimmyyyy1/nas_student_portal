@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Admission Management') }}
+            {{ __('NASCENT SAS Management') }}
         </h2>
     </x-slot>
 
@@ -166,7 +166,7 @@
                                         <td colspan="7" class="px-6 py-10 text-center">
                                             <div class="flex flex-col items-center justify-center">
                                                 <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002 2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                                                <p class="text-gray-500">No admission applications found.</p>
+                                                <p class="text-gray-500">No applications found.</p>
                                             </div>
                                         </td>
                                     </tr>

@@ -83,7 +83,7 @@
                     <div class="text-center border-b-2 border-black pb-4 mb-6">
                         <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-20 mx-auto mb-2" alt="NAS Logo">
                         <h1 class="text-2xl font-bold uppercase tracking-wide">National Academy of Sports</h1>
-                        <p class="text-sm font-bold uppercase">Student-Athlete Admission Application Form</p>
+                        <p class="text-sm font-bold uppercase">Student-Athlete Application Form</p>
                         <p class="text-xs italic mt-1">New Clark City, Capas, Tarlac</p>
                     </div>
 

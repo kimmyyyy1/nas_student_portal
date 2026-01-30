@@ -8,7 +8,7 @@
             
             {{-- Badge --}}
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase shadow-sm border border-blue-200">
-                <i class='bx bxs-user-detail mr-1.5 text-sm'></i> Admission
+                <i class='bx bxs-user-detail mr-1.5 text-sm'></i> NASCENT SAS
             </span>
 
             {{-- Live Indicator --}}
@@ -23,7 +23,7 @@
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
-                {{ __('Admission Management') }}
+                {{ __('NASCENT SAS Management') }}
             </h2>
             
             {{-- LIVE INDICATOR --}}

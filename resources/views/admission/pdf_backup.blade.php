@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admission Application Form</title>
+    <title>Application Form</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>
         /* LETTER SIZE OPTIMIZATION (8.5 x 11 inches) */
@@ -64,7 +64,7 @@
     <div class="header">
         <img src="{{ public_path('images/nas/nas-logo-sidebar.png') }}" class="logo">
         <h1 class="title">National Academy of Sports</h1>
-        <p class="subtitle">Student-Athlete Admission Application Form</p>
+        <p class="subtitle">Student-Athlete Application Form</p>
         <p style="font-size: 8px; font-style: italic; margin: 0;">New Clark City, Capas, Tarlac</p>
     </div>
 
@@ -188,7 +188,7 @@
     </table>
 
     <div style="margin-top: 15px; text-align: center; font-size: 8px; color: #6b7280; border-top: 1px solid #d1d5db; padding-top: 5px;">
-        <p>System Generated Report | National Academy of Sports Admission System | Date Printed: {{ now()->format('Y-m-d H:i') }}</p>
+        <p>System Generated Report | NASCENT SAS | Date Printed: {{ now()->format('Y-m-d H:i') }}</p>
     </div>
 
 </body>

@@ -106,7 +106,7 @@
         <div class="text-center mb-4 relative">
             <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" class="h-16 mx-auto mb-1" onerror="this.style.display='none'">
             <h1 class="text-xl font-extrabold text-gray-900 uppercase leading-tight">National Academy of Sports</h1>
-            <p class="text-xs font-bold text-gray-600 uppercase tracking-wider">Student-Athlete Admission Application Form</p>
+            <p class="text-xs font-bold text-gray-600 uppercase tracking-wider">Student-Athlete Application Form</p>
             <p class="text-[10px] text-gray-500 italic">New Clark City, Capas, Tarlac</p>
             
             {{-- Reference Info (Right Side Overlay) --}}
@@ -289,7 +289,7 @@
 
         {{-- FOOTER (Ngayon ay nasa ilalim na talaga dahil sa mt-auto at flex container) --}}
         <div class="mt-auto pt-2 text-center text-[9px] text-gray-400 border-t border-gray-200">
-            <p>System Generated Form | Date Printed: {{ now()->format('Y-m-d H:i') }} | NAS Admission System</p>
+            <p>System Generated Form | Date Printed: {{ now()->format('Y-m-d H:i') }} | NASCENT SAS</p>
         </div>
 
     </div>

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>NAS Admission Form</title>
+        <title>NASCENT SAS Application Form</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-gray-100 font-sans antialiased">
@@ -13,7 +13,7 @@
                 <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-24 mx-auto mb-4" alt="NAS Logo">
                 
                 <h1 class="text-3xl font-bold text-gray-800">National Academy of Sports</h1>
-                <p class="text-gray-600">Student-Athlete Admission Application</p>
+                <p class="text-gray-600">Student-Athlete Application</p>
                 <p class="text-xs text-gray-500 mt-2">Based on SAIS Guidelines</p>
             </div>
 

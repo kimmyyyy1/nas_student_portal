@@ -3,7 +3,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center no-print">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Review Admission Application') }}
+                {{ __('Review Application') }}
             </h2>
             <div class="flex gap-2">
                 <button onclick="window.print()" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded inline-flex items-center shadow transition">
@@ -57,7 +57,7 @@
                     <div class="flex flex-col items-center justify-center text-center mb-6 pb-4 border-b-2 border-black">
                         <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" alt="NAS Logo" class="h-20 w-auto mb-2 object-contain">
                         <h1 class="text-2xl font-black text-gray-900 uppercase tracking-widest">National Academy of Sports</h1>
-                        <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wide">Student-Athlete Admission Application Form</h2>
+                        <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wide">Student-Athlete Application Form</h2>
                         <p class="text-xs italic text-gray-600">New Clark City, Capas, Tarlac</p>
                     </div>
 

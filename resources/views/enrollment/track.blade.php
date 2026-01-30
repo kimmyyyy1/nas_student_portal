@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Track Admission Status | NAS</title>
+        <title>Track Application Status | NASCENT SAS</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-gray-100 font-sans antialiased">
@@ -11,7 +11,7 @@
             
             <div class="w-full max-w-md p-6 text-center">
                 <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-20 mx-auto mb-4" alt="NAS Logo">
-                <h1 class="text-2xl font-bold text-gray-800">Admission Tracker</h1>
+                <h1 class="text-2xl font-bold text-gray-800">NASCENT SAS Tracker</h1>
             </div>
 
             <div class="w-full max-w-md px-6 py-8 bg-white shadow-md overflow-hidden sm:rounded-lg">
