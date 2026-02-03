@@ -1,18 +1,18 @@
 <x-app-layout>
     
     <x-slot name="header">
-        <div class="flex justify-between items-center no-print">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight shrink-0">
                 {{ __('Review Application') }}
             </h2>
-            <div class="flex gap-2">
-                <button onclick="window.print()" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded inline-flex items-center shadow transition">
+            <div class="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+                <button onclick="window.print()" class="w-full sm:w-auto bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded inline-flex items-center justify-center shadow transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    PRINT
+                    <span>PRINT</span>
                 </button>
-                <a href="{{ route('admission.pdf', $application->id) }}" target="_blank" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded inline-flex items-center shadow transition">
+                <a href="{{ route('admission.pdf', $application->id) }}" target="_blank" class="w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded inline-flex items-center justify-center shadow transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    DOWNLOAD PDF
+                    <span>DOWNLOAD PDF</span>
                 </a>
             </div>
         </div>
@@ -52,13 +52,20 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
                 {{-- MAIN CONTENT (PRINTABLE) --}}
-                <div id="print-area" class="md:col-span-3 bg-white shadow-xl rounded-lg overflow-hidden border border-gray-300 p-8 md:p-10 relative">
+                <div id="print-area" class="md:col-span-3 bg-white shadow-xl rounded-lg overflow-hidden border border-gray-300 p-4 sm:p-8 md:p-10 relative">
                         
-                    <div class="flex flex-col items-center justify-center text-center mb-6 pb-4 border-b-2 border-black">
-                        <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" alt="NAS Logo" class="h-20 w-auto mb-2 object-contain">
-                        <h1 class="text-2xl font-black text-gray-900 uppercase tracking-widest">National Academy of Sports</h1>
-                        <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wide">Student-Athlete Application Form</h2>
-                        <p class="text-xs italic text-gray-600">New Clark City, Capas, Tarlac</p>
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-6 pb-4 border-b-2 border-black">
+                        <div class="w-24 flex-shrink-0 flex justify-center">
+                            <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" alt="NAS Logo" class="h-24 w-auto object-contain">
+                        </div>
+                        <div class="flex-1 text-center px-4">
+                            <h1 class="text-lg sm:text-xl font-black text-gray-900 uppercase tracking-widest leading-snug">NAS Annual Search for Competent, Exceptional, Notable, and Talented Student-Athlete Scholars</h1>
+                            <h2 class="text-base sm:text-lg font-bold text-gray-700 uppercase tracking-wider mt-1">(NASCENT SAS)</h2>
+                            <p class="text-xs italic text-gray-600 mt-1">New Clark City, Capas, Tarlac</p>
+                        </div>
+                        <div class="w-24 flex-shrink-0 flex justify-center">
+                            <img src="{{ asset('images/nas/NASCENT SAS ICON.png') }}" alt="NASCENT SAS ICON" class="h-24 w-auto object-contain">
+                        </div>
                     </div>
 
                     {{-- I. APPLICANT INFORMATION --}}
@@ -82,10 +89,13 @@
                                         <label class="block text-[10px] text-gray-500 uppercase font-bold">Name (Last Name, First Name, Middle Name)</label>
                                         @php
                                             $middleName = $application->middle_name;
-                                            $middleNameDisplay = (strtolower($middleName) === 'n/a') ? 'N/A' : $middleName;
+                                            // If middle name is empty, 'n/a', or null, display a dash. Otherwise, display the middle name.
+                                            $middleNameDisplay = (empty($middleName) || strtolower($middleName) === 'n/a') ? '-' : $middleName;
                                         @endphp
-                                        <div class="text-xl font-extrabold text-gray-900 uppercase border-b border-gray-300">
-                                            {{ $application->last_name }}, {{ $application->first_name }} {{ $middleNameDisplay }}
+                                        <div class="text-xl font-extrabold text-gray-900 uppercase border-b border-gray-300 flex items-baseline gap-x-3 tracking-wide pb-1">
+                                            <span>{{ $application->last_name }},</span>
+                                            <span>{{ $application->first_name }}</span>
+                                            <span class="text-gray-800">{{ $middleNameDisplay }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -166,7 +176,7 @@
 
                         <div class="mt-4 pt-2 border-t border-gray-200">
                             <label class="block text-[10px] text-gray-500 uppercase font-bold mb-2">Background & Special Categories</label>
-                            <div class="grid grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div class="flex items-center">
                                     <div class="check-box">@if($application->is_ip) <span class="text-black font-bold text-xs">✓</span> @endif</div>
                                     <span class="text-[10px] font-bold uppercase text-gray-700">IP Member @if($application->is_ip) ({{ $application->ip_group_name }}) @endif</span>
@@ -188,8 +198,8 @@
                         <div class="bg-gray-200 border border-gray-400 px-3 py-1 mb-4">
                             <h3 class="text-sm font-bold text-gray-800 uppercase">II. Academic & Sports Profile</h3>
                         </div>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
-                            <div class="col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+                            <div class="sm:col-span-2">
                                 <label class="block text-[10px] text-gray-500 uppercase font-bold">Last School Attended</label>
                                 <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->previous_school }} ({{ $application->school_type }})</div>
                             </div>
@@ -201,11 +211,11 @@
                                 <label class="block text-[10px] text-gray-500 uppercase font-bold">Sport</label>
                                 <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->sport }} @if($application->sport_specification) ({{ $application->sport_specification }}) @endif</div>
                             </div>
-                            <div class="col-span-2">
+                            <div class="sm:col-span-2">
                                 <label class="block text-[10px] text-gray-500 uppercase font-bold">Palarong Pambansa Finisher</label>
                                 <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->has_palaro_participation ? 'YES' : 'NO' }}</div>
                             </div>
-                            <div class="col-span-2">
+                            <div class="sm:col-span-2">
                                 <label class="block text-[10px] text-gray-500 uppercase font-bold">Batang Pinoy Finisher</label>
                                 <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->batang_pinoy_finisher == 'Yes' ? 'YES' : 'NO' }}</div>
                             </div>
@@ -400,9 +410,9 @@
                                 <div class="mb-4">
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
                                     <select name="status" id="status" class="w-full border-gray-300 rounded text-sm font-bold text-gray-800">
-                                        <option value="Pending" {{ in_array($application->status, ['Pending', 'Pending Review']) ? 'selected' : '' }}>Pending Review</option>
-                                        <option value="For Assessment" {{ $application->status == 'For Assessment' ? 'selected' : '' }}>For Assessment</option>
-                                        <option value="Qualified" {{ $application->status == 'Qualified' ? 'selected' : '' }}>Qualified</option>
+                                        <option value="Pending" {{ in_array($application->status, ['Pending', 'Pending Review']) ? 'selected' : '' }}>Pending Review (1st Level)</option>
+                                        <option value="For Assessment" {{ $application->status == 'For Assessment' ? 'selected' : '' }}>For 2nd Level Assessment</option>
+                                        <option value="Qualified" {{ $application->status == 'Qualified' ? 'selected' : '' }}>Qualified (Endorse for Enrollment)</option>
                                         <option value="Waitlisted" {{ $application->status == 'Waitlisted' ? 'selected' : '' }}>Waitlisted</option>
                                         <option value="Not Qualified" {{ in_array($application->status, ['Not Qualified', 'Rejected', 'Failed']) ? 'selected' : '' }}>Not Qualified</option>
                                     </select>

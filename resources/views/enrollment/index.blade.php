@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('NASCENT SAS Management') }}
+            <img src="{{ asset('images/nas/NASCENT SAS.jpeg') }}" alt="NASCENT SAS Management" class="h-10">
         </h2>
     </x-slot>
 

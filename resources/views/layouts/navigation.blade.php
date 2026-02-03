@@ -126,7 +126,7 @@
                     <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Enrollment</p></div>
                     
                     <a href="{{ route('admission.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('admission.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-id-card text-lg mr-3 {{ request()->routeIs('admission.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i>
+                        <img src="{{ asset('images/nas/NASCENT SAS ICON.png') }}" alt="NASCENT SAS ICON" class="h-5 w-5 mr-3">
                         <span class="flex-1">NASCENT SAS</span>
                         @if(isset($pendingAdmissionsCount) && $pendingAdmissionsCount > 0)
                             <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold text-red-100 bg-red-600 rounded-full shadow-sm">{{ $pendingAdmissionsCount }}</span>

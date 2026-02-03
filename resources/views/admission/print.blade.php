@@ -102,26 +102,32 @@
     {{-- DOCUMENT --}}
     <div class="paper mt-16 print:mt-0">
         
+        {{-- REFERENCE NUMBER & DATE --}}
+        <div class="text-right mb-2">
+            <p class="text-[10px] text-gray-500">Ref No: <span class="font-mono font-bold text-black text-sm">{{ str_pad($application->id, 6, '0', STR_PAD_LEFT) }}</span></p>
+            <p class="text-[10px] text-gray-500">Date: {{ $application->created_at->format('M d, Y') }}</p>
+        </div>
+
         {{-- HEADER --}}
-        <div class="text-center mb-4 relative">
-            <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" class="h-16 mx-auto mb-1" onerror="this.style.display='none'">
-            <h1 class="text-xl font-extrabold text-gray-900 uppercase leading-tight">National Academy of Sports</h1>
-            <p class="text-xs font-bold text-gray-600 uppercase tracking-wider">Student-Athlete Application Form</p>
-            <p class="text-[10px] text-gray-500 italic">New Clark City, Capas, Tarlac</p>
-            
-            {{-- Reference Info (Right Side Overlay) --}}
-            <div class="absolute top-0 right-0 text-right hidden sm:block print:block">
-                <p class="text-[10px] text-gray-500">Ref No: <span class="font-mono font-bold text-black text-sm">{{ str_pad($application->id, 6, '0', STR_PAD_LEFT) }}</span></p>
-                <p class="text-[10px] text-gray-500">Date: {{ $application->created_at->format('M d, Y') }}</p>
+        <div class="flex items-center justify-between gap-4 mb-4 pb-4 border-b-2 border-black">
+            <div class="w-24 flex-shrink-0 flex justify-center">
+                <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" alt="NAS Logo" class="h-24 w-auto object-contain">
             </div>
-            <div class="border-b-2 border-gray-800 mt-2 w-full"></div>
+            <div class="flex-1 text-center px-4">
+                <h1 class="text-base font-black text-gray-900 uppercase leading-tight">NAS Annual Search for Competent, Exceptional, Notable, and Talented Student-Athlete Scholars</h1>
+                <h2 class="text-sm font-bold text-gray-700 uppercase mt-1">(NASCENT SAS)</h2>
+                <p class="text-xs italic text-gray-600 mt-1">New Clark City, Capas, Tarlac</p>
+            </div>
+            <div class="w-24 flex-shrink-0 flex justify-center">
+                <img src="{{ asset('images/nas/NASCENT SAS ICON.png') }}" alt="NASCENT SAS ICON" class="h-24 w-auto object-contain">
+            </div>
         </div>
 
         {{-- I. APPLICANT INFORMATION --}}
-        <div class="section-title mt-0">I. Applicant Information</div>
+        <div class="section-title mt-0">I. Personal Information</div>
         
         <div class="flex gap-4 mb-2">
-            {{-- PHOTO (Smaller) --}}
+            {{-- RIGHT: 2x2 Photo --}}
             <div class="w-24 h-24 flex-shrink-0 border border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden">
                 @if(isset($application->uploaded_files['id_picture']))
                     <img src="{{ $application->uploaded_files['id_picture'] }}" class="w-full h-full object-cover">
@@ -130,141 +136,171 @@
                 @endif
             </div>
 
-            {{-- BASIC DETAILS --}}
-            <div class="flex-grow grid grid-cols-4 gap-x-4 gap-y-2">
-                <div class="col-span-2">
-                    <span class="label">Full Name</span>
-                    <span class="value uppercase">{{ $application->last_name }}, {{ $application->first_name }} {{ $application->middle_name }}</span>
-                </div>
-                <div class="col-span-1">
-                    <span class="label">LRN</span>
+            {{-- LEFT: Text Details --}}
+            <div class="flex-1 w-full space-y-2">
+                <div>
+                    <span class="label">Learner Reference Number (LRN)</span>
                     <span class="value font-mono">{{ $application->lrn }}</span>
                 </div>
-                <div class="col-span-1">
-                    <span class="label">Birthdate</span>
-                    <span class="value">{{ \Carbon\Carbon::parse($application->date_of_birth)->format('M d, Y') }}</span>
+
+                <div class="col-span-3">
+                    <span class="label">Full Name</span>
+                    @php
+                        $middleName = $application->middle_name;
+                        $middleNameDisplay = (empty($middleName) || strtolower($middleName) === 'n/a') ? '-' : $middleName;
+                    @endphp
+                    <span class="value uppercase flex items-baseline gap-x-2">
+                        <span>{{ $application->last_name }},</span>
+                        <span>{{ $application->first_name }}</span>
+                        <span class="font-medium">{{ $middleNameDisplay }}</span>
+                    </span>
                 </div>
 
-                <div class="col-span-1">
-                    <span class="label">Gender</span>
-                    <span class="value">{{ $application->gender }}</span>
-                </div>
-                <div class="col-span-1">
-                    <span class="label">Age</span>
-                    <span class="value">{{ $application->age }}</span>
-                </div>
-                <div class="col-span-1">
-                    <span class="label">Religion</span>
-                    <span class="value truncate">{{ $application->religion }}</span>
-                </div>
-                <div class="col-span-1">
-                    <span class="label">Birthplace</span>
-                    <span class="value truncate">{{ $application->birthplace }}</span>
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <span class="label">Date of Birth</span>
+                        <span class="value">{{ \Carbon\Carbon::parse($application->date_of_birth)->format('M d, Y') }}</span>
+                    </div>
+                    <div>
+                        <span class="label">Age</span>
+                        <span class="value">{{ $application->age }}</span>
+                    </div>
+                    <div>
+                        <span class="label">Sex</span>
+                        <span class="value">{{ $application->gender }}</span>
+                    </div>
                 </div>
 
-                <div class="col-span-2">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <span class="label">Place of Birth</span>
+                        <span class="value truncate">{{ $application->birthplace }}</span>
+                    </div>
+                    <div>
+                        <span class="label">Religion</span>
+                        <span class="value truncate">{{ $application->religion }}</span>
+                    </div>
+                </div>
+                <div>
                     <span class="label">Email Address</span>
                     <span class="value lowercase">{{ $application->email_address }}</span>
                 </div>
-                <div class="col-span-2">
-                    <span class="label">Contact No.</span>
-                    <span class="value">{{ $application->contact_number ?? 'N/A' }}</span>
+            </div>
+        </div>
+
+        <div class="mt-2 pt-2">
+            <label class="block text-[10px] text-gray-500 uppercase font-bold mb-1">Permanent Address</label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2">
+                <div class="md:col-span-4">
+                    <span class="label">Street Address / House No.</span>
+                    <span class="value">{{ $application->street_address }}</span>
+                </div>
+                <div>
+                    <span class="label">Barangay</span>
+                    <span class="value">{{ $application->barangay }}</span>
+                </div>
+                <div>
+                    <span class="label">Municipality / City</span>
+                    <span class="value">{{ $application->municipality_city }}</span>
+                </div>
+                <div>
+                    <span class="label">Province</span>
+                    <span class="value">{{ $application->province }}</span>
+                </div>
+                <div>
+                    <span class="label">Region</span>
+                    <span class="value">{{ $application->region }}</span>
+                </div>
+                <div>
+                    <span class="label">Zip Code</span>
+                    <span class="value">{{ $application->zip_code }}</span>
                 </div>
             </div>
         </div>
 
-        {{-- ADDRESS --}}
-        <div class="grid grid-cols-4 gap-3 mb-2">
-            <div class="col-span-4">
-                <span class="label">Home Address</span>
-                <span class="value">{{ $application->street_address }}, {{ $application->barangay }}, {{ $application->municipality_city }}, {{ $application->province }} {{ $application->region }} {{ $application->zip_code }}</span>
+        <div class="mt-2 pt-2 border-t border-gray-200">
+            <label class="block text-[10px] text-gray-500 uppercase font-bold mb-1">Background & Special Categories</label>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="flex items-center">
+                    <div class="cb-box">@if($application->is_ip) <span class="text-black font-bold text-xs">✓</span> @endif</div>
+                    <span class="text-[10px] font-bold uppercase text-gray-700">IP Member @if($application->is_ip) ({{ $application->ip_group_name }}) @endif</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="cb-box">@if($application->is_pwd) <span class="text-black font-bold text-xs">✓</span> @endif</div>
+                    <span class="text-[10px] font-bold uppercase text-gray-700">PWD @if($application->is_pwd) ({{ $application->pwd_disability }}) @endif</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="cb-box">@if($application->is_4ps) <span class="text-black font-bold text-xs">✓</span> @endif</div>
+                    <span class="text-[10px] font-bold uppercase text-gray-700">4Ps Beneficiary</span>
+                </div>
             </div>
         </div>
 
-        {{-- II. ACADEMIC & SPORTS --}}
+        {{-- II. ACADEMIC & SPORTS PROFILE --}}
         <div class="section-title">II. Academic & Sports Profile</div>
-        <div class="grid grid-cols-4 gap-3 mb-2">
-            <div class="col-span-1">
-                <span class="label">Applying For Grade</span>
-                <span class="value">{{ $application->grade_level_applied }}</span>
-            </div>
-            <div class="col-span-1">
-                <span class="label">Priority Sport</span>
-                <span class="value font-bold uppercase text-indigo-900">{{ $application->sport }}</span>
-            </div>
+        <div class="grid grid-cols-4 gap-4 text-sm mb-2">
             <div class="col-span-2">
                 <span class="label">Last School Attended</span>
-                <span class="value truncate">{{ $application->previous_school }} ({{ $application->school_type }})</span>
+                <span class="value">{{ $application->previous_school }} ({{ $application->school_type }})</span>
             </div>
-            <div class="col-span-4">
-                <span class="label">Palarong Pambansa Participation</span>
-                <span class="value">{{ $application->has_palaro_participation ? 'YES (Year: ' . $application->palaro_year . ')' : 'NO' }}</span>
+            <div>
+                <span class="label">Applied Grade</span>
+                <span class="value">{{ $application->grade_level_applied }}</span>
             </div>
-        </div>
-
-        {{-- SPECIAL CATEGORIES (COMPACT) --}}
-        @php
-            $categoriesData = [];
-            $otherDetails = '';
-            if ($application->special_categories) {
-                $categoriesData = array_map('trim', explode(',', $application->special_categories));
-            }
-            $is_others = false;
-            foreach($categoriesData as $cat) {
-                if (\Illuminate\Support\Str::startsWith(strtolower($cat), 'others')) {
-                    $is_others = true;
-                    if (str_contains($cat, ':')) {
-                        $parts = explode(':', $cat, 2);
-                        $otherDetails = trim($parts[1]);
-                    } elseif (!empty($application->other_category_details)) {
-                        $otherDetails = $application->other_category_details;
-                    }
-                    break;
-                }
-            }
-        @endphp
-        <div class="mb-2 border border-gray-300 p-2 text-xs flex items-center bg-gray-50 rounded">
-            <span class="font-bold text-gray-500 mr-3 uppercase text-[10px]">Special Categories:</span>
-            <div class="flex gap-4">
-                <div class="flex items-center"><span class="cb-box">{{ $application->is_ip ? '✓' : '' }}</span> IP</div>
-                <div class="flex items-center"><span class="cb-box">{{ $application->is_pwd ? '✓' : '' }}</span> PWD</div>
-                <div class="flex items-center"><span class="cb-box">{{ $application->is_4ps ? '✓' : '' }}</span> 4Ps</div>
-                <div class="flex items-center"><span class="cb-box">{{ $is_others ? '✓' : '' }}</span> Others: <span class="border-b border-gray-400 min-w-[50px] ml-1 px-1 font-bold">{{ $otherDetails }}</span></div>
+            <div>
+                <span class="label">Sport</span>
+                <span class="value">{{ $application->sport }} @if($application->sport_specification) ({{ $application->sport_specification }}) @endif</span>
+            </div>
+            <div class="col-span-2">
+                <span class="label">Palarong Pambansa Finisher</span>
+                <span class="value">{{ $application->has_palaro_participation ? 'YES' : 'NO' }}</span>
+            </div>
+            <div class="col-span-2">
+                <span class="label">Batang Pinoy Finisher</span>
+                <span class="value">{{ $application->batang_pinoy_finisher == 'Yes' ? 'YES' : 'NO' }}</span>
             </div>
         </div>
 
-        {{-- III. GUARDIAN INFO --}}
-        <div class="section-title">III. Guardian Information</div>
+        {{-- III. PARENTS & GUARDIAN --}}
+        <div class="section-title">III. PARENTS' & DESIGNATED GUARDIAN'S INFORMATION</div>
         <div class="grid grid-cols-4 gap-3 mb-2">
-            <div class="col-span-2"><span class="label">Guardian Name</span><span class="value">{{ $application->guardian_name }}</span></div>
-            <div class="col-span-2"><span class="label">Relationship</span><span class="value">{{ $application->guardian_relationship }}</span></div>
+            <div class="col-span-2"><span class="label">Designated Guardian</span><span class="value">{{ $application->guardian_name }}</span></div>
+            <div class="col-span-2"><span class="label">Relationship to the Applicant</span><span class="value">{{ $application->guardian_relationship }}</span></div>
             <div class="col-span-2"><span class="label">Contact Number</span><span class="value">{{ $application->guardian_contact }}</span></div>
             <div class="col-span-2"><span class="label">Email Address</span><span class="value lowercase">{{ $application->guardian_email }}</span></div>
         </div>
 
         {{-- IV. CHECKLIST --}}
-        <div class="section-title">IV. Requirements Checklist</div>
+        <div class="section-title">IV. Submitted Documents Checklist</div>
         <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-[10px] mb-6">
             @php
-                $docs = [
-                    'scholarship_form' => 'Scholarship Application Form',
-                    'student_profile' => 'Student-Athlete Profile Form',
-                    'birth_cert' => 'PSA Birth Certificate',
-                    'report_card' => 'Report Card (SF9/SF10)',
-                    'good_moral' => 'Good Moral Certificate',
-                    'medical_cert' => 'Medical Certificate',
-                    'medical_clearance' => 'Medical/Physical Clearance',
-                    'coach_reco' => 'Coach Recommendation',
-                    'adviser_reco' => 'Adviser Recommendation',
-                    'guardian_id' => 'Guardian Valid ID'
-                ];
                 $files = $application->uploaded_files ?? [];
+                $docs = [
+                    'id_picture' => '2x2 ID Picture', 
+                    'scholarship_form' => 'Scholarship Application Form',
+                    'student_profile' => 'Student-Athlete’s Profile Form',
+                    'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
+                    'coach_reco' => 'Coach’s Recommendation Form',
+                    'adviser_reco' => 'Adviser’s Recommendation Form',
+                    'birth_cert' => 'PSA Birth Certificate',
+                    'report_card' => 'Report Card (SF9)',
+                    'guardian_id' => 'Designated Guardian’s Valid ID',
+                    'kukkiwon_cert' => 'Kukkiwon Certificate',
+                    'ip_cert' => 'IP Certification',
+                    'pwd_id' => 'PWD ID',
+                    '4ps_id' => '4Ps ID/Certification'
+                ];
             @endphp
 
             @foreach($docs as $key => $label)
+                @php
+                    $isUploaded = isset($files[$key]) && !empty($files[$key]);
+                    $isSpecial = in_array($key, ['kukkiwon_cert', 'ip_cert', 'pwd_id', '4ps_id']);
+                    if ($isSpecial && !$isUploaded) { continue; }
+                @endphp
                 <div class="flex justify-between items-center border-b border-dashed border-gray-300 py-0.5">
                     <span class="uppercase text-gray-700 font-medium">{{ $label }}</span>
-                    @if(isset($files[$key]))
+                    @if($isUploaded)
                         <span class="font-bold text-black text-[9px] bg-gray-200 px-1 rounded">SUBMITTED</span>
                     @else
                         <span class="text-gray-300 text-[9px]">---</span>

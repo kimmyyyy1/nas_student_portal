@@ -41,7 +41,7 @@
                                 default => 'bg-gray-100 text-gray-800 border-gray-200'
                             };
                         @endphp
-                        <span id="live-status-badge" class="px-3 py-1.5 rounded-full text-xs font-bold border uppercase tracking-wide shadow-sm {{ $statusColor }} self-start md:self-center">{{ $application->status }}</span>
+                        <span id="live-status-badge" class="px-3 py-1.5 rounded-full text-xs font-bold border uppercase tracking-wide shadow-sm {{ $statusColor }} self-start md:self-center">{{ $application->displayStatus }}</span>
                     </div>
 
                     {{-- PROGRESS BAR --}}
@@ -262,58 +262,64 @@
                                 @foreach($reqKeys as $key => $label)
                                     @php
                                         $path = $uploadedList[$key] ?? null;
-                                        $hasRemark = isset($remarksList[$key]) && !empty($remarksList[$key]);
                                         $status = $statusesList[$key] ?? null;
+                                        $hasRemark = isset($remarksList[$key]) && !empty($remarksList[$key]);
                                         $isUploaded = !empty($path);
                                         $isSpecial = in_array($key, ['kukkiwon_cert', 'ip_cert', 'pwd_id', '4ps_id']);
                                         
                                         if ($isSpecial && !$isUploaded) { continue; }
 
                                         $isOptional = in_array($key, ['coach_reco', 'adviser_reco']);
+
+                                        // Determine Status Text & Color
+                                        $statusText = '';
+                                        $statusColorClass = '';
+
+                                        if ($status === 'accepted') {
+                                            $statusText = 'Accepted';
+                                            $statusColorClass = 'bg-green-100 text-green-800 border-green-200';
+                                        } elseif ($hasRemark || $status === 'needs_resubmission') {
+                                            $statusText = 'Needs Resubmission';
+                                            $statusColorClass = 'bg-red-100 text-red-700 border-red-200';
+                                        } elseif ($isUploaded) {
+                                            $statusText = 'Submitted';
+                                            $statusColorClass = 'bg-blue-100 text-blue-800 border-blue-200';
+                                        } else {
+                                            if ($isOptional) {
+                                                $statusText = 'Optional';
+                                                $statusColorClass = 'bg-gray-100 text-gray-500 border-gray-200';
+                                            } else {
+                                                $statusText = 'Pending';
+                                                $statusColorClass = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                                            }
+                                        }
                                     @endphp
-                                    <tr class="hover:bg-gray-50 transition {{ $hasRemark || $status == 'needs_update' ? 'bg-red-50' : '' }}">
-                                        <td class="px-5 py-3 text-xs font-medium text-gray-900">
+                                    <tr class="hover:bg-gray-50 transition {{ $hasRemark || $status === 'needs_resubmission' ? 'bg-red-50' : '' }}">
+                                        <td class="px-5 py-3 text-xs font-medium text-gray-900 align-top">
                                             {{ $label }}
                                             @if($isOptional) <span class="text-gray-400 text-[10px] ml-1">(Optional)</span> @endif
                                         </td>
                                         
-                                        <td class="px-5 py-3 text-center">
-                                            @if($status == 'pending_review')
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-yellow-100 text-yellow-800 border border-yellow-200">PENDING REVIEW</span>
-                                            @elseif($hasRemark || $status == 'needs_update')
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-700 border border-red-200">NEEDS UPDATE</span>
-                                            @elseif($isUploaded)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-green-100 text-green-800 border border-green-200">✓ SUBMITTED</span>
-                                            @else
-                                                @if($isOptional)
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-gray-100 text-gray-500 border border-gray-200">Optional - N/A</span>
-                                                @else
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-700 border border-red-200">MISSING</span>
-                                                @endif
-                                            @endif
+                                        <td class="px-5 py-3 text-center align-top">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold border {{ $statusColorClass }}">{{ $statusText }}</span>
                                         </td>
                                         
-                                        <td class="px-5 py-3 text-center">
+                                        <td class="px-5 py-3 text-center align-top">
                                             @if($isUploaded)
-                                                @php $viewUrl = route('applicant.view_file', ['id' => $application->id, 'type' => $key]); @endphp
-                                                @if(Str::endsWith(strtolower($path), '.pdf'))
-                                                    <a href="{{ $viewUrl }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] font-bold uppercase hover:underline">PDF</a>
-                                                @else
-                                                    <a href="{{ $viewUrl }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] font-bold uppercase hover:underline">IMAGE</a>
-                                                @endif
+                                                <a href="{{ route('applicant.view_file', ['id' => $application->id, 'type' => $key]) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-[10px] font-bold uppercase hover:underline">VIEW</a>
                                             @else
                                                 <span class="text-gray-400 text-xs">-</span>
                                             @endif
                                         </td>
 
-                                        <td class="px-5 py-3 text-xs">
+                                        <td class="px-5 py-3 text-xs align-top">
                                             @if($hasRemark)
                                                 <div class="text-red-700 font-bold flex items-start">
                                                     <svg class="w-3 h-3 mr-1 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                                     {{ $remarksList[$key] }}
                                                 </div>
                                             @else
-                                                <span class="text-gray-400 italic text-[10px]">Good</span>
+                                                <span class="text-gray-400 italic text-[10px]">No remarks</span>
                                             @endif
                                         </td>
                                     </tr>

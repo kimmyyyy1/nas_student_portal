@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 
 class ApplicantPortalController extends Controller
 {
@@ -35,6 +36,12 @@ class ApplicantPortalController extends Controller
     public function index(): View
     {
         $application = Applicant::where('user_id', Auth::id())->first();
+
+        // Add a display-friendly status for the applicant's view
+        if ($application) {
+            $application->displayStatus = $this->getDisplayStatus($application);
+        }
+
         return view('applicant.dashboard', compact('application'));
     }
 
@@ -103,6 +110,7 @@ class ApplicantPortalController extends Controller
         $statuses = $application->document_statuses ?? [];
         $fileTimestamps = $application->file_timestamps ?? []; 
         $hasNewUploads = false;
+        $newlyUploadedFileKeys = [];
 
         // A. Check ID Picture Upload
         if ($request->hasFile('id_picture')) {
@@ -112,6 +120,7 @@ class ApplicantPortalController extends Controller
             $statuses['id_picture'] = 'pending_review';
             $fileTimestamps['id_picture'] = now()->toDateTimeString(); 
             $hasNewUploads = true;
+            $newlyUploadedFileKeys[] = 'id_picture';
         }
 
         // B. Check Document Uploads
@@ -123,6 +132,7 @@ class ApplicantPortalController extends Controller
                 $statuses[$key] = 'pending_review';
                 $fileTimestamps[$key] = now()->toDateTimeString();
                 $hasNewUploads = true;
+                $newlyUploadedFileKeys[] = $key;
             }
         }
 
@@ -133,6 +143,11 @@ class ApplicantPortalController extends Controller
 
         // 5. Execute Update
         $application->update($data);
+
+        // 6. Send notification
+        if ($hasNewUploads) {
+            $this->sendSubmissionNotification($application, $newlyUploadedFileKeys);
+        }
 
         return redirect()->route('applicant.dashboard')->with('success', 'Application updated successfully!');
     }
@@ -156,6 +171,7 @@ class ApplicantPortalController extends Controller
         $fileTimestamps = $application->file_timestamps ?? []; 
         
         $hasChanges = false;
+        $newlyUploadedFileKeys = [];
 
         // 2. Define Allowed Keys
         $allowedKeys = [
@@ -201,6 +217,7 @@ class ApplicantPortalController extends Controller
                     }
                     
                     $hasChanges = true;
+                    $newlyUploadedFileKeys[] = $key;
 
                 } catch (\Exception $e) {
                     return back()->withErrors(['msg' => 'Upload failed for ' . $key . ': ' . $e->getMessage()]);
@@ -215,6 +232,9 @@ class ApplicantPortalController extends Controller
             $application->document_statuses = $statuses;
             $application->file_timestamps = $fileTimestamps;
             $application->save();
+
+            // Send notification
+            $this->sendSubmissionNotification($application, $newlyUploadedFileKeys);
             
             return back()->with('success', 'Upload Successful! Requirements have been updated and sent for review.');
         }
@@ -273,6 +293,85 @@ class ApplicantPortalController extends Controller
     }
 
     // --- HELPER METHODS ---
+
+    private function getDisplayStatus($application)
+    {
+        $status = $application->status;
+        $remarks = $application->document_remarks ?? [];
+        $cleanRemarks = array_filter((array) $remarks);
+
+        switch ($status) {
+            case 'Enrolled':
+                return 'Endorsed for Enrollment';
+            
+            case 'Qualified':
+                return 'Qualified';
+
+            case 'Waitlisted':
+                return 'Waitlisted';
+
+            case 'For Assessment':
+                return 'For 2nd Level Assessment';
+
+            case 'Not Qualified':
+            case 'Rejected':
+            case 'Failed':
+                return 'Not Qualified';
+
+            case 'Pending':
+            case 'Pending Review':
+                if (!empty($cleanRemarks)) {
+                    // Kung may remarks ang admin, kailangan mag-update ng aplikante.
+                    return 'With Pending Requirements';
+                }
+                // Kung walang remarks, kumpleto ang requirements at for initial review na.
+                return 'With Complete Requirements & for 1st Level Assessment';
+            
+            default:
+                return Str::title(str_replace('_', ' ', $status));
+        }
+    }
+
+    private function sendSubmissionNotification(Applicant $application, array $uploadedFileKeys)
+    {
+        if (empty($uploadedFileKeys)) {
+            return;
+        }
+
+        try {
+            $adminEmail = config('mail.admin_address', 'registrar@nas.edu.ph'); // Better to use config
+            $applicantName = $application->first_name . ' ' . $application->last_name;
+            
+            $reqKeys = [
+                'id_picture' => '2x2 ID Picture', 
+                'scholarship_form' => 'Scholarship Application Form',
+                'student_profile' => 'Student-Athlete’s Profile Form',
+                'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
+                'coach_reco' => 'Coach’s Recommendation Form',
+                'adviser_reco' => 'Adviser’s Recommendation Form',
+                'birth_cert' => 'PSA Birth Certificate',
+                'report_card' => 'Report Card (SF9)',
+                'guardian_id' => 'Guardian’s Valid ID',
+                'kukkiwon_cert' => 'Kukkiwon Certificate',
+                'ip_cert' => 'IP Certification',
+                'pwd_id' => 'PWD ID',
+                '4ps_id' => '4Ps ID/Certification'
+            ];
+            $uploadedFileNames = array_map(fn($key) => $reqKeys[$key] ?? Str::title(str_replace('_', ' ', $key)), $uploadedFileKeys);
+
+            $body = "Applicant {$applicantName} (ID: {$application->id}) has submitted or resubmitted the following requirements:\n\n";
+            $body .= "- " . implode("\n- ", $uploadedFileNames);
+            $body .= "\n\nPlease review them in the admin portal.";
+
+            Mail::raw($body, function ($message) use ($adminEmail, $applicantName) {
+                $message->to($adminEmail)
+                        ->subject("Requirement Submission from {$applicantName}");
+            });
+        } catch (\Exception $e) {
+            // Log error, but don't fail the request for the user
+            \Log::error("Failed to send requirement submission email for applicant {$application->id}: " . $e->getMessage());
+        }
+    }
 
     private function mapInputData($validated, $request, $existingApp = null)
     {
