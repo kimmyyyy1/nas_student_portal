@@ -14,6 +14,29 @@
 
             <div class="p-6 sm:p-8 md:p-12 text-gray-900">
                 
+                {{-- STATIC PROGRESS BAR FOR VISUAL CUE --}}
+                <div class="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200 mb-8">
+                    <div class="p-6 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-5">
+                            <div class="w-full md:w-auto mb-3 md:mb-0">
+                                <h2 class="text-base font-bold text-gray-800 uppercase tracking-wide">Application Progress</h2>
+                                <p class="text-xs text-gray-500 mt-1">Reference No: <span class="font-mono text-gray-500 font-bold bg-gray-100 px-2 py-0.5 rounded border border-gray-200">WILL BE GENERATED AFTER SUBMISSION</span></p>
+                            </div>
+                            <span class="px-3 py-1.5 rounded-full text-xs font-bold border uppercase tracking-wide shadow-sm bg-yellow-100 text-yellow-800 border-yellow-200 self-start md:self-center">Step 1: Fill-out Form</span>
+                        </div>
+
+                        <div class="relative pt-1">
+                            <div class="flex mb-2 items-center justify-between">
+                                <div class="text-[10px] font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">Progress</div>
+                                <div class="text-right"><span class="text-[10px] font-semibold inline-block text-indigo-600">10%</span></div>
+                            </div>
+                            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
+                                <div style="width:10%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 @if ($errors->any())
                     <div class="mb-6 sm:mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-md text-sm shadow-sm">
                         <p class="font-bold mb-2">Please check required fields:</p>
@@ -88,16 +111,17 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Place of Birth *</label>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Place of Birth</label>
                                         <input type="text" name="birthplace" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('birthplace') }}">
                                     </div>
                                 </div>
 
                                 {{-- RELIGION & EMAIL --}}
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                     <div><label class="block text-sm font-bold text-gray-700 mb-2">Religion</label><input type="text" name="religion" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('religion') }}"></div>
-                                     <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="email_address" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 h-11 text-gray-500" required value="{{ Auth::user()->email }}" readonly></div>
+                                    <div><label class="block text-sm font-bold text-gray-700 mb-2">Religion</label><input type="text" name="religion" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('religion') }}"></div>
+                                    <div><label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label><input type="email" name="email_address" class="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 h-11 text-gray-500" required value="{{ Auth::user()->email }}" readonly></div>
                                 </div>
+
                             </div>
 
                             {{-- === RIGHT COLUMN: PHOTO UPLOAD === --}}
@@ -145,9 +169,9 @@
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Barangay *</label><input type="text" name="barangay" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('barangay') }}"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Street / House No.</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('street_address') }}" required></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Street / House No.</label><input type="text" name="street_address" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('street_address') }}"></div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Zip Code</label>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Zip Code *</label>
                                 <input type="text" name="zip_code" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('zip_code') }}" required maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)">
                             </div>
                         </div>
@@ -167,7 +191,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Grade Level Applying For *</label>
-                                <select name="grade_level_applied" class="w-full rounded-lg border-gray-300 shadow-sm h-11" required>
+                                <select name="grade_level_applied" x-model="gradeLevelApplied" class="w-full rounded-lg border-gray-300 shadow-sm h-11" required>
                                     <option value="">Select</option>
                                     <option value="Grade 7" {{ old('grade_level_applied') == 'Grade 7' ? 'selected' : '' }}>Grade 7</option>
                                     <option value="Grade 8" {{ old('grade_level_applied') == 'Grade 8' ? 'selected' : '' }}>Grade 8</option>
@@ -191,22 +215,22 @@
                             </select>
 
                             {{-- Conditional Sport Inputs --}}
-                            <div x-show="selectedSport === 'Aquatics'" class="mt-2">
+                            <div x-show="selectedSport === 'Aquatics'" class="mt-2" style="display: none;">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Aquatics event:</label>
                                 <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                             </div>
-                            <div x-show="selectedSport === 'Athletics'" class="mt-2">
+                            <div x-show="selectedSport === 'Athletics'" class="mt-2" style="display: none;">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Please specify Athletics event:</label>
                                 <input type="text" name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                             </div>
-                            <div x-show="selectedSport === 'Taekwondo'" class="mt-2">
+                            <div x-show="selectedSport === 'Taekwondo'" class="mt-2" style="display: none;">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Category:</label>
                                 <select name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                     <option value="Poomsae">Poomsae</option>
                                     <option value="Kyorugi">Kyorugi</option>
                                 </select>
                             </div>
-                            <div x-show="selectedSport === 'Gymnastics'" class="mt-2">
+                            <div x-show="selectedSport === 'Gymnastics'" class="mt-2" style="display: none;">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Category:</label>
                                 <select name="sport_specification" x-model="sportSpec" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                     <option value="Artistic">Artistic</option>
@@ -217,18 +241,15 @@
 
                         {{-- Achievements --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {{-- PALARONG PAMBANSA --}}
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Palarong Pambansa Podium Finisher?</label>
                                 <div class="flex space-x-4">
                                     <label class="flex items-center space-x-2">
-                                        <input type="radio" name="palaro_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" 
-                                        {{ old('palaro_finisher') == 'Yes' ? 'checked' : '' }}>
+                                        <input type="radio" name="palaro_finisher" value="Yes" class="form-radio text-indigo-600 w-4 h-4" {{ old('palaro_finisher') == 'Yes' ? 'checked' : '' }}>
                                         <span class="text-sm font-medium text-gray-700">Yes</span>
                                     </label>
                                     <label class="flex items-center space-x-2">
-                                        <input type="radio" name="palaro_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4"
-                                        {{ old('palaro_finisher', 'No') == 'No' ? 'checked' : '' }}>
+                                        <input type="radio" name="palaro_finisher" value="No" class="form-radio text-indigo-600 w-4 h-4" {{ old('palaro_finisher', 'No') == 'No' ? 'checked' : '' }}>
                                         <span class="text-sm font-medium text-gray-700">No</span>
                                     </label>
                                 </div>
@@ -270,13 +291,13 @@
                             </div>
                             
                             {{-- Conditional Referral Name --}}
-                            <div x-show="referralSource === 'NAS Personnel / Student-Athlete Referral'" class="bg-yellow-50 p-4 rounded-md border border-yellow-200">
-                                <label class="block text-sm font-bold text-yellow-800 mb-1">If referred, write the name (One name only):</label>
+                            <div x-show="referralSource === 'NAS Personnel / Student-Athlete Referral'" class="bg-yellow-50 p-4 rounded-md border border-yellow-200" style="display: none;">
+                                <label class="block text-sm font-bold text-yellow-800 mb-1">If referred, write the name of the NAS Personnel / Student-Athlete:</label>
                                 <input type="text" name="referrer_name" x-model="referrerName" class="w-full rounded-md border-gray-300 shadow-sm h-10">
                             </div>
 
                             {{-- Articulation Campaign --}}
-                            <div>
+                            <div class="mt-4">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Have you attended any of our articulation campaign or visited an information booth?</label>
                                 <div class="flex space-x-6">
                                     <label class="flex items-center"><input type="radio" name="attended_campaign" value="Yes" class="mr-2 text-indigo-600" {{ old('attended_campaign') == 'Yes' ? 'checked' : '' }}> Yes</label>
@@ -294,8 +315,8 @@
                                     <label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
                                     <label class="flex items-center"><input type="radio" x-model="isIP" name="is_ip" value="No" class="mr-2 text-indigo-600"> No</label>
                                 </div>
-                                <div x-show="isIP === 'Yes'">
-                                    <input type="text" name="ip_group_name" x-model="ipGroup" :required="isIP === 'Yes'" placeholder="If yes, specify IP Group" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm" :required="isIP === 'Yes'">
+                                <div x-show="isIP === 'Yes'" style="display: none;">
+                                    <input type="text" name="ip_group_name" x-model="ipGroup" :required="isIP === 'Yes'" placeholder="If yes, IP Group?" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
 
@@ -306,8 +327,8 @@
                                     <label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="Yes" class="mr-2 text-indigo-600"> Yes</label>
                                     <label class="flex items-center"><input type="radio" x-model="isPWD" name="is_pwd" value="No" class="mr-2 text-indigo-600"> No</label>
                                 </div>
-                                <div x-show="isPWD === 'Yes'">
-                                    <input type="text" name="pwd_disability" x-model="pwdType" :required="isPWD === 'Yes'" placeholder="If yes, specify disability" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm" :required="isPWD === 'Yes'">
+                                <div x-show="isPWD === 'Yes'" style="display: none;">
+                                    <input type="text" name="pwd_disability" x-model="pwdType" :required="isPWD === 'Yes'" placeholder="If yes, what disability?" class="w-full rounded-md border-gray-300 shadow-sm h-10 text-sm">
                                 </div>
                             </div>
 
@@ -330,13 +351,10 @@
                         </h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            {{-- Designated Guardian Name --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Designated Guardian *</label>
                                 <input type="text" name="guardian_name" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_name') }}">
                             </div>
-                            
-                            {{-- Relationship --}}
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Relationship to the Applicant *</label>
                                 <input type="text" name="guardian_relationship" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_relationship') }}">
@@ -344,46 +362,36 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {{-- Email Address --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Contact Number *</label>
+                                <input type="text" name="guardian_contact" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" required value="{{ old('guardian_contact') }}" maxlength="11" placeholder="09XXXXXXXXX" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)">
+                            </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
                                 <input type="email" name="guardian_email" class="w-full rounded-lg border-gray-300 shadow-sm h-11 focus:border-indigo-500" value="{{ old('guardian_email') }}">
                             </div>
-
-                            {{-- Contact Number --}}
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Contact Number *</label>
-                                <input type="text" 
-                                       name="guardian_contact" 
-                                       class="w-full rounded-lg border-gray-300 h-11" 
-                                       required 
-                                       value="{{ old('guardian_contact') }}" 
-                                       maxlength="11" 
-                                       placeholder="09XXXXXXXXX"
-                                       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)">
-                            </div>
                         </div>
                     </div>
 
-                    {{-- 6. REQUIREMENTS --}}
-                    <div class="mb-8 sm:mb-12">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">6</span> Requirements Upload</h3>
+                    {{-- 6. REQUIREMENTS UPLOAD --}}
+                    <div class="mb-8 sm:mb-12"> 
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6 flex items-center"><span class="bg-gray-800 text-white rounded-full h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center text-xs sm:text-sm mr-2 sm:mr-3">6</span> REQUIREMENTS UPLOAD</h3>
                         <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 italic bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">
-                            <strong>Note:</strong> Please upload clear copies (PDF, JPG, PNG). Max 5MB per file.
+                            <strong>Note:</strong> Please upload clear copies (PDF, JPG, PNG). Max 10MB per file.
                         </p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {{-- MANDATORY REQUIREMENTS --}}
                             @foreach([
+                                // Mandatory Requirements
                                 'scholarship_form'  => 'Scholarship Application Form',
                                 'student_profile'   => 'Student-Athlete’s Profile Form',
                                 'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form',
-                                // 👇 OPTIONAL
-                                'coach_reco'        => 'Coach’s Recommendation Form with Coach’s Valid Government-Issued ID with Signature',
-                                'adviser_reco'      => 'Adviser’s Recommendation Form with Adviser’s Valid Government-Issued ID with Signature',
                                 'birth_cert'        => 'PSA Birth Certificate',
                                 'report_card'       => 'Report Card (SF9)',
-                                'guardian_id'       => 'Designated Guardian’s Valid Government-Issued ID with Signature'
+                                'guardian_id'       => 'Designated Guardian’s Valid ID',
+                                // Optional Requirements
+                                'coach_reco'        => 'Coach’s Recommendation Form',
+                                'adviser_reco'      => 'Adviser’s Recommendation Form',
                             ] as $key => $label)
                                 
                                 @php 
@@ -393,10 +401,17 @@
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                         <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
-                                            {{ $label }} 
-                                            @if(!$isOptional) <span class="text-red-600">*</span> @endif
+                                            <span x-show="'{{ $key }}' !== 'report_card'">{{ $label }}</span>
+                                            <span x-show="'{{ $key }}' === 'report_card' && gradeLevelApplied === 'Grade 7'">Grade 5 and 6 Report Card (SF9)</span>
+                                            <span x-show="'{{ $key }}' === 'report_card' && gradeLevelApplied === 'Grade 8'">Grade 6 and 7 Report Card (SF9)</span>
+                                            <span x-show="'{{ $key }}' === 'report_card' && !gradeLevelApplied">Report Card (SF9)</span>
+                                            
+                                            @if(!$isOptional)<span class="text-red-600">*</span>@endif
                                         </label>
                                     </div>
+                                    @if($isOptional)
+                                        <p class="text-[10px] text-gray-500 italic mb-2">This is optional. It is preferably submitted directly via email by the coach/adviser to the Secretariat.</p>
+                                    @endif
                                     <input type="file" name="files[{{ $key }}]" 
                                            class="block w-full text-xs sm:text-sm text-slate-600 file:mr-4 file:py-2 sm:file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" 
                                            accept=".pdf,.jpg,.jpeg,.png" 
@@ -408,7 +423,7 @@
                             {{-- DYNAMIC REQUIREMENTS --}}
                             
                             {{-- Taekwondo: Kukkiwon Certificate --}}
-                            <div x-show="selectedSport === 'Taekwondo'" class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
+                            <div x-show="selectedSport === 'Taekwondo'" class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition" style="display: none;">
                                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                     <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
                                         Kukkiwon Certificate <span class="text-red-600">*</span>
@@ -420,7 +435,7 @@
                             </div>
 
                             {{-- IP: Certification --}}
-                            <div x-show="isIP === 'Yes'" class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
+                            <div x-show="isIP === 'Yes'" class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition" style="display: none;">
                                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                     <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
                                         IP Certification <span class="text-red-600">*</span>
@@ -432,7 +447,7 @@
                             </div>
 
                             {{-- PWD: ID --}}
-                            <div x-show="isPWD === 'Yes'" class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
+                            <div x-show="isPWD === 'Yes'" class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition" style="display: none;">
                                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                     <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
                                         PWD ID <span class="text-red-600">*</span>
@@ -444,7 +459,7 @@
                             </div>
 
                             {{-- 4Ps: ID or Certification --}}
-                            <div x-show="is4Ps === 'Yes'" class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition">
+                            <div x-show="is4Ps === 'Yes'" class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md transition" style="display: none;">
                                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
                                     <label class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-0">
                                         4Ps ID or Certification <span class="text-red-600">*</span>
@@ -476,7 +491,7 @@
                                 <h3 class="text-lg leading-6 font-extrabold text-gray-900 mb-4">Data Privacy Consent</h3>
                                 <div class="mt-2 h-80 overflow-y-auto text-xs sm:text-sm text-gray-700 bg-gray-50 p-6 rounded-md border border-gray-200 text-justify space-y-4 leading-relaxed">
                                     <p>
-                                        <strong>I/We certify that the above information is true, complete and correct.</strong> I/We understand that any false or misleading information shall render my/our child ineligible for admission or may be subject for dismissal. If admitted, I/We agreed to abide by the policies, rules and regulations of the National Academy of Sports.
+                                        <strong>I/We certify that the above information is true, complete and correct.</strong> I/We understand that any false or misleading information shall render my/our child ineligible for admission or may be subject to dismissal. If admitted, I/We agree to abide by the policies, rules and regulations of the National Academy of Sports.
                                         <br><span class="italic text-gray-500 font-normal">(Ako/Kami ay nagpapatunay na ang lahat ng impormasyong nakasaad sa itaas ay totoo, kumpleto, at wasto. Nauunawaan ko/namin na ang anumang maling o mapanlinlang na impormasyon ay magiging dahilan upang hindi tanggapin ang aking/aming anak sa pagpasok o maaaring maging batayan ng kanyang pagkakadismiss. Kung siya ay tatanggapin, ako/kami ay sumasang-ayon na sumunod sa mga polisiya, alituntunin, at regulasyon ng National Academy of Sports.)</span>
                                     </p>
 
@@ -486,7 +501,8 @@
                                     </p>
 
                                     <p>
-                                        <strong>We acknowledge and agree that:</strong> <span class="italic text-gray-500 font-normal">(Amin pong kinikilala at sinasang-ayunan na:)</span>
+                                        <strong>We acknowledge and agree that:</strong>
+                                        <span class="italic text-gray-500 font-normal">(Amin pong kinikilala at sinasang-ayunan na:)</span>
                                     </p>
                                     <ol class="list-decimal ml-6 space-y-2">
                                         <li>
@@ -506,9 +522,10 @@
                                             <br><span class="italic text-gray-500 font-normal">(Maaaring panatilihin ng NAS ang aming impormasyon hangga’t kinakailangan upang maisakatuparan ang mga layuning nakasaad dito, o ayon sa hinihingi ng mga umiiral na batas at regulasyon.)</span>
                                         </li>
                                     </ol>
-
+                                    
                                     <p>
                                         <strong>We also understand that as data subjects under the Data Privacy Act of 2012, we have right to:</strong> <span class="italic text-gray-500 font-normal">(Nauunawaan din namin na bilang mga data subject sa ilalim ng Data Privacy Act of 2012, kami ay may karapatang:)</span>
+                                        
                                     </p>
                                     <ul class="list-[lower-alpha] ml-6 space-y-2">
                                         <li>
@@ -561,6 +578,7 @@
                 dob: @json(old('date_of_birth')),
                 age: @json(old('age')),
                 selectedSport: @json(old('sport')),
+                gradeLevelApplied: @json(old('grade_level_applied')),
                 sportSpec: @json(old('sport_specification')), 
                 referralSource: @json(old('learn_about_nas')), 
                 referrerName: @json(old('referrer_name')),

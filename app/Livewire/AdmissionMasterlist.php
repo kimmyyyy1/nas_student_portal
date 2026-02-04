@@ -41,13 +41,17 @@ class AdmissionMasterlist extends Component
             $status = $this->status;
 
             if ($status === 'Pending') {
-                $query->whereIn('status', ['Pending', 'pending', 'For Assessment', 'Pending Review']);
+                $query->where('status', 'With Pending Requirements');
+            } elseif ($status === 'Assessment') {
+                $query->whereIn('status', ['With Complete Requirements & for 1st Level Assessment', 'For 2nd Level Assessment']);
             } elseif ($status === 'Qualified') {
-                $query->whereIn('status', ['Qualified', 'qualified']);
+                $query->where('status', 'Qualified');
             } elseif ($status === 'Waitlisted') {
-                $query->whereIn('status', ['Waitlisted', 'waitlisted']);
+                $query->where('status', 'Waitlisted');
             } elseif ($status === 'Not Qualified') {
-                $query->whereIn('status', ['Not Qualified', 'not qualified', 'Rejected', 'Failed']);
+                $query->where('status', 'Not Qualified');
+            } elseif ($status === 'Enrolled') {
+                $query->where('status', 'Endorsed for Enrollment');
             } else {
                 $query->where('status', $status);
             }
@@ -55,10 +59,12 @@ class AdmissionMasterlist extends Component
 
         // Statistics
         $totalSubmitted = Applicant::count();
-        $countPending    = Applicant::whereIn('status', ['Pending', 'pending', 'For Assessment', 'Pending Review'])->count();
-        $countQualified  = Applicant::whereIn('status', ['Qualified', 'qualified'])->count();
-        $countWaitlisted = Applicant::whereIn('status', ['Waitlisted', 'waitlisted'])->count();
-        $countRejected   = Applicant::whereIn('status', ['Not Qualified', 'not qualified', 'Rejected', 'Failed'])->count();
+        $countPending    = Applicant::where('status', 'With Pending Requirements')->count();
+        $countAssessment = Applicant::whereIn('status', ['With Complete Requirements & for 1st Level Assessment', 'For 2nd Level Assessment'])->count();
+        $countQualified  = Applicant::where('status', 'Qualified')->count();
+        $countWaitlisted = Applicant::where('status', 'Waitlisted')->count();
+        $countRejected   = Applicant::where('status', 'Not Qualified')->count();
+        $countEnrolled   = Applicant::where('status', 'Endorsed for Enrollment')->count();
 
         // Pagination
         $applications = $query->orderBy('created_at', 'desc')->paginate(10);
@@ -67,9 +73,11 @@ class AdmissionMasterlist extends Component
             'applications' => $applications,
             'totalSubmitted' => $totalSubmitted,
             'countPending' => $countPending,
+            'countAssessment' => $countAssessment,
             'countQualified' => $countQualified,
             'countWaitlisted' => $countWaitlisted,
             'countRejected' => $countRejected,
+            'countEnrolled' => $countEnrolled,
         ]);
     }
 }

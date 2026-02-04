@@ -191,6 +191,26 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="mt-4 pt-2 border-t border-gray-200">
+                            <label class="block text-[10px] text-gray-500 uppercase font-bold mb-2">Referral & Background</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                                <div>
+                                    <label class="block text-[10px] text-gray-500 uppercase font-bold">Where did you learn about NAS?</label>
+                                    <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->learn_about_nas ?? 'N/A' }}</div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-gray-500 uppercase font-bold">Attended Articulation Campaign?</label>
+                                    <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->attended_campaign ?? 'N/A' }}</div>
+                                </div>
+                                @if($application->referrer_name)
+                                <div class="sm:col-span-2">
+                                    <label class="block text-[10px] text-gray-500 uppercase font-bold">Referred By</label>
+                                    <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->referrer_name }}</div>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
 
                     {{-- II. ACADEMIC & SPORTS PROFILE --}}
@@ -202,9 +222,12 @@
                             <div class="sm:col-span-2">
                                 <label class="block text-[10px] text-gray-500 uppercase font-bold">Last School Attended</label>
                                 <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->previous_school }} ({{ $application->school_type }})</div>
+                                <label class="block text-[10px] text-gray-500 uppercase font-bold">School Type</label>
+                                <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->school_type }}</div>
                             </div>
                             <div>
                                 <label class="block text-[10px] text-gray-500 uppercase font-bold">Applied Grade</label>
+                                <label class="block text-[10px] text-gray-500 uppercase font-bold">Grade Level Applying For</label>
                                 <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->grade_level_applied }}</div>
                             </div>
                             <div>
@@ -213,10 +236,12 @@
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-[10px] text-gray-500 uppercase font-bold">Palarong Pambansa Finisher</label>
+                                <label class="block text-[10px] text-gray-500 uppercase font-bold">Palarong Pambansa Podium Finisher</label>
                                 <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->has_palaro_participation ? 'YES' : 'NO' }}</div>
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-[10px] text-gray-500 uppercase font-bold">Batang Pinoy Finisher</label>
+                                <label class="block text-[10px] text-gray-500 uppercase font-bold">Batang Pinoy Podium Finisher</label>
                                 <div class="font-bold text-gray-900 border-b border-gray-300">{{ $application->batang_pinoy_finisher == 'Yes' ? 'YES' : 'NO' }}</div>
                             </div>
                         </div>
@@ -277,6 +302,15 @@
                                                 'report_card' => 'Report Card (SF9)',
                                                 'guardian_id' => 'Designated Guardian’s Valid ID',
                                                 'kukkiwon_cert' => 'Kukkiwon Certificate',
+                                                'scholarship_form'  => 'Scholarship Application Form',
+                                                'student_profile'   => 'Student-Athlete’s Profile Form',
+                                                'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form', 
+                                                'birth_cert'        => 'PSA Birth Certificate',
+                                                'report_card'       => 'Report Card',
+                                                'guardian_id'       => 'Designated Guardian’s valid ID',
+                                                'coach_reco'        => 'Coach’s Recommendation Form',
+                                                'adviser_reco'      => 'Adviser’s Recommendation Form',
+                                                'kukkiwon_cert'     => 'Kukkiwon Certificate',
                                                 'ip_cert' => 'IP Certification',
                                                 'pwd_id' => 'PWD ID',
                                                 '4ps_id' => '4Ps ID/Certification'
@@ -285,6 +319,14 @@
 
                                         @foreach($docs as $key => $label)
                                             @php
+                                                // Dynamic label for report card
+                                                if ($key === 'report_card') {
+                                                    if ($application->grade_level_applied === 'Grade 7') {
+                                                        $label = 'Grade 5 and 6 Report Card';
+                                                    } elseif ($application->grade_level_applied === 'Grade 8') {
+                                                        $label = 'Grade 6 and 7 Report Card';
+                                                    }
+                                                }
                                                 $isUploaded = isset($files[$key]) && !empty($files[$key]);
                                                 
                                                 $remark = isset($remarks[$key]) ? trim($remarks[$key]) : '';
@@ -410,11 +452,13 @@
                                 <div class="mb-4">
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
                                     <select name="status" id="status" class="w-full border-gray-300 rounded text-sm font-bold text-gray-800">
-                                        <option value="Pending" {{ in_array($application->status, ['Pending', 'Pending Review']) ? 'selected' : '' }}>Pending Review (1st Level)</option>
-                                        <option value="For Assessment" {{ $application->status == 'For Assessment' ? 'selected' : '' }}>For 2nd Level Assessment</option>
-                                        <option value="Qualified" {{ $application->status == 'Qualified' ? 'selected' : '' }}>Qualified (Endorse for Enrollment)</option>
+                                        <option value="With Pending Requirements" {{ $application->status == 'With Pending Requirements' ? 'selected' : '' }}>With Pending Requirements</option>
+                                        <option value="With Complete Requirements & for 1st Level Assessment" {{ $application->status == 'With Complete Requirements & for 1st Level Assessment' ? 'selected' : '' }}>With Complete Requirements & for 1st Level Assessment</option>
+                                        <option value="For 2nd Level Assessment" {{ $application->status == 'For 2nd Level Assessment' ? 'selected' : '' }}>For 2nd Level Assessment</option>
+                                        <option value="Qualified" {{ $application->status == 'Qualified' ? 'selected' : '' }}>Qualified</option>
                                         <option value="Waitlisted" {{ $application->status == 'Waitlisted' ? 'selected' : '' }}>Waitlisted</option>
-                                        <option value="Not Qualified" {{ in_array($application->status, ['Not Qualified', 'Rejected', 'Failed']) ? 'selected' : '' }}>Not Qualified</option>
+                                        <option value="Not Qualified" {{ $application->status == 'Not Qualified' ? 'selected' : '' }}>Not Qualified</option>
+                                        <option value="Endorsed for Enrollment" {{ $application->status == 'Endorsed for Enrollment' ? 'selected' : '' }}>Endorsed for Enrollment</option>
                                     </select>
                                 </div>
                                 <div class="mb-4">

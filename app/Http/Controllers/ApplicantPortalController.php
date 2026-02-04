@@ -65,7 +65,7 @@ class ApplicantPortalController extends Controller
         $data = $this->mapInputData($validated, $request);
         
         $data['user_id'] = Auth::id();
-        $data['status'] = 'Pending'; // Set initial status
+        $data['status'] = 'With Pending Requirements'; // Set initial status
 
         // Create Record
         Applicant::create($data);
@@ -229,8 +229,6 @@ class ApplicantPortalController extends Controller
         if ($hasChanges) {
             $application->uploaded_files = $currentFiles;
             $application->document_remarks = $remarks;
-            $application->document_statuses = $statuses;
-            $application->file_timestamps = $fileTimestamps;
             $application->save();
 
             // Send notification
@@ -297,39 +295,9 @@ class ApplicantPortalController extends Controller
     private function getDisplayStatus($application)
     {
         $status = $application->status;
-        $remarks = $application->document_remarks ?? [];
-        $cleanRemarks = array_filter((array) $remarks);
-
-        switch ($status) {
-            case 'Enrolled':
-                return 'Endorsed for Enrollment';
-            
-            case 'Qualified':
-                return 'Qualified';
-
-            case 'Waitlisted':
-                return 'Waitlisted';
-
-            case 'For Assessment':
-                return 'For 2nd Level Assessment';
-
-            case 'Not Qualified':
-            case 'Rejected':
-            case 'Failed':
-                return 'Not Qualified';
-
-            case 'Pending':
-            case 'Pending Review':
-                if (!empty($cleanRemarks)) {
-                    // Kung may remarks ang admin, kailangan mag-update ng aplikante.
-                    return 'With Pending Requirements';
-                }
-                // Kung walang remarks, kumpleto ang requirements at for initial review na.
-                return 'With Complete Requirements & for 1st Level Assessment';
-            
-            default:
-                return Str::title(str_replace('_', ' ', $status));
-        }
+        
+        // Return the raw status string directly, as it already matches the desired display format.
+        return $status;
     }
 
     private function sendSubmissionNotification(Applicant $application, array $uploadedFileKeys)

@@ -1,5 +1,7 @@
 <x-applicant-layout>
     <div id="dashboard-content" class="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+
+        {{-- REGULAR DASHBOARD VIEW (Shown after uploading or if there's no application) --}}
         
         {{-- HEADER --}}
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 bg-white p-5 rounded-xl shadow-sm border border-gray-100">
@@ -34,10 +36,12 @@
                         </div>
                         @php
                             $statusColor = match($application->status) {
-                                'Qualified', 'Enrolled' => 'bg-green-100 text-green-800 border-green-200',
+                                'Qualified', 'Endorsed for Enrollment' => 'bg-green-100 text-green-800 border-green-200',
                                 'Not Qualified' => 'bg-red-100 text-red-800 border-red-200',
                                 'Waitlisted' => 'bg-orange-100 text-orange-800 border-orange-200',
-                                'For Assessment', 'Pending', 'Submitted (with Pending)' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                'For 2nd Level Assessment' => 'bg-cyan-100 text-cyan-800 border-cyan-200',
+                                'With Complete Requirements & for 1st Level Assessment' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                'With Pending Requirements' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
                                 default => 'bg-gray-100 text-gray-800 border-gray-200'
                             };
                         @endphp
@@ -48,20 +52,25 @@
                     <div class="relative pt-1">
                         <div class="flex mb-2 items-center justify-between">
                             <div class="text-[10px] font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">Progress</div>
-                            <div class="text-right"><span class="text-[10px] font-semibold inline-block text-indigo-600">{{ $application->status == 'Enrolled' ? '100%' : ($application->status == 'Qualified' ? '90%' : '50%') }}</span></div>
+                            @php
+                                $progressPercent = match($application->status) {
+                                    'Endorsed for Enrollment' => 100,
+                                    'Qualified' => 75,
+                                    'For 2nd Level Assessment' => 50,
+                                    'With Complete Requirements & for 1st Level Assessment' => 30,
+                                    'With Pending Requirements' => 10,
+                                    'Waitlisted' => 50,
+                                    'Not Qualified' => 100,
+                                    default => 0,
+                                };
+                            @endphp
+                            <div class="text-right"><span class="text-[10px] font-semibold inline-block text-indigo-600">{{ $progressPercent }}%</span></div>
                         </div>
                         <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
                             @php
-                                $progress = match($application->status) { 
-                                    'Enrolled' => 100, 
-                                    'Qualified' => 90, 
-                                    'For Assessment', 'Waitlisted', 'Pending', 'Submitted (with Pending)' => 50, 
-                                    'Not Qualified' => 100, 
-                                    default => 25 
-                                };
                                 $barColor = $application->status == 'Not Qualified' ? 'bg-red-500' : 'bg-indigo-500';
                             @endphp
-                            <div style="width:{{ $progress }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center {{ $barColor }} transition-all duration-1000 ease-in-out"></div>
+                            <div style="width:{{ $progressPercent }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center {{ $barColor }} transition-all duration-1000 ease-in-out"></div>
                         </div>
                     </div>
 
@@ -84,75 +93,11 @@
                 </div>
             </div>
 
-            @if($application->status == 'Qualified')
-                {{-- QUALIFIED UPLOAD SECTION --}}
-                <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 shadow-sm animate-fade-in-up mb-6">
-                    <div class="flex flex-col md:flex-row items-start">
-                        <div class="flex-shrink-0 mb-4 md:mb-0"><svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div>
-                        <div class="ml-0 md:ml-4 w-full">
-                            <h3 class="text-lg font-bold text-blue-900">Next Step: Submit Enrollment Requirements</h3>
-                            <p class="text-xs text-blue-700 mt-1 mb-4">Congratulations! You are qualified. Please upload the remaining digital copies to finalize your enrollment.</p>
-                            
-                            {{-- FORM START --}}
-                            <form id="uploadForm" action="{{ route('applicant.submit_requirements') }}" method="POST" enctype="multipart/form-data" class="bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
-                                @csrf
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    @php
-                                        $uploaded = $application->uploaded_files;
-                                        if (is_string($uploaded)) { $uploaded = json_decode($uploaded, true); }
-                                        $uploaded = $uploaded ?? [];
-                                        $remarks = $application->document_remarks ?? [];
-                                        $requiredFields = ['sf10', 'good_moral', 'psa_birth_cert', 'medical_cert', 'coach_reco'];
-                                        $allFilesUploaded = true;
-                                    @endphp
-
-                                    @foreach($requiredFields as $field)
-                                        @php
-                                            $isUploaded = isset($uploaded[$field]) && !empty($uploaded[$field]);
-                                            $hasRemark = isset($remarks[$field]) && !empty($remarks[$field]);
-                                            $isOptional = in_array($field, ['coach_reco']); 
-                                            if ((!$isUploaded && !$isOptional) || $hasRemark) { $allFilesUploaded = false; }
-                                            $niceLabels = [ 'sf10' => 'Report Card (SF10)', 'good_moral' => 'Good Moral Certificate', 'psa_birth_cert' => 'PSA Birth Certificate', 'medical_cert' => 'Medical Certificate', 'coach_reco' => 'Coach Recommendation' ];
-                                            $label = $niceLabels[$field] ?? strtoupper(str_replace('_', ' ', $field));
-                                        @endphp
-                                        
-                                        <div class="border rounded-lg p-3 transition-all {{ $hasRemark ? 'bg-red-50 border-red-300' : ($isUploaded ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-300 shadow-sm') }}">
-                                            <div class="flex justify-between items-start mb-2">
-                                                <label class="block text-xs font-bold {{ $hasRemark ? 'text-red-800' : ($isUploaded ? 'text-green-800' : 'text-red-800') }}">{{ $label }} @if(!$isOptional) <span class="text-red-600">*</span> @endif</label>
-                                                @if($hasRemark) <span class="text-[9px] font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded border border-red-200">NEEDS UPDATE</span>
-                                                @elseif($isUploaded) <span class="text-[9px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded border border-green-200">SUBMITTED</span>
-                                                @else 
-                                                    @if($isOptional) <span class="text-[9px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">OPTIONAL</span>
-                                                    @else <span class="text-[9px] font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded border border-red-200">MISSING</span>
-                                                    @endif
-                                                @endif
-                                            </div>
-                                            @if(!$isUploaded || $hasRemark)
-                                                <input type="file" name="{{ $field }}" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-red-100 file:text-red-700 hover:file:bg-red-200 cursor-pointer">
-                                            @else
-                                                <span class="text-[10px] text-green-700 italic">File uploaded.</span>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <div class="mt-4 text-right">
-                                    @if(!$allFilesUploaded)
-                                        <button type="submit" id="submitBtn" class="bg-indigo-700 hover:bg-indigo-800 text-white px-4 py-2 rounded-lg font-bold shadow-md text-xs">Upload Files</button>
-                                    @endif
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            @if($application->status != 'Qualified')
-                
-                {{-- INFO GRID: 3 Columns Row --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    
-                    {{-- 1. STUDENT PROFILE --}}
-                    <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden h-full">
+            
+            {{-- INFO GRID & REQUIREMENTS (Always show if application exists) --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                {{-- 1. STUDENT PROFILE --}}
+                <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden h-full">
                         <div class="bg-indigo-900 px-5 py-3 border-b border-indigo-800">
                             <h3 class="text-white font-bold text-sm flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -192,8 +137,8 @@
                         </div>
                     </div>
 
-                    {{-- 2. ACADEMIC & SPORTS INFO --}}
-                    <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden h-full">
+                {{-- 2. ACADEMIC & SPORTS INFO --}}
+                <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden h-full">
                         <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 flex justify-between items-center"><h3 class="text-gray-800 font-bold text-sm flex items-center"><svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>Academic & Sports</h3></div>
                         <div class="p-5">
                             <div class="space-y-3">
@@ -204,8 +149,8 @@
                         </div>
                     </div>
 
-                    {{-- 3. BACKGROUND --}}
-                    <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden h-full">
+                {{-- 3. BACKGROUND --}}
+                <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden h-full">
                         <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 flex justify-between items-center"><h3 class="text-gray-800 font-bold text-sm flex items-center"><svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Background</h3></div>
                         <div class="p-5">
                             <div class="space-y-3">
@@ -216,9 +161,9 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- SUBMITTED REQUIREMENTS (Full Width Below) --}}
-                <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden mb-8">
+            
+            {{-- SUBMITTED REQUIREMENTS (Full Width Below) --}}
+            <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden mb-8">
                     <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 flex justify-between items-center">
                         <h3 class="text-gray-800 font-bold text-sm flex items-center">
                             <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -328,7 +273,6 @@
                         </table>
                     </div>
                 </div>
-            @endif
 
         @else
             {{-- CTA for No Application --}}
@@ -346,6 +290,7 @@
                 </a>
             </div>
         @endif
+
     </div>
     
     <script>
