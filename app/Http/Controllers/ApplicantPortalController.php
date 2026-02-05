@@ -59,8 +59,7 @@ class ApplicantPortalController extends Controller
         
         $data['user_id'] = Auth::id();
 
-        // 👇 ITO ANG PINAKA-IMPORTANTE: BAGUHIN ANG DEFAULT STATUS
-        // Para pag-submit pa lang, 'Assessment 1' na agad siya at magka-count sa Admin.
+        // Default Status upon creation
         $data['status'] = 'With Complete Requirements & for 1st Level Assessment'; 
 
         Applicant::create($data);
@@ -90,48 +89,33 @@ class ApplicantPortalController extends Controller
             return redirect()->route('applicant.dashboard')->with('error', 'Application is locked.');
         }
 
+        // Validate personal info ONLY (No file validation for requirements)
         $validated = $this->validateApplication($request, true);
+        
+        // Map data but don't process 'files' array for documents
         $data = $this->mapInputData($validated, $request, $application);
 
-        $remarks = $application->document_remarks ?? [];
-        $statuses = $application->document_statuses ?? [];
+        // Special handling for ID Picture only (since it's in personal section)
         $fileTimestamps = $application->file_timestamps ?? []; 
-        $hasNewUploads = false;
-        $newlyUploadedFileKeys = [];
-
+        
         if ($request->hasFile('id_picture')) {
+            $remarks = $application->document_remarks ?? [];
+            $statuses = $application->document_statuses ?? [];
+
             if (isset($remarks['id_picture'])) {
                 unset($remarks['id_picture']); 
             }
             $statuses['id_picture'] = 'pending_review';
             $fileTimestamps['id_picture'] = now()->toDateTimeString(); 
-            $hasNewUploads = true;
-            $newlyUploadedFileKeys[] = 'id_picture';
+            
+            $data['document_remarks'] = $remarks;
+            $data['document_statuses'] = $statuses;
+            $data['file_timestamps'] = $fileTimestamps;
         }
-
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $key => $file) {
-                if (isset($remarks[$key])) {
-                    unset($remarks[$key]); 
-                }
-                $statuses[$key] = 'pending_review';
-                $fileTimestamps[$key] = now()->toDateTimeString();
-                $hasNewUploads = true;
-                $newlyUploadedFileKeys[] = $key;
-            }
-        }
-
-        $data['document_remarks'] = $remarks;
-        $data['document_statuses'] = $statuses;
-        $data['file_timestamps'] = $fileTimestamps; 
 
         $application->update($data);
 
-        if ($hasNewUploads) {
-            $this->sendSubmissionNotification($application, $newlyUploadedFileKeys);
-        }
-
-        return redirect()->route('applicant.dashboard')->with('success', 'Application updated successfully!');
+        return redirect()->route('applicant.dashboard')->with('success', 'Profile updated successfully!');
     }
 
     public function submitRequirements(Request $request): RedirectResponse
@@ -319,6 +303,7 @@ class ApplicantPortalController extends Controller
         $currentFiles = $existingApp ? ($existingApp->uploaded_files ?? []) : [];
         $fileTimestamps = $existingApp ? ($existingApp->file_timestamps ?? []) : [];
         
+        // Handle ID Picture Upload
         if ($request->hasFile('id_picture')) {
             try {
                 $upload = (new UploadApi())->upload($request->file('id_picture')->getRealPath(), [
@@ -330,6 +315,7 @@ class ApplicantPortalController extends Controller
             } catch (\Exception $e) {}
         }
 
+        // Only handle other files on CREATE or if specifically needed (EDIT requirements removed in this controller update logic)
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
@@ -401,7 +387,7 @@ class ApplicantPortalController extends Controller
         ];
 
         if ($isUpdate) {
-            $rules['files.*'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // REMOVED 'files.*' validation
             $rules['id_picture'] = 'nullable|image|max:5120';
         } else {
             $rules['files.*'] = 'file|mimes:jpg,jpeg,png,pdf|max:5120';

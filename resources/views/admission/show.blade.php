@@ -54,12 +54,30 @@
                 {{-- MAIN CONTENT --}}
                 <div id="print-area" class="md:col-span-3 bg-white shadow-xl rounded-lg overflow-hidden border border-gray-300 p-8 md:p-10 relative">
                         
-                    {{-- Header Logo --}}
-                    <div class="flex flex-col items-center justify-center text-center mb-6 pb-4 border-b-2 border-black">
-                        <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" alt="NAS Logo" class="h-20 w-auto mb-2 object-contain">
-                        <h1 class="text-2xl font-black text-gray-900 uppercase tracking-widest">National Academy of Sports</h1>
-                        <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wide">Student-Athlete Admission Application Form</h2>
-                        <p class="text-xs italic text-gray-600">New Clark City, Capas, Tarlac</p>
+                    {{-- HEADER: UPDATED LOGOS & TEXT --}}
+                    <div class="flex flex-col md:flex-row items-center justify-between mb-6 pb-4 border-b-2 border-black gap-4">
+                        
+                        {{-- Left Logo: NAS (Updated to nas-logo-sidebar.png) --}}
+                        <div class="w-24 flex-shrink-0 flex justify-center">
+                            <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" alt="NAS Logo" class="h-24 w-auto object-contain">
+                        </div>
+
+                        {{-- Center Text --}}
+                        <div class="text-center flex-1">
+                            <h1 class="text-lg sm:text-xl font-black text-gray-900 uppercase leading-tight">
+                                NAS Annual Search for Competent, Exceptional, Notable, and Talented Student-Athlete Scholars
+                            </h1>
+                            <h2 class="text-base sm:text-lg font-bold text-gray-700 uppercase tracking-widest mt-1">
+                                (NASCENT SAS)
+                            </h2>
+                            <p class="text-xs italic text-gray-600 mt-2">New Clark City, Capas, Tarlac</p>
+                        </div>
+
+                        {{-- Right Logo: NASCENT SAS --}}
+                        <div class="w-24 flex-shrink-0 flex justify-center">
+                            <img src="{{ asset('images/nas/NASCENT SAS.png') }}" alt="NASCENT SAS Logo" class="h-24 w-auto object-contain">
+                        </div>
+
                     </div>
 
                     {{-- I. APPLICANT INFORMATION --}}
@@ -346,7 +364,7 @@
                                 <div class="mb-4">
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
                                     <select name="status" id="status" class="w-full border-gray-300 rounded text-sm font-bold text-gray-800">
-                                        <option value="For 1st Level Assessment" {{ $application->status == 'For 1st Level Assessment' ? 'selected' : '' }}>For Assessment (1st Level)</option>
+                                        <option value="With Complete Requirements & for 1st Level Assessment" {{ $application->status == 'With Complete Requirements & for 1st Level Assessment' ? 'selected' : '' }}>For Assessment (1st Level)</option>
                                         <option value="For 2nd Level Assessment" {{ $application->status == 'For 2nd Level Assessment' ? 'selected' : '' }}>For Assessment (2nd Level)</option>
                                         <option value="Qualified" {{ $application->status == 'Qualified' ? 'selected' : '' }}>Qualified</option>
                                         <option value="Waitlisted" {{ $application->status == 'Waitlisted' ? 'selected' : '' }}>Waitlisted</option>
