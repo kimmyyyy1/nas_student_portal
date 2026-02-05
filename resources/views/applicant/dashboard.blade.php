@@ -38,7 +38,7 @@
                                 'Not Qualified' => 'bg-red-100 text-red-800 border-red-200',
                                 'Waitlisted' => 'bg-orange-100 text-orange-800 border-orange-200',
                                 'For 2nd Level Assessment' => 'bg-cyan-100 text-cyan-800 border-cyan-200',
-                                'With Complete Requirements & for 1st Level Assessment' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                'With Complete Requirements & for 1st Level Assessment', 'For 1st Level Assessment' => 'bg-blue-100 text-blue-800 border-blue-200',
                                 'With Pending Requirements' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
                                 default => 'bg-gray-100 text-gray-800 border-gray-200'
                             };
@@ -55,8 +55,8 @@
                                     'Endorsed for Enrollment' => 100,
                                     'Qualified' => 75,
                                     'For 2nd Level Assessment' => 50,
-                                    'With Complete Requirements & for 1st Level Assessment' => 30,
-                                    'With Pending Requirements' => 10,
+                                    'With Complete Requirements & for 1st Level Assessment', 'For 1st Level Assessment' => 25,
+                                    'With Pending Requirements' => 40,
                                     'Waitlisted' => 50,
                                     'Not Qualified' => 100,
                                     default => 0,
@@ -84,14 +84,14 @@
                         @if(!in_array($application->status, ['Enrolled', 'Qualified', 'Not Qualified']))
                             <a href="{{ route('applicant.edit') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                Edit Application
+                                Edit Profile
                             </a>
                         @endif
                     </div>
                 </div>
             </div>
 
-            {{-- INFO GRID ONLY (REMOVED REQUIREMENTS TABLE) --}}
+            {{-- INFO GRID --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 {{-- 1. STUDENT PROFILE --}}
                 <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden h-full">
@@ -159,6 +159,127 @@
                 </div>
             </div>
 
+            {{-- 4. REQUIREMENTS UPLOAD (CONDITIONAL: LEVEL 2 ONLY) --}}
+            @if(in_array($application->status, ['For 2nd Level Assessment', 'With Pending Requirements']))
+                <div class="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden mb-8">
+                    <div class="bg-indigo-900 px-5 py-4 border-b border-indigo-800 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-white font-bold text-lg flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                2nd Level Assessment: Requirements Submission
+                            </h3>
+                            <p class="text-indigo-200 text-xs mt-1">Please upload the required documents below. Clear scans or photos are required.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        @if ($errors->has('msg'))
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                                <span class="block sm:inline">{{ $errors->first('msg') }}</span>
+                            </div>
+                        @endif
+
+                        <form id="uploadForm" action="{{ route('applicant.submit-requirements') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                @php
+                                    $requirements = [
+                                        'birth_cert' => 'PSA Birth Certificate',
+                                        'report_card' => 'Report Card (SF9)',
+                                        'medical_clearance' => 'Medical Clearance',
+                                        'guardian_id' => 'Guardian\'s Valid ID',
+                                        'scholarship_form' => 'Scholarship App Form',
+                                        'student_profile' => 'Student-Athlete Profile Form',
+                                        'coach_reco' => 'Coach Recommendation (Optional)',
+                                        'adviser_reco' => 'Adviser Recommendation (Optional)',
+                                        'kukkiwon_cert' => 'Kukkiwon Cert (If Taekwondo)',
+                                        'ip_cert' => 'IP Certification (If IP)',
+                                        'pwd_id' => 'PWD ID (If PWD)',
+                                        '4ps_id' => '4Ps ID (If 4Ps)'
+                                    ];
+
+                                    $uploadedFiles = $application->uploaded_files ?? [];
+                                    $statuses = $application->document_statuses ?? [];
+                                    $remarks = $application->document_remarks ?? [];
+                                @endphp
+
+                                @foreach($requirements as $key => $label)
+                                    @php
+                                        // Skip irrelevant requirements
+                                        if ($key == 'kukkiwon_cert' && $application->sport !== 'Taekwondo') continue;
+                                        if ($key == 'ip_cert' && !$application->is_ip) continue;
+                                        if ($key == 'pwd_id' && !$application->is_pwd) continue;
+                                        if ($key == '4ps_id' && !$application->is_4ps) continue;
+
+                                        $isUploaded = isset($uploadedFiles[$key]) && !empty($uploadedFiles[$key]);
+                                        $status = $statuses[$key] ?? 'pending';
+                                        $remark = $remarks[$key] ?? null;
+                                    @endphp
+
+                                    <div class="border rounded-lg p-4 {{ $remark ? 'border-red-300 bg-red-50' : 'border-gray-200' }}">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2 truncate" title="{{ $label }}">
+                                            {{ $label }}
+                                        </label>
+
+                                        {{-- STATUS INDICATOR --}}
+                                        <div class="mb-3 flex items-center justify-between">
+                                            @if($isUploaded)
+                                                <span class="text-xs font-bold text-green-600 flex items-center">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                    Submitted
+                                                </span>
+                                                <a href="{{ route('applicant.view-file', ['id' => $application->id, 'type' => $key]) }}" target="_blank" class="text-xs text-indigo-600 underline hover:text-indigo-800">View</a>
+                                            @else
+                                                <span class="text-xs font-bold text-gray-400">Missing</span>
+                                            @endif
+                                        </div>
+
+                                        {{-- REMARKS (IF ANY) --}}
+                                        @if($remark)
+                                            <div class="text-xs text-red-600 bg-red-100 p-2 rounded mb-2">
+                                                <strong>Admin Remark:</strong> {{ $remark }}
+                                            </div>
+                                        @endif
+
+                                        {{-- FILE INPUT --}}
+                                        <input type="file" name="files[{{ $key }}]" 
+                                               class="block w-full text-xs text-slate-500
+                                                      file:mr-2 file:py-2 file:px-4
+                                                      file:rounded-full file:border-0
+                                                      file:text-xs file:font-semibold
+                                                      file:bg-indigo-50 file:text-indigo-700
+                                                      hover:file:bg-indigo-100 mb-1"
+                                               accept=".jpg,.jpeg,.png,.pdf">
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="mt-6 border-t pt-4 flex justify-end">
+                                <button type="submit" id="submitBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow transition flex items-center">
+                                    <svg id="btnSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span id="btnText">Submit Documents</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            @elseif(in_array($application->status, ['With Complete Requirements & for 1st Level Assessment', 'For 1st Level Assessment']))
+                {{-- MESSAGE IF LEVEL 1 (UNDER REVIEW) --}}
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center mb-8">
+                    <svg class="w-12 h-12 text-blue-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="text-lg font-bold text-blue-900 uppercase tracking-wide">Application Under Review (Level 1)</h3>
+                    <p class="text-sm text-blue-700 mt-2 max-w-2xl mx-auto">
+                        Your Student Profile is currently being reviewed by the Admissions Officer. <br>
+                        Once your profile is approved, the status will change to <strong>"For 2nd Level Assessment"</strong>, and the <strong>requirements upload section</strong> will appear here automatically.
+                    </p>
+                </div>
+            @endif
+
         @else
             {{-- CTA for No Application --}}
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200 text-center p-12 sm:p-20">
@@ -182,9 +303,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('uploadForm');
 
-            // Only run auto-update if the upload form is NOT present.
             if (!form) {
-                setInterval(function() { updateDashboard(); }, 5000);
+                // Auto-refresh if waiting for review (Level 1)
+                setInterval(function() { updateDashboard(); }, 10000); // 10 seconds check
             }
 
             if (form) {

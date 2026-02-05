@@ -58,20 +58,20 @@ class ApplicantPortalController extends Controller
         $data = $this->mapInputData($validated, $request);
         
         $data['user_id'] = Auth::id();
-
-        // Default Status upon creation
+        // INITIAL STATUS: With Complete Requirements (meaning filled up) & For 1st Level Assessment
         $data['status'] = 'With Complete Requirements & for 1st Level Assessment'; 
 
         Applicant::create($data);
 
-        return redirect()->route('applicant.dashboard')->with('success', 'Application submitted successfully!');
+        return redirect()->route('applicant.dashboard')->with('success', 'Application submitted successfully! Your profile is now under review.');
     }
 
     public function edit(): View|RedirectResponse
     {
         $application = Applicant::where('user_id', Auth::id())->firstOrFail();
         
-        if (in_array($application->status, ['Enrolled', 'Qualified'])) { 
+        // Disable edit if already Enrolled
+        if (in_array($application->status, ['Enrolled'])) { 
              return redirect()->route('applicant.dashboard')->with('error', 'Cannot edit application at this stage.');
         }
 
@@ -102,9 +102,7 @@ class ApplicantPortalController extends Controller
             $remarks = $application->document_remarks ?? [];
             $statuses = $application->document_statuses ?? [];
 
-            if (isset($remarks['id_picture'])) {
-                unset($remarks['id_picture']); 
-            }
+            if (isset($remarks['id_picture'])) { unset($remarks['id_picture']); }
             $statuses['id_picture'] = 'pending_review';
             $fileTimestamps['id_picture'] = now()->toDateTimeString(); 
             
@@ -118,6 +116,7 @@ class ApplicantPortalController extends Controller
         return redirect()->route('applicant.dashboard')->with('success', 'Profile updated successfully!');
     }
 
+    // --- LEVEL 2: REQUIREMENTS UPLOAD ---
     public function submitRequirements(Request $request): RedirectResponse
     {
         set_time_limit(300);
@@ -137,8 +136,8 @@ class ApplicantPortalController extends Controller
         $newlyUploadedFileKeys = [];
 
         $allowedKeys = [
-            'id_picture', 'scholarship_form', 'student_profile', 'medical_clearance', 
-            'coach_reco', 'adviser_reco', 'birth_cert', 'report_card', 'guardian_id',
+            'birth_cert', 'report_card', 'medical_clearance', 'guardian_id', 
+            'scholarship_form', 'student_profile', 'coach_reco', 'adviser_reco',
             'kukkiwon_cert', 'ip_cert', 'pwd_id', '4ps_id'
         ];
 
@@ -165,9 +164,7 @@ class ApplicantPortalController extends Controller
                     $fileTimestamps[$key] = now()->toDateTimeString(); 
                     $statuses[$key] = 'pending_review'; 
                     
-                    if (isset($remarks[$key])) {
-                        unset($remarks[$key]);
-                    }
+                    if (isset($remarks[$key])) { unset($remarks[$key]); }
                     
                     $hasChanges = true;
                     $newlyUploadedFileKeys[] = $key;
@@ -181,8 +178,15 @@ class ApplicantPortalController extends Controller
         if ($hasChanges) {
             $application->uploaded_files = $currentFiles;
             $application->document_remarks = $remarks;
+            $application->document_statuses = $statuses;
+            $application->file_timestamps = $fileTimestamps;
+            
+            // If submitted, ensure status remains/updates correctly (optional logic)
+            // $application->status = 'For 2nd Level Assessment'; 
+
             $application->save();
 
+            // Notify admin
             $this->sendSubmissionNotification($application, $newlyUploadedFileKeys);
             
             return back()->with('success', 'Upload Successful! Requirements have been updated and sent for review.');
@@ -303,7 +307,7 @@ class ApplicantPortalController extends Controller
         $currentFiles = $existingApp ? ($existingApp->uploaded_files ?? []) : [];
         $fileTimestamps = $existingApp ? ($existingApp->file_timestamps ?? []) : [];
         
-        // Handle ID Picture Upload
+        // Handle ID Picture Upload (Always allowed in Create/Edit)
         if ($request->hasFile('id_picture')) {
             try {
                 $upload = (new UploadApi())->upload($request->file('id_picture')->getRealPath(), [
@@ -315,7 +319,8 @@ class ApplicantPortalController extends Controller
             } catch (\Exception $e) {}
         }
 
-        // Only handle other files on CREATE or if specifically needed (EDIT requirements removed in this controller update logic)
+        // Only handle other files on CREATE (if you allow initial upload) or if specifically needed
+        // Since we moved Level 2 uploads to submitRequirements, we mostly skip this loop for EDIT
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
@@ -387,10 +392,12 @@ class ApplicantPortalController extends Controller
         ];
 
         if ($isUpdate) {
-            // REMOVED 'files.*' validation
+            // Update: ID Picture lang ang optional file validation
             $rules['id_picture'] = 'nullable|image|max:5120';
         } else {
-            $rules['files.*'] = 'file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // Create: Dito pwede nating gawing optional muna ang requirements
+            // para sa Level 2 na sila mag-upload
+            $rules['files.*'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['id_picture'] = 'required|image|max:5120';
         }
 

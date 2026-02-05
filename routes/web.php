@@ -89,10 +89,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/apply', [ApplicantPortalController::class, 'store'])->name('store');
         Route::get('/edit', [ApplicantPortalController::class, 'edit'])->name('edit');
         Route::patch('/edit', [ApplicantPortalController::class, 'update'])->name('update');
-        Route::post('/submit-requirements', [ApplicantPortalController::class, 'submitRequirements'])->name('submit_requirements');
         
-        // 👇 NEW ROUTE: Proxy View for Cloudinary Files (To keep Favicon/Domain)
-        Route::get('/view-file/{id}/{type}', [ApplicantPortalController::class, 'viewFile'])->name('view_file');
+        // UPDATED: Changed names to use hyphens to match Dashboard blade (submit-requirements)
+        Route::post('/submit-requirements', [ApplicantPortalController::class, 'submitRequirements'])->name('submit-requirements');
+        
+        // UPDATED: Changed name to match Dashboard blade (view-file)
+        Route::get('/view-file/{id}/{type}', [ApplicantPortalController::class, 'viewFile'])->name('view-file');
     });
 
     // ==========================================
