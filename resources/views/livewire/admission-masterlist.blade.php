@@ -1,96 +1,98 @@
 <div wire:poll.5s>
     {{-- DASHBOARD CARDS --}}
-    <div class="grid grid-cols-2 md:grid-cols-7 gap-4 mb-6">
+    {{-- Improved Grid: 2 cols on mobile, 3 on small tablet, 4 on laptop, 7 on extra wide screens --}}
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-6">
 
         <a href="{{ route('admission.index') }}" wire:navigate
-            class="bg-white overflow-hidden shadow-sm rounded-lg p-4 border-t-4 border-blue-600 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 {{ !request('status') ? 'ring-2 ring-blue-500 bg-blue-50' : '' }}">
+            class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-blue-600 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ !request('status') ? 'ring-2 ring-blue-500 bg-blue-50' : '' }}">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">Total</p>
-                    <p class="text-xl md:text-2xl font-extrabold text-gray-800" id="stat-submitted">
+                    <p class="text-lg md:text-2xl font-extrabold text-gray-800" id="stat-submitted">
                         {{ $totalSubmitted ?? 0 }}</p>
                 </div>
-                <i class='bx bx-folder-open text-2xl text-blue-200'></i>
+                <i class='bx bx-folder-open text-xl md:text-2xl text-blue-200'></i>
             </div>
-            <p class="text-[10px] md:text-xs text-blue-600 mt-2 font-medium">All Applications</p>
+            <p class="text-[10px] text-blue-600 mt-2 font-medium">All Applications</p>
         </a>
 
         <a href="{{ route('admission.index', ['status' => 'Pending']) }}" wire:navigate
-            class="bg-white overflow-hidden shadow-sm rounded-lg p-4 border-t-4 border-yellow-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 {{ request('status') == 'Pending' ? 'ring-2 ring-yellow-500 bg-yellow-50' : '' }}">
+            class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-yellow-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Pending' ? 'ring-2 ring-yellow-500 bg-yellow-50' : '' }}">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">Pending</p>
-                    <p class="text-xl md:text-2xl font-extrabold text-gray-800" id="stat-pending">
+                    <p class="text-lg md:text-2xl font-extrabold text-gray-800" id="stat-pending">
                         {{ $countPending ?? 0 }}</p>
                 </div>
-                <i class='bx bx-time text-2xl text-yellow-200'></i>
+                <i class='bx bx-time text-xl md:text-2xl text-yellow-200'></i>
             </div>
-            <p class="text-[10px] md:text-xs text-yellow-600 mt-2 font-medium">With Pending Requirements</p>
+            <p class="text-[10px] text-yellow-600 mt-2 font-medium">Pending Reqs</p>
         </a>
 
         <a href="{{ route('admission.index', ['status' => 'Assessment']) }}" wire:navigate
-            class="bg-white overflow-hidden shadow-sm rounded-lg p-4 border-t-4 border-cyan-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 {{ request('status') == 'Assessment' ? 'ring-2 ring-cyan-500 bg-cyan-50' : '' }}">
+            class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-cyan-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Assessment' ? 'ring-2 ring-cyan-500 bg-cyan-50' : '' }}">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">Assessment</p>
-                    <p class="text-xl md:text-2xl font-extrabold text-gray-800" id="stat-assessment">
+                    <p class="text-lg md:text-2xl font-extrabold text-gray-800" id="stat-assessment">
                         {{ $countAssessment ?? 0 }}</p>
                 </div>
-                <i class='bx bx-edit text-2xl text-cyan-200'></i>
+                <i class='bx bx-edit text-xl md:text-2xl text-cyan-200'></i>
             </div>
-            <p class="text-[10px] md:text-xs text-cyan-600 mt-2 font-medium">With Complete Requirements & for 1st Level Assessment / For 2nd Level Assessment</p>
+            {{-- Shortened text to fit layout --}}
+            <p class="text-[10px] text-cyan-600 mt-2 font-medium leading-tight">For Assessment</p>
         </a>
 
         <a href="{{ route('admission.index', ['status' => 'Qualified']) }}" wire:navigate
-            class="bg-white overflow-hidden shadow-sm rounded-lg p-4 border-t-4 border-green-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 {{ request('status') == 'Qualified' ? 'ring-2 ring-green-500 bg-green-50' : '' }}">
+            class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-green-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Qualified' ? 'ring-2 ring-green-500 bg-green-50' : '' }}">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">Qualified</p>
-                    <p class="text-xl md:text-2xl font-extrabold text-gray-800" id="stat-qualified">
+                    <p class="text-lg md:text-2xl font-extrabold text-gray-800" id="stat-qualified">
                         {{ $countQualified ?? 0 }}</p>
                 </div>
-                <i class='bx bx-check-circle text-2xl text-green-200'></i>
+                <i class='bx bx-check-circle text-xl md:text-2xl text-green-200'></i>
             </div>
-            <p class="text-[10px] md:text-xs text-green-600 mt-2 font-medium">Qualified</p>
+            <p class="text-[10px] text-green-600 mt-2 font-medium">Qualified</p>
         </a>
 
         <a href="{{ route('admission.index', ['status' => 'Waitlisted']) }}" wire:navigate
-            class="bg-white overflow-hidden shadow-sm rounded-lg p-4 border-t-4 border-indigo-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 {{ request('status') == 'Waitlisted' ? 'ring-2 ring-indigo-500 bg-indigo-50' : '' }}">
+            class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-indigo-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Waitlisted' ? 'ring-2 ring-indigo-500 bg-indigo-50' : '' }}">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">Waitlisted</p>
-                    <p class="text-xl md:text-2xl font-extrabold text-gray-800" id="stat-waitlisted">
+                    <p class="text-lg md:text-2xl font-extrabold text-gray-800" id="stat-waitlisted">
                         {{ $countWaitlisted ?? 0 }}</p>
                 </div>
-                <i class='bx bx-list-ul text-2xl text-indigo-200'></i>
+                <i class='bx bx-list-ul text-xl md:text-2xl text-indigo-200'></i>
             </div>
-            <p class="text-[10px] md:text-xs text-indigo-600 mt-2 font-medium">Waitlisted</p>
+            <p class="text-[10px] text-indigo-600 mt-2 font-medium">Waitlisted</p>
         </a>
 
         <a href="{{ route('admission.index', ['status' => 'Not Qualified']) }}" wire:navigate
-            class="bg-white overflow-hidden shadow-sm rounded-lg p-4 border-t-4 border-red-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 {{ request('status') == 'Not Qualified' ? 'ring-2 ring-red-500 bg-red-50' : '' }}">
+            class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-red-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Not Qualified' ? 'ring-2 ring-red-500 bg-red-50' : '' }}">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">Failed</p>
-                    <p class="text-xl md:text-2xl font-extrabold text-gray-800" id="stat-rejected">
+                    <p class="text-lg md:text-2xl font-extrabold text-gray-800" id="stat-rejected">
                         {{ $countRejected ?? 0 }}</p>
                 </div>
-                <i class='bx bx-x-circle text-2xl text-red-200'></i>
+                <i class='bx bx-x-circle text-xl md:text-2xl text-red-200'></i>
             </div>
-            <p class="text-[10px] md:text-xs text-red-600 mt-2 font-medium">Not Qualified</p>
+            <p class="text-[10px] text-red-600 mt-2 font-medium">Not Qualified</p>
         </a>
 
         <a href="{{ route('admission.index', ['status' => 'Enrolled']) }}" wire:navigate
-            class="bg-white overflow-hidden shadow-sm rounded-lg p-4 border-t-4 border-purple-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 {{ request('status') == 'Enrolled' ? 'ring-2 ring-purple-500 bg-purple-50' : '' }}">
+            class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-purple-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Enrolled' ? 'ring-2 ring-purple-500 bg-purple-50' : '' }}">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">Enrolled</p>
-                    <p class="text-xl md:text-2xl font-extrabold text-gray-800" id="stat-enrolled">
+                    <p class="text-lg md:text-2xl font-extrabold text-gray-800" id="stat-enrolled">
                         {{ $countEnrolled ?? 0 }}</p>
                 </div>
-                <i class='bx bxs-user-check text-2xl text-purple-200'></i>
+                <i class='bx bxs-user-check text-xl md:text-2xl text-purple-200'></i>
             </div>
-            <p class="text-[10px] md:text-xs text-purple-600 mt-2 font-medium">Endorsed for Enrollment</p>
+            <p class="text-[10px] text-purple-600 mt-2 font-medium">Endorsed</p>
         </a>
 
     </div>
@@ -104,10 +106,11 @@
                 <div class="flex items-center w-full md:w-auto justify-between md:justify-start">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center">
                         <i class='bx bx-list-ul mr-2 text-blue-600'></i>
+                        {{-- Adjusted title logic for cleaner headers --}}
                         @if (request('status') == 'Pending')
-                            With Pending Requirements List
+                            Pending Requirements
                         @elseif (request('status') == 'Assessment')
-                            With Complete Requirements & for 1st Level Assessment / For 2nd Level Assessment List
+                            For Assessment List
                         @elseif (request('status'))
                             {{ request('status') }} List
                         @else
@@ -220,17 +223,17 @@
                                         </div>
                                     </td>
 
-                                    {{-- STATUS --}}
+                                    {{-- STATUS BADGES (Shortened logic for better layout) --}}
                                     <td class="px-4 md:px-6 py-4 whitespace-nowrap">
-                                        @if ($app->status == 'With Pending Requirements')
+                                        @if ($app->status == 'With Pending Requirements' || $app->status == 'Pending')
                                             <span
                                                 class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
-                                                {{ $app->status }}
+                                                Pending
                                             </span>
-                                        @elseif(in_array($app->status, ['With Complete Requirements & for 1st Level Assessment', 'For 2nd Level Assessment']))
+                                        @elseif(in_array($app->status, ['With Complete Requirements & for 1st Level Assessment', 'For 2nd Level Assessment', 'Assessment', 'For Assessment']))
                                             <span
                                                 class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200">
-                                                {{ $app->status }}
+                                                Assessment
                                             </span>
                                         @elseif($app->status == 'Qualified')
                                             <span
@@ -242,15 +245,15 @@
                                                 class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">
                                                 {{ $app->status }}
                                             </span>
-                                        @elseif($app->status == 'Not Qualified')
+                                        @elseif(in_array($app->status, ['Not Qualified', 'Rejected', 'Failed']))
                                             <span
                                                 class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">
-                                                {{ $app->status }}
+                                                Not Qualified
                                             </span>
-                                        @elseif($app->status == 'Endorsed for Enrollment')
+                                        @elseif($app->status == 'Endorsed for Enrollment' || $app->status == 'Enrolled')
                                             <span
                                                 class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
-                                                {{ $app->status }}
+                                                Enrolled
                                             </span>
                                         @else
                                             <span

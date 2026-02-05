@@ -25,7 +25,7 @@ class AdmissionMasterlist extends Component
     {
         $query = Applicant::query();
 
-        // Search Logic
+        // --- 1. SEARCH LOGIC ---
         if ($this->search) {
             $search = $this->search;
             $query->where(function ($q) use ($search) {
@@ -36,48 +36,78 @@ class AdmissionMasterlist extends Component
             });
         }
 
-        // Filter Logic
+        // --- 2. FILTER LOGIC (Clicking Dashboard Cards) ---
         if ($this->status) {
-            $status = $this->status;
-
-            if ($status === 'Pending') {
-                $query->where('status', 'With Pending Requirements');
-            } elseif ($status === 'Assessment') {
-                $query->whereIn('status', ['With Complete Requirements & for 1st Level Assessment', 'For 2nd Level Assessment']);
-            } elseif ($status === 'Qualified') {
+            if ($this->status === 'Pending') {
+                $query->whereIn('status', ['Pending', 'With Pending Requirements']);
+            } elseif ($this->status === 'Assessment') {
+                // Includes ALL variations of Assessment
+                $query->whereIn('status', [
+                    'Assessment', 
+                    'For Assessment', 
+                    'With Complete Requirements & for 1st Level Assessment', 
+                    'For 2nd Level Assessment'
+                ]);
+            } elseif ($this->status === 'Qualified') {
                 $query->where('status', 'Qualified');
-            } elseif ($status === 'Waitlisted') {
+            } elseif ($this->status === 'Waitlisted') {
                 $query->where('status', 'Waitlisted');
-            } elseif ($status === 'Not Qualified') {
-                $query->where('status', 'Not Qualified');
-            } elseif ($status === 'Enrolled') {
-                $query->where('status', 'Endorsed for Enrollment');
+            } elseif ($this->status === 'Not Qualified') {
+                $query->whereIn('status', ['Not Qualified', 'Rejected', 'Failed']);
+            } elseif ($this->status === 'Enrolled') {
+                $query->whereIn('status', ['Enrolled', 'Endorsed for Enrollment']);
             } else {
-                $query->where('status', $status);
+                $query->where('status', $this->status);
             }
         }
 
-        // Statistics
+        // --- 3. DASHBOARD COUNTERS (STATISTICS) ---
+        
         $totalSubmitted = Applicant::count();
-        $countPending    = Applicant::where('status', 'With Pending Requirements')->count();
-        $countAssessment = Applicant::whereIn('status', ['With Complete Requirements & for 1st Level Assessment', 'For 2nd Level Assessment'])->count();
-        $countQualified  = Applicant::where('status', 'Qualified')->count();
-        $countWaitlisted = Applicant::where('status', 'Waitlisted')->count();
-        $countRejected   = Applicant::where('status', 'Not Qualified')->count();
-        $countEnrolled   = Applicant::where('status', 'Endorsed for Enrollment')->count();
 
-        // Pagination
+        // Count Pending
+        $countPending = Applicant::whereIn('status', [
+            'Pending', 
+            'With Pending Requirements'
+        ])->count();
+
+        // Count Assessment (Crucial Fix: Added long status string)
+        $countAssessment = Applicant::whereIn('status', [
+            'Assessment',
+            'For Assessment',
+            'With Complete Requirements & for 1st Level Assessment', 
+            'For 2nd Level Assessment'
+        ])->count();
+
+        $countQualified = Applicant::where('status', 'Qualified')->count();
+
+        $countWaitlisted = Applicant::where('status', 'Waitlisted')->count();
+
+        // Count Rejected/Failed
+        $countRejected = Applicant::whereIn('status', [
+            'Not Qualified', 
+            'Rejected', 
+            'Failed'
+        ])->count();
+
+        // Count Enrolled
+        $countEnrolled = Applicant::whereIn('status', [
+            'Enrolled', 
+            'Endorsed for Enrollment'
+        ])->count();
+
+        // --- 4. PAGINATION ---
         $applications = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('livewire.admission-masterlist', [
-            'applications' => $applications,
-            'totalSubmitted' => $totalSubmitted,
-            'countPending' => $countPending,
+            'applications'    => $applications,
+            'totalSubmitted'  => $totalSubmitted,
+            'countPending'    => $countPending,
             'countAssessment' => $countAssessment,
-            'countQualified' => $countQualified,
+            'countQualified'  => $countQualified,
             'countWaitlisted' => $countWaitlisted,
-            'countRejected' => $countRejected,
-            'countEnrolled' => $countEnrolled,
+            'countRejected'   => $countRejected,
+            'countEnrolled'   => $countEnrolled,
         ]);
     }
 }

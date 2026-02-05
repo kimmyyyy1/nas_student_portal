@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Mail;
 
 class ApplicantPortalController extends Controller
 {
-    // --- CONSTRUCTOR: INITIALIZE CLOUDINARY ---
     public function __construct()
     {
         Configuration::instance([
@@ -36,12 +35,9 @@ class ApplicantPortalController extends Controller
     public function index(): View
     {
         $application = Applicant::where('user_id', Auth::id())->first();
-
-        // Add a display-friendly status for the applicant's view
         if ($application) {
             $application->displayStatus = $this->getDisplayStatus($application);
         }
-
         return view('applicant.dashboard', compact('application'));
     }
 
@@ -56,18 +52,17 @@ class ApplicantPortalController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        // 👇 FIX: Bigyan ng 5 minutes (300s) bago mag-timeout dahil sa bagal ng Cloudinary upload
         set_time_limit(300);
 
         $validated = $this->validateApplication($request);
-        
-        // Map data using helper
         $data = $this->mapInputData($validated, $request);
         
         $data['user_id'] = Auth::id();
-        $data['status'] = 'With Pending Requirements'; // Set initial status
 
-        // Create Record
+        // 👇 ITO ANG PINAKA-IMPORTANTE: BAGUHIN ANG DEFAULT STATUS
+        // Para pag-submit pa lang, 'Assessment 1' na agad siya at magka-count sa Admin.
+        $data['status'] = 'With Complete Requirements & for 1st Level Assessment'; 
+
         Applicant::create($data);
 
         return redirect()->route('applicant.dashboard')->with('success', 'Application submitted successfully!');
@@ -85,34 +80,25 @@ class ApplicantPortalController extends Controller
         return view('applicant.edit', compact('application', 'teams'));
     }
 
-    // --- UPDATE METHOD ---
     public function update(Request $request): RedirectResponse
     {
-        // 👇 FIX: Bigyan ng 5 minutes (300s)
         set_time_limit(300);
 
-        // 1. Get Application
         $application = Applicant::where('user_id', Auth::id())->firstOrFail();
         
-        // Check Lock Status
         if (in_array($application->status, ['Enrolled'])) {
             return redirect()->route('applicant.dashboard')->with('error', 'Application is locked.');
         }
 
-        // 2. Validate Inputs
         $validated = $this->validateApplication($request, true);
-        
-        // 3. Prepare Data (Text Fields)
         $data = $this->mapInputData($validated, $request, $application);
 
-        // 4. Handle Remarks Clearing, Status & Timestamp Updating
         $remarks = $application->document_remarks ?? [];
         $statuses = $application->document_statuses ?? [];
         $fileTimestamps = $application->file_timestamps ?? []; 
         $hasNewUploads = false;
         $newlyUploadedFileKeys = [];
 
-        // A. Check ID Picture Upload
         if ($request->hasFile('id_picture')) {
             if (isset($remarks['id_picture'])) {
                 unset($remarks['id_picture']); 
@@ -123,7 +109,6 @@ class ApplicantPortalController extends Controller
             $newlyUploadedFileKeys[] = 'id_picture';
         }
 
-        // B. Check Document Uploads
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 if (isset($remarks[$key])) {
@@ -136,15 +121,12 @@ class ApplicantPortalController extends Controller
             }
         }
 
-        // Save updated arrays
         $data['document_remarks'] = $remarks;
         $data['document_statuses'] = $statuses;
         $data['file_timestamps'] = $fileTimestamps; 
 
-        // 5. Execute Update
         $application->update($data);
 
-        // 6. Send notification
         if ($hasNewUploads) {
             $this->sendSubmissionNotification($application, $newlyUploadedFileKeys);
         }
@@ -152,10 +134,8 @@ class ApplicantPortalController extends Controller
         return redirect()->route('applicant.dashboard')->with('success', 'Application updated successfully!');
     }
 
-    // --- SUBMIT REQUIREMENTS (Dashboard) ---
     public function submitRequirements(Request $request): RedirectResponse
     {
-        // 👇 FIX: Bigyan ng 5 minutes (300s) dahil maraming files ito
         set_time_limit(300);
 
         $application = Applicant::where('user_id', Auth::id())->first();
@@ -164,7 +144,6 @@ class ApplicantPortalController extends Controller
             return back()->withErrors(['msg' => 'Application record not found.']);
         }
 
-        // 1. Load Current Data
         $currentFiles = $application->uploaded_files ?? [];
         $remarks = $application->document_remarks ?? [];
         $statuses = $application->document_statuses ?? [];
@@ -173,23 +152,16 @@ class ApplicantPortalController extends Controller
         $hasChanges = false;
         $newlyUploadedFileKeys = [];
 
-        // 2. Define Allowed Keys
         $allowedKeys = [
             'id_picture', 'scholarship_form', 'student_profile', 'medical_clearance', 
             'coach_reco', 'adviser_reco', 'birth_cert', 'report_card', 'guardian_id',
             'kukkiwon_cert', 'ip_cert', 'pwd_id', '4ps_id'
         ];
 
-        // 3. Process Uploads (Iterate over 'files' array)
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
-                
-                // Security Check
-                if (!in_array($key, $allowedKeys)) {
-                    continue; 
-                }
+                if (!in_array($key, $allowedKeys)) { continue; }
 
-                // Validate File
                 $validator = Validator::make(
                     ['file' => $file], 
                     ['file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120']
@@ -200,18 +172,15 @@ class ApplicantPortalController extends Controller
                 }
 
                 try {
-                    // Upload to Cloudinary
                     $upload = (new UploadApi())->upload($file->getRealPath(), [
                         'folder' => 'nas_student_portal/requirements',
                         'resource_type' => 'auto'
                     ]);
                     
-                    // Update File URL & Timestamp
                     $currentFiles[$key] = $upload['secure_url'];
                     $fileTimestamps[$key] = now()->toDateTimeString(); 
-                    $statuses[$key] = 'pending_review'; // Set status for review
+                    $statuses[$key] = 'pending_review'; 
                     
-                    // Clear Remark if exists
                     if (isset($remarks[$key])) {
                         unset($remarks[$key]);
                     }
@@ -225,13 +194,11 @@ class ApplicantPortalController extends Controller
             }
         }
 
-        // 4. Save Changes
         if ($hasChanges) {
             $application->uploaded_files = $currentFiles;
             $application->document_remarks = $remarks;
             $application->save();
 
-            // Send notification
             $this->sendSubmissionNotification($application, $newlyUploadedFileKeys);
             
             return back()->with('success', 'Upload Successful! Requirements have been updated and sent for review.');
@@ -240,10 +207,8 @@ class ApplicantPortalController extends Controller
         return back()->with('warning', 'No new files were selected to upload.');
     }
 
-    // --- PROXY FILE VIEW ---
     public function viewFile($id, $type)
     {
-        // 👇 FIX: Bigyan din ng time limit ang pag-view kung mabagal mag-load si Cloudinary
         set_time_limit(120); 
 
         $applicant = Applicant::findOrFail($id);
@@ -290,14 +255,9 @@ class ApplicantPortalController extends Controller
         }
     }
 
-    // --- HELPER METHODS ---
-
     private function getDisplayStatus($application)
     {
-        $status = $application->status;
-        
-        // Return the raw status string directly, as it already matches the desired display format.
-        return $status;
+        return $application->status;
     }
 
     private function sendSubmissionNotification(Applicant $application, array $uploadedFileKeys)
@@ -307,7 +267,7 @@ class ApplicantPortalController extends Controller
         }
 
         try {
-            $adminEmail = config('mail.admin_address', 'registrar@nas.edu.ph'); // Better to use config
+            $adminEmail = config('mail.admin_address', 'registrar@nas.edu.ph'); 
             $applicantName = $application->first_name . ' ' . $application->last_name;
             
             $reqKeys = [
@@ -336,7 +296,6 @@ class ApplicantPortalController extends Controller
                         ->subject("Requirement Submission from {$applicantName}");
             });
         } catch (\Exception $e) {
-            // Log error, but don't fail the request for the user
             \Log::error("Failed to send requirement submission email for applicant {$application->id}: " . $e->getMessage());
         }
     }
@@ -349,7 +308,6 @@ class ApplicantPortalController extends Controller
             $data['age'] = Carbon::parse($validated['date_of_birth'])->age;
         }
         
-        // Handle Boolean Conversions
         if ($request->has('is_ip')) $data['is_ip'] = ($request->input('is_ip') === 'Yes');
         if ($request->has('is_pwd')) $data['is_pwd'] = ($request->input('is_pwd') === 'Yes');
         if ($request->has('is_4ps')) $data['is_4ps'] = ($request->input('is_4ps') === 'Yes');
@@ -358,11 +316,9 @@ class ApplicantPortalController extends Controller
         $data['batang_pinoy_finisher'] = $request->input('batang_pinoy_finisher');
         $data['palaro_year'] = $request->input('palaro_year');
 
-        // Handle File Uploads (Cloudinary) - Mostly used for 'store' method
         $currentFiles = $existingApp ? ($existingApp->uploaded_files ?? []) : [];
         $fileTimestamps = $existingApp ? ($existingApp->file_timestamps ?? []) : [];
         
-        // Handle ID Picture
         if ($request->hasFile('id_picture')) {
             try {
                 $upload = (new UploadApi())->upload($request->file('id_picture')->getRealPath(), [
@@ -374,7 +330,6 @@ class ApplicantPortalController extends Controller
             } catch (\Exception $e) {}
         }
 
-        // Handle Document Files (Array)
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
@@ -391,7 +346,6 @@ class ApplicantPortalController extends Controller
         $data['uploaded_files'] = $currentFiles;
         $data['file_timestamps'] = $fileTimestamps;
         
-        // Remove non-DB fields
         unset($data['files']);
         unset($data['palaro_finisher']); 
 
@@ -450,9 +404,6 @@ class ApplicantPortalController extends Controller
             $rules['files.*'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['id_picture'] = 'nullable|image|max:5120';
         } else {
-            // Note: Validation for file presence is mostly handled by HTML required attribute 
-            // because conditional requirements (like kukkiwon) are hard to do in basic array validation.
-            // We ensure files.* are valid types if present.
             $rules['files.*'] = 'file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['id_picture'] = 'required|image|max:5120';
         }
