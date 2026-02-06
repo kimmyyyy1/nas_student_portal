@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Applicant; 
 use App\Models\Team;
-use App\Models\EnrollmentRecord;
+use App\Models\EnrollmentDetail; // Changed from EnrollmentRecord
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -130,21 +130,17 @@ class ApplicantPortalController extends Controller
         set_time_limit(600);
         $applicant = Applicant::where('user_id', Auth::id())->firstOrFail();
 
-        // 1. Load Current Data
         $currentFiles = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
         $docStatuses = is_string($applicant->document_statuses) ? json_decode($applicant->document_statuses, true) : ($applicant->document_statuses ?? []);
 
-        // 2. Define All Possible Documents
         $allDocs = [
             'scholarship_form', 'student_profile', 'medical_clearance', 
             'psa_birth_cert', 'report_card', 'guardian_id',
             'kukkiwon_cert', 'ip_cert', 'pwd_id', '4ps_id'
         ];
 
-        // 3. Dynamic Validation Rules (Re-upload Logic)
         $rules = [];
         foreach ($allDocs as $doc) {
-            // Check relevance
             $isRelevant = true;
             if ($doc == 'kukkiwon_cert' && $applicant->sport !== 'Taekwondo') $isRelevant = false;
             if ($doc == 'ip_cert' && !$applicant->is_ip) $isRelevant = false;
@@ -152,11 +148,9 @@ class ApplicantPortalController extends Controller
             if ($doc == '4ps_id' && !$applicant->is_4ps) $isRelevant = false;
 
             if ($isRelevant) {
-                // REQUIRED if: No file yet OR Status is 'declined'
                 if (!isset($currentFiles[$doc]) || (isset($docStatuses[$doc]) && $docStatuses[$doc] === 'declined')) {
                     $rules["files.$doc"] = 'required|file|mimes:pdf,jpg,jpeg,png,heic,heif|max:10240';
                 } else {
-                    // OPTIONAL if already valid/pending
                     $rules["files.$doc"] = 'nullable|file|mimes:pdf,jpg,jpeg,png,heic,heif|max:10240';
                 }
             }
@@ -164,7 +158,6 @@ class ApplicantPortalController extends Controller
 
         $request->validate($rules);
 
-        // 4. Process Uploads
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
@@ -172,19 +165,14 @@ class ApplicantPortalController extends Controller
                         'folder' => 'nas_student_portal/phase2_requirements',
                         'resource_type' => 'auto'
                     ]);
-                    
                     $currentFiles[$key] = $upload['secure_url'];
-                    
-                    // RESET STATUS to 'pending' so Admin reviews it again
                     $docStatuses[$key] = 'pending'; 
-
                 } catch (\Exception $e) {
                     return back()->withErrors(['files' => 'Error uploading ' . $key . '. Please try again.']);
                 }
             }
         }
 
-        // 5. Update Record & Return Status to Review
         $applicant->update([
             'uploaded_files' => $currentFiles,
             'document_statuses' => $docStatuses,
@@ -195,14 +183,13 @@ class ApplicantPortalController extends Controller
     }
 
     // ==========================================
-    // PHASE 3: OFFICIAL ENROLLMENT (ADDED THIS)
+    // PHASE 3: OFFICIAL ENROLLMENT (UPDATED LOGIC)
     // ==========================================
 
     public function showEnrollmentForm(): View|RedirectResponse
     {
         $applicant = Applicant::where('user_id', Auth::id())->firstOrFail();
 
-        // Strict Check: Dapat Qualified lang ang makakapasok
         if (!str_contains($applicant->status, 'Qualified')) {
             return redirect()->route('applicant.dashboard')
                 ->with('error', 'You are not yet eligible for enrollment.');
@@ -213,41 +200,133 @@ class ApplicantPortalController extends Controller
 
     public function submitEnrollmentForm(Request $request): RedirectResponse
     {
-        set_time_limit(600);
+        set_time_limit(600); // 10 minutes max for uploads
         $applicant = Applicant::where('user_id', Auth::id())->firstOrFail();
 
-        // Validation for the Signed Form
+        // 1. VALIDATION
         $request->validate([
-            'signed_enrollment_form' => 'required|file|mimes:pdf,jpg,jpeg,png,heic,heif|max:10240',
+            // Basic Info
+            'lrn' => 'required|digits:12',
+            'last_name' => 'required',
+            'first_name' => 'required',
+            'date_of_birth' => 'required|date',
+            'sex' => 'required',
+            'age' => 'required|numeric',
+            'email' => 'required|email',
+            
+            // Address
+            'region' => 'required',
+            'province' => 'required',
+            'municipality_city' => 'required',
+            'barangay' => 'required',
+            'street_house_no' => 'required',
+            'zip_code' => 'required|digits:4',
+
+            // Parents
+            'guardian_name' => 'required',
+            'guardian_relationship' => 'required',
+            'guardian_contact' => 'required',
+            'guardian_email' => 'required|email',
+
+            // Files (Mandatory)
+            'files.sa_info_form' => 'required|file|max:10240',
+            'files.scholarship_app_form' => 'required|file|max:10240',
+            'files.sa_profile_form' => 'required|file|max:10240',
+            'files.ppe_clearance' => 'required|file|max:10240',
+            'files.psa_birth_cert' => 'required|file|max:10240',
+            'files.report_card' => 'required|file|max:10240',
+            'files.guardian_id' => 'required|file|max:10240',
         ]);
 
-        // Upload Logic for Enrollment Form
-        $currentFiles = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
+        // 2. CHECK TRANSFEREE STATUS & DEFAULTS
+        $schoolDefault = 'N/A';
+        // If school_name is filled, treat as transferee, else defaults
+        $isTransferee = !empty($request->school_name); 
 
-        if ($request->hasFile('signed_enrollment_form')) {
-            try {
-                $upload = (new UploadApi())->upload($request->file('signed_enrollment_form')->getRealPath(), [
-                    'folder' => 'nas_student_portal/enrollment_forms',
-                    'resource_type' => 'auto'
-                ]);
-                $currentFiles['signed_enrollment_form'] = $upload['secure_url'];
-            } catch (\Exception $e) {
-                return back()->withErrors(['signed_enrollment_form' => 'Upload failed. Please try again.']);
-            }
-        }
-
-        // Final Update - Create Enrollment Record
-        EnrollmentRecord::updateOrCreate(
+        // 3. CREATE/UPDATE ENROLLMENT RECORD (New Model)
+        EnrollmentDetail::updateOrCreate(
             ['applicant_id' => $applicant->id],
             [
-                'signed_enrollment_form' => $currentFiles['signed_enrollment_form'],
-                'enrollment_status' => 'Pending Verification'
+                // Student Info
+                'lrn' => $request->lrn,
+                'last_name' => $request->last_name,
+                'first_name' => $request->first_name,
+                'middle_name' => $request->middle_name ?? 'N/A',
+                'extension_name' => $request->extension_name ?? 'N/A',
+                'date_of_birth' => $request->date_of_birth,
+                'age' => $request->age,
+                'sex' => $request->sex,
+                'email' => $request->email,
+
+                // Address
+                'region' => $request->region,
+                'province' => $request->province,
+                'municipality_city' => $request->municipality_city,
+                'barangay' => $request->barangay,
+                'street_house_no' => $request->street_house_no,
+                'zip_code' => $request->zip_code,
+
+                // Groups logic
+                'is_ip' => $request->is_ip === 'Yes',
+                'ip_group' => $request->is_ip === 'Yes' ? $request->ip_group : null,
+                'is_pwd' => $request->is_pwd === 'Yes',
+                'pwd_disability' => $request->is_pwd === 'Yes' ? $request->pwd_disability : null,
+                'is_4ps' => $request->is_4ps === 'Yes',
+
+                // Sport
+                'sport' => $request->sport,
+
+                // Parents Info
+                'father_name' => $request->father_name ?? 'N/A',
+                'father_address' => $request->father_address ?? 'N/A',
+                'father_contact' => $request->father_contact ?? 'N/A',
+                'father_email' => $request->father_email ?? 'N/A',
+                
+                'mother_maiden_name' => $request->mother_maiden_name ?? 'N/A',
+                'mother_address' => $request->mother_address ?? 'N/A',
+                'mother_contact' => $request->mother_contact ?? 'N/A',
+                'mother_email' => $request->mother_email ?? 'N/A',
+
+                'guardian_name' => $request->guardian_name,
+                'guardian_relationship' => $request->guardian_relationship,
+                'guardian_address' => $request->guardian_address,
+                'guardian_contact' => $request->guardian_contact,
+                'guardian_email' => $request->guardian_email,
+
+                // School Info
+                'last_grade_level' => $isTransferee ? $request->last_grade_level : $schoolDefault,
+                'last_school_year' => $isTransferee ? $request->last_school_year : $schoolDefault,
+                'school_name' => $isTransferee ? $request->school_name : $schoolDefault,
+                'school_id' => $isTransferee ? $request->school_id : $schoolDefault,
+                'school_address' => $isTransferee ? $request->school_address : $schoolDefault,
+                'school_type' => $isTransferee ? $request->school_type : $schoolDefault,
             ]
         );
 
-        $applicant->update(['status' => 'Enrolled - Pending Verification']);
+        // 4. PROCESS FILE UPLOADS
+        $currentFiles = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
 
-        return redirect()->route('applicant.dashboard')->with('success', 'Official Enrollment Documents Submitted Successfully.');
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $key => $file) {
+                try {
+                    $upload = (new UploadApi())->upload($file->getRealPath(), [
+                        'folder' => 'nas_student_portal/official_enrollment',
+                        'resource_type' => 'auto'
+                    ]);
+                    $currentFiles[$key] = $upload['secure_url'];
+                } catch (\Exception $e) {
+                    continue; 
+                }
+            }
+        }
+
+        // 5. UPDATE APPLICANT STATUS
+        $applicant->update([
+            'uploaded_files' => $currentFiles,
+            'status' => 'Officially Enrolled' // Final Status
+        ]);
+
+        return redirect()->route('applicant.dashboard')->with('success', 'Enrollment Form & Requirements Submitted Successfully! Welcome to NAS!');
     }
 
     // ==========================================

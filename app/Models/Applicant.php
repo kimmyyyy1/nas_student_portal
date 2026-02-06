@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+// IMPORTANT: Import the correct model
+use App\Models\EnrollmentDetail; 
 
 class Applicant extends Model
 {
@@ -11,16 +13,13 @@ class Applicant extends Model
 
     protected $table = 'applicants';
 
-    /**
-     * The attributes that are mass assignable.
-     * Updated to match the strict Form & Controller inputs.
-     */
     protected $fillable = [
         'user_id',
         'lrn',
         'last_name',
         'first_name',
         'middle_name',
+        'extension_name', // Added this just in case
         
         // Personal Details
         'date_of_birth',
@@ -36,10 +35,10 @@ class Applicant extends Model
         'zip_code',
         
         // Sports & School Info
-        'school_type',           // Restored
+        'school_type',
         'sport',
         'sport_specification',
-        'palaro_finisher',       // Replaced has_palaro_participation
+        'palaro_finisher',
         'batang_pinoy_finisher',
         
         // Background Info
@@ -47,7 +46,7 @@ class Applicant extends Model
         'referrer_name',
         'attended_campaign',
         
-        // Special Groups (Boolean inputs)
+        // Special Groups
         'is_ip',
         'ip_group_name',
         'is_pwd',
@@ -63,6 +62,7 @@ class Applicant extends Model
         // System / Admin Fields
         'uploaded_files',
         'status',
+        'is_enrolled', // Added tracking field
         'assessment_score',
         'rejection_reason',
         'document_remarks',
@@ -71,9 +71,6 @@ class Applicant extends Model
         'file_timestamps',
     ];
 
-    /**
-     * The attributes that should be cast.
-     */
     protected $casts = [
         'uploaded_files' => 'array',
         'document_remarks' => 'array',
@@ -81,17 +78,18 @@ class Applicant extends Model
         'file_timestamps' => 'array',
         'date_of_birth' => 'date',
         
-        // Booleans (The controller converts "Yes" to true/1)
         'is_ip' => 'boolean',
         'is_pwd' => 'boolean',
         'is_4ps' => 'boolean',
-        
-        // Note: palaro_finisher & batang_pinoy_finisher are stored as Strings ("Yes"/"No"), so no boolean cast needed.
+        'is_enrolled' => 'boolean',
     ];
 
-    public function enrollmentRecord()
+    // --- ITO ANG FIXED RELATIONSHIP ---
+    // Pinalitan mula 'enrollmentRecord' -> 'enrollmentDetail'
+    // At nakaturo na sa tamang Model
+    public function enrollmentDetail()
     {
-        return $this->hasOne(EnrollmentRecord::class, 'applicant_id');
+        return $this->hasOne(EnrollmentDetail::class);
     }
 
     public function user()
