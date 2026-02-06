@@ -1,266 +1,192 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                <a href="{{ route('official-enrollment.index') }}" class="text-indigo-600 hover:text-indigo-800">Enrollment</a> &rsaquo; Process
+        <div class="flex justify-between items-center no-print">
+            <h2 class="font-semibold text-xl text-slate-800 leading-tight">
+                {{ __('Official Enrollment Verification') }}
             </h2>
-            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wide border border-green-200">
-                Status: Qualified
-            </span>
+            <div class="flex gap-2">
+                <a href="{{ route('official-enrollment.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded text-xs uppercase transition">
+                    Back to List
+                </a>
+            </div>
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 bg-slate-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- ALERTS --}}
             @if(session('success'))
-                <div class="mb-6 bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm flex items-center">
-                    <i class='bx bx-check-circle text-2xl mr-2'></i>
-                    {!! session('success') !!}
+                <div class="mb-6 bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm flex items-center no-print">
+                    <svg class="h-6 w-6 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    {{ session('success') }}
                 </div>
             @endif
 
-            @if(session('error'))
-                <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm flex items-center">
-                    <i class='bx bx-error-circle text-2xl mr-2'></i>
-                    {{ session('error') }}
-                </div>
-            @endif
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                {{-- LEFT COLUMN: STUDENT INFO & DOCUMENTS REVIEW --}}
-                <div class="lg:col-span-2 space-y-6">
-                    
-                    {{-- 1. STUDENT PROFILE CARD --}}
-                    <div class="bg-white shadow-sm rounded-xl p-6 border border-gray-200 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                        
-                        {{-- Profile Picture Logic (FORCE FIX) --}}
-                        <div class="flex-shrink-0">
-                            @php
-                                // 1. Kunin ang raw data
-                                $files = $application->uploaded_files;
-
-                                // 2. FORCE DECODE: Kung string ito (JSON), i-convert sa Array.
-                                if (is_string($files)) {
-                                    $files = json_decode($files, true);
-                                }
-
-                                // 3. Check kung may 'id_picture'
-                                $idPic = null;
-                                if (is_array($files) && isset($files['id_picture']) && !empty($files['id_picture'])) {
-                                    $idPic = $files['id_picture'];
-                                } elseif (is_object($files) && isset($files->id_picture) && !empty($files->id_picture)) {
-                                    $idPic = $files->id_picture;
-                                }
-                            @endphp
-
-                            <div class="h-24 w-24 rounded-full border-4 border-indigo-100 overflow-hidden shadow-sm bg-gray-100 relative group">
-                                @if($idPic)
-                                    {{-- DIRECT URL: Gagamitin natin directly ang link para sure na lumabas --}}
-                                    <img class="w-full h-full object-cover" 
-                                         src="{{ $idPic }}" 
-                                         alt="ID Photo"
-                                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($application->first_name . '+' . $application->last_name) }}&background=6366f1&color=fff&size=128&bold=true';">
-                                @else
-                                    {{-- FALLBACK: Initials --}}
-                                    <div class="w-full h-full flex items-center justify-center bg-indigo-500 text-white font-bold text-2xl">
-                                        {{ substr($application->first_name, 0, 1) }}{{ substr($application->last_name, 0, 1) }}
-                                    </div>
-                                @endif
+                {{-- LEFT: STUDENT DATA --}}
+                <div class="lg:col-span-3 bg-white shadow-xl rounded-3xl overflow-hidden border border-slate-200">
+                    <div class="bg-indigo-900 text-white p-8 border-b-4 border-yellow-400">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                            <div>
+                                <h1 class="text-2xl font-black uppercase tracking-widest">Enrollment Application</h1>
+                                <p class="text-sm text-indigo-300 font-mono mt-1">Applicant ID: {{ str_pad($application->id, 6, '0', STR_PAD_LEFT) }}</p>
                             </div>
-                        </div>
-
-                        {{-- Details --}}
-                        <div class="flex-1 text-center sm:text-left">
-                            <h1 class="text-2xl font-extrabold text-gray-900 leading-tight">
-                                {{ $application->last_name }}, {{ $application->first_name }}
-                            </h1>
-                            <div class="flex flex-wrap justify-center sm:justify-start gap-2 mt-2">
-                                <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 py-1 px-3 rounded-md text-xs font-bold uppercase tracking-wide">
-                                    {{ $application->grade_level_applied }}
+                            <div class="mt-4 md:mt-0">
+                                <span class="bg-yellow-400 text-indigo-900 text-xs font-black px-4 py-2 rounded-full uppercase">
+                                    {{ $application->status }}
                                 </span>
-                                <span class="bg-orange-50 text-orange-700 border border-orange-200 py-1 px-3 rounded-md text-xs font-bold uppercase tracking-wide">
-                                    {{ $application->sport }}
-                                </span>
-                            </div>
-                            
-                            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-600">
-                                <div class="flex items-center justify-center sm:justify-start">
-                                    <i class='bx bx-envelope mr-2 text-gray-400'></i> {{ $application->email_address }}
-                                </div>
-                                <div class="flex items-center justify-center sm:justify-start">
-                                    <i class='bx bx-phone mr-2 text-gray-400'></i> {{ $application->guardian_contact ?? 'N/A' }}
-                                </div>
-                                <div class="flex items-center justify-center sm:justify-start sm:col-span-2">
-                                    <i class='bx bx-id-card mr-2 text-gray-400'></i> LRN: <span class="font-mono font-bold ml-1">{{ $application->lrn }}</span>
-                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- 2. DOCUMENT REVIEW SECTION --}}
-                    <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
-                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                            <h3 class="font-bold text-gray-800 flex items-center">
-                                <i class='bx bx-file-find text-xl mr-2 text-indigo-600'></i> Enrollment Documents Review
+                    <div class="p-8 space-y-12">
+                        {{-- 1. BASIC INFO --}}
+                        <section>
+                            <h3 class="text-indigo-900 font-black uppercase text-sm border-b-2 border-slate-100 pb-2 mb-6 flex items-center">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded-md flex items-center justify-center text-xs mr-3">1</span> 
+                                Student Profile Summary
                             </h3>
-                        </div>
-                        
-                        {{-- FORM: RETURN TO APPLICANT --}}
-                        <form action="{{ route('official-enrollment.return', $application->id) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <span class="block text-[10px] font-bold text-slate-400 uppercase">Full Name</span>
+                                    <span class="block font-bold text-slate-800 uppercase">{{ $application->first_name }} {{ $application->last_name }}</span>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <span class="block text-[10px] font-bold text-slate-400 uppercase">LRN</span>
+                                    <span class="block font-mono font-bold text-slate-800">{{ $application->lrn }}</span>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <span class="block text-[10px] font-bold text-slate-400 uppercase">Sport Discipline</span>
+                                    <span class="block font-bold text-indigo-700 uppercase">{{ $application->sport }}</span>
+                                </div>
+                            </div>
+                        </section>
 
-                            <div class="p-6 space-y-4">
-                                @php
-                                    $docs = [
-                                        'sf10' => 'Form 137 / SF10',
-                                        'good_moral' => 'Good Moral Certificate',
-                                        'psa_birth_cert' => 'PSA Birth Certificate',
-                                        'medical_cert' => 'Medical Certificate',
-                                        'coach_reco' => 'Coach Recommendation',
-                                        'id_picture' => '2x2 ID Picture'
-                                    ];
-                                    $existingRemarks = $application->document_remarks ?? [];
-                                    
-                                    // Use the SAFE DECODED files from above
-                                    $filesLoop = $files; 
-                                @endphp
+                        {{-- 2. ENROLLMENT DOCUMENTS (FROM NEW TABLE) --}}
+                        <section>
+                            <h3 class="text-indigo-900 font-black uppercase text-sm border-b-2 border-slate-100 pb-2 mb-6 flex items-center">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded-md flex items-center justify-center text-xs mr-3">2</span> 
+                                Submitted Enrollment Records
+                            </h3>
 
-                                @foreach($docs as $key => $label)
+                            <form action="{{ route('official-enrollment.return', $application->id) }}" method="POST">
+                                @csrf @method('PATCH')
+
+                                <div class="space-y-3">
                                     @php
-                                        // Robust check for file existence
-                                        $fileUrl = null;
-                                        if (is_array($filesLoop) && isset($filesLoop[$key])) {
-                                            $fileUrl = $filesLoop[$key];
-                                        } elseif (is_object($filesLoop) && isset($filesLoop->$key)) {
-                                            $fileUrl = $filesLoop->$key;
-                                        }
+                                        $enrollment = $application->enrollmentRecord;
                                         
-                                        $isUploaded = !empty($fileUrl);
-                                        $remarkVal = $existingRemarks[$key] ?? '';
+                                        // Requirements mapping: 'db_column' => 'Label'
+                                        $requirements = [
+                                            'scholarship_form' => 'Scholarship Application Form',
+                                            'student_athlete_profile_form' => 'Student-Athlete Profile Form',
+                                            'ppe_clearance_form' => 'PPE Clearance Form (Medical)',
+                                            'psa_birth_certificate' => 'PSA Birth Certificate (Original)',
+                                            'report_card' => 'Official Report Card (SF9)',
+                                            'guardian_valid_id' => 'Guardian Valid Gov-Issued ID',
+                                            'kukkiwon_certificate' => 'Kukkiwon Certificate',
+                                            'ip_certification' => 'IP Certification',
+                                            'pwd_id' => 'PWD ID',
+                                            'four_ps_certification' => '4Ps Certification/ID'
+                                        ];
+
+                                        $remarks = $enrollment->document_remarks ?? [];
                                     @endphp
-                                    
-                                    {{-- DOCUMENT ROW --}}
-                                    <div class="flex flex-col sm:flex-row items-center gap-4 p-4 border rounded-lg transition hover:bg-gray-50 {{ $remarkVal ? 'border-red-300 bg-red-50' : 'border-gray-200' }}">
-                                        
-                                        {{-- 1. Document Name & Status --}}
-                                        <div class="w-full sm:w-1/3">
-                                            <p class="text-sm font-bold text-gray-800">{{ $label }}</p>
-                                            <div class="mt-1">
-                                                @if($isUploaded)
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">
-                                                        <i class='bx bx-check mr-1'></i> UPLOADED
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">
-                                                        <i class='bx bx-x mr-1'></i> MISSING
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
 
-                                        {{-- 2. View Button --}}
-                                        <div class="w-full sm:w-auto flex-shrink-0 text-center">
-                                            @if($isUploaded)
-                                                <a href="{{ route('applicant.view_file', ['id' => $application->id, 'type' => $key]) }}" 
-                                                   target="_blank" 
-                                                   class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-800 border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded transition">
-                                                    <i class='bx bx-show mr-1'></i> VIEW
-                                                </a>
-                                            @else
-                                                <span class="text-xs text-gray-400 italic">No file</span>
-                                            @endif
-                                        </div>
+                                    @foreach($requirements as $column => $label)
+                                        @php
+                                            // Check visibility logic
+                                            $show = true;
+                                            if ($column == 'kukkiwon_certificate' && !str_contains($application->sport, 'Taekwondo')) $show = false;
+                                            if ($column == 'ip_certification' && !$application->is_ip) $show = false;
+                                            if ($column == 'pwd_id' && !$application->is_pwd) $show = false;
+                                            if ($column == 'four_ps_certification' && !$application->is_4ps) $show = false;
+                                        @endphp
 
-                                        {{-- 3. Remarks Input --}}
-                                        <div class="w-full flex-1">
-                                            <div class="relative">
-                                                <input type="text" name="remarks[{{ $key }}]" value="{{ $remarkVal }}" 
-                                                    class="w-full text-xs border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500 pl-8 py-2"
-                                                    placeholder="Type remark here if invalid (e.g. 'Blurred image')...">
-                                                <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                                                    <i class='bx bx-edit text-gray-400'></i>
+                                        @if($show)
+                                            <div class="flex flex-col md:flex-row md:items-center justify-between p-5 border border-slate-200 rounded-2xl bg-white hover:shadow-md transition">
+                                                <div class="w-full md:w-1/3 mb-3 md:mb-0">
+                                                    <p class="text-xs font-black text-slate-700 uppercase tracking-tight">{{ $label }}</p>
+                                                    @if($enrollment && $enrollment->$column)
+                                                        <span class="text-[10px] font-bold text-green-600 flex items-center mt-1">
+                                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                                            File Attached
+                                                        </span>
+                                                    @else
+                                                        <span class="text-[10px] font-bold text-red-400 flex items-center mt-1">
+                                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                                                            Missing Document
+                                                        </span>
+                                                    @endif
+                                                </div>
+
+                                                <div class="flex-1 flex gap-4 items-center">
+                                                    <div class="w-24 text-center">
+                                                        @if($enrollment && $enrollment->$column)
+                                                            <a href="{{ $enrollment->$column }}" target="_blank" class="text-[10px] font-black bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition">VIEW FILE</a>
+                                                        @else
+                                                            <span class="text-[10px] font-bold text-slate-300 italic">None</span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <input type="text" name="remarks[{{ $column }}]" value="{{ $remarks[$column] ?? '' }}" 
+                                                            class="w-full text-xs border-slate-200 rounded-xl focus:ring-red-400 focus:border-red-400" 
+                                                            placeholder="Add correction notes here if needed...">
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
 
-                            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-                                <span class="text-xs text-gray-500 italic">If everything is correct, ignore remarks and proceed to enroll on the right.</span>
-                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-red-600 uppercase tracking-widest shadow-sm hover:bg-red-50 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                    <i class='bx bx-reply mr-2'></i> Return for Correction
-                                </button>
-                            </div>
-                        </form>
+                                <div class="mt-8 flex justify-end">
+                                    <button type="submit" onclick="return confirm('Confirm return to student?')" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white font-black py-3 px-6 rounded-2xl text-xs uppercase tracking-widest transition">
+                                        Return for Corrections
+                                    </button>
+                                </div>
+                            </form>
+                        </section>
                     </div>
                 </div>
 
-                {{-- RIGHT COLUMN: ACTION PANEL --}}
-                <div class="lg:col-span-1">
-                    <div class="bg-white shadow-xl rounded-xl border border-indigo-100 sticky top-6 overflow-hidden">
-                        
-                        <div class="bg-indigo-600 px-6 py-4">
-                            <h3 class="text-lg font-bold text-white flex items-center">
-                                <i class='bx bxs-graduation mr-2'></i> Finalize Enrollment
-                            </h3>
+                {{-- RIGHT: ACTION PANEL --}}
+                <div class="lg:col-span-1 space-y-6 no-print">
+                    <div class="bg-white shadow-xl rounded-3xl border border-indigo-50 overflow-hidden sticky top-8">
+                        <div class="bg-indigo-600 p-6">
+                            <h3 class="text-white font-bold text-center uppercase tracking-tighter italic">Process Enrollment</h3>
                         </div>
-
                         <div class="p-6">
-                            <p class="text-xs text-gray-600 mb-6 bg-indigo-50 p-3 rounded border border-indigo-100">
-                                Ensure all documents are valid. This action will create a permanent student record and generate a user account.
-                            </p>
+                            <p class="text-[10px] text-slate-500 mb-6 text-center leading-relaxed">Ensure all forms are verified before final approval. This action is permanent.</p>
 
-                            {{-- FORM: CONFIRM ENROLLMENT --}}
                             <form action="{{ route('official-enrollment.store', $application->id) }}" method="POST">
                                 @csrf
                                 
-                                {{-- Generated ID --}}
-                                <div class="mb-5">
-                                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Student ID (Generated)</label>
-                                    <div class="flex items-center bg-gray-100 p-3 rounded border border-gray-300">
-                                        <i class='bx bx-barcode text-gray-500 mr-2 text-lg'></i>
-                                        <span class="font-mono font-bold text-gray-800 text-lg">
+                                <div class="mb-6">
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Student ID Assignment</label>
+                                    <div class="bg-slate-100 p-4 rounded-2xl border-2 border-slate-200 text-center">
+                                        <span class="font-mono text-xl font-black text-slate-800">
                                             {{ date('Y') }}-{{ str_pad($application->id, 4, '0', STR_PAD_LEFT) }}
                                         </span>
                                     </div>
                                 </div>
 
-                                {{-- Section Selection --}}
-                                <div class="mb-6">
-                                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Assign Section <span class="text-red-500">*</span></label>
-                                    <select name="section_id" required class="block w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5">
-                                        <option value="" disabled selected>-- Choose Section --</option>
-                                        @forelse($sections as $section)
-                                            <option value="{{ $section->id }}">
-                                                {{ $section->section_name }} ({{ $section->adviser_name ?? 'No Adviser' }})
-                                            </option>
-                                        @empty
-                                            <option value="" disabled>No sections available</option>
-                                        @endforelse
+                                <div class="mb-8">
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Assign to Section <span class="text-red-500">*</span></label>
+                                    <select name="section_id" required class="w-full text-sm border-slate-200 rounded-2xl py-3 focus:ring-indigo-500">
+                                        <option value="" disabled selected>-- Select Section --</option>
+                                        @foreach($sections as $section)
+                                            <option value="{{ $section->id }}">{{ $section->section_name }} ({{ $section->adviser_name }})</option>
+                                        @endforeach
                                     </select>
-                                    @error('section_id')
-                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                    @enderror
                                 </div>
 
-                                {{-- Submit Button --}}
-                                <button type="submit" onclick="return confirm('WARNING: Are you sure? This will officially enroll the student.')" 
-                                    class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-md transition transform hover:-translate-y-0.5 flex justify-center items-center group">
-                                    <span>CONFIRM & ENROLL</span>
-                                    <i class='bx bx-right-arrow-alt ml-2 text-xl group-hover:translate-x-1 transition'></i>
+                                <button type="submit" onclick="return confirm('Confirm official enrollment?')" 
+                                    class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-4 px-6 rounded-2xl shadow-lg shadow-green-100 transition transform hover:-translate-y-1 uppercase tracking-widest text-xs flex justify-center items-center">
+                                    <span>Confirm & Enroll</span>
+                                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                                 </button>
                             </form>
-
-                            <div class="mt-6 pt-4 border-t border-gray-100 text-center">
-                                <a href="{{ route('official-enrollment.index') }}" class="text-xs text-gray-500 hover:text-indigo-600 font-bold transition flex items-center justify-center">
-                                    <i class='bx bx-left-arrow-alt mr-1'></i> Back to List
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,5 @@
 <div wire:poll.5s>
     {{-- DASHBOARD CARDS --}}
-    {{-- Improved Grid: 2 cols on mobile, 3 on small tablet, 4 on laptop, 7 on extra wide screens --}}
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-6">
 
         <a href="{{ route('admission.index') }}" wire:navigate
@@ -29,6 +28,7 @@
             <p class="text-[10px] text-yellow-600 mt-2 font-medium">Pending Reqs</p>
         </a>
 
+        {{-- 1st Level Assessment (Updated Logic) --}}
         <a href="{{ route('admission.index', ['status' => 'Assessment']) }}" wire:navigate
             class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-cyan-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Assessment' ? 'ring-2 ring-cyan-500 bg-cyan-50' : '' }}">
             <div class="flex justify-between items-start">
@@ -39,8 +39,7 @@
                 </div>
                 <i class='bx bx-edit text-xl md:text-2xl text-cyan-200'></i>
             </div>
-            {{-- Shortened text to fit layout --}}
-            <p class="text-[10px] text-cyan-600 mt-2 font-medium leading-tight">For Assessment</p>
+            <p class="text-[10px] text-cyan-600 mt-2 font-medium leading-tight">For 1st Level</p>
         </a>
 
         <a href="{{ route('admission.index', ['status' => 'Qualified']) }}" wire:navigate
@@ -106,11 +105,10 @@
                 <div class="flex items-center w-full md:w-auto justify-between md:justify-start">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center">
                         <i class='bx bx-list-ul mr-2 text-blue-600'></i>
-                        {{-- Adjusted title logic for cleaner headers --}}
                         @if (request('status') == 'Pending')
                             Pending Requirements
                         @elseif (request('status') == 'Assessment')
-                            For Assessment List
+                            For 1st Level Assessment
                         @elseif (request('status'))
                             {{ request('status') }} List
                         @else
@@ -163,7 +161,7 @@
                                     Details</th>
                                 <th
                                     class="hidden md:table-cell px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Applied For</th>
+                                    Sport</th> {{-- Changed from "Applied For" to "Sport" --}}
                                 <th
                                     class="hidden md:table-cell px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     Dates</th>
@@ -184,19 +182,19 @@
                                     <td class="px-4 md:px-6 py-4">
                                         <div class="flex items-center">
                                             <div
-                                                class="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
+                                                class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-xs uppercase shadow-sm">
                                                 {{ substr($app->first_name, 0, 1) }}{{ substr($app->last_name, 0, 1) }}
                                             </div>
                                             <div class="ml-3">
                                                 <div class="text-sm font-bold text-gray-900">{{ $app->last_name }},
                                                     {{ $app->first_name }}</div>
-                                                <div class="text-[10px] md:text-xs text-gray-500">App ID:
-                                                    #{{ str_pad($app->id, 4, '0', STR_PAD_LEFT) }}</div>
+                                                <div class="text-[10px] md:text-xs text-gray-500 font-mono tracking-wide">
+                                                    LRN: {{ $app->lrn }}
+                                                </div>
 
                                                 {{-- Mobile View Details --}}
                                                 <div class="md:hidden mt-1 text-[10px] text-gray-500">
-                                                    <span
-                                                        class="bg-gray-100 px-1 rounded">{{ $app->grade_level_applied }}</span>
+                                                    <span class="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-bold">{{ $app->sport }}</span>
                                                     •
                                                     {{ $app->created_at->format('M d') }}
                                                 </div>
@@ -204,12 +202,14 @@
                                         </div>
                                     </td>
 
-                                    {{-- GRADE LEVEL (Desktop) --}}
+                                    {{-- SPORT (Desktop) --}}
                                     <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        <span
-                                            class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded border border-gray-300">
-                                            {{ $app->grade_level_applied }}
-                                        </span>
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-indigo-900">{{ $app->sport }}</span>
+                                            @if($app->sport_specification)
+                                                <span class="text-xs text-gray-500">({{ $app->sport_specification }})</span>
+                                            @endif
+                                        </div>
                                     </td>
 
                                     {{-- DATES (Desktop) --}}
@@ -217,47 +217,37 @@
                                         <div class="flex flex-col text-xs">
                                             <span>Submitted: {{ $app->created_at->format('M d, Y') }}</span>
                                             @if ($app->date_checked)
-                                                <span class="text-green-600">Checked:
-                                                    {{ \Carbon\Carbon::parse($app->date_checked)->format('M d, Y') }}</span>
+                                                <span class="text-green-600 font-medium">Checked:
+                                                    {{ \Carbon\Carbon::parse($app->date_checked)->format('M d') }}</span>
                                             @endif
                                         </div>
                                     </td>
 
-                                    {{-- STATUS BADGES (Shortened logic for better layout) --}}
+                                    {{-- STATUS BADGES --}}
                                     <td class="px-4 md:px-6 py-4 whitespace-nowrap">
-                                        @if ($app->status == 'With Pending Requirements' || $app->status == 'Pending')
-                                            <span
-                                                class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
-                                                Pending
+                                        {{-- Updated Logic for "With Complete Requirements" Status --}}
+                                        @if (str_contains($app->status, 'With Complete Requirements') || str_contains($app->status, '1st Level Assessment'))
+                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200">
+                                                For 1st Assessment
                                             </span>
-                                        @elseif(in_array($app->status, ['With Complete Requirements & for 1st Level Assessment', 'For 2nd Level Assessment', 'Assessment', 'For Assessment']))
-                                            <span
-                                                class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200">
-                                                Assessment
+                                        @elseif ($app->status == 'Pending' || str_contains($app->status, 'Pending Requirements'))
+                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                Pending Requirements
                                             </span>
                                         @elseif($app->status == 'Qualified')
-                                            <span
-                                                class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
-                                                {{ $app->status }}
-                                            </span>
-                                        @elseif($app->status == 'Waitlisted')
-                                            <span
-                                                class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">
-                                                {{ $app->status }}
+                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-green-100 text-green-800 border border-green-200">
+                                                Qualified
                                             </span>
                                         @elseif(in_array($app->status, ['Not Qualified', 'Rejected', 'Failed']))
-                                            <span
-                                                class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">
+                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-red-100 text-red-800 border border-red-200">
                                                 Not Qualified
                                             </span>
-                                        @elseif($app->status == 'Endorsed for Enrollment' || $app->status == 'Enrolled')
-                                            <span
-                                                class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                        @elseif(str_contains($app->status, 'Endorsed') || str_contains($app->status, 'Enrolled'))
+                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
                                                 Enrolled
                                             </span>
                                         @else
-                                            <span
-                                                class="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-gray-100 text-gray-800">
                                                 {{ $app->status }}
                                             </span>
                                         @endif
@@ -266,9 +256,8 @@
                                     {{-- ACTION --}}
                                     <td class="px-4 md:px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <a href="{{ route('admission.show', $app->id) }}" wire:navigate
-                                            class="text-indigo-600 hover:text-white border border-indigo-600 hover:bg-indigo-600 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center inline-flex items-center transition">
-                                            <i class='bx bx-show mr-1'></i> <span
-                                                class="hidden md:inline">Review</span>
+                                            class="text-indigo-600 hover:text-white border border-indigo-600 hover:bg-indigo-600 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center inline-flex items-center transition shadow-sm">
+                                            <i class='bx bx-show mr-1'></i> <span class="hidden md:inline">Review</span>
                                         </a>
                                     </td>
                                 </tr>
@@ -282,7 +271,9 @@
                 </div>
             @else
                 <div class="text-center py-12">
-                    <i class='bx bx-search text-4xl text-gray-300 mb-2'></i>
+                    <div class="bg-gray-50 rounded-full h-20 w-20 flex items-center justify-center mx-auto mb-4">
+                        <i class='bx bx-search text-4xl text-gray-300'></i>
+                    </div>
                     <h3 class="text-lg font-medium text-gray-900">No applications found</h3>
                     <p class="text-gray-500 text-sm mt-1">
                         @if (request('status'))
@@ -293,7 +284,7 @@
                     </p>
                     @if (request('search') || request('status'))
                         <a href="{{ route('admission.index') }}" wire:navigate
-                            class="text-blue-600 hover:underline text-sm mt-2 block">Clear Filters</a>
+                            class="text-blue-600 hover:underline text-sm mt-4 inline-block font-medium">Clear Filters</a>
                     @endif
                 </div>
             @endif

@@ -1,388 +1,281 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight no-print">
-            {{ __('Application Assessment') }}
-        </h2>
+        <div class="flex justify-between items-center no-print">
+            <h2 class="font-semibold text-xl text-slate-800 leading-tight">
+                {{ __('Enrollment Verification & Processing') }}
+            </h2>
+            <div class="flex gap-2">
+                <a href="{{ route('official-enrollment.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded text-xs uppercase tracking-widest transition">
+                    Back to List
+                </a>
+            </div>
+        </div>
     </x-slot>
 
-    <style>
-        @media print {
-            body * { visibility: hidden; }
-            #printable-area, #printable-area * { visibility: visible; }
-            #printable-area { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; border: none; box-shadow: none; }
-            .no-print, nav, aside, header, footer { display: none !important; }
-            .page-break { page-break-before: always; }
-            .print-bg-black { background-color: black !important; color: white !important; -webkit-print-color-adjust: exact; }
-        }
-        @keyframes fadeOut {
-            0% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { opacity: 0; display: none; }
-        }
-        .alert-fade { animation: fadeOut 5s forwards; }
-    </style>
-
-    <div class="py-6">
+    <div class="py-8 bg-slate-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- DATABASE INSPECTOR (X-RAY) - Start --}}
-            <div class="bg-red-100 border-4 border-red-500 text-red-900 p-4 mb-6 rounded shadow-lg relative no-print">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="ml-3 w-full">
-                        <h3 class="text-lg leading-6 font-bold text-red-900">⚠️ DATABASE INSPECTOR</h3>
-                        <div class="mt-2 text-sm text-red-800">
-                            <p class="mb-2">Hanapin sa listahan sa ibaba kung saan nakasulat ang "Others" details ng student na ito:</p>
-                            <div class="h-64 overflow-y-auto bg-white p-2 border border-red-300 font-mono text-xs text-black w-full">
-                                <table class="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr class="bg-gray-200 sticky top-0">
-                                            <th class="p-2 border">Column Name</th>
-                                            <th class="p-2 border">Value (Laman)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($application->getAttributes() as $key => $value)
-                                        <tr class="border-b hover:bg-yellow-50">
-                                            <td class="p-2 border font-bold text-blue-700 select-all">{{ $key }}</td>
-                                            <td class="p-2 border break-all select-all">{{ is_array($value) ? json_encode($value) : $value }}</td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+            {{-- STATUS ALERT --}}
+            @if(session('success'))
+                <div class="mb-6 bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm flex items-center no-print">
+                    <svg class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+                {{-- LEFT COLUMN: ENROLLMENT FORM DATA (Read-Only View) --}}
+                <div class="lg:col-span-3 bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200">
+                    
+                    {{-- HEADER --}}
+                    <div class="bg-indigo-900 text-white p-6 border-b-4 border-yellow-400 flex justify-between items-center">
+                        <div>
+                            <h1 class="text-xl font-black uppercase tracking-widest">Official Enrollment Data</h1>
+                            <p class="text-xs text-slate-400 font-mono mt-1">APP ID: {{ str_pad($application->id, 6, '0', STR_PAD_LEFT) }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase border border-green-200">
+                                {{ $application->status }}
+                            </span>
                         </div>
                     </div>
-                </div>
-            </div>
-            {{-- DATABASE INSPECTOR - End --}}
 
-            <div class="bg-white p-4 rounded-lg shadow-md mb-6 flex flex-col md:flex-row justify-between items-center gap-4 no-print border-l-4 border-blue-600">
-                <div class="flex items-center">
-                    <a href="{{ route('admission.index') }}" class="text-gray-600 hover:text-gray-900 font-bold flex items-center transition">
-                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                        Back to List
-                    </a>
-                </div>
-                <div class="flex items-center gap-3 w-full md:w-auto">
-                    <button onclick="window.print()" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded shadow flex justify-center items-center transition transform hover:scale-105">
-                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        PRINT APPLICATION FORM
-                    </button>
-                </div>
-            </div>
+                    <div class="p-8">
+                        {{-- 1. STUDENT INFORMATION --}}
+                        <div class="mb-10">
+                            <h3 class="text-indigo-900 font-bold uppercase text-sm border-b border-gray-200 pb-2 mb-4 flex items-center">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded flex items-center justify-center text-xs mr-2">1</span> 
+                                Student Information
+                            </h3>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                                <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                                    <span class="block text-[10px] font-bold text-gray-500 uppercase">LRN</span>
+                                    <span class="block text-lg font-mono font-bold text-gray-800">{{ $application->lrn }}</span>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                                    <span class="block text-[10px] font-bold text-gray-500 uppercase">Email</span>
+                                    <span class="block text-lg font-bold text-gray-800">{{ $application->email_address }}</span>
+                                </div>
+                            </div>
 
-                <div id="printable-area" class="lg:col-span-2 bg-white shadow-lg sm:rounded-lg overflow-hidden border border-gray-200 p-8 text-black">
-                    
-                    <div class="text-center border-b-2 border-black pb-4 mb-6">
-                        <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" class="h-20 mx-auto mb-2" alt="NAS Logo">
-                        <h1 class="text-2xl font-bold uppercase tracking-wide">National Academy of Sports</h1>
-                        <p class="text-sm font-bold uppercase">Student-Athlete Application Form</p>
-                        <p class="text-xs italic mt-1">New Clark City, Capas, Tarlac</p>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                <div><label class="text-[10px] text-gray-500 font-bold uppercase">Last Name</label><div class="font-bold border-b border-gray-200 text-sm">{{ $application->last_name }}</div></div>
+                                <div><label class="text-[10px] text-gray-500 font-bold uppercase">First Name</label><div class="font-bold border-b border-gray-200 text-sm">{{ $application->first_name }}</div></div>
+                                <div><label class="text-[10px] text-gray-500 font-bold uppercase">Middle Name</label><div class="font-bold border-b border-gray-200 text-sm">{{ $application->middle_name }}</div></div>
+                                <div><label class="text-[10px] text-gray-500 font-bold uppercase">Ext.</label><div class="font-bold border-b border-gray-200 text-sm">{{ $application->extension_name ?? 'N/A' }}</div></div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div><label class="text-[10px] text-gray-500 font-bold uppercase">Date of Birth</label><div class="font-bold border-b border-gray-200 text-sm">{{ \Carbon\Carbon::parse($application->date_of_birth)->format('F d, Y') }}</div></div>
+                                <div><label class="text-[10px] text-gray-500 font-bold uppercase">Age</label><div class="font-bold border-b border-gray-200 text-sm">{{ $application->age }}</div></div>
+                                <div><label class="text-[10px] text-gray-500 font-bold uppercase">Sex</label><div class="font-bold border-b border-gray-200 text-sm">{{ $application->gender }}</div></div>
+                            </div>
+
+                            <div class="bg-slate-50 p-4 rounded border border-gray-200">
+                                <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Permanent Address</label>
+                                <p class="text-sm font-bold text-gray-800">{{ $application->street_address }}, {{ $application->barangay }}</p>
+                                <p class="text-xs text-gray-600">{{ $application->municipality_city }}, {{ $application->province }}</p>
+                                <p class="text-xs text-gray-600">{{ $application->region }} (Zip: {{ $application->zip_code }})</p>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 mt-4 text-xs font-bold">
+                                <div class="flex items-center"><span class="w-3 h-3 border border-gray-400 mr-2 flex items-center justify-center">{{ $application->is_ip ? '✓' : '' }}</span> IP Member</div>
+                                <div class="flex items-center"><span class="w-3 h-3 border border-gray-400 mr-2 flex items-center justify-center">{{ $application->is_pwd ? '✓' : '' }}</span> PWD</div>
+                                <div class="flex items-center"><span class="w-3 h-3 border border-gray-400 mr-2 flex items-center justify-center">{{ $application->is_4ps ? '✓' : '' }}</span> 4Ps</div>
+                            </div>
+                        </div>
+
+                        {{-- 2. SPORTS --}}
+                        <div class="mb-10">
+                            <h3 class="text-indigo-900 font-bold uppercase text-sm border-b border-gray-200 pb-2 mb-4 flex items-center">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded flex items-center justify-center text-xs mr-2">2</span> 
+                                Sports Discipline
+                            </h3>
+                            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4">
+                                <span class="block text-xs font-bold text-indigo-400 uppercase">Selected Main Sport</span>
+                                <span class="block text-xl font-black text-indigo-900 uppercase">{{ $application->sport }}</span>
+                            </div>
+                        </div>
+
+                        {{-- 3. FAMILY BACKGROUND (Data from Enrollment Form) --}}
+                        <div class="mb-10">
+                            <h3 class="text-indigo-900 font-bold uppercase text-sm border-b border-gray-200 pb-2 mb-4 flex items-center">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded flex items-center justify-center text-xs mr-2">3</span> 
+                                Family Background
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {{-- Father --}}
+                                <div class="border border-gray-200 rounded p-4">
+                                    <span class="text-xs font-bold text-gray-400 uppercase block mb-2 border-b pb-1">Father's Info</span>
+                                    <div class="mb-2"><span class="text-[10px] text-gray-500 block">NAME</span><span class="font-bold text-sm">{{ $application->father_name ?? 'N/A' }}</span></div>
+                                    <div class="mb-2"><span class="text-[10px] text-gray-500 block">CONTACT</span><span class="font-bold text-sm">{{ $application->father_contact ?? 'N/A' }}</span></div>
+                                    <div class="mb-2"><span class="text-[10px] text-gray-500 block">EMAIL</span><span class="font-bold text-sm">{{ $application->father_email ?? 'N/A' }}</span></div>
+                                </div>
+
+                                {{-- Mother --}}
+                                <div class="border border-gray-200 rounded p-4">
+                                    <span class="text-xs font-bold text-gray-400 uppercase block mb-2 border-b pb-1">Mother's Info</span>
+                                    <div class="mb-2"><span class="text-[10px] text-gray-500 block">NAME</span><span class="font-bold text-sm">{{ $application->mother_name ?? 'N/A' }}</span></div>
+                                    <div class="mb-2"><span class="text-[10px] text-gray-500 block">CONTACT</span><span class="font-bold text-sm">{{ $application->mother_contact ?? 'N/A' }}</span></div>
+                                    <div class="mb-2"><span class="text-[10px] text-gray-500 block">EMAIL</span><span class="font-bold text-sm">{{ $application->mother_email ?? 'N/A' }}</span></div>
+                                </div>
+
+                                {{-- Guardian --}}
+                                <div class="lg:col-span-2 bg-slate-50 border border-slate-200 rounded p-4">
+                                    <span class="text-xs font-bold text-indigo-500 uppercase block mb-2 border-b border-indigo-200 pb-1">Designated Guardian</span>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div><span class="text-[10px] text-gray-500 block">NAME</span><span class="font-bold text-sm">{{ $application->guardian_name }}</span></div>
+                                        <div><span class="text-[10px] text-gray-500 block">RELATIONSHIP</span><span class="font-bold text-sm">{{ $application->guardian_relationship }}</span></div>
+                                        <div><span class="text-[10px] text-gray-500 block">CONTACT</span><span class="font-bold text-sm">{{ $application->guardian_contact }}</span></div>
+                                        <div class="md:col-span-3"><span class="text-[10px] text-gray-500 block">ADDRESS</span><span class="font-bold text-sm">{{ $application->guardian_address }}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 4. SCHOOL INFORMATION (Data from Enrollment Form) --}}
+                        <div class="mb-10">
+                            <h3 class="text-indigo-900 font-bold uppercase text-sm border-b border-gray-200 pb-2 mb-4 flex items-center">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded flex items-center justify-center text-xs mr-2">4</span> 
+                                Previous School Information
+                            </h3>
+                            <div class="bg-white border border-gray-200 rounded p-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div><span class="block text-[10px] font-bold text-gray-400">SCHOOL NAME</span><div class="font-bold">{{ $application->previous_school }}</div></div>
+                                <div><span class="block text-[10px] font-bold text-gray-400">SCHOOL ID</span><div class="font-bold">{{ $application->school_id }}</div></div>
+                                <div><span class="block text-[10px] font-bold text-gray-400">SCHOOL ADDRESS</span><div class="font-bold">{{ $application->school_address }}</div></div>
+                                <div><span class="block text-[10px] font-bold text-gray-400">SCHOOL TYPE</span><div class="font-bold">{{ $application->school_type }}</div></div>
+                                <div><span class="block text-[10px] font-bold text-gray-400">LAST GRADE COMPLETED</span><div class="font-bold">{{ $application->last_grade_level }}</div></div>
+                                <div><span class="block text-[10px] font-bold text-gray-400">LAST SCHOOL YEAR</span><div class="font-bold">{{ $application->last_school_year }}</div></div>
+                            </div>
+                        </div>
+
+                        {{-- 5. ENROLLMENT REQUIREMENTS CHECKLIST --}}
+                        <div class="mb-6">
+                            <h3 class="text-indigo-900 font-bold uppercase text-sm border-b border-gray-200 pb-2 mb-4 flex items-center">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded flex items-center justify-center text-xs mr-2">5</span> 
+                                Submitted Enrollment Documents
+                            </h3>
+
+                            <form action="{{ route('official-enrollment.return', $application->id) }}" method="POST">
+                                @csrf @method('PATCH')
+
+                                <div class="grid grid-cols-1 gap-3">
+                                    @php
+                                        // Include ALL enrollment requirements here
+                                        $docs = [
+                                            'sf10' => 'Original Form 137 / SF10',
+                                            'good_moral' => 'Good Moral Certificate',
+                                            'psa_birth_cert' => 'PSA Birth Certificate (Original)',
+                                            'medical_cert' => 'Medical Certificate',
+                                            'id_picture' => '2x2 ID Picture',
+                                            'student_info_form' => 'Student-Athlete Info Form',
+                                            'scholarship_form' => 'Scholarship Application Form',
+                                            'student_profile' => 'Student-Athlete Profile Form',
+                                            'medical_clearance' => 'Medical Clearance',
+                                            'guardian_id' => 'Guardian Valid ID'
+                                        ];
+                                        // Safe Decode
+                                        $files = is_string($application->uploaded_files) ? json_decode($application->uploaded_files, true) : ($application->uploaded_files ?? []);
+                                        $remarks = is_string($application->document_remarks) ? json_decode($application->document_remarks, true) : ($application->document_remarks ?? []);
+                                    @endphp
+
+                                    @foreach($docs as $key => $label)
+                                        <div class="flex items-center justify-between p-3 border rounded-lg bg-gray-50 hover:bg-white transition hover:shadow-sm">
+                                            {{-- Name --}}
+                                            <div class="w-1/3">
+                                                <span class="text-xs font-bold uppercase text-slate-700 block">{{ $label }}</span>
+                                                @if(isset($files[$key]))
+                                                    <span class="text-[10px] font-bold text-green-600 flex items-center"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Uploaded</span>
+                                                @else
+                                                    <span class="text-[10px] font-bold text-red-500 flex items-center"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg> Missing</span>
+                                                @endif
+                                            </div>
+
+                                            {{-- View Button --}}
+                                            <div class="w-1/4 text-center">
+                                                @if(isset($files[$key]))
+                                                    <a href="{{ route('applicant.view_file', ['id' => $application->id, 'type' => $key]) }}" target="_blank" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-1 rounded text-xs font-bold transition">
+                                                        VIEW FILE
+                                                    </a>
+                                                @else
+                                                    <span class="text-xs text-gray-400 italic">-</span>
+                                                @endif
+                                            </div>
+
+                                            {{-- Remark Input --}}
+                                            <div class="w-1/3">
+                                                <input type="text" name="remarks[{{ $key }}]" value="{{ $remarks[$key] ?? '' }}" class="w-full text-xs border-gray-300 rounded px-2 py-1 focus:ring-red-500 focus:border-red-500" placeholder="Type correction request here...">
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="mt-4 text-right">
+                                    <button type="submit" class="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold py-2 px-4 rounded text-xs uppercase transition">
+                                        Return to Student for Corrections
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
                     </div>
+                </div>
 
-                    <div class="mb-6">
-                        <h3 class="bg-gray-200 text-gray-800 font-bold px-2 py-1 mb-3 uppercase text-sm border border-gray-400 font-bold uppercase">1. Applicant Information</h3>
+                {{-- RIGHT COLUMN: ACTION PANEL --}}
+                <div class="lg:col-span-1 no-print">
+                    <div class="bg-white shadow-xl rounded-xl border border-indigo-100 sticky top-6 overflow-hidden">
                         
-                        <div class="flex gap-6 mb-4">
-                            <div class="w-32 h-32 border border-gray-300 flex-shrink-0 bg-gray-100 flex items-center justify-center overflow-hidden">
-                                {{-- 👇 FIXED IMAGE: Removed asset('storage/...') --}}
-                                @if(isset($application->uploaded_files['id_picture']))
-                                    <img src="{{ $application->uploaded_files['id_picture'] }}" class="w-full h-full object-cover">
-                                @else
-                                    <span class="text-xs text-gray-400 italic">No Photo</span>
-                                @endif
-                            </div>
+                        <div class="bg-indigo-600 px-6 py-4">
+                            <h3 class="text-lg font-bold text-white flex items-center">
+                                Finalize Enrollment
+                            </h3>
+                        </div>
 
-                            <div class="flex-1 flex flex-col justify-between text-sm">
-                                <div class="flex gap-4 w-full">
-                                    <div class="flex-grow">
-                                        <span class="block text-xs text-gray-500 uppercase font-bold">Full Name</span>
-                                        <div class="font-bold text-lg uppercase border-b border-gray-400 w-full h-8 flex items-end">
-                                            {{ $application->last_name }}, {{ $application->first_name }} {{ $application->middle_name }}
-                                        </div>
-                                    </div>
-                                    <div class="w-1/3">
-                                        <span class="block text-xs text-gray-500 uppercase font-bold">LRN</span>
-                                        <div class="font-mono font-bold text-lg border-b border-gray-400 w-full h-8 flex items-end">
-                                            {{ $application->lrn }}
-                                        </div>
+                        <div class="p-6">
+                            <p class="text-xs text-slate-600 mb-6 bg-indigo-50 p-3 rounded border border-indigo-100">
+                                Verify that all information is correct and documents are valid.
+                            </p>
+
+                            <form action="{{ route('official-enrollment.store', $application->id) }}" method="POST">
+                                @csrf
+                                
+                                <div class="mb-5">
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Generated Student ID</label>
+                                    <div class="flex items-center bg-slate-100 p-3 rounded border border-slate-300">
+                                        <span class="font-mono font-bold text-slate-800 text-lg">
+                                            {{ date('Y') }}-{{ str_pad($application->id, 4, '0', STR_PAD_LEFT) }}
+                                        </span>
                                     </div>
                                 </div>
 
-                                <div class="flex gap-4 w-full mt-2">
-                                    <div class="flex-grow">
-                                        <span class="block text-xs text-gray-500 uppercase font-bold">Email Address</span>
-                                        <div class="border-b border-gray-400 w-full h-6 flex items-end">
-                                            {{ $application->email_address }}
-                                        </div>
-                                    </div>
-                                    <div class="w-1/3">
-                                        <span class="block text-xs text-gray-500 uppercase font-bold">Date of Birth</span>
-                                        <div class="border-b border-gray-400 w-full h-6 flex items-end">
-                                            {{ \Carbon\Carbon::parse($application->date_of_birth)->format('F d, Y') }}
-                                        </div>
-                                    </div>
+                                <div class="mb-6">
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Assign Section <span class="text-red-500">*</span></label>
+                                    <select name="section_id" required class="block w-full text-sm border-slate-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5">
+                                        <option value="" disabled selected>-- Choose Section --</option>
+                                        @forelse($sections as $section)
+                                            <option value="{{ $section->id }}">
+                                                {{ $section->section_name }} ({{ $section->adviser_name ?? 'No Adviser' }})
+                                            </option>
+                                        @empty
+                                            <option value="" disabled>No sections available</option>
+                                        @endforelse
+                                    </select>
                                 </div>
 
-                                <div class="grid grid-cols-3 gap-4 mt-2 w-full">
-                                    <div>
-                                        <span class="block text-xs text-gray-500 uppercase font-bold">Sex / Age</span>
-                                        <div class="border-b border-gray-400 w-full h-6 flex items-end">
-                                            {{ $application->gender }} / {{ \Carbon\Carbon::parse($application->date_of_birth)->age }}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span class="block text-xs text-gray-500 uppercase font-bold">Place of Birth</span>
-                                        <div class="border-b border-gray-400 w-full h-6 flex items-end overflow-hidden whitespace-nowrap text-ellipsis italic">
-                                            {{ $application->birthplace }}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span class="block text-xs text-gray-500 uppercase font-bold">Religion</span>
-                                        <div class="border-b border-gray-400 w-full h-6 flex items-end">
-                                            {{ $application->religion ?? 'N/A' }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                <button type="submit" onclick="return confirm('WARNING: Are you sure? This will officially enroll the student.')" 
+                                    class="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md transition transform hover:-translate-y-0.5 flex justify-center items-center group">
+                                    <span>CONFIRM & ENROLL</span>
+                                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                </button>
+                            </form>
                         </div>
-
-                        <div class="grid grid-cols-4 gap-4 mb-4 text-[11px]">
-                            <div>
-                                <span class="block text-gray-500 uppercase font-bold">Region</span>
-                                <div class="border-b border-gray-400 h-6 flex items-end font-bold uppercase">{{ $application->region }}</div>
-                            </div>
-                            <div>
-                                <span class="block text-gray-500 uppercase font-bold">Province</span>
-                                <div class="border-b border-gray-400 h-6 flex items-end font-bold uppercase">{{ $application->province }}</div>
-                            </div>
-                            <div>
-                                <span class="block text-gray-500 uppercase font-bold">City/Municipality</span>
-                                <div class="border-b border-gray-400 h-6 flex items-end font-bold uppercase">{{ $application->municipality_city }}</div>
-                            </div>
-                            <div>
-                                <span class="block text-gray-500 uppercase font-bold">Barangay</span>
-                                <div class="border-b border-gray-400 h-6 flex items-end font-bold uppercase">{{ $application->barangay }}</div>
-                            </div>
-                        </div>
-
-                        <div class="mb-4 text-sm">
-                            <span class="block text-xs text-gray-500 uppercase font-bold">Street Address</span>
-                            <div class="border-b border-gray-400 h-6 flex items-end font-bold uppercase">
-                                {{ $application->street_address }} (Zip Code: {{ $application->zip_code }})
-                            </div>
-                        </div>
-
-                        @php
-                            $is_ip = (bool)($application->is_ip ?? false);
-                            $is_pwd = (bool)($application->is_pwd ?? false);
-                            $is_4ps = (bool)($application->is_4ps ?? false);
-                            
-                            $others_text = $application->others_specify 
-                                        ?? $application->other_category_details 
-                                        ?? $application->other_category 
-                                        ?? $application->others
-                                        ?? '';
-
-                            $is_others = (bool)($application->is_others ?? false) || !empty($others_text);
-                        @endphp
-
-                        <div class="grid grid-cols-4 gap-2 text-[10px] mt-2 border p-3 rounded bg-white">
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 border border-black flex items-center justify-center mr-2 {{ $is_ip ? 'bg-black text-white print-bg-black' : 'bg-white' }}">
-                                    @if($is_ip) ✓ @endif
-                                </div>
-                                <span class="{{ $is_ip ? 'font-bold text-black' : 'text-gray-400' }}">INDIGENOUS PEOPLE (IP)</span>
-                            </div>
-
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 border border-black flex items-center justify-center mr-2 {{ $is_pwd ? 'bg-black text-white print-bg-black' : 'bg-white' }}">
-                                    @if($is_pwd) ✓ @endif
-                                </div>
-                                <span class="{{ $is_pwd ? 'font-bold text-black' : 'text-gray-400' }}">PWD</span>
-                            </div>
-
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 border border-black flex items-center justify-center mr-2 {{ $is_4ps ? 'bg-black text-white print-bg-black' : 'bg-white' }}">
-                                    @if($is_4ps) ✓ @endif
-                                </div>
-                                <span class="{{ $is_4ps ? 'font-bold text-black' : 'text-gray-400' }}">4PS BENEFICIARY</span>
-                            </div>
-
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 border border-black flex items-center justify-center mr-2 {{ $is_others ? 'bg-black text-white print-bg-black' : 'bg-white' }}">
-                                    @if($is_others) ✓ @endif
-                                </div>
-                                <span class="{{ $is_others ? 'font-bold text-black' : 'text-gray-400' }}">OTHERS:</span>
-                                <span class="ml-1 border-b border-gray-400 flex-1 min-w-[50px] text-black font-bold uppercase">
-                                    {{ $others_text }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <h3 class="bg-gray-200 text-gray-800 font-bold px-2 py-1 mb-3 uppercase text-sm border border-gray-400">II. Academic & Sports Profile</h3>
-                        <div class="grid grid-cols-3 gap-6 text-sm">
-                            <div class="col-span-1">
-                                <span class="block text-xs text-gray-500 uppercase font-bold">Last School Attended</span>
-                                <div class="border-b border-gray-400 font-bold h-6 flex items-end uppercase">{{ $application->previous_school }} ({{ $application->school_type }})</div>
-                            </div>
-                            <div>
-                                <span class="block text-xs text-gray-500 uppercase font-bold">Applied Grade</span>
-                                <div class="border-b border-gray-400 font-bold h-6 flex items-end uppercase">{{ $application->grade_level_applied }}</div>
-                            </div>
-                            <div>
-                                <span class="block text-xs text-gray-500 uppercase font-bold">Sport</span>
-                                <div class="border-b border-gray-400 font-bold h-6 flex items-end uppercase">{{ $application->sport }}</div>
-                            </div>
-                        </div>
-                        <div class="mt-4 text-sm">
-                            <span class="block text-xs text-gray-500 uppercase font-bold">Palarong Pambansa Participation</span>
-                            <div class="font-bold border-b border-gray-400 inline-block min-w-[150px]">
-                                {{ $application->has_palaro_participation ? 'YES (Year: ' . $application->palaro_year . ')' : 'NO' }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <h3 class="bg-gray-200 text-gray-800 font-bold px-2 py-1 mb-3 uppercase text-sm border border-gray-400">III. Guardian Information</h3>
-                        <div class="grid grid-cols-2 gap-6 text-sm">
-                            <div>
-                                <span class="block text-xs text-gray-500 uppercase font-bold">Guardian Name</span>
-                                <div class="border-b border-gray-400 font-bold h-6 flex items-end uppercase">{{ $application->guardian_name }}</div>
-                            </div>
-                            <div>
-                                <span class="block text-xs text-gray-500 uppercase font-bold">Relationship</span>
-                                <div class="border-b border-gray-400 h-6 flex items-end uppercase">{{ $application->guardian_relationship }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {{-- DOCUMENTS CHECKLIST SECTION --}}
-                    <div>
-                        <div class="bg-gray-200 border border-gray-400 px-3 py-1 mb-4">
-                            <h3 class="text-sm font-bold text-gray-800 uppercase">IV. Submitted Documents Checklist</h3>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-2 gap-y-3 gap-x-2 text-xs">
-                            @php
-                                $files = $application->uploaded_files ?? [];
-                                $docs = [
-                                    'scholarship_form' => 'Scholarship Application Form',
-                                    'student_profile' => 'Student-Athlete Profile Form',
-                                    'coach_reco' => 'Coach Recommendation Form',
-                                    'adviser_reco' => 'Adviser Recommendation Form',
-                                    'medical_clearance' => 'Medical/Physical Clearance',
-                                    'guardian_id' => 'Guardian Valid ID',
-                                    'psa_birth_cert' => 'PSA Birth Certificate',
-                                    'good_moral' => 'Good Moral Certificate',
-                                    'sf10' => 'Form 137 (SF10)',
-                                    'report_card' => 'Report Card (SF9)',
-                                    'id_picture' => '2x2 ID Picture'
-                                ];
-                            @endphp
-
-                            @foreach($docs as $key => $label)
-                                <div class="flex items-center">
-                                    <div class="check-box">
-                                        @if(isset($files[$key])) <span class="text-black font-bold text-xs">✓</span> @endif
-                                    </div>
-                                    <span class="{{ isset($files[$key]) ? 'text-gray-900 font-bold' : 'text-gray-400' }}">
-                                        {{ $label }}
-                                        @if(isset($files[$key]))
-                                            {{-- 👇 FIXED LINK: Removed asset('storage/...') --}}
-                                            <a href="{{ $files[$key] }}" target="_blank" class="no-print ml-1 text-blue-600 hover:underline">(View)</a>
-                                        @endif
-                                    </span>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    @if($application->assessment_score || $application->status != 'Submitted (with Pending)')
-                    <div class="border-t-2 border-black pt-4 mt-12">
-                        <div class="grid grid-cols-2 gap-6 text-sm">
-                            <div>
-                                <span class="block text-xs text-gray-500 uppercase font-bold">Assessment Score</span>
-                                <div class="font-bold text-xl border-b border-black inline-block min-w-[100px]">
-                                    {{ $application->assessment_score ?? 'N/A' }}
-                                </div>
-                            </div>
-                            <div>
-                                <span class="block text-xs text-gray-500 uppercase font-bold">Final Status</span>
-                                <div class="font-bold text-xl uppercase border-b border-black inline-block min-w-[150px]">
-                                    {{ $application->status }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-16 flex justify-end">
-                            <div class="text-center">
-                                <div class="border-b border-black w-48 mb-1"></div>
-                                <span class="text-xs uppercase font-bold italic">Admission Officer Signature</span>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                </div> 
-
-                <div class="no-print lg:col-span-1">
-                    <div class="bg-white shadow-lg sm:rounded-lg border-t-4 border-indigo-600 p-6 sticky top-6">
-                        @if(session('success'))
-                            <div class="mb-4 bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded alert-fade">
-                                <p class="font-bold text-sm">Success</p>
-                                <p class="text-xs">{{ session('success') }}</p>
-                            </div>
-                        @endif
-
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">Update Status</h3>
-                        <form method="POST" action="{{ route('admission.process', $application->id) }}">
-                            @csrf
-                            @method('PATCH')
-                            
-                            <div class="mb-4">
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
-                                <select name="status" class="w-full rounded-md border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500" onchange="toggleFields(this.value)">
-                                    <option value="Submitted (with Pending)" {{ $application->status == 'Submitted (with Pending)' ? 'selected' : '' }}>Pending Review</option>
-                                    <option value="For Assessment" {{ $application->status == 'For Assessment' ? 'selected' : '' }}>For Assessment</option>
-                                    <option value="Qualified" {{ $application->status == 'Qualified' ? 'selected' : '' }}>Qualified</option>
-                                    <option value="Waitlisted" {{ $application->status == 'Waitlisted' ? 'selected' : '' }}>Waitlisted</option>
-                                    <option value="Not Qualified" {{ $application->status == 'Not Qualified' ? 'selected' : '' }}>Not Qualified</option>
-                                </select>
-                            </div>
-
-                            <div id="score-field" class="mb-4 hidden">
-                                <label class="block text-xs font-bold text-blue-600 uppercase mb-1">Assessment Score (0-100)</label>
-                                <input type="number" step="0.01" name="assessment_score" value="{{ $application->assessment_score }}" class="w-full rounded-md border-blue-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm font-bold">
-                            </div>
-
-                            <button type="submit" class="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3 px-4 rounded shadow transition transform hover:-translate-y-0.5">
-                                SAVE UPDATES
-                            </button>
-                        </form>
                     </div>
                 </div>
 
             </div>
         </div>
     </div>
-
-    <script>
-        function toggleFields(status) {
-            const scoreField = document.getElementById('score-field');
-            if (status === 'For Assessment' || status === 'Qualified') {
-                scoreField.classList.remove('hidden');
-            } else {
-                scoreField.classList.add('hidden');
-            }
-        }
-        // Initial check on page load
-        toggleFields("{{ $application->status }}");
-    </script>
 </x-app-layout>
