@@ -34,7 +34,7 @@
                     </div>
                 @endif
 
-                {{-- CLIENT SIDE JS ALERT (Hidden by default) --}}
+                {{-- CLIENT SIDE JS ALERT --}}
                 <div id="file-error-alert" class="hidden mb-8 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl shadow-sm transition-all duration-300 fixed top-4 right-4 z-50 max-w-sm">
                     <div class="flex">
                         <div class="flex-shrink-0"><svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg></div>
@@ -61,7 +61,6 @@
                 </div>
 
                 @php
-                    // Retrieve Data
                     $statuses = is_string($applicant->document_statuses) ? json_decode($applicant->document_statuses, true) : ($applicant->document_statuses ?? []);
                     $remarks = is_string($applicant->document_remarks) ? json_decode($applicant->document_remarks, true) : ($applicant->document_remarks ?? []);
                     $files = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
@@ -79,13 +78,12 @@
                         @foreach([
                             'scholarship_form' => 'Scholarship Application Form', 
                             'student_profile' => 'Student-Athlete’s Profile Form', 
-                            'medical_clearance' => 'PPE Clearance Form', 
+                            'medical_clearance' => 'Preparticipation Physical Evaluation Clearance Form', 
                             'psa_birth_cert' => 'PSA Birth Certificate', 
-                            'report_card' => 'Latest Report Card', 
-                            'guardian_id' => 'Guardian’s Valid ID'
+                            'report_card' => 'Grade 5 and 6 Report Card (for incoming Grade 7) or Grade 6 and 7 Report Card (for incoming Grade 8)', 
+                            'guardian_id' => 'Designated Guardian’s valid Government-Issued ID with signature'
                         ] as $key => $label)
                             
-                            {{-- LOGIC FOR STATUS --}}
                             @php
                                 $status = $statuses[$key] ?? 'pending';
                                 $remark = $remarks[$key] ?? null;
@@ -93,7 +91,6 @@
                                 $isDeclined = ($status === 'declined');
                                 $isApproved = ($status === 'approved');
 
-                                // Styling based on status
                                 $borderClass = 'border-slate-100';
                                 $bgClass = 'bg-white';
                                 if($isDeclined) { $borderClass = 'border-red-300'; $bgClass = 'bg-red-50'; }
@@ -106,7 +103,6 @@
                                         {{ $label }} *
                                     </label>
                                     
-                                    {{-- Status Badges --}}
                                     @if($isApproved)
                                         <span class="bg-emerald-200 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase flex items-center">
                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -122,7 +118,6 @@
                                     @endif
                                 </div>
 
-                                {{-- Remarks Display (If Declined) --}}
                                 @if($isDeclined && $remark)
                                     <div class="mb-3 p-2 bg-white/60 border border-red-200 rounded-lg">
                                         <p class="text-[9px] font-bold text-red-600 uppercase">Admin Remark:</p>
@@ -130,9 +125,7 @@
                                     </div>
                                 @endif
 
-                                {{-- INPUT FIELD --}}
                                 @if($isApproved)
-                                    {{-- Locked View --}}
                                     <div class="flex items-center justify-between mt-2 opacity-75">
                                         <span class="text-xs text-emerald-600 font-bold flex items-center">
                                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
@@ -141,12 +134,10 @@
                                         <a href="{{ $files[$key] }}" target="_blank" class="text-[10px] font-bold text-slate-400 hover:text-indigo-600 hover:underline">VIEW FILE</a>
                                     </div>
                                 @else
-                                    {{-- Active Input --}}
                                     <input type="file" 
                                            name="files[{{ $key }}]" 
                                            accept=".pdf,.jpg,.jpeg,.png,.heic,.heif"
                                            onchange="validateFile(this)"
-                                           {{-- REQUIRED IF: No File OR Declined --}}
                                            {{ (!$hasFile || $isDeclined) ? 'required' : '' }}
                                            class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase {{ $isDeclined ? 'file:bg-red-100 file:text-red-700 hover:file:bg-red-200' : 'file:bg-slate-100 file:text-slate-600 hover:file:bg-blue-600 hover:file:text-white' }} cursor-pointer transition-all mt-2">
                                     
@@ -168,13 +159,12 @@
                             <h3 class="text-lg font-black text-slate-500 uppercase tracking-tight">Conditional Requirements</h3>
                         </div>
 
-                        {{-- Prepare Conditionals --}}
                         @php
                             $conditionals = [];
-                            if($applicant->sport === 'Taekwondo') $conditionals['kukkiwon_cert'] = 'Kukkiwon Certificate';
-                            if($applicant->is_ip) $conditionals['ip_cert'] = 'IP Certification (' . $applicant->ip_group_name . ')';
-                            if($applicant->is_pwd) $conditionals['pwd_id'] = 'PWD ID';
-                            if($applicant->is_4ps) $conditionals['4ps_id'] = '4Ps Certification';
+                            if($applicant->sport === 'Taekwondo') $conditionals['kukkiwon_cert'] = 'Kukkiwon Certificate (If taekwondo)';
+                            if($applicant->is_ip) $conditionals['ip_cert'] = 'IP Certification (If member of an indigenous group)';
+                            if($applicant->is_pwd) $conditionals['pwd_id'] = 'PWD ID (If person with disability)';
+                            if($applicant->is_4ps) $conditionals['4ps_id'] = '4Ps ID or Certification (If beneficiary of the 4Ps)';
                         @endphp
 
                         @if(empty($conditionals))
@@ -184,8 +174,6 @@
                             </div>
                         @else
                             @foreach($conditionals as $key => $label)
-                                
-                                {{-- LOGIC FOR STATUS --}}
                                 @php
                                     $status = $statuses[$key] ?? 'pending';
                                     $remark = $remarks[$key] ?? null;
@@ -206,11 +194,11 @@
                                         </label>
                                         
                                         @if($isApproved)
-                                            <span class="bg-emerald-200 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase">Approved</span>
+                                            <span class="bg-emerald-200 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase text-center">Approved</span>
                                         @elseif($isDeclined)
-                                            <span class="bg-red-200 text-red-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase animate-pulse">Re-upload</span>
+                                            <span class="bg-red-200 text-red-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase animate-pulse text-center">Re-upload</span>
                                         @elseif($hasFile)
-                                            <span class="bg-yellow-200 text-yellow-800 text-[9px] font-bold px-2 py-0.5 rounded uppercase">Submitted</span>
+                                            <span class="bg-yellow-200 text-yellow-800 text-[9px] font-bold px-2 py-0.5 rounded uppercase text-center">Submitted</span>
                                         @endif
                                     </div>
 
@@ -234,12 +222,6 @@
                                                onchange="validateFile(this)"
                                                {{ (!$hasFile || $isDeclined) ? 'required' : '' }}
                                                class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase {{ $isDeclined ? 'file:bg-red-100 file:text-red-700' : 'file:bg-white file:text-indigo-600 hover:file:bg-indigo-600 hover:file:text-white' }} cursor-pointer transition-all mt-2 shadow-sm">
-                                        
-                                        @if($hasFile && !$isDeclined)
-                                            <div class="flex justify-between mt-1 px-1">
-                                                <p class="text-[9px] text-slate-400">File uploaded.</p>
-                                            </div>
-                                        @endif
                                     @endif
                                 </div>
                             @endforeach
@@ -260,7 +242,6 @@
         </div>
     </div>
 
-    {{-- CLIENT SIDE VALIDATION SCRIPT --}}
     <script>
         function validateFile(input) {
             const file = input.files[0];
@@ -268,28 +249,21 @@
             const msgBox = document.getElementById('file-error-msg');
 
             if (file) {
-                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-                
-                // 1. Check File Size
+                const maxSize = 10 * 1024 * 1024; 
                 if (file.size > maxSize) {
                     msgBox.innerText = `The file "${file.name}" is too large! Maximum allowed size is 10MB.`;
                     alertBox.classList.remove('hidden');
-                    input.value = ""; // Clear the input to prevent submission
+                    input.value = ""; 
                     return;
                 }
-
-                // 2. Check Extension (Double Check)
                 const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'heic', 'heif'];
                 const fileExt = file.name.split('.').pop().toLowerCase();
-                
                 if (!allowedExtensions.includes(fileExt)) {
                     msgBox.innerText = `The file type ".${fileExt}" is not allowed. Please upload PDF or Images only.`;
                     alertBox.classList.remove('hidden');
-                    input.value = ""; // Clear
+                    input.value = ""; 
                     return;
                 }
-
-                // If valid, hide error
                 alertBox.classList.add('hidden');
             }
         }

@@ -7,14 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth; // Added for Auth access
 
 class EnrollmentController extends Controller
 {
-    // ... (Keep index, show, generatePdf functions as is) ...
     public function index(Request $request): View
     {
-        // ... (Kopyahin ang dating index code o hayaan kung meron na) ...
-        // Para sa ikli, proceed tayo sa methods na kailangang ayusin:
         $query = Applicant::query();
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
@@ -48,9 +46,26 @@ class EnrollmentController extends Controller
         return view('admission.index', compact('applications', 'totalSubmitted', 'countPending', 'countQualified', 'countWaitlisted', 'countRejected'));
     }
 
-    public function show($id): View {
+    // --- UPDATED SHOW METHOD FOR NOTIFICATION MARK AS READ ---
+    public function show(Request $request, $id): View 
+    {
+        // 1. Mark Notification as Read (If clicked from bell)
+        if ($request->has('read')) {
+            $notificationId = $request->query('read');
+            $notification = Auth::user()->notifications()->find($notificationId);
+            
+            if ($notification) {
+                $notification->markAsRead();
+            }
+        }
+
         $application = Applicant::findOrFail($id);
-        if ($application->created_at == $application->updated_at) { $application->touch(); }
+        
+        // Update timestamp if newly created (optional logic from your code)
+        if ($application->created_at == $application->updated_at) { 
+            $application->touch(); 
+        }
+        
         return view('admission.show', compact('application'));
     }
 
@@ -67,24 +82,18 @@ class EnrollmentController extends Controller
         if ($validated['status'] !== 'Not Qualified') { $validated['rejection_reason'] = null; }
         $validated['date_checked'] = now(); 
 
-        // Update Remarks only (Statuses are handled by buttons)
+        // Update Remarks only
         $currentRemarks = $application->document_remarks ?? [];
         if (isset($validated['document_remarks'])) {
-            // Merge new remarks
             $currentRemarks = array_replace($currentRemarks, $validated['document_remarks']);
         }
         $validated['document_remarks'] = $currentRemarks;
-
-        // Force Status Update based on Document Statuses
-        // Kung may declined, dapat "With Pending Requirements" ang status kung nasa 2nd Level na
-        // Pero sundin muna natin ang manual select sa view.
 
         $application->update($validated);
         
         return back()->with('success', "Application details updated.");
     }
 
-    // --- 4. APPROVE DOCUMENT (FIXED) ---
     public function approveDocument($id, $doc_key): RedirectResponse
     {
         $application = Applicant::findOrFail($id);
@@ -95,21 +104,20 @@ class EnrollmentController extends Controller
         // 1. Set Status to Approved
         $statuses[$doc_key] = 'approved';
         
-        // 2. Clear Remarks (Optional: para malinis)
+        // 2. Clear Remarks
         if(isset($remarks[$doc_key])) {
             $remarks[$doc_key] = null;
         }
         
         $application->update([
             'document_statuses' => $statuses,
-            'document_remarks' => $remarks, // Save cleared remarks
+            'document_remarks' => $remarks, 
             'date_checked' => now()
         ]);
         
         return back()->with('success', strtoupper(str_replace('_', ' ', $doc_key)) . ' approved.');
     }
 
-    // --- 5. DECLINE DOCUMENT (FIXED) ---
     public function declineDocument($id, $doc_key): RedirectResponse
     {
         $application = Applicant::findOrFail($id);

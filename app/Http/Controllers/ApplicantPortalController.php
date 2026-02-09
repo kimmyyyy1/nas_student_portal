@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Applicant; 
 use App\Models\Team;
-use App\Models\EnrollmentDetail; // Changed from EnrollmentRecord
+use App\Models\User; // Added for Notification recipients
+use App\Models\EnrollmentDetail; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification; // Added for Notification facade
+use App\Notifications\ApplicantDocumentsSubmitted; // Your Notification Class
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
@@ -96,7 +99,7 @@ class ApplicantPortalController extends Controller
         }
 
         // 3. Map Data & Save
-        $data = $this->mapInputData($validated, $request);
+        $data = $this->mapInputData($request); 
         $data['user_id'] = Auth::id();
         $data['status'] = 'Submitted for 1st Level Assessment'; 
 
@@ -104,6 +107,17 @@ class ApplicantPortalController extends Controller
 
         // 4. Upload 2x2 Photo
         $this->handleInitialFileUploads($request, $applicant);
+
+        // --- NOTIFICATION: New Application Submitted ---
+        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
+        if ($admins->count() > 0) {
+            Notification::send($admins, new ApplicantDocumentsSubmitted(
+                $applicant, 
+                'new', 
+                'Application Form', 
+                'Initial Registration'
+            ));
+        }
 
         return redirect()->route('applicant.dashboard')->with('success', 'Application submitted! Please wait for the initial assessment.');
     }
@@ -157,6 +171,8 @@ class ApplicantPortalController extends Controller
         }
 
         $request->validate($rules);
+        
+        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
@@ -166,7 +182,23 @@ class ApplicantPortalController extends Controller
                         'resource_type' => 'auto'
                     ]);
                     $currentFiles[$key] = $upload['secure_url'];
+                    
+                    // Check if this specific file was previously declined (Resubmission logic)
+                    $isResubmission = isset($docStatuses[$key]) && $docStatuses[$key] === 'declined';
+                    
+                    // Reset status to pending
                     $docStatuses[$key] = 'pending'; 
+
+                    // --- NOTIFICATION PER FILE UPLOAD ---
+                    if ($admins->count() > 0) {
+                        Notification::send($admins, new ApplicantDocumentsSubmitted(
+                            $applicant, 
+                            $isResubmission ? 'resubmission' : 'new',
+                            $this->formatFileName($key), // Helper to make name readable
+                            'Admission Requirements'
+                        ));
+                    }
+
                 } catch (\Exception $e) {
                     return back()->withErrors(['files' => 'Error uploading ' . $key . '. Please try again.']);
                 }
@@ -200,7 +232,7 @@ class ApplicantPortalController extends Controller
 
     public function submitEnrollmentForm(Request $request): RedirectResponse
     {
-        set_time_limit(600); // 10 minutes max for uploads
+        set_time_limit(600); 
         $applicant = Applicant::where('user_id', Auth::id())->firstOrFail();
 
         // 1. VALIDATION
@@ -240,10 +272,9 @@ class ApplicantPortalController extends Controller
 
         // 2. CHECK TRANSFEREE STATUS & DEFAULTS
         $schoolDefault = 'N/A';
-        // If school_name is filled, treat as transferee, else defaults
         $isTransferee = !empty($request->school_name); 
 
-        // 3. CREATE/UPDATE ENROLLMENT RECORD (New Model)
+        // 3. CREATE/UPDATE ENROLLMENT RECORD
         EnrollmentDetail::updateOrCreate(
             ['applicant_id' => $applicant->id],
             [
@@ -305,6 +336,7 @@ class ApplicantPortalController extends Controller
 
         // 4. PROCESS FILE UPLOADS
         $currentFiles = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
+        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
@@ -314,6 +346,17 @@ class ApplicantPortalController extends Controller
                         'resource_type' => 'auto'
                     ]);
                     $currentFiles[$key] = $upload['secure_url'];
+
+                    // --- NOTIFICATION FOR ENROLLMENT FILES ---
+                    if ($admins->count() > 0) {
+                        Notification::send($admins, new ApplicantDocumentsSubmitted(
+                            $applicant, 
+                            'new',
+                            $this->formatFileName($key), 
+                            'Official Enrollment'
+                        ));
+                    }
+
                 } catch (\Exception $e) {
                     continue; 
                 }
@@ -333,22 +376,31 @@ class ApplicantPortalController extends Controller
     // HELPERS
     // ==========================================
 
-    private function mapInputData($validated, $request)
+    private function mapInputData(Request $request)
     {
-        $data = $validated;
-        
+        // 1. Basic Fields
+        $data = $request->only([
+            'lrn', 'last_name', 'first_name', 'middle_name', 
+            'date_of_birth', 'age', 'gender', 
+            'region', 'province', 'municipality_city', 'barangay', 
+            'street_address', 'zip_code', 'learn_about_nas', 'attended_campaign',
+            'sport', 'sport_specification', 'palaro_finisher', 'batang_pinoy_finisher', 
+            'school_type', 'guardian_name', 'guardian_relationship', 'guardian_email', 'guardian_contact'
+        ]);
+
+        // 2. Handle Defaults
         $data['middle_name'] = $request->middle_name ?? 'N/A';
-        $data['referrer_name'] = $request->referrer_name;
-        $data['ip_group_name'] = $request->ip_group_name;
-        $data['pwd_disability'] = $request->pwd_disability;
-        $data['sport_specification'] = $request->sport_specification;
+        $data['referrer_name'] = ($request->learn_about_nas === 'NAS Personnel / Student-Athlete Referral') 
+            ? $request->referrer_name 
+            : null;
 
-        $data['palaro_finisher'] = $request->palaro_finisher;
-        $data['batang_pinoy_finisher'] = $request->batang_pinoy_finisher;
-        $data['school_type'] = $request->school_type;
-
+        // 3. Handle Group Conditionals
         $data['is_ip'] = ($request->is_ip === 'Yes');
+        $data['ip_group_name'] = $data['is_ip'] ? $request->ip_group_name : null;
+
         $data['is_pwd'] = ($request->is_pwd === 'Yes');
+        $data['pwd_disability'] = $data['is_pwd'] ? $request->pwd_disability : null;
+
         $data['is_4ps'] = ($request->is_4ps === 'Yes');
         
         return $data;
@@ -366,5 +418,10 @@ class ApplicantPortalController extends Controller
         }
 
         $applicant->update(['uploaded_files' => $currentFiles]);
+    }
+
+    // Helper to format file keys (e.g., psa_birth_cert -> PSA Birth Certificate)
+    private function formatFileName($key) {
+        return ucwords(str_replace(['_', 'id'], [' ', 'ID'], $key));
     }
 }

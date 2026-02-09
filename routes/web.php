@@ -63,6 +63,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/recent-activity', [DashboardController::class, 'getRecentActivity'])->name('recent.activity');
     Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
 
+    // ==========================================
+    //  🔔 NOTIFICATION ROUTES (ADDED THIS)
+    // ==========================================
+    Route::get('/notifications/mark-all-read', function () {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back();
+    })->name('notifications.readAll');
+    // ==========================================
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -110,7 +119,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     // Admission / Application Review
     Route::get('/admission', [EnrollmentController::class, 'index'])->name('admission.index');
-    Route::get('/admission/{id}', [EnrollmentController::class, 'show'])->name('admission.show');
+    
+    // NOTE: Dito mapupunta ang admin kapag kinlick ang notification
+    Route::get('/admission/{id}', [EnrollmentController::class, 'show'])->name('admission.show'); 
+    
     Route::patch('/admission/{id}', [EnrollmentController::class, 'process'])->name('admission.process');
     
     // Document Review Actions

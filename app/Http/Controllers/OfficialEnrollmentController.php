@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\EnrollmentDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth; // Ensure Auth is imported
 
 class OfficialEnrollmentController extends Controller
 {
@@ -26,9 +27,21 @@ class OfficialEnrollmentController extends Controller
 
     /**
      * Show the enrollment verification page.
+     * UPDATED: Now handles marking notifications as read.
      */
-    public function show($id)
+    public function show(Request $request, $id) // Added Request $request
     {
+        // 👇👇👇 ADDED NOTIFICATION LOGIC 👇👇👇
+        if ($request->has('read')) {
+            $notificationId = $request->query('read');
+            $notification = Auth::user()->notifications()->find($notificationId);
+            
+            if ($notification) {
+                $notification->markAsRead();
+            }
+        }
+        // 👆👆👆 END ADDED LOGIC 👆👆👆
+
         $applicant = Applicant::with('enrollmentDetail')->findOrFail($id);
         return view('official_enrollment.show', compact('applicant'));
     }
@@ -86,7 +99,9 @@ class OfficialEnrollmentController extends Controller
                 'street_address'   => $details->street_house_no ?? $applicant->street_address,
                 'zip_code'         => $applicant->zip_code,
                 'contact_number'   => $applicant->guardian_contact,
-                'email_address'    => $applicant->email, 
+                
+                // Email Fix
+                'email_address'    => $details->email ?? ($applicant->user->email ?? 'N/A'), 
 
                 // Guardian Info
                 'guardian_name'         => $applicant->guardian_name,
@@ -103,7 +118,6 @@ class OfficialEnrollmentController extends Controller
             }
 
             // D. UPDATE APPLICANT STATUS
-            // Inalis natin ang 'is_enrolled' dito para hindi mag-error
             $applicant->update([
                 'status' => 'Admitted'
             ]);

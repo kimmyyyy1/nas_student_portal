@@ -21,12 +21,14 @@
         {{-- Scripts & Styles --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
+        
+        {{-- AlpineJS --}}
+        <script src="//unpkg.com/alpinejs" defer></script>
 
         <style>
-            /* 1. Global Font Override */
             * { font-family: 'Poppins', sans-serif !important; }
             
-            /* 2. ICON REPAIR KIT */
+            /* Icon Fixes */
             i.bx, i.bxs, i.bxl, .bx {
                 font-family: 'boxicons' !important;
                 font-weight: normal !important;
@@ -40,7 +42,6 @@
 
             [x-cloak] { display: none !important; }
             
-            /* 3. LAYOUT FIXES */
             body {
                 background-color: transparent !important;
                 background-image: none !important;
@@ -54,16 +55,22 @@
             .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
             .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(107, 114, 128, 0.8); }
 
-            /* 👇 4. NEW: PAGE TRANSITION ANIMATION 
-               Ito ang magpapaganda ng pasok ng content (Fade Up Effect) 
-            */
+            /* Animation */
             @keyframes fadeUp {
                 from { opacity: 0; transform: translateY(10px); }
                 to { opacity: 1; transform: translateY(0); }
             }
-
             .animate-page-enter {
                 animation: fadeUp 0.3s ease-out forwards;
+            }
+            
+            /* Floating Animation */
+            @keyframes bounce-slight {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-5px); }
+            }
+            .animate-bounce-slight {
+                animation: bounce-slight 2s infinite;
             }
         </style>
     </head>
@@ -96,17 +103,23 @@
                     </header>
                 @endif
 
-                {{-- 
-                    👇 MAIN CONTENT WITH ANIMATION
-                    - Added 'animate-page-enter' class here
-                --}}
+                {{-- MAIN CONTENT --}}
                 <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 animate-page-enter">
                     {{ $slot }}
                 </main>
 
             </div>
-            
         </div>
+
+        {{-- ================================================================= --}}
+        {{-- LIVEWIRE NOTIFICATIONS (Real-time Bell & Toast)                   --}}
+        {{-- ================================================================= --}}
+        {{-- Ito na ang papalit sa mahabang code kanina. --}}
+        {{-- Ang logic ay nasa resources/views/livewire/notifications.blade.php --}}
+        
+        @auth
+            <livewire:notifications />
+        @endauth
 
         @livewireScripts
     </body>
