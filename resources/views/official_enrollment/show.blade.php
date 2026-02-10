@@ -66,10 +66,18 @@
                                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Age</label>
                                 <span class="font-bold text-slate-700 block mt-1">{{ $applicant->age }} Years Old</span>
                             </div>
+                            
+                            {{-- SEX FIELD --}}
                             <div>
                                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Sex</label>
-                                <span class="font-bold text-slate-700 block mt-1 uppercase">{{ $applicant->gender }}</span>
+                                <span class="font-bold text-slate-700 block mt-1 uppercase">
+                                    @if(in_array(strtolower($applicant->gender), ['male', 'm', 'boy'])) MALE
+                                    @elseif(in_array(strtolower($applicant->gender), ['female', 'f', 'girl'])) FEMALE
+                                    @else {{ strtoupper($applicant->gender) }}
+                                    @endif
+                                </span>
                             </div>
+
                             <div class="md:col-span-2 bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
                                 <label class="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Student Email Address</label>
                                 <span class="font-black text-indigo-600 text-lg">{{ $applicant->enrollmentDetail->email ?? ($applicant->user->email ?? 'N/A') }}</span>
@@ -132,31 +140,52 @@
                             <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] mr-3">02</span> 
                             Parents & Guardian Information
                         </h3>
-                        <div class="space-y-8 text-sm">
-                            {{-- FATHER --}}
+                        <div class="space-y-10 text-sm">
+                            
+                            {{-- FATHER (REMOVED OCCUPATION) --}}
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-slate-100">
-                                <div class="md:col-span-2 text-[10px] font-black text-indigo-400 uppercase tracking-widest">Father's Information</div>
+                                <div class="md:col-span-2 flex items-center gap-2">
+                                    <div class="h-px bg-slate-200 flex-1"></div>
+                                    <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-200">Father's Information</span>
+                                    <div class="h-px bg-slate-200 flex-1"></div>
+                                </div>
                                 <div>
                                     <p class="text-[9px] font-black text-slate-400 uppercase">Full Name</p>
-                                    <p class="font-bold text-slate-700 uppercase">{{ $applicant->enrollmentDetail->father_name ?? 'N/A' }}</p>
+                                    <p class="font-bold text-slate-700 uppercase text-lg">{{ $applicant->enrollmentDetail->father_name ?? 'N/A' }}</p>
                                 </div>
                                 <div>
                                     <p class="text-[9px] font-black text-slate-400 uppercase">Contact / Email</p>
-                                    <p class="font-bold text-slate-700">{{ $applicant->enrollmentDetail->father_contact ?? 'N/A' }} / {{ $applicant->enrollmentDetail->father_email ?? 'N/A' }}</p>
+                                    <p class="font-bold text-slate-700">{{ $applicant->enrollmentDetail->father_contact ?? 'N/A' }}</p>
+                                    <p class="text-xs text-blue-600">{{ $applicant->enrollmentDetail->father_email ?? 'N/A' }}</p>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase">Father's Address</p>
+                                    <p class="font-bold text-slate-700">{{ $applicant->enrollmentDetail->father_address ?? 'Same as Student' }}</p>
                                 </div>
                             </div>
-                            {{-- MOTHER --}}
+
+                            {{-- MOTHER (REMOVED OCCUPATION) --}}
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-slate-100">
-                                <div class="md:col-span-2 text-[10px] font-black text-indigo-400 uppercase tracking-widest">Mother's Information</div>
+                                <div class="md:col-span-2 flex items-center gap-2">
+                                    <div class="h-px bg-slate-200 flex-1"></div>
+                                    <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-200">Mother's Information</span>
+                                    <div class="h-px bg-slate-200 flex-1"></div>
+                                </div>
                                 <div>
                                     <p class="text-[9px] font-black text-slate-400 uppercase">Maiden Name</p>
-                                    <p class="font-bold text-slate-700 uppercase">{{ $applicant->enrollmentDetail->mother_maiden_name ?? 'N/A' }}</p>
+                                    <p class="font-bold text-slate-700 uppercase text-lg">{{ $applicant->enrollmentDetail->mother_maiden_name ?? 'N/A' }}</p>
                                 </div>
                                 <div>
                                     <p class="text-[9px] font-black text-slate-400 uppercase">Contact / Email</p>
-                                    <p class="font-bold text-slate-700">{{ $applicant->enrollmentDetail->mother_contact ?? 'N/A' }} / {{ $applicant->enrollmentDetail->mother_email ?? 'N/A' }}</p>
+                                    <p class="font-bold text-slate-700">{{ $applicant->enrollmentDetail->mother_contact ?? 'N/A' }}</p>
+                                    <p class="text-xs text-blue-600">{{ $applicant->enrollmentDetail->mother_email ?? 'N/A' }}</p>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase">Mother's Address</p>
+                                    <p class="font-bold text-slate-700">{{ $applicant->enrollmentDetail->mother_address ?? 'Same as Student' }}</p>
                                 </div>
                             </div>
+
                             {{-- GUARDIAN --}}
                             <div class="bg-indigo-900 p-6 rounded-3xl text-white shadow-xl">
                                 <div class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-4">Designated Guardian (Emergency Contact)</div>

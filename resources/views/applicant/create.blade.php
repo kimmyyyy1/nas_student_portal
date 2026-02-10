@@ -195,22 +195,38 @@
                     </div>
 
                     <div class="flex flex-col lg:flex-row gap-10 lg:gap-16">
-                        {{-- Photo --}}
+                        
+                        {{-- ========================================= --}}
+                        {{--  👇 UPDATED PHOTO UPLOAD SECTION 👇  --}}
+                        {{-- ========================================= --}}
                         <div class="w-full lg:w-72 flex-shrink-0 flex flex-col items-center">
-                            <div class="relative group cursor-pointer w-48 h-48 md:w-64 md:h-64 mx-auto perspective-1000">
-                                <div class="absolute -inset-2 bg-gradient-to-tr from-blue-500 to-cyan-400 rounded-[2rem] blur opacity-20"></div>
-                                <div class="relative w-full h-full bg-white rounded-[1.75rem] flex items-center justify-center overflow-hidden border-4 border-slate-100">
+                            {{-- Added Hover Transitions & Perspective --}}
+                            <div class="relative group cursor-pointer w-48 h-48 md:w-64 md:h-64 mx-auto perspective-1000 transition-transform duration-500 hover:scale-[1.02]">
+                                {{-- Enhanced Glow Effect on Hover --}}
+                                <div class="absolute -inset-3 bg-gradient-to-tr from-blue-500 via-cyan-400 to-blue-600 rounded-[2rem] blur-md opacity-30 group-hover:opacity-50 group-hover:blur-xl transition-all duration-500"></div>
+
+                                {{-- Main Box with Improved Border & Shadow --}}
+                                <div class="relative w-full h-full bg-white rounded-[1.75rem] flex items-center justify-center overflow-hidden border-[5px] border-white shadow-xl transition-all duration-500 group-hover:border-blue-50/50">
                                     <template x-if="!photoPreview">
-                                        <div class="flex flex-col items-center text-slate-400 p-6 text-center">
-                                            <svg class="w-12 h-12 md:w-16 md:h-16 mb-4 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                            <span class="text-[10px] md:text-xs font-black uppercase tracking-widest">Upload 2x2 Photo</span>
+                                        <div class="flex flex-col items-center text-slate-400 p-4 text-center">
+                                            {{-- Icon changes color on hover --}}
+                                            <svg class="w-10 h-10 md:w-14 md:h-14 mb-3 stroke-1 text-blue-300 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            
+                                            {{-- 👇 UPDATED TEXT HERE 👇 --}}
+                                            <span class="text-[9px] md:text-[11px] font-black uppercase tracking-wider leading-tight text-slate-500/80 group-hover:text-blue-700 transition-colors px-2">
+                                                Recent 2X2 Photograph<br>with White Background
+                                            </span>
                                         </div>
                                     </template>
-                                    <img x-show="photoPreview" :src="photoPreview" class="absolute inset-0 w-full h-full object-cover">
-                                    <input type="file" name="id_picture" accept="image/*" required @change="handleFileUpload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                                    <img x-show="photoPreview" :src="photoPreview" class="absolute inset-0 w-full h-full object-cover z-10">
+                                    <input type="file" name="id_picture" accept="image/*" required @change="handleFileUpload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30">
                                 </div>
                             </div>
                         </div>
+                        {{-- ========================================= --}}
+                        {{--  👆 END UPDATED SECTION 👆  --}}
+                        {{-- ========================================= --}}
+
 
                         {{-- Fields --}}
                         <div class="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
@@ -240,12 +256,13 @@
                                 <label class="block text-[10px] md:text-xs font-bold text-slate-500 uppercase mb-2 ml-1 tracking-wider">Age *</label>
                                 <input type="number" name="age" x-model="inputs.age" required class="w-full h-12 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl border-2 border-slate-100 bg-slate-50 text-center font-black text-blue-600 text-lg">
                             </div>
+                            
                             <div>
                                 <label class="block text-[10px] md:text-xs font-bold text-slate-500 uppercase mb-2 ml-1 tracking-wider">Sex *</label>
                                 <select name="gender" x-model="inputs.gender" required class="w-full h-12 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl border-2 border-slate-100 bg-slate-50 font-bold text-slate-800">
                                     <option value="">Select Sex</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
+                                    <option value="Boy">Boy</option>
+                                    <option value="Girl">Girl</option>
                                 </select>
                             </div>
 

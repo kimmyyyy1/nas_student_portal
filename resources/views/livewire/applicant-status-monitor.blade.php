@@ -187,10 +187,22 @@
                                 <p class="text-white text-sm">Some documents were declined. Please check the remarks and re-upload the corrected files.</p>
                             </div>
                         </div>
-                        <a href="{{ route('applicant.requirements') }}" class="inline-flex w-full justify-center items-center bg-white text-red-600 font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-red-50 transition transform hover:-translate-y-1 relative z-10 text-xs uppercase tracking-widest animate-pulse">
-                            Fix Requirements
-                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        </a>
+
+                        {{-- 👇👇 UPDATED LOGIC HERE 👇👇 --}}
+                        @if(str_contains($application->status, 'Qualified'))
+                             {{-- Kung Qualified na (Enrollment Phase), dito pupunta --}}
+                             <a href="{{ route('applicant.enrollment.show') }}" class="inline-flex w-full justify-center items-center bg-white text-red-600 font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-red-50 transition transform hover:-translate-y-1 relative z-10 text-xs uppercase tracking-widest animate-pulse">
+                                Fix Enrollment Docs
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                            </a>
+                        @else
+                            {{-- Kung Admission Phase pa lang, dito pupunta --}}
+                            <a href="{{ route('applicant.requirements') }}" class="inline-flex w-full justify-center items-center bg-white text-red-600 font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-red-50 transition transform hover:-translate-y-1 relative z-10 text-xs uppercase tracking-widest animate-pulse">
+                                Fix Admission Docs
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            </a>
+                        @endif
+                        {{-- 👆👆 END OF LOGIC 👆👆 --}}
 
                     {{-- SCENARIO 2: REQUIREMENTS SUBMITTED (Wait for Review) --}}
                     @elseif(str_contains($application->status, 'Requirements Submitted'))
