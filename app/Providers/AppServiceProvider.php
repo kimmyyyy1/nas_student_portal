@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Config;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Register any application servicess.
      */
     public function register(): void
     {
