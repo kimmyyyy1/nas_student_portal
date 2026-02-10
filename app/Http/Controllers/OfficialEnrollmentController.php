@@ -53,6 +53,14 @@ class OfficialEnrollmentController extends Controller
     {
         $applicant = Applicant::with('enrollmentDetail')->findOrFail($id);
 
+        // 🛡️ SECURITY CHECK (ADDED THIS)
+        // Haharangin nito kung hindi pa "Officially Enrolled" ang status.
+        // Iwas ito sa mga nagmamarunong na palitan ang URL/ID manually.
+        if ($applicant->status !== 'Officially Enrolled') {
+            return redirect()->route('official-enrollment.index')
+                ->with('error', 'Security Alert: Unauthorized action. This applicant is not ready for enrollment.');
+        }
+
         // Check if student already exists in student table via LRN
         if (Student::where('lrn', $applicant->lrn)->exists()) {
             return redirect()->route('official-enrollment.index')

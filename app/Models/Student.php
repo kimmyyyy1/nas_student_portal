@@ -7,12 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-
-// 1. IMPORT SPATIE CLASSES (Pwede mo itong tanggalin kung hindi mo na gagamitin, pero okay lang na nandyan)
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-// 2. IMPLEMENT HASMEDIA INTERFACE
 class Student extends Model implements HasMedia
 {
     use HasFactory;
@@ -22,9 +19,7 @@ class Student extends Model implements HasMedia
         // --- Identifiers ---
         'nas_student_id',
         'lrn',
-        
-        // 👇👇👇 IMPORTANT: DAPAT NANDITO ITO! 👇👇👇
-        'id_picture', 
+        'id_picture', // IMPORTANT: Picture File Path
 
         // --- Personal Info ---
         'first_name',
@@ -48,7 +43,7 @@ class Student extends Model implements HasMedia
         'promotion_status', // Promoted, Conditional, Retained
         'general_average',  // Final Grade
         
-        // --- ADDED: Quarterly Grades ---
+        // --- Quarterly Grades ---
         'q1',
         'q2',
         'q3',
@@ -78,6 +73,9 @@ class Student extends Model implements HasMedia
         'guardian_email',
         'guardian_contact',
         'guardian_address',
+
+        // ❌ NOTE: WALA DAPAT DITO ANG 'role'. 
+        // Ang 'role' ay nasa User table, hindi sa Student table.
     ];
 
     /**
