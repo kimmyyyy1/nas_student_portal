@@ -8,19 +8,7 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-    // 👇 IDAGDAG MO ANG SECTION NA ITO:
     build: {
-        // Hides source maps (ito yung nagpapakita ng file structure sa browser)
-        sourcemap: false,
-        
-        // Increases chunk size warning limit (optional, para iwas warning sa build)
-        chunkSizeWarningLimit: 1600,
-        
-        // Minify output (standard for production)
-        minify: 'esbuild',
+        sourcemap: false, // Ito lang ang mahalaga para itago ang code
     },
-    // 👇 OPTIONAL: Tanggalin ang console.logs sa production para malinis
-    esbuild: {
-        drop: ['console', 'debugger'],
-    },
-}); 
+});
