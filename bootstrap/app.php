@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\SecurityHeaders; // 👈 1. ADD THIS IMPORT
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,16 +13,17 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         
-        // 1. Trust Proxies (MAHALAGA PARA SA NGROK)
-        // Sinasabi nito sa Laravel na pagkatiwalaan ang request galing sa Ngrok tunnel.
-        // Kung wala ito, magkakaroon ka ng 419 Page Expired errors.
+        // 1. Trust Proxies (MAHALAGA PARA SA NGROK & VERCEL)
         $middleware->trustProxies(at: '*');
 
         // 2. Register Middleware Aliases
-        // Dito natin pinapangalanan ang 'role' middleware para magamit sa routes/web.php
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+
+        // 3. 👇 SECURITY HEADERS (Global Middleware)
+        // Ito ang papalit sa tinanggal natin sa vercel.json
+        $middleware->append(SecurityHeaders::class);
 
     })
     ->withExceptions(function (Exceptions $exceptions) {
