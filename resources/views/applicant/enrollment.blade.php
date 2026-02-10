@@ -23,12 +23,11 @@
                   class="space-y-10"
                   x-data="{ 
                       sport: '{{ old('sport', $applicant->sport) }}',
-                      gradeLevel: '{{ old('grade_level') }}', // ✅ ADDED: Track Grade Level
+                      gradeLevel: '{{ old('grade_level') }}',
                       isIp: '{{ old('is_ip', $applicant->is_ip ? 'Yes' : 'No') }}',
                       isPwd: '{{ old('is_pwd', $applicant->is_pwd ? 'Yes' : 'No') }}',
                       is4ps: '{{ old('is_4ps', $applicant->is_4ps ? 'Yes' : 'No') }}',
                       isTransferee: 'No',
-                      privacyConsent: false,
                       
                       // Track File Uploads
                       files: {
@@ -52,14 +51,9 @@
 
                       // Main Validation Logic
                       canSubmit() {
-                          // 1. Check Privacy Consent
-                          if (!this.privacyConsent) return false;
-                          
-                          // 2. Check Sport & Grade Level Selection
                           if (this.sport === '') return false;
-                          if (this.gradeLevel === '') return false; // ✅ ADDED: Validation check
+                          if (this.gradeLevel === '') return false;
 
-                          // 3. Check Mandatory Files
                           if (!this.files.sa_info_form) return false;
                           if (!this.files.scholarship_app_form) return false;
                           if (!this.files.sa_profile_form) return false;
@@ -68,7 +62,6 @@
                           if (!this.files.report_card) return false;
                           if (!this.files.guardian_id) return false;
 
-                          // 4. Check Conditional Files
                           if (this.sport.includes('Taekwondo') && !this.files.kukkiwon_cert) return false;
                           if (this.isIp === 'Yes' && !this.files.ip_cert) return false;
                           if (this.isPwd === 'Yes' && !this.files.pwd_id) return false;
@@ -143,7 +136,6 @@
                                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Region *</label>
                                     <select name="region" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-indigo-500 transition-all">
                                         <option value="{{ $applicant->region }}" selected>{{ $applicant->region }}</option>
-                                        {{-- Add other regions if needed --}}
                                     </select>
                                 </div>
                                 <div>
@@ -286,18 +278,16 @@
                     </div>
                 </div>
 
-                {{-- IV. SCHOOL INFORMATION --}}
+                {{-- IV. SCHOOL INFORMATION (RESTORED LAYOUT) --}}
                 <div class="bg-white rounded-[2rem] shadow-xl shadow-indigo-100/50 border border-slate-100 overflow-hidden relative group hover:shadow-2xl transition-all duration-300">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-emerald-500 to-teal-500"></div>
                     <div class="p-8 md:p-10">
-                        <div class="flex items-center justify-between mb-8">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-black shadow-sm">4</div>
-                                <h3 class="text-xl font-black text-slate-800 uppercase tracking-wide">School Information</h3>
-                            </div>
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-black shadow-sm">4</div>
+                            <h3 class="text-xl font-black text-slate-800 uppercase tracking-wide">School Information</h3>
                         </div>
 
-                        {{-- ✅ NEW: Enrollment Grade Level Dropdown (Before Transferee) --}}
+                        {{-- Enrollment Grade Level (Always Visible) --}}
                         <div class="mb-8">
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Enrollment Grade Level *</label>
                             <select name="grade_level" x-model="gradeLevel" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all cursor-pointer">
@@ -307,52 +297,58 @@
                             </select>
                         </div>
 
-                        <div class="flex items-center justify-between mb-8 pt-4 border-t border-slate-100">
-                            {{-- TRANSFEREE TOGGLE --}}
-                            <div class="flex items-center gap-3 bg-slate-100 p-2 rounded-lg">
-                                <span class="text-xs font-bold text-slate-500 uppercase">Are you a Transferee?</span>
-                                <select x-model="isTransferee" class="text-xs font-bold border-none rounded-md focus:ring-0 bg-white shadow-sm py-1 pl-2 pr-8">
-                                    <option value="No">NO</option>
-                                    <option value="Yes">YES</option>
-                                </select>
+                        <div class="border-t border-slate-100 pt-6">
+                            {{-- Transferee Toggle --}}
+                            <div class="flex items-center justify-between mb-6 bg-slate-50 p-4 rounded-xl">
+                                <span class="text-sm font-bold text-slate-600 uppercase tracking-wide">Are you a Transferee?</span>
+                                <div class="flex items-center gap-3">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" x-model="isTransferee" value="No" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                                        <span class="text-xs font-bold text-slate-500">NO</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" x-model="isTransferee" value="Yes" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                                        <span class="text-xs font-bold text-slate-500">YES</span>
+                                    </label>
+                                </div>
                             </div>
-                        </div>
 
-                        {{-- HIDDEN/SHOWN SECTION BASED ON TOGGLE --}}
-                        <div x-show="isTransferee === 'Yes'" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Last Grade Level Completed</label>
-                                <input type="text" name="last_grade_level" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
+                            {{-- Message if NOT Transferee --}}
+                            <div x-show="isTransferee === 'No'" class="text-center py-4 bg-emerald-50/50 rounded-xl border border-dashed border-emerald-100">
+                                <p class="text-xs font-bold text-emerald-500 uppercase">Not a Transferee? Proceed to the next section.</p>
                             </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Last School Year Completed</label>
-                                <input type="text" name="last_school_year" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">School Name</label>
-                                <input type="text" name="school_name" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">School ID</label>
-                                <input type="text" name="school_id" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">School Type</label>
-                                <select name="school_type" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
-                                    <option value="">Select Type</option>
-                                    <option value="Public" {{ old('school_type', $applicant->school_type) == 'Public' ? 'selected' : '' }}>Public</option>
-                                    <option value="Private" {{ old('school_type', $applicant->school_type) == 'Private' ? 'selected' : '' }}>Private</option>
-                                </select>
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">School Address</label>
-                                <input type="text" name="school_address" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
-                            </div>
-                        </div>
 
-                        {{-- MESSAGE IF NOT TRANSFEREE --}}
-                        <div x-show="isTransferee === 'No'" class="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                            <p class="text-xs font-bold text-slate-400 uppercase">Not a Transferee? Skip this section.</p>
+                            {{-- Transferee Fields (Hidden by default) --}}
+                            <div x-show="isTransferee === 'Yes'" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Last Grade Level Completed</label>
+                                    <input type="text" name="last_grade_level" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Last School Year Completed</label>
+                                    <input type="text" name="last_school_year" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">School Name</label>
+                                    <input type="text" name="school_name" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">School ID</label>
+                                    <input type="text" name="school_id" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">School Type</label>
+                                    <select name="school_type" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
+                                        <option value="">Select Type</option>
+                                        <option value="Public">Public</option>
+                                        <option value="Private">Private</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">School Address</label>
+                                    <input type="text" name="school_address" :required="isTransferee === 'Yes'" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-emerald-500 transition-all">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -422,46 +418,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                {{-- VI. DATA PRIVACY CONSENT --}}
-                <div class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-200 shadow-inner">
-                    <h4 class="text-xl font-black text-slate-800 uppercase tracking-tighter mb-4 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        Data Privacy Consent
-                    </h4>
-                    
-                    <div class="h-64 overflow-y-auto bg-white p-6 rounded-xl border border-slate-200 text-slate-600 text-sm leading-relaxed mb-6 space-y-4 shadow-sm custom-scrollbar">
-                        <p>I/We certify that the above information is true, complete and correct. I/We understand that any false or misleading information shall render my/our child ineligible for admission or may be subject for dismissal. If admitted, I/We agreed to abide by the policies, rules and regulations of the National Academy of Sports.</p>
-                        
-                        <p>For and in behalf of our minor child, I/We declare and confirm that, of my/our our volition, submit and will continue to submit, necessary information and documents to the National Academy of Sports (“NAS”), with the intention of applying, if qualified, enroll my/our child for the upcoming school year. In this regard, I/We acknowledge and understand that NAS requires our and our child’s personal and/or sensitive information (collectively “information”), for legitimate and lawful purposes, including but limited to verifying our identity, evaluating academic qualifications and eligibility, assessing physical fitness, and facilitating official communication with us.</p>
-                        
-                        <p>We acknowledge and agree that:</p>
-                        <ul class="list-disc pl-5 space-y-2">
-                            <li>NAS may collect, record, use, process, store, and transmit our information in accordance with the Data Privacy Act of 2012, its implementing Rules and Regulations (IRR), and other applicable laws.</li>
-                            <li>NAS may disclose our information only with our consent, or when required or authorized under relevant laws, rules, and regulations.</li>
-                            <li>NAS shall adopt appropriate organizational, physical, and technical measurement to ensure the confidentiality, integrity, and availability  of our information.</li>
-                            <li>NAS may retain our information only for as long as necessary to fulfill the purposes stated herein, or as required by applicable laws and regulations.</li>
-                        </ul>
-
-                        <p>We also understand that as date subjects under the Data of 2012, we have right to:</p>
-                        <ul class="list-disc pl-5 space-y-2">
-                            <li>Inquire about, request access to, review or obtain a copy of our information in the custody of NAS.</li>
-                            <li>Request correction or updating our information;</li>
-                            <li>Withdraw or withhold consent, object to processing or request deletion of our information subject to limitations where NAS has a legal obligation or legitimate purpose to retain such information.</li>
-                        </ul>
-
-                        <p>I/We understand that refusal to provide the required information, or subsequent withdrawal of consent, may prevent NAS from processing our application and carrying out the purpose described in this document, we may contact NASCENT SAS secretariat at nascentsas@deped.gov.ph.</p>
-                    </div>
-
-                    <label class="flex items-start gap-4 p-4 rounded-xl hover:bg-white transition-colors cursor-pointer border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" x-model="privacyConsent" class="w-6 h-6 rounded-lg border-2 border-slate-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer">
-                        </div>
-                        <span class="text-sm font-bold text-slate-700 select-none">
-                            By signing below, I/We declared that we read, understand, and voluntarily consent to the collection, recording, use, processing, storage, disclosure, and transmission of our child’s information, including photographs,  videos, storage, data or documents, submitted to NAS in accordance with the Data Privacy Act of 2012 and applicable regulations.
-                        </span>
-                    </label>
                 </div>
 
                 {{-- SUBMIT BUTTON --}}

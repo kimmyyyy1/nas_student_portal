@@ -12,14 +12,15 @@ class ApplicantDocumentsSubmitted extends Notification
 
     public $applicant;
     public $type;       // 'new' or 'resubmission'
-    public $fileName;   // e.g., 'PSA Birth Certificate'
-    public $context;    // e.g., 'Admission Requirements' or 'Enrollment'
+    public $messageBody; // Dito natin ilalagay ang summary ng files
+    public $context;    // 'Admission Requirements' or 'Official Enrollment'
 
-    public function __construct(Applicant $applicant, $type = 'new', $fileName = 'documents', $context = 'Admission')
+    // Binago natin ang constructor para tumanggap ng messageBody
+    public function __construct(Applicant $applicant, $type = 'new', $messageBody = 'documents', $context = 'Admission')
     {
         $this->applicant = $applicant;
         $this->type = $type;
-        $this->fileName = str_replace('_', ' ', ucwords($fileName)); // Format file name
+        $this->messageBody = $messageBody;
         $this->context = $context;
     }
 
@@ -32,11 +33,10 @@ class ApplicantDocumentsSubmitted extends Notification
     {
         $action = $this->type === 'resubmission' ? 'resubmitted' : 'submitted';
         
-        // Example: "Kim Medrano resubmitted PSA Birth Certificate for Admission."
-        $message = "has {$action} {$this->fileName} for {$this->context}.";
+        // Output example: "Kim Medrano has submitted PSA Birth Cert, Report Card for Admission."
+        $message = "has {$action} {$this->messageBody} for {$this->context}.";
 
-        // Determine correct link based on context
-        $routeName = $this->context === 'Enrollment' ? 'official-enrollment.show' : 'admission.show';
+        $routeName = $this->context === 'Official Enrollment' ? 'official-enrollment.show' : 'admission.show';
 
         return [
             'applicant_id' => $this->applicant->id,

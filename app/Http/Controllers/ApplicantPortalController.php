@@ -172,7 +172,9 @@ class ApplicantPortalController extends Controller
 
         $request->validate($rules);
         
-        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
+        // --- 1. COLLECT FILES & NAMES ---
+        $uploadedDocNames = []; 
+        $isResubmission = false;
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
@@ -184,20 +186,15 @@ class ApplicantPortalController extends Controller
                     $currentFiles[$key] = $upload['secure_url'];
                     
                     // Check if this specific file was previously declined (Resubmission logic)
-                    $isResubmission = isset($docStatuses[$key]) && $docStatuses[$key] === 'declined';
+                    if (isset($docStatuses[$key]) && $docStatuses[$key] === 'declined') {
+                        $isResubmission = true;
+                    }
                     
                     // Reset status to pending
                     $docStatuses[$key] = 'pending'; 
 
-                    // --- NOTIFICATION PER FILE UPLOAD ---
-                    if ($admins->count() > 0) {
-                        Notification::send($admins, new ApplicantDocumentsSubmitted(
-                            $applicant, 
-                            $isResubmission ? 'resubmission' : 'new',
-                            $this->formatFileName($key), // Helper to make name readable
-                            'Admission Requirements'
-                        ));
-                    }
+                    // Add to list for notification
+                    $uploadedDocNames[] = $this->formatFileName($key);
 
                 } catch (\Exception $e) {
                     return back()->withErrors(['files' => 'Error uploading ' . $key . '. Please try again.']);
@@ -210,6 +207,37 @@ class ApplicantPortalController extends Controller
             'document_statuses' => $docStatuses,
             'status' => 'Requirements Submitted & For Review'
         ]);
+
+        // --- 2. SEND SINGLE GROUPED NOTIFICATION ---
+        if (count($uploadedDocNames) > 0) {
+            $admins = User::whereIn('role', ['admin', 'registrar'])->get();
+            
+            if ($admins->count() > 0) {
+                // A. CLEANUP: Delete OLD UNREAD notifications from this applicant for Admission Requirements
+                foreach ($admins as $admin) {
+                    $admin->notifications()
+                          ->where('data->applicant_id', $applicant->id)
+                          ->where('data->link', 'like', '%admission%') // Target Phase 2 only
+                          ->whereNull('read_at')
+                          ->delete();
+                }
+
+                // B. FORMAT MESSAGE
+                // Example: "PSA Birth Cert, Report Card" OR "5 Documents"
+                $count = count($uploadedDocNames);
+                $fileList = $count <= 2 
+                    ? implode(' and ', $uploadedDocNames) 
+                    : $count . ' Documents (' . $uploadedDocNames[0] . ' and others)';
+
+                // C. SEND
+                Notification::send($admins, new ApplicantDocumentsSubmitted(
+                    $applicant, 
+                    $isResubmission ? 'resubmission' : 'new',
+                    $fileList, 
+                    'Admission Requirements'
+                ));
+            }
+        }
 
         return redirect()->route('applicant.dashboard')->with('success', 'Requirements submitted successfully!');
     }
@@ -336,7 +364,8 @@ class ApplicantPortalController extends Controller
 
         // 4. PROCESS FILE UPLOADS
         $currentFiles = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
-        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
+        
+        $uploadedDocNames = []; 
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
@@ -347,15 +376,8 @@ class ApplicantPortalController extends Controller
                     ]);
                     $currentFiles[$key] = $upload['secure_url'];
 
-                    // --- NOTIFICATION FOR ENROLLMENT FILES ---
-                    if ($admins->count() > 0) {
-                        Notification::send($admins, new ApplicantDocumentsSubmitted(
-                            $applicant, 
-                            'new',
-                            $this->formatFileName($key), 
-                            'Official Enrollment'
-                        ));
-                    }
+                    // Add to list
+                    $uploadedDocNames[] = $this->formatFileName($key);
 
                 } catch (\Exception $e) {
                     continue; 
@@ -368,6 +390,32 @@ class ApplicantPortalController extends Controller
             'uploaded_files' => $currentFiles,
             'status' => 'Officially Enrolled' // Final Status
         ]);
+
+        // --- GROUPED NOTIFICATION FOR ENROLLMENT ---
+        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
+        if ($admins->count() > 0) {
+            
+            // Cleanup Old Unread Notifications
+            foreach ($admins as $admin) {
+                $admin->notifications()
+                      ->where('data->applicant_id', $applicant->id)
+                      ->where('data->link', 'like', '%official-enrollment%') // Target Phase 3 only
+                      ->whereNull('read_at')
+                      ->delete();
+            }
+
+            // Summary Message
+            $message = count($uploadedDocNames) > 0 
+                ? "Enrollment Form and " . count($uploadedDocNames) . " Requirements" 
+                : "Official Enrollment Form";
+
+            Notification::send($admins, new ApplicantDocumentsSubmitted(
+                $applicant, 
+                'new',
+                $message, 
+                'Official Enrollment'
+            ));
+        }
 
         return redirect()->route('applicant.dashboard')->with('success', 'Enrollment Form & Requirements Submitted Successfully! Welcome to NAS!');
     }

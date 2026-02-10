@@ -112,11 +112,68 @@
         </div>
 
         {{-- ================================================================= --}}
-        {{-- LIVEWIRE NOTIFICATIONS (Real-time Bell & Toast)                   --}}
+        {{-- SYSTEM ALERTS (SUCCESS / ERROR TOASTS)                            --}}
         {{-- ================================================================= --}}
-        {{-- Ito na ang papalit sa mahabang code kanina. --}}
-        {{-- Ang logic ay nasa resources/views/livewire/notifications.blade.php --}}
         
+        <div class="fixed top-20 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
+            
+            {{-- SUCCESS ALERT --}}
+            @if(session('success'))
+                <div x-data="{ show: true }" 
+                     x-show="show" 
+                     x-init="setTimeout(() => show = false, 5000)"
+                     x-transition:enter="transform ease-out duration-300 transition"
+                     x-transition:enter-start="translate-x-full opacity-0"
+                     x-transition:enter-end="translate-x-0 opacity-100"
+                     x-transition:leave="transform transition ease-in duration-300"
+                     x-transition:leave-start="translate-x-0 opacity-100"
+                     x-transition:leave-end="translate-x-full opacity-0"
+                     class="pointer-events-auto w-80 bg-white border-l-4 border-emerald-500 shadow-2xl rounded-r-lg p-4 flex items-start gap-3 ring-1 ring-black/5">
+                    
+                    <div class="flex-shrink-0 text-emerald-500">
+                        <i class='bx bxs-check-circle text-2xl'></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-bold text-gray-800">Success</h3>
+                        <p class="text-xs text-gray-600 mt-0.5">{!! session('success') !!}</p>
+                    </div>
+                    <button @click="show = false" class="text-gray-400 hover:text-gray-600">
+                        <i class='bx bx-x text-xl'></i>
+                    </button>
+                </div>
+            @endif
+
+            {{-- ERROR ALERT --}}
+            @if(session('error'))
+                <div x-data="{ show: true }" 
+                     x-show="show" 
+                     x-init="setTimeout(() => show = false, 5000)"
+                     x-transition:enter="transform ease-out duration-300 transition"
+                     x-transition:enter-start="translate-x-full opacity-0"
+                     x-transition:enter-end="translate-x-0 opacity-100"
+                     x-transition:leave="transform transition ease-in duration-300"
+                     x-transition:leave-start="translate-x-0 opacity-100"
+                     x-transition:leave-end="translate-x-full opacity-0"
+                     class="pointer-events-auto w-80 bg-white border-l-4 border-red-500 shadow-2xl rounded-r-lg p-4 flex items-start gap-3 ring-1 ring-black/5">
+                    
+                    <div class="flex-shrink-0 text-red-500">
+                        <i class='bx bxs-error-circle text-2xl'></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-bold text-gray-800">Action Failed</h3>
+                        <p class="text-xs text-gray-600 mt-0.5">{!! session('error') !!}</p>
+                    </div>
+                    <button @click="show = false" class="text-gray-400 hover:text-gray-600">
+                        <i class='bx bx-x text-xl'></i>
+                    </button>
+                </div>
+            @endif
+
+        </div>
+
+        {{-- ================================================================= --}}
+        {{-- LIVEWIRE NOTIFICATIONS (Real-time Bell)                           --}}
+        {{-- ================================================================= --}}
         @auth
             <livewire:notifications />
         @endauth

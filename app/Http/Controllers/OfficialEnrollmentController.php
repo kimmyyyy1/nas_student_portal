@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Models\EnrollmentDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth; // Ensure Auth is imported
+use Illuminate\Support\Facades\Auth;
 
 class OfficialEnrollmentController extends Controller
 {
@@ -29,9 +29,9 @@ class OfficialEnrollmentController extends Controller
      * Show the enrollment verification page.
      * UPDATED: Now handles marking notifications as read.
      */
-    public function show(Request $request, $id) // Added Request $request
+    public function show(Request $request, $id) 
     {
-        // 👇👇👇 ADDED NOTIFICATION LOGIC 👇👇👇
+        // 👇👇👇 NOTIFICATION LOGIC 👇👇👇
         if ($request->has('read')) {
             $notificationId = $request->query('read');
             $notification = Auth::user()->notifications()->find($notificationId);
@@ -40,7 +40,7 @@ class OfficialEnrollmentController extends Controller
                 $notification->markAsRead();
             }
         }
-        // 👆👆👆 END ADDED LOGIC 👆👆👆
+        // 👆👆👆 END LOGIC 👆👆👆
 
         $applicant = Applicant::with('enrollmentDetail')->findOrFail($id);
         return view('official_enrollment.show', compact('applicant'));
@@ -68,7 +68,7 @@ class OfficialEnrollmentController extends Controller
             $details = $applicant->enrollmentDetail;
             $files = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
 
-            // B. CREATE STUDENT RECORD (Matched to your Student Model)
+            // B. CREATE STUDENT RECORD
             Student::create([
                 'nas_student_id'   => $studentId, 
                 'lrn'              => $applicant->lrn,
@@ -100,7 +100,7 @@ class OfficialEnrollmentController extends Controller
                 'zip_code'         => $applicant->zip_code,
                 'contact_number'   => $applicant->guardian_contact,
                 
-                // Email Fix
+                // Email
                 'email_address'    => $details->email ?? ($applicant->user->email ?? 'N/A'), 
 
                 // Guardian Info
@@ -129,9 +129,19 @@ class OfficialEnrollmentController extends Controller
 
     /**
      * Return application to student for corrections.
+     * ✅ FIX: Updates status to allow re-submission.
      */
     public function returnToApplicant(Request $request, $id)
     {
-        return back()->with('error', 'Return feature is currently under maintenance.');
+        $applicant = Applicant::findOrFail($id);
+
+        // Update status para makapag-edit ulit si Student.
+        // Ang 'Qualified (Returned)' ay tatanggapin ng ApplicantPortalController.
+        $applicant->update([
+            'status' => 'Qualified (Returned)',
+        ]);
+
+        return redirect()->route('official-enrollment.index')
+            ->with('success', 'Application successfully returned to the student for revision.');
     }
 }
