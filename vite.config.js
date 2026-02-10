@@ -12,4 +12,4 @@ export default defineConfig({
         // 👇 Dinagdagan ko ng comment para ma-detect ni Git
         sourcemap: false, 
     },
-});
+}); 
