@@ -18,149 +18,34 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        /* 1. GLOBAL RESET */
-        * { font-family: 'Poppins', sans-serif !important; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; }
         [x-cloak] { display: none !important; }
-
-        /* 2. BODY SETTINGS */
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #f3f4f6;
-            overflow-x: hidden;
-        }
-
-        /* 3. BACKGROUND LAYERS (Matches Login & Register) */
-        .bg-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-        }
-        .bg-image {
-            width: 100%; height: 100%; object-fit: cover;
-        }
-        .bg-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.4); /* Clear & Bright */
-        }
-
-        /* 4. MAIN WRAPPER */
-        .main-wrapper {
-            min-height: 100vh;
-            min-height: 100dvh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem 1rem;
-        }
-
-        /* 5. CARD DESIGN */
-        .login-card {
-            background-color: white;
-            width: 100%;
-            max-width: 420px; /* Slimmer max-width same as Login */
-            border-radius: 0.5rem; 
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
-            border-top: 5px solid #facc15; /* Yellow accent */
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        @media (min-width: 768px) {
-            .login-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            }
-        }
-
-        .card-content { padding: 2.5rem 2rem; }
-
-        /* 6. FORM ELEMENTS */
-        .input-group { margin-bottom: 1.25rem; }
-        .input-label {
-            display: block; font-size: 0.75rem; font-weight: 700; color: #4b5563;
-            text-transform: uppercase; margin-bottom: 0.35rem; letter-spacing: 0.05em;
-        }
-        .form-input {
-            width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem;
-            font-size: 0.9rem; border-radius: 0.375rem;
-            border: 1px solid #9ca3af; background-color: #fff;
-            transition: all 0.2s;
-        }
-        .form-input:focus {
-            outline: none; border-color: #2563eb; 
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-        }
-
-        /* 7. INFO BOX */
-        .info-box {
-            background-color: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #475569;
-            font-size: 0.75rem;
-            padding: 1rem;
-            border-radius: 0.375rem;
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        /* 8. BUTTONS */
-        .btn-login {
-            width: 100%; padding: 0.85rem;
-            background-color: #1e40af; color: white;
-            font-weight: 700; border-radius: 0.375rem; border: none;
-            cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em;
-            transition: background-color 0.2s; margin-top: 0.5rem;
-        }
-        .btn-login:hover { background-color: #1e3a8a; }
-
-        .btn-register {
-            display: inline-block; font-size: 0.75rem; font-weight: 600;
-            color: #4b5563; background-color: #f3f4f6;
-            padding: 0.6rem 1.5rem; border-radius: 9999px;
-            text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em;
-            transition: all 0.2s; border: 1px solid transparent;
-        }
-        .btn-register:hover {
-            background-color: #fff; border-color: #d1d5db; color: #1f2937;
-        }
-
-        /* Utilities */
-        .icon { position: absolute; top: 50%; left: 0.85rem; transform: translateY(-50%); width: 1.25rem; height: 1.25rem; color: #6b7280; pointer-events: none; }
     </style>
 </head>
-<body>
+<body class="antialiased text-gray-800 bg-gray-100 min-h-screen relative overflow-x-hidden">
 
-    {{-- 1. BACKGROUND --}}
-    <div class="bg-container">
-        <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="bg-image" alt="Background"> 
-        <div class="bg-overlay"></div>
+    {{-- Background Image & Overlay --}}
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="NAS Campus"> 
+        <div class="absolute inset-0 bg-black/40"></div>
     </div>
     
-    {{-- 2. MAIN LAYOUT WRAPPER --}}
-    <div class="main-wrapper">
+    <div class="relative z-10 min-h-screen flex flex-col justify-center items-center p-4 sm:p-6">
 
-        {{-- FORGOT PASSWORD CARD --}}
-        <div class="login-card">
-            <div class="card-content">
+        <div class="w-full max-w-[420px] bg-white rounded-lg shadow-xl hover:shadow-2xl border-t-[5px] border-yellow-400 transition-all duration-300 md:hover:-translate-y-1">
+            <div class="p-8 sm:p-10">
                 
                 {{-- Logo Section --}}
-                <div style="text-align: center; margin-bottom: 1.5rem;">
-                    <a href="/">
-                        <img src="{{ asset('images/nas/stack.png') }}" 
-                             style="height: 8rem; width: auto; margin: 0 auto; display: block; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.07));" 
-                             alt="NAS Logo">
+                <div class="text-center mb-8">
+                    <a href="/" class="inline-block">
+                        <img src="{{ asset('images/nas/stack.png') }}" class="h-28 w-auto mx-auto drop-shadow-sm" alt="NAS Logo">
                     </a>
-                    <h2 style="font-size: 1.25rem; font-weight: 800; color: #1e3a8a; margin-top: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Reset Password</h2>
-                    <p style="font-size: 0.65rem; color: #6b7280; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Account Recovery</p>
+                    <h2 class="text-xl font-extrabold text-blue-900 mt-4 uppercase tracking-wide">Reset Password</h2>
+                    <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Account Recovery</p>
                 </div>
 
                 {{-- Informational Message --}}
-                <div class="info-box">
+                <div class="bg-blue-50 border border-blue-200 text-gray-600 text-xs p-4 rounded-md mb-6 leading-relaxed text-center font-medium">
                     {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link.') }}
                 </div>
 
@@ -171,27 +56,28 @@
                     @csrf 
                     
                     {{-- Email Input --}}
-                    <div class="input-group">
-                        <label class="input-label">Email Address *</label>
-                        <div style="position: relative;">
-                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Email Address *</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
+                            </div>
                             <input type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
-                                   class="form-input" 
+                                   class="w-full pl-10 pr-4 py-3 rounded-md border-gray-300 focus:border-blue-600 focus:ring focus:ring-blue-600/20 text-sm transition-shadow" 
                                    placeholder="Enter your registered email">
                         </div>
-                        <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
+                        <x-input-error :messages="$errors->get('email')" class="mt-1.5 text-xs text-red-500" />
                     </div>
 
-                    <button type="submit" class="btn-login">
+                    <button type="submit" class="w-full py-3.5 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-md uppercase tracking-wider text-sm transition-colors">
                         Email Reset Link
                     </button>
                 </form>
 
                 {{-- Back to Login Link --}}
-                <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #f3f4f6; text-align: center;">
-                    <p style="font-size: 0.7rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; margin-bottom: 0.75rem;">Remembered your password?</p>
-                    
-                    <a href="{{ route('login') }}" class="btn-register">
+                <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-4">Remembered your password?</p>
+                    <a href="{{ route('login') }}" class="inline-block px-6 py-2.5 bg-gray-100 hover:bg-white border border-transparent hover:border-gray-300 text-gray-700 text-xs font-bold uppercase tracking-wider rounded-full transition-all">
                         Back to Login
                     </a>
                 </div>
@@ -199,9 +85,8 @@
             </div>
         </div>
         
-        {{-- Footer --}}
-        <div style="margin-top: 2rem; text-align: center;">
-             <p style="color: #e5e7eb; font-size: 0.7rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+        <div class="mt-8 text-center">
+             <p class="text-gray-200 text-xs font-medium uppercase tracking-widest drop-shadow-md">
                 &copy; {{ date('Y') }} National Academy of Sports
             </p>
         </div>

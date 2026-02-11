@@ -7,180 +7,46 @@
         
     <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
     
-    {{-- Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    {{-- AlpineJS --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        /* 1. GLOBAL RESET */
-        * { font-family: 'Poppins', sans-serif !important; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; }
         [x-cloak] { display: none !important; }
-
-        /* 2. BODY SETTINGS */
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #f3f4f6; /* Light base color */
-            overflow-x: hidden;
-        }
-
-        /* 3. INPUT FIELD FIXES */
+        
+        /* Hide default edge/ie password reveal button */
         input[type="password"]::-ms-reveal,
         input[type="password"]::-ms-clear { display: none; }
-        input[type="password"]::-webkit-contacts-auto-fill-button,
-        input[type="password"]::-webkit-credentials-auto-fill-button {
-            visibility: hidden; pointer-events: none; position: absolute; right: 0;
-        }
-
-        /* 4. BACKGROUND LAYERS (MS/TSU Style - Clear & Bright) */
-        .bg-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-        }
-        .bg-image {
-            width: 100%; height: 100%; object-fit: cover;
-        }
-        .bg-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* Simpleng dark tint (40% opacity) para malinaw ang background pero lutang ang card */
-            background-color: rgba(0, 0, 0, 0.4); 
-            /* Walang blur para kitang-kita ang building tulad sa reference mo */
-        }
-
-        /* 5. MAIN WRAPPER */
-        .main-wrapper {
-            min-height: 100vh;
-            min-height: 100dvh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem 1rem;
-        }
-
-        /* 6. LOGIN CARD DESIGN */
-        .login-card {
-            background-color: white;
-            width: 100%;
-            max-width: 420px;
-            border-radius: 0.5rem; /* Slightly sharper corners para mas professional */
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
-            border-top: 5px solid #facc15; /* Yellow Accent */
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        @media (min-width: 768px) {
-            .login-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            }
-        }
-
-        .card-content { padding: 2.5rem 2rem; }
-
-        /* 7. FORM ELEMENTS */
-        .input-group { margin-bottom: 1.25rem; }
-        .input-label {
-            display: block; font-size: 0.75rem; font-weight: 700; color: #4b5563;
-            text-transform: uppercase; margin-bottom: 0.35rem; letter-spacing: 0.05em;
-        }
-        .form-input {
-            width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem;
-            font-size: 0.9rem; border-radius: 0.375rem;
-            border: 1px solid #9ca3af; background-color: #fff;
-            transition: all 0.2s;
-        }
-        .form-input:focus {
-            outline: none; border-color: #2563eb; 
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-        }
-
-        /* 8. REMEMBER ME */
-        .remember-forgot-row {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-top: 0.5rem; margin-bottom: 1.5rem;
-        }
-        .remember-label {
-            display: inline-flex; align-items: center; cursor: pointer; user-select: none;
-        }
-        .remember-input {
-            width: 1rem; height: 1rem; 
-            border-radius: 0.25rem;
-            border: 1px solid #d1d5db; 
-            cursor: pointer;
-            accent-color: #1e40af;
-        }
-        .remember-text {
-            margin-left: 0.5rem; font-size: 0.8rem; color: #4b5563; font-weight: 500;
-        }
-        .forgot-link {
-            font-size: 0.75rem; color: #1e40af; font-weight: 600; text-decoration: none; transition: color 0.2s;
-        }
-        .forgot-link:hover { color: #1e3a8a; text-decoration: underline; }
-
-        /* 9. BUTTONS */
-        .btn-login {
-            width: 100%; padding: 0.85rem;
-            background-color: #1e40af; color: white;
-            font-weight: 700; border-radius: 0.375rem; border: none;
-            cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em;
-            transition: background-color 0.2s; margin-top: 0.5rem;
-        }
-        .btn-login:hover { background-color: #1e3a8a; }
-
-        .btn-register {
-            display: inline-block; font-size: 0.75rem; font-weight: 600;
-            color: #4b5563; background-color: #f3f4f6;
-            padding: 0.6rem 1.5rem; border-radius: 9999px;
-            text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em;
-            transition: all 0.2s; border: 1px solid transparent;
-        }
-        .btn-register:hover {
-            background-color: #fff; border-color: #d1d5db; color: #1f2937;
-        }
-
-        /* Utilities */
-        .icon { position: absolute; top: 50%; left: 0.85rem; transform: translateY(-50%); width: 1.25rem; height: 1.25rem; color: #6b7280; }
     </style>
 </head>
-<body>
+<body class="antialiased text-gray-800 bg-gray-100 min-h-screen relative overflow-x-hidden">
 
-    {{-- 1. BACKGROUND --}}
-    <div class="bg-container">
-        <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="bg-image" alt="Background"> 
-        <div class="bg-overlay"></div>
+    {{-- Background Image & Overlay --}}
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover" alt="NAS Campus"> 
+        <div class="absolute inset-0 bg-black/40"></div>
     </div>
     
-    {{-- 2. MAIN LAYOUT WRAPPER --}}
-    <div class="main-wrapper">
+    <div class="relative z-10 min-h-screen flex flex-col justify-center items-center p-4 sm:p-6">
 
-        {{-- LOGIN CARD --}}
-        <div class="login-card">
-            <div class="card-content">
+        <div class="w-full max-w-[420px] bg-white rounded-lg shadow-xl hover:shadow-2xl border-t-[5px] border-yellow-400 transition-all duration-300 md:hover:-translate-y-1">
+            <div class="p-8 sm:p-10">
                 
-                {{-- Logo Section --}}
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <a href="/">
-                        <img src="{{ asset('images/nas/stack.png') }}" 
-                             style="height: 10rem; width: auto; margin: 0 auto; display: block; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.07));" 
-                             alt="NAS Logo">
+                <div class="text-center mb-8">
+                    <a href="/" class="inline-block">
+                        <img src="{{ asset('images/nas/stack.png') }}" class="h-32 w-auto mx-auto drop-shadow-sm" alt="NAS Logo">
                     </a>
                 </div>
 
-                {{-- Status & Errors --}}
                 <x-auth-session-status class="mb-4" :status="session('status')" />
 
                 @if ($errors->any())
-                    <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; color: #b91c1c; padding: 0.75rem; border-radius: 0.375rem; font-size: 0.85rem; margin-bottom: 1.5rem;">
+                    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-md text-sm mb-6">
                         <strong>Login Failed.</strong> Please check your credentials.
                     </div>
                 @endif
@@ -188,64 +54,59 @@
                 <form method="POST" action="{{ route('login') }}">
                     @csrf 
                     
-                    {{-- Email Input --}}
-                    <div class="input-group">
-                        <label class="input-label">Email Address</label>
-                        <div style="position: relative;">
-                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
+                    <div class="mb-5">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Email Address</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
+                            </div>
                             <input type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
-                                   class="form-input" 
+                                   class="w-full pl-10 pr-4 py-3 rounded-md border-gray-300 focus:border-blue-600 focus:ring focus:ring-blue-600/20 text-sm transition-shadow" 
                                    placeholder="Enter your email">
                         </div>
-                        <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
+                        <x-input-error :messages="$errors->get('email')" class="mt-1.5 text-xs text-red-500" />
                     </div>
 
-                    {{-- Password Input --}}
-                    <div class="input-group" x-data="{ show: false }">
-                        <label class="input-label">Password</label>
-                        <div style="position: relative;">
-                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    <div class="mb-4" x-data="{ show: false }">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Password</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                            </div>
                             
-                            <input :type="show ? 'text' : 'password'" 
-                                   name="password" 
-                                   required 
-                                   autocomplete="current-password"
-                                   class="form-input" 
-                                   style="padding-right: 2.5rem;" 
+                            <input :type="show ? 'text' : 'password'" name="password" required autocomplete="current-password"
+                                   class="w-full pl-10 pr-10 py-3 rounded-md border-gray-300 focus:border-blue-600 focus:ring focus:ring-blue-600/20 text-sm transition-shadow" 
                                    placeholder="Enter your password">
 
-                            <button type="button" @click="show = !show" style="position: absolute; top: 0; bottom: 0; right: 0; padding-right: 0.85rem; display: flex; align-items: center; background: none; border: none; cursor: pointer; color: #9ca3af; z-index: 10;">
-                                <svg x-show="!show" style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                <svg x-show="show" x-cloak style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.572-2.872m2.197-2.197A10.05 10.05 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-1.572 2.872M9 9l3 3m0 0l3 3m-3-3a3 3 0 01-3 3m3-3a3 3 0 013-3m3-3l3 3" /></svg>
+                            <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                                <svg x-show="!show" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                <svg x-show="show" x-cloak class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.572-2.872m2.197-2.197A10.05 10.05 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-1.572 2.872M9 9l3 3m0 0l3 3m-3-3a3 3 0 01-3 3m3-3a3 3 0 013-3m3-3l3 3" /></svg>
                             </button>
                         </div>
-                        <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
+                        <x-input-error :messages="$errors->get('password')" class="mt-1.5 text-xs text-red-500" />
                     </div>
 
-                    {{-- REMEMBER ME --}}
-                    <div class="remember-forgot-row">
-                        <label for="remember_me" class="remember-label">
-                            <input id="remember_me" type="checkbox" class="remember-input" name="remember" {{ old('remember') ? 'checked' : '' }}>
-                            <span class="remember-text">Remember me</span>
+                    <div class="flex items-center justify-between mb-6 mt-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="remember" class="rounded border-gray-300 text-blue-800 shadow-sm focus:ring-blue-500" {{ old('remember') ? 'checked' : '' }}>
+                            <span class="ml-2 text-sm text-gray-600 font-medium">Remember me</span>
                         </label>
                         
                         @if (Route::has('password.request'))
-                            <a class="forgot-link" href="{{ route('password.request') }}">
+                            <a href="{{ route('password.request') }}" class="text-sm text-blue-700 hover:text-blue-900 hover:underline font-semibold transition-colors">
                                 Forgot Password?
                             </a>
                         @endif
                     </div>
 
-                    <button type="submit" class="btn-login">
+                    <button type="submit" class="w-full py-3.5 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-md uppercase tracking-wider text-sm transition-colors">
                         Log In
                     </button>
                 </form>
 
-                {{-- Register Link --}}
-                <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #f3f4f6; text-align: center;">
-                    <p style="font-size: 0.7rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; margin-bottom: 0.75rem;">No account yet?</p>
-                    
-                    <a href="{{ route('register') }}" class="btn-register">
+                <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-4">No account yet?</p>
+                    <a href="{{ route('register') }}" class="inline-block px-6 py-2.5 bg-gray-100 hover:bg-white border border-transparent hover:border-gray-300 text-gray-700 text-xs font-bold uppercase tracking-wider rounded-full transition-all">
                         Register as Applicant
                     </a>
                 </div>
@@ -253,9 +114,8 @@
             </div>
         </div>
         
-        {{-- Footer --}}
-        <div style="margin-top: 2rem; text-align: center;">
-             <p style="color: #e5e7eb; font-size: 0.7rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+        <div class="mt-8 text-center">
+             <p class="text-gray-200 text-xs font-medium uppercase tracking-widest drop-shadow-md">
                 &copy; {{ date('Y') }} National Academy of Sports
             </p>
         </div>
