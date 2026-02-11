@@ -83,28 +83,29 @@
             <div class="absolute inset-0 bg-white/1 backdrop-blur-[2px]"></div>
         </div>
 
-        {{-- MAIN WRAPPER --}}
-        <div class="h-full flex flex-col md:flex-row">
+        {{-- ⚡ MAIN WRAPPER (Fixed Breakpoints to lg) ⚡ --}}
+        <div class="h-full flex flex-col lg:flex-row w-full">
             
             {{-- Sidebar --}}
             <div class="shrink-0">
                 @include('layouts.navigation')
             </div>
 
-            {{-- CONTENT AREA --}}
-            <div class="flex-1 flex flex-col h-full overflow-hidden relative md:ml-64 pt-16 md:pt-0 transition-all duration-300">
+            {{-- ⚡ CONTENT AREA: Fixed lg:ml-64 and lg:pt-0 to match navigation ⚡ --}}
+            <div class="flex-1 flex flex-col h-full overflow-hidden relative lg:ml-64 pt-16 lg:pt-0 transition-all duration-300 w-full">
                 
                 {{-- Header --}}
                 @if (isset($header))
-                    <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 z-20 shrink-0">
-                        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                    <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 z-20 shrink-0 w-full">
+                        <div class="w-full mx-auto py-4 px-4 sm:px-6 lg:px-8 xl:px-12">
                             {{ $header }}
                         </div>
                     </header>
                 @endif
 
                 {{-- MAIN CONTENT --}}
-                <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 animate-page-enter">
+                {{-- ⚡ Removed max-w restrictions, added wider padding on large screens (xl:px-12) ⚡ --}}
+                <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 xl:px-12 pb-20 lg:pb-8 animate-page-enter w-full">
                     {{ $slot }}
                 </main>
 

@@ -12,32 +12,34 @@
 
 <div x-data="{ open: false }">
 
-    {{-- 1. MOBILE HEADER --}}
-    <div class="md:hidden fixed top-0 left-0 w-full h-16 bg-white/90 backdrop-blur-md border-b border-gray-200/50 z-40 flex items-center justify-between px-4 shadow-sm transition-all duration-300">
+    {{-- 1. MOBILE & TABLET HEADER (Shows hamburger menu up to 'md' breakpoint) --}}
+    <div class="lg:hidden fixed top-0 left-0 w-full h-16 bg-white/90 backdrop-blur-md border-b border-gray-200/50 z-40 flex items-center justify-between px-4 sm:px-6 shadow-sm transition-all duration-300">
         <div class="flex items-center">
-            <img src="{{ asset('images/nas/horizontal.png') }}" alt="NAS Logo" class="h-8 w-auto drop-shadow-sm">
+            <img src="{{ asset('images/nas/horizontal.png') }}" alt="NAS Logo" class="h-8 md:h-10 w-auto drop-shadow-sm">
         </div>
         <button @click="open = !open" class="p-2 rounded-md text-gray-600 hover:bg-black/5 focus:outline-none transition transform active:scale-90">
-            <i class='bx bx-menu text-3xl'></i>
+            <i class='bx bx-menu text-3xl md:text-4xl'></i>
         </button>
     </div>
 
-    {{-- 2. MOBILE OVERLAY --}}
+    {{-- 2. MOBILE & TABLET OVERLAY (Dims background when sidebar is open) --}}
     <div x-show="open" @click="open = false"
          x-transition:enter="transition-opacity ease-linear duration-300"
          x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
          x-transition:leave="transition-opacity ease-linear duration-300"
          x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-         class="fixed inset-0 bg-gray-900/60 z-40 md:hidden backdrop-blur-[2px]">
+         class="fixed inset-0 bg-gray-900/60 z-40 lg:hidden backdrop-blur-[2px]">
     </div>
 
     {{-- 3. SIDEBAR --}}
+    {{-- Hidden by default on Mobile/Tablet (-translate-x-full), visible on 'lg' screens --}}
     <nav :class="{'translate-x-0': open, '-translate-x-full': !open}"
          class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-xl border-r border-white/20 z-50 shadow-2xl no-print 
                 transition-transform duration-300 ease-in-out 
-                md:translate-x-0 transform -translate-x-full md:transition-none flex flex-col">
+                lg:translate-x-0 transform -translate-x-full lg:transition-none flex flex-col">
         
-        <div class="md:hidden absolute top-4 right-4 z-[60]">
+        {{-- Close Button for Mobile & Tablet --}}
+        <div class="lg:hidden absolute top-4 right-4 z-[60]">
              <button @click="open = false" class="text-gray-500 hover:text-red-600 bg-gray-100/80 rounded-full p-2 transition shadow-sm transform active:scale-90">
                 <i class='bx bx-x text-2xl leading-none'></i>
              </button>

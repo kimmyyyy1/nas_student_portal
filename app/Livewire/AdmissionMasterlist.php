@@ -46,7 +46,8 @@ class AdmissionMasterlist extends Component
                     'Assessment', 
                     'For Assessment', 
                     'With Complete Requirements & for 1st Level Assessment', 
-                    'For 2nd Level Assessment'
+                    'For 2nd Level Assessment',
+                    'Submitted for 1st Level Assessment'
                 ]);
             } elseif ($this->status === 'Qualified') {
                 $query->where('status', 'Qualified');
@@ -54,8 +55,14 @@ class AdmissionMasterlist extends Component
                 $query->where('status', 'Waitlisted');
             } elseif ($this->status === 'Not Qualified') {
                 $query->whereIn('status', ['Not Qualified', 'Rejected', 'Failed']);
-            } elseif ($this->status === 'Enrolled') {
-                $query->whereIn('status', ['Enrolled', 'Endorsed for Enrollment']);
+            } elseif ($this->status === 'Enrolled' || $this->status === 'Admitted') {
+                // ⚡ FIX: Added 'Admitted' and 'Officially Enrolled' para mag-reflect pagka-click ng card ⚡
+                $query->whereIn('status', [
+                    'Admitted', 
+                    'Officially Enrolled', 
+                    'Enrolled', 
+                    'Endorsed for Enrollment'
+                ]);
             } else {
                 $query->where('status', $this->status);
             }
@@ -71,12 +78,13 @@ class AdmissionMasterlist extends Component
             'With Pending Requirements'
         ])->count();
 
-        // Count Assessment (Crucial Fix: Added long status string)
+        // Count Assessment
         $countAssessment = Applicant::whereIn('status', [
             'Assessment',
             'For Assessment',
             'With Complete Requirements & for 1st Level Assessment', 
-            'For 2nd Level Assessment'
+            'For 2nd Level Assessment',
+            'Submitted for 1st Level Assessment'
         ])->count();
 
         $countQualified = Applicant::where('status', 'Qualified')->count();
@@ -90,8 +98,11 @@ class AdmissionMasterlist extends Component
             'Failed'
         ])->count();
 
-        // Count Enrolled
+        // Count Enrolled 
+        // ⚡ FIX: Idinagdag ang 'Admitted' and 'Officially Enrolled' sa bibilangin para maging '1' ang card ⚡
         $countEnrolled = Applicant::whereIn('status', [
+            'Admitted',
+            'Officially Enrolled',
             'Enrolled', 
             'Endorsed for Enrollment'
         ])->count();

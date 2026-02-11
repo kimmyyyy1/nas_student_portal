@@ -28,7 +28,7 @@
             <p class="text-[10px] text-yellow-600 mt-2 font-medium">Pending Reqs</p>
         </a>
 
-        {{-- 1st Level Assessment (Updated Logic) --}}
+        {{-- 1st Level Assessment --}}
         <a href="{{ route('admission.index', ['status' => 'Assessment']) }}" wire:navigate
             class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-cyan-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Assessment' ? 'ring-2 ring-cyan-500 bg-cyan-50' : '' }}">
             <div class="flex justify-between items-start">
@@ -81,8 +81,9 @@
             <p class="text-[10px] text-red-600 mt-2 font-medium">Not Qualified</p>
         </a>
 
-        <a href="{{ route('admission.index', ['status' => 'Enrolled']) }}" wire:navigate
-            class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-purple-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Enrolled' ? 'ring-2 ring-purple-500 bg-purple-50' : '' }}">
+        {{-- ⚡ FIXED: ENROLLED/ADMITTED CARD ⚡ --}}
+        <a href="{{ route('admission.index', ['status' => 'Admitted']) }}" wire:navigate
+            class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-purple-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Admitted' ? 'ring-2 ring-purple-500 bg-purple-50' : '' }}">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">Enrolled</p>
@@ -109,6 +110,8 @@
                             Pending Requirements
                         @elseif (request('status') == 'Assessment')
                             For 1st Level Assessment
+                        @elseif (request('status') == 'Admitted')
+                            Admitted & Enrolled List
                         @elseif (request('status'))
                             {{ request('status') }} List
                         @else
@@ -161,7 +164,7 @@
                                     Details</th>
                                 <th
                                     class="hidden md:table-cell px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Sport</th> {{-- Changed from "Applied For" to "Sport" --}}
+                                    Sport</th>
                                 <th
                                     class="hidden md:table-cell px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     Dates</th>
@@ -225,29 +228,33 @@
 
                                     {{-- STATUS BADGES --}}
                                     <td class="px-4 md:px-6 py-4 whitespace-nowrap">
-                                        {{-- Updated Logic for "With Complete Requirements" Status --}}
-                                        @if (str_contains($app->status, 'With Complete Requirements') || str_contains($app->status, '1st Level Assessment'))
+                                        {{-- ⚡ FIXED: Added logic for "Admitted" / "Officially Enrolled" ⚡ --}}
+                                        @php
+                                            $badgeStatus = strtoupper($app->status);
+                                        @endphp
+
+                                        @if (str_contains($badgeStatus, 'WITH COMPLETE REQUIREMENTS') || str_contains($badgeStatus, '1ST LEVEL ASSESSMENT'))
                                             <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200">
                                                 For 1st Assessment
                                             </span>
-                                        @elseif ($app->status == 'Pending' || str_contains($app->status, 'Pending Requirements'))
+                                        @elseif ($badgeStatus == 'PENDING' || str_contains($badgeStatus, 'PENDING REQUIREMENTS'))
                                             <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
                                                 Pending Requirements
                                             </span>
-                                        @elseif($app->status == 'Qualified')
+                                        @elseif($badgeStatus == 'QUALIFIED')
                                             <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-green-100 text-green-800 border border-green-200">
                                                 Qualified
                                             </span>
-                                        @elseif(in_array($app->status, ['Not Qualified', 'Rejected', 'Failed']))
+                                        @elseif(in_array($badgeStatus, ['NOT QUALIFIED', 'REJECTED', 'FAILED']))
                                             <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-red-100 text-red-800 border border-red-200">
                                                 Not Qualified
                                             </span>
-                                        @elseif(str_contains($app->status, 'Endorsed') || str_contains($app->status, 'Enrolled'))
-                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
-                                                Enrolled
+                                        @elseif(str_contains($badgeStatus, 'ENDORSED') || str_contains($badgeStatus, 'ENROLLED') || str_contains($badgeStatus, 'ADMITTED'))
+                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200 shadow-sm">
+                                                {{ $app->status }}
                                             </span>
                                         @else
-                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-gray-100 text-gray-800">
+                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-gray-100 text-gray-800 border border-gray-200">
                                                 {{ $app->status }}
                                             </span>
                                         @endif

@@ -25,7 +25,7 @@
         {{-- Date Widget --}}
         <div class="hidden md:block text-right">
             <p class="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-1">Today is</p>
-            <p class="text-xl font-bold text-slate-700">{{ $currentDate }}</p>
+            <p class="text-xl font-bold text-slate-700">{{ $currentDate ?? date('l, F j, Y') }}</p>
         </div>
     </div>
 
@@ -56,6 +56,33 @@
         {{-- SCENARIO A: APPLICATION SUBMITTED (SHOW STATUS) --}}
         @if($application)
             
+            @php
+                // ⚡ CENTRALIZED STATUS LOGIC ⚡
+                $currentStatus = strtoupper($application->status);
+                $isAdmitted  = str_contains($currentStatus, 'ENROLLED') || str_contains($currentStatus, 'ADMITTED');
+                $isQualified = str_contains($currentStatus, 'QUALIFIED') && !str_contains($currentStatus, 'NOT');
+                $isPhase2    = str_contains($currentStatus, '2ND LEVEL') || str_contains($currentStatus, 'REQUIREMENTS');
+                $isRejected  = str_contains($currentStatus, 'NOT QUALIFIED') || str_contains($currentStatus, 'REJECTED') || str_contains($currentStatus, 'FAILED');
+                $isReturned  = str_contains($currentStatus, 'RETURNED');
+                
+                // Progress Bar Width
+                $displayProgress = 25; // Default (Phase 1)
+                if($isAdmitted) $displayProgress = 100;
+                elseif($isQualified) $displayProgress = 85;
+                elseif($isPhase2) $displayProgress = 50;
+
+                // Status Badge Color
+                $statusColor = 'bg-yellow-100 text-yellow-700 border-yellow-200';
+                $dotColor = 'bg-yellow-500';
+                if($isQualified || $isAdmitted) {
+                    $statusColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                    $dotColor = 'bg-emerald-500';
+                } elseif($isRejected || $isReturned) {
+                    $statusColor = 'bg-red-100 text-red-700 border-red-200';
+                    $dotColor = 'bg-red-500';
+                }
+            @endphp
+
             {{-- STATUS TRACKER CARD --}}
             <div class="bg-white rounded-[2rem] shadow-xl shadow-indigo-100/50 border border-slate-100 overflow-hidden relative">
                 <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
@@ -65,23 +92,7 @@
                         <div>
                             <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Current Application Status</h2>
                             <div class="flex items-center gap-3">
-                                {{-- Dynamic Status Color Logic --}}
-                                @php
-                                    $statusColor = 'bg-yellow-100 text-yellow-700 border-yellow-200';
-                                    $dotColor = 'bg-yellow-500';
-                                    
-                                    if(str_contains($application->status, 'Qualified') && !str_contains($application->status, 'Not')) {
-                                        $statusColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
-                                        $dotColor = 'bg-emerald-500';
-                                    } elseif(str_contains($application->status, 'Enrolled')) {
-                                        $statusColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
-                                        $dotColor = 'bg-emerald-500';
-                                    } elseif(str_contains($application->status, 'Not Qualified') || str_contains($application->status, 'Returned') || str_contains($application->status, 'Rejected')) {
-                                        $statusColor = 'bg-red-100 text-red-700 border-red-200';
-                                        $dotColor = 'bg-red-500';
-                                    }
-                                @endphp
-
+                                
                                 <div class="px-4 py-2 rounded-full border {{ $statusColor }} flex items-center shadow-sm">
                                     <span class="relative flex h-3 w-3 mr-3">
                                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ $dotColor }} opacity-75"></span>
@@ -95,25 +106,30 @@
                         
                         {{-- Phase Indicator --}}
                         <div class="mt-4 md:mt-0 text-right">
-                            <span class="block text-4xl font-black text-slate-200">PHASE 
-                                @if(str_contains($application->status, 'Enrolled') || (str_contains($application->status, 'Qualified') && !str_contains($application->status, 'Not'))) 3
-                                @elseif(str_contains($application->status, '2nd Level') || str_contains($application->status, 'Requirements')) 2
-                                @else 1 @endif
+                            <span class="block text-4xl font-black text-slate-200">
+                                @if($isAdmitted) FINAL
+                                @elseif($isQualified) PHASE 3
+                                @elseif($isPhase2) PHASE 2
+                                @else PHASE 1 @endif
                             </span>
-                            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Assessment Ongoing</span>
+                            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">
+                                @if($isAdmitted) Enrollment Complete
+                                @elseif($isQualified) Proceed to Enrollment
+                                @else Assessment Ongoing @endif
+                            </span>
                         </div>
                     </div>
 
                     {{-- PROGRESS BAR VISUALIZER --}}
                     <div class="relative">
                         <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-slate-100">
-                            <div style="width:{{ $progress }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-1000 ease-out"></div>
+                            <div style="width:{{ $displayProgress }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-1000 ease-out"></div>
                         </div>
                         <div class="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            <span>Registration</span>
-                            <span>1st Assessment</span>
-                            <span>2nd Assessment</span>
-                            <span>Final Result</span>
+                            <span class="{{ $displayProgress >= 25 ? 'text-indigo-600' : '' }}">Registration</span>
+                            <span class="{{ $displayProgress >= 50 ? 'text-indigo-600' : '' }}">1st Assessment</span>
+                            <span class="{{ $displayProgress >= 85 ? 'text-indigo-600' : '' }}">2nd Assessment</span>
+                            <span class="{{ $displayProgress >= 100 ? 'text-emerald-600' : '' }}">Final Result</span>
                         </div>
                     </div>
                 </div>
@@ -180,7 +196,7 @@
                     <h3 class="text-lg font-black mb-4 relative z-10">Next Steps</h3>
                     
                     {{-- ⚡ SCENARIO 0: NOT QUALIFIED / REJECTED ⚡ --}}
-                    @if(in_array($application->status, ['Not Qualified', 'Rejected', 'Failed']))
+                    @if($isRejected)
                         <div class="relative z-10 mb-6">
                             <div class="bg-red-500/20 border border-red-400/30 p-4 rounded-2xl mb-2">
                                 <p class="text-red-100 text-xs font-bold uppercase tracking-widest mb-2 flex items-center">
@@ -198,8 +214,24 @@
                             </div>
                         </div>
 
+                    {{-- ⚡ SCENARIO 4: ADMITTED / ENROLLED (FINAL STAGE) ⚡ --}}
+                    @elseif($isAdmitted)
+                        <div class="relative z-10 mb-6">
+                            <div class="bg-emerald-500/30 border border-emerald-400/40 p-4 rounded-2xl mb-2">
+                                <p class="text-emerald-50 text-xs font-bold uppercase tracking-wide mb-2 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Enrollment Confirmed
+                                </p>
+                                <p class="text-white text-sm leading-relaxed">Welcome to NAS! You are now officially admitted as a NASCENT SAS Scholar. Please wait for further announcements regarding the opening of classes.</p>
+                            </div>
+                        </div>
+                        <button disabled class="w-full bg-emerald-600 border border-emerald-500 text-white font-black py-3.5 rounded-xl cursor-not-allowed relative z-10 text-xs uppercase tracking-widest shadow-lg flex justify-center items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Officially Admitted
+                        </button>
+
                     {{-- SCENARIO 1: RE-UPLOAD NEEDED (Priority Check) --}}
-                    @elseif(str_contains($application->status, 'Returned'))
+                    @elseif($isReturned)
                         <div class="relative z-10 mb-6">
                             <div class="bg-red-500/20 border border-red-400/30 p-3 rounded-xl mb-2">
                                 <p class="text-red-100 text-xs font-bold uppercase tracking-wide mb-1 flex items-center">
@@ -210,7 +242,7 @@
                             </div>
                         </div>
 
-                        @if(str_contains($application->status, 'Qualified') && !str_contains($application->status, 'Not'))
+                        @if($isQualified)
                              <a href="{{ route('applicant.enrollment.show') }}" class="inline-flex w-full justify-center items-center bg-white text-red-600 font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-red-50 transition transform hover:-translate-y-1 relative z-10 text-xs uppercase tracking-widest animate-pulse">
                                 Fix Enrollment Docs
                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
@@ -223,36 +255,21 @@
                         @endif
 
                     {{-- SCENARIO 2: REQUIREMENTS SUBMITTED (Wait for Review) --}}
-                    @elseif(str_contains($application->status, 'Requirements Submitted'))
+                    @elseif(str_contains($currentStatus, 'REQUIREMENTS SUBMITTED'))
                         <p class="text-indigo-100 text-sm mb-6 relative z-10">Your documents have been submitted and are currently under review by the Secretariat.</p>
                         <button disabled class="w-full bg-indigo-800/50 text-indigo-300 font-bold py-3 rounded-xl cursor-not-allowed relative z-10 text-xs uppercase tracking-widest border border-indigo-500/30">
                             Application Under Review
                         </button>
 
-                    {{-- ⚡ SCENARIO 3: QUALIFIED -> PROCEED TO ENROLLMENT (FIXED EXCLUSION) ⚡ --}}
-                    @elseif(str_contains($application->status, 'Qualified') && !str_contains($application->status, 'Not'))
+                    {{-- SCENARIO 3: QUALIFIED -> PROCEED TO ENROLLMENT --}}
+                    @elseif($isQualified)
                         <p class="text-indigo-100 text-sm mb-6 relative z-10">Congratulations! You have qualified. Please proceed to the Enrollment Phase to finalize your slot.</p>
                         <a href="{{ route('applicant.enrollment.show') }}" class="inline-block w-full text-center bg-white text-indigo-700 font-bold py-3 rounded-xl shadow-lg hover:bg-indigo-50 transition relative z-10 text-xs uppercase tracking-widest animate-bounce-slow">
                             Proceed to Enrollment
                         </a>
 
-                    {{-- SCENARIO 4: ENROLLED/ENDORSED (Done) --}}
-                    @elseif(str_contains($application->status, 'Enrolled') || str_contains($application->status, 'Endorsed'))
-                        <div class="relative z-10 mb-6">
-                            <div class="bg-emerald-500/20 border border-emerald-400/30 p-3 rounded-xl mb-2">
-                                <p class="text-emerald-100 text-xs font-bold uppercase tracking-wide mb-1 flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    Enrollment Verified
-                                </p>
-                                <p class="text-white text-sm">Welcome to NAS! Your enrollment documents are being processed.</p>
-                            </div>
-                        </div>
-                        <button disabled class="w-full bg-emerald-800/50 text-emerald-200 font-bold py-3 rounded-xl cursor-not-allowed relative z-10">
-                            Officially Enrolled
-                        </button>
-
                     {{-- SCENARIO 5: PASSED 1ST LEVEL (Upload Requirements) --}}
-                    @elseif(str_contains($application->status, '2nd Level Assessment') || str_contains($application->status, 'For 2nd Level'))
+                    @elseif($isPhase2)
                         <p class="text-indigo-100 text-sm mb-6 relative z-10">Congratulations! You passed the 1st Level Assessment. Please upload your mandatory documents now.</p>
                         <a href="{{ route('applicant.requirements') }}" class="inline-flex w-full justify-center items-center bg-white text-indigo-700 font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-indigo-50 transition transform hover:-translate-y-1 relative z-10 text-xs uppercase tracking-widest animate-pulse">
                             Upload Requirements
