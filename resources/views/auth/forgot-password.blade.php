@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Forgot Password | NAS SAIS</title>
-    
+        
     <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
 
     {{-- Fonts --}}
@@ -19,93 +19,179 @@
 
     <style>
         /* 1. GLOBAL RESET */
-        * { font-family: 'Poppins', sans-serif !important; }
+        * { font-family: 'Poppins', sans-serif !important; box-sizing: border-box; }
         [x-cloak] { display: none !important; }
 
-        /* 2. BODY SCROLL FIX */
+        /* 2. BODY SETTINGS */
         body {
-            background-color: #111827; /* Gray 900 */
-            overflow-y: auto !important; /* Allow scroll */
-            height: auto !important;
-            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f3f4f6;
+            overflow-x: hidden;
         }
 
-        /* 3. MAIN WRAPPER */
+        /* 3. BACKGROUND LAYERS (Matches Login & Register) */
+        .bg-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+        }
+        .bg-image {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .bg-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.4); /* Clear & Bright */
+        }
+
+        /* 4. MAIN WRAPPER */
         .main-wrapper {
-            min-height: 100dvh; /* Dynamic Height for Mobile */
+            min-height: 100vh;
+            min-height: 100dvh;
+            width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 3rem 1rem; /* Breathing room */
-            position: relative;
-            z-index: 10;
+            padding: 2rem 1rem;
         }
+
+        /* 5. CARD DESIGN */
+        .login-card {
+            background-color: white;
+            width: 100%;
+            max-width: 420px; /* Slimmer max-width same as Login */
+            border-radius: 0.5rem; 
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+            border-top: 5px solid #facc15; /* Yellow accent */
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .login-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            }
+        }
+
+        .card-content { padding: 2.5rem 2rem; }
+
+        /* 6. FORM ELEMENTS */
+        .input-group { margin-bottom: 1.25rem; }
+        .input-label {
+            display: block; font-size: 0.75rem; font-weight: 700; color: #4b5563;
+            text-transform: uppercase; margin-bottom: 0.35rem; letter-spacing: 0.05em;
+        }
+        .form-input {
+            width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem;
+            font-size: 0.9rem; border-radius: 0.375rem;
+            border: 1px solid #9ca3af; background-color: #fff;
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            outline: none; border-color: #2563eb; 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        /* 7. INFO BOX */
+        .info-box {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #475569;
+            font-size: 0.75rem;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* 8. BUTTONS */
+        .btn-login {
+            width: 100%; padding: 0.85rem;
+            background-color: #1e40af; color: white;
+            font-weight: 700; border-radius: 0.375rem; border: none;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em;
+            transition: background-color 0.2s; margin-top: 0.5rem;
+        }
+        .btn-login:hover { background-color: #1e3a8a; }
+
+        .btn-register {
+            display: inline-block; font-size: 0.75rem; font-weight: 600;
+            color: #4b5563; background-color: #f3f4f6;
+            padding: 0.6rem 1.5rem; border-radius: 9999px;
+            text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em;
+            transition: all 0.2s; border: 1px solid transparent;
+        }
+        .btn-register:hover {
+            background-color: #fff; border-color: #d1d5db; color: #1f2937;
+        }
+
+        /* Utilities */
+        .icon { position: absolute; top: 50%; left: 0.85rem; transform: translateY(-50%); width: 1.25rem; height: 1.25rem; color: #6b7280; pointer-events: none; }
     </style>
 </head>
-<body class="antialiased text-gray-900">
+<body>
 
-    {{-- 1. BACKGROUND (FIXED) --}}
-    <div class="fixed inset-0 z-0">
-        <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="w-full h-full object-cover opacity-60" alt="Background">
-        {{-- Overlay Gradient --}}
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-gray-900/80 to-black/90 backdrop-blur-[2px]"></div>
+    {{-- 1. BACKGROUND --}}
+    <div class="bg-container">
+        <img src="{{ asset('images/nas/IMG_20250429_105924_472.jpg') }}" class="bg-image" alt="Background"> 
+        <div class="bg-overlay"></div>
     </div>
-
-    {{-- 2. SCROLLABLE CONTENT WRAPPER --}}
+    
+    {{-- 2. MAIN LAYOUT WRAPPER --}}
     <div class="main-wrapper">
-        
-        {{-- CARD --}}
-        <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border-t-[6px] border-yellow-400 overflow-hidden">
-            
-            <div class="px-8 py-8">
+
+        {{-- FORGOT PASSWORD CARD --}}
+        <div class="login-card">
+            <div class="card-content">
                 
-                {{-- HEADER / LOGO --}}
-                <div class="text-center mb-6">
+                {{-- Logo Section --}}
+                <div style="text-align: center; margin-bottom: 1.5rem;">
                     <a href="/">
-                        <img src="{{ asset('images/nas/stack.png') }}" class="h-20 w-auto mx-auto mb-3 drop-shadow-md hover:scale-105 transition-transform" alt="NAS Logo">
+                        <img src="{{ asset('images/nas/stack.png') }}" 
+                             style="height: 8rem; width: auto; margin: 0 auto; display: block; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.07));" 
+                             alt="NAS Logo">
                     </a>
-                    <h2 class="text-2xl font-extrabold text-blue-900 tracking-tight">NAS SAIS</h2>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Reset Password</p>
+                    <h2 style="font-size: 1.25rem; font-weight: 800; color: #1e3a8a; margin-top: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Reset Password</h2>
+                    <p style="font-size: 0.65rem; color: #6b7280; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Account Recovery</p>
                 </div>
 
-                {{-- MESSAGE --}}
-                <div class="mb-6 text-xs text-gray-600 text-center leading-relaxed bg-blue-50 p-4 rounded-lg border border-blue-100 shadow-sm">
+                {{-- Informational Message --}}
+                <div class="info-box">
                     {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link.') }}
                 </div>
 
-                {{-- SESSION STATUS --}}
+                {{-- Session Status --}}
                 <x-auth-session-status class="mb-4" :status="session('status')" />
 
-                {{-- FORM --}}
-                <form method="POST" action="{{ route('password.email') }}" class="space-y-5">
-                    @csrf
-
-                    {{-- Email Field --}}
-                    <div>
-                        <label class="block font-bold text-[10px] text-gray-500 uppercase mb-1 ml-1">Email Address</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                {{-- Envelope Icon --}}
-                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
-                            </div>
-                            <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                                   class="block w-full pl-10 pr-3 py-2.5 rounded-lg border-gray-300 bg-gray-50 text-sm focus:ring-blue-600 focus:border-blue-600 focus:bg-white transition shadow-sm" 
+                <form method="POST" action="{{ route('password.email') }}">
+                    @csrf 
+                    
+                    {{-- Email Input --}}
+                    <div class="input-group">
+                        <label class="input-label">Email Address *</label>
+                        <div style="position: relative;">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
+                            <input type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
+                                   class="form-input" 
                                    placeholder="Enter your registered email">
                         </div>
-                        <x-input-error :messages="$errors->get('email')" class="mt-1 text-[10px] text-red-600 font-bold ml-1" />
+                        <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
                     </div>
 
-                    {{-- Submit Button --}}
-                    <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-blue-800 to-blue-900 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-lg shadow-lg transform transition hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-blue-200 uppercase tracking-widest text-xs">
-                        Email Password Reset Link
+                    <button type="submit" class="btn-login">
+                        Email Reset Link
                     </button>
                 </form>
 
-                {{-- Back to Login --}}
-                <div class="mt-6 pt-5 border-t border-gray-100 text-center">
-                    <a href="{{ route('login') }}" class="inline-flex items-center text-xs font-bold text-gray-500 hover:text-blue-700 transition uppercase tracking-wide group">
-                        <svg class="w-4 h-4 mr-1 transform group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                {{-- Back to Login Link --}}
+                <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #f3f4f6; text-align: center;">
+                    <p style="font-size: 0.7rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; margin-bottom: 0.75rem;">Remembered your password?</p>
+                    
+                    <a href="{{ route('login') }}" class="btn-register">
                         Back to Login
                     </a>
                 </div>
@@ -113,9 +199,9 @@
             </div>
         </div>
         
-        {{-- FOOTER COPYRIGHT --}}
-        <div class="mt-6 text-center">
-             <p class="text-gray-300 text-[10px] opacity-90 uppercase tracking-widest font-medium drop-shadow-md">
+        {{-- Footer --}}
+        <div style="margin-top: 2rem; text-align: center;">
+             <p style="color: #e5e7eb; font-size: 0.7rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
                 &copy; {{ date('Y') }} National Academy of Sports
             </p>
         </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>NAS SAIS - Login</title>
+    <title>NAS SAIS</title>
         
     <link rel="icon" type="image/png" href="{{ asset('images/nas/favicon1.png') }}">
     
@@ -28,8 +28,8 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #111827;
-            overflow-x: hidden; /* Prevent horizontal scroll */
+            background-color: #f3f4f6; /* Light base color */
+            overflow-x: hidden;
         }
 
         /* 3. INPUT FIELD FIXES */
@@ -40,48 +40,48 @@
             visibility: hidden; pointer-events: none; position: absolute; right: 0;
         }
 
-        /* 4. BACKGROUND LAYERS */
+        /* 4. BACKGROUND LAYERS (MS/TSU Style - Clear & Bright) */
         .bg-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
         }
         .bg-image {
-            width: 100%; height: 100%; object-fit: cover; opacity: 0.6;
+            width: 100%; height: 100%; object-fit: cover;
         }
         .bg-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom right, rgba(30, 58, 138, 0.8), rgba(17, 24, 39, 0.8));
-            backdrop-filter: blur(3px);
+            /* Simpleng dark tint (40% opacity) para malinaw ang background pero lutang ang card */
+            background-color: rgba(0, 0, 0, 0.4); 
+            /* Walang blur para kitang-kita ang building tulad sa reference mo */
         }
 
-        /* 5. MAIN WRAPPER (CENTERING MAGIC) */
+        /* 5. MAIN WRAPPER */
         .main-wrapper {
-            min-height: 100vh;      /* Full viewport height */
-            min-height: 100dvh;     /* Mobile dynamic height */
+            min-height: 100vh;
+            min-height: 100dvh;
             width: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Center Vertically on Desktop */
-            align-items: center;     /* Center Horizontally */
-            padding: 2rem 1rem;      /* Breathing room */
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1rem;
         }
 
         /* 6. LOGIN CARD DESIGN */
         .login-card {
             background-color: white;
             width: 100%;
-            max-width: 420px;       /* Optimal width for Desktop */
-            border-radius: 1rem;    /* Rounded corners */
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-width: 420px;
+            border-radius: 0.5rem; /* Slightly sharper corners para mas professional */
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
             border-top: 5px solid #facc15; /* Yellow Accent */
             overflow: hidden;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* Slight hover effect on Desktop */
         @media (min-width: 768px) {
             .login-card:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
             }
         }
 
@@ -95,16 +95,16 @@
         }
         .form-input {
             width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem;
-            font-size: 0.9rem; border-radius: 0.5rem;
-            border: 1px solid #d1d5db; background-color: #f9fafb;
+            font-size: 0.9rem; border-radius: 0.375rem;
+            border: 1px solid #9ca3af; background-color: #fff;
             transition: all 0.2s;
         }
         .form-input:focus {
-            outline: none; border-color: #2563eb; background-color: #fff;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none; border-color: #2563eb; 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
-        /* 👇 8. REMEMBER ME FIXES */
+        /* 8. REMEMBER ME */
         .remember-forgot-row {
             display: flex; align-items: center; justify-content: space-between;
             margin-top: 0.5rem; margin-bottom: 1.5rem;
@@ -117,7 +117,7 @@
             border-radius: 0.25rem;
             border: 1px solid #d1d5db; 
             cursor: pointer;
-            accent-color: #1e40af; /* 👇 FIX: Forces blue color when checked */
+            accent-color: #1e40af;
         }
         .remember-text {
             margin-left: 0.5rem; font-size: 0.8rem; color: #4b5563; font-weight: 500;
@@ -131,7 +131,7 @@
         .btn-login {
             width: 100%; padding: 0.85rem;
             background-color: #1e40af; color: white;
-            font-weight: 700; border-radius: 0.5rem; border: none;
+            font-weight: 700; border-radius: 0.375rem; border: none;
             cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em;
             transition: background-color 0.2s; margin-top: 0.5rem;
         }
@@ -149,7 +149,7 @@
         }
 
         /* Utilities */
-        .icon { position: absolute; top: 50%; left: 0.85rem; transform: translateY(-50%); width: 1.25rem; height: 1.25rem; color: #9ca3af; }
+        .icon { position: absolute; top: 50%; left: 0.85rem; transform: translateY(-50%); width: 1.25rem; height: 1.25rem; color: #6b7280; }
     </style>
 </head>
 <body>
@@ -222,10 +222,9 @@
                         <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
                     </div>
 
-                    {{-- 👇 REMEMBER ME (Fixed Logic + Styling) --}}
+                    {{-- REMEMBER ME --}}
                     <div class="remember-forgot-row">
                         <label for="remember_me" class="remember-label">
-                            {{-- 👇 Added 'old' check logic to persist state on error --}}
                             <input id="remember_me" type="checkbox" class="remember-input" name="remember" {{ old('remember') ? 'checked' : '' }}>
                             <span class="remember-text">Remember me</span>
                         </label>
@@ -246,7 +245,6 @@
                 <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #f3f4f6; text-align: center;">
                     <p style="font-size: 0.7rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; margin-bottom: 0.75rem;">No account yet?</p>
                     
-                    {{-- FIXED ROUTE --}}
                     <a href="{{ route('register') }}" class="btn-register">
                         Register as Applicant
                     </a>
@@ -257,7 +255,7 @@
         
         {{-- Footer --}}
         <div style="margin-top: 2rem; text-align: center;">
-             <p style="color: #d1d5db; font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+             <p style="color: #e5e7eb; font-size: 0.7rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
                 &copy; {{ date('Y') }} National Academy of Sports
             </p>
         </div>
