@@ -36,7 +36,7 @@
     
     <div class="relative z-10 min-h-screen flex flex-col justify-center items-center p-4 sm:p-6">
 
-        <div class="w-full max-w-[640px] bg-white rounded-lg shadow-xl hover:shadow-2xl border-t-[5px] border-yellow-400 transition-all duration-300 md:hover:-translate-y-1">
+        <div class="w-full max-w-[640px] bg-white/80 rounded-lg shadow-xl hover:shadow-2xl border-t-[5px] border-yellow-400 transition-all duration-300 md:hover:-translate-y-1">
             <div class="p-8 sm:p-10">
                 
                 {{-- Logo Section --}}
