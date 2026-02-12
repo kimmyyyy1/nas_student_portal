@@ -183,16 +183,13 @@
                                 </div>
                             </div>
 
-                            {{-- ROW 3: CONTACT INFO --}}
+                            {{-- ROW 3: CONTACT INFO (REMOVED CONTACT NUMBER AS REQUESTED) --}}
                             @php
                                 $email = $application->email ?? $application->user->email;
-                                $contact = $application->guardian_contact;
-                                
                                 if(!$email || in_array(strtoupper(trim($email)), ['N/A', 'NA'])) $email = '-';
-                                if(!$contact || in_array(strtoupper(trim($contact)), ['N/A', 'NA'])) $contact = '-';
                             @endphp
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
+                            <div class="w-full">
                                 <div class="bg-blue-50 p-3 sm:p-4 rounded-xl border border-blue-100 flex items-center w-full">
                                     <div class="bg-blue-200 p-2 rounded-lg mr-3 text-blue-700 flex-shrink-0">
                                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
@@ -200,16 +197,6 @@
                                     <div class="overflow-hidden w-full">
                                         <label class="block text-[8px] sm:text-[9px] font-black text-blue-400 uppercase mb-0.5">Email Address</label>
                                         <p class="font-bold text-blue-900 text-xs sm:text-sm break-words">{{ $email }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="bg-emerald-50 p-3 sm:p-4 rounded-xl border border-emerald-100 flex items-center w-full">
-                                    <div class="bg-emerald-200 p-2 rounded-lg mr-3 text-emerald-700 flex-shrink-0">
-                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                    </div>
-                                    <div class="overflow-hidden w-full">
-                                        <label class="block text-[8px] sm:text-[9px] font-black text-emerald-400 uppercase mb-0.5">Contact Number</label>
-                                        <p class="font-bold text-emerald-900 text-xs sm:text-sm font-mono tracking-wide break-words">{{ $contact }}</p>
                                     </div>
                                 </div>
                             </div>

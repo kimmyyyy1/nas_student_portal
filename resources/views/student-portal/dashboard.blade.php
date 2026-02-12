@@ -1,14 +1,77 @@
 <x-student-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Student Portal Dashboard') }}
-        </h2>
+        
+        {{-- ============================================================= --}}
+        {{-- 📱 MOBILE HEADER: Compact Badge & Live Indicator              --}}
+        {{-- ============================================================= --}}
+        <div class="flex md:hidden items-center justify-between w-full py-1">
+            
+            {{-- Badge --}}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 uppercase shadow-sm border border-green-200">
+                <i class='bx bxs-user-detail mr-1.5 text-sm'></i> Directory
+            </span>
+
+            {{-- Live Indicator --}}
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
+                <span class="w-1.5 h-1.5 bg-red-600 rounded-full mr-1"></span> LIVE
+            </span>
+
+        </div>
+
+        {{-- ============================================================= --}}
+        {{-- 💻 DESKTOP HEADER: Standard View                              --}}
+        {{-- ============================================================= --}}
+        <div class="hidden md:flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-2">
+            
+            {{-- TITLE --}}
+            <div class="flex items-center justify-between w-full md:w-auto">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                    {{ __('Student Portal Dashboard') }}
+                    <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
+                        <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
+                    </span>
+                </h2>
+            </div>
+            
+        </div>
     </x-slot>
 
-    {{-- 👇 TINANGGAL KO NA ANG BACKGROUND WRAPPER DITO DAHIL NASA LAYOUT NA SYA --}}
-    <div class="py-6 sm:py-8">
+    <div class="py-6 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
+            {{-- ALERTS --}}
+            @if(session('success'))
+                <div class="mb-4 bg-green-50 border-l-4 border-green-500 text-green-800 p-4 rounded shadow relative text-sm">
+                    <button onclick="this.parentElement.style.display='none'" class="absolute top-2 right-2 text-green-600 hover:text-green-800">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>{!! session('success') !!}</span>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ⚡ BAGO: RENEWAL / CONTINUING ENROLLMENT BANNER ⚡ --}}
+            {{-- Ipakita kapag Promoted, Conditional, o kaya 'Continuing' ang current status niya --}}
+            @if(in_array($student->promotion_status, ['Promoted', 'Conditional']) || str_contains($student->promotion_status, 'Honors') || $student->status === 'Continuing')
+                <div class="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-2xl shadow-xl overflow-hidden mb-6 sm:mb-8 border border-indigo-400 relative">
+                    <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+                        <div class="text-white text-center sm:text-left">
+                            <h3 class="text-lg sm:text-xl font-black uppercase tracking-widest mb-1 flex items-center justify-center sm:justify-start gap-2">
+                                <i class='bx bxs-graduation text-2xl text-yellow-400'></i> 
+                                Ready for the Next School Year?
+                            </h3>
+                            <p class="text-indigo-100 text-xs sm:text-sm font-medium">Please submit your updated documents to renew your NASCENT SAS scholarship and enroll.</p>
+                        </div>
+                        <a href="{{ route('student.renew-enrollment') }}" wire:navigate class="w-full sm:w-auto bg-white hover:bg-slate-50 text-indigo-700 font-black py-3 sm:py-4 px-6 sm:px-8 rounded-xl shadow-lg transition-transform transform hover:scale-105 active:scale-95 uppercase tracking-widest text-xs flex justify-center items-center gap-2 shrink-0 border-b-4 border-indigo-200">
+                            Renew Enrollment <i class='bx bx-right-arrow-alt text-lg'></i>
+                        </a>
+                    </div>
+                </div>
+            @endif
+
             {{-- 1. PROFILE CARD SECTION --}}
             <div class="bg-white/95 backdrop-blur-md rounded-lg shadow-lg overflow-hidden mb-6 sm:mb-8 border-l-8 border-indigo-700 ring-1 ring-black/5">
                 <div class="p-6 md:flex items-start justify-between">
@@ -41,7 +104,7 @@
                         <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full w-auto">
                             {{ $student->team->team_name ?? $student->sport ?? 'No Sport' }}
                         </span>
-                        <div class="text-xs text-gray-400 mt-1">Status: {{ $student->status }}</div>
+                        <div class="text-xs text-gray-400 mt-1 font-bold">Status: <span class="text-slate-600">{{ $student->status }}</span></div>
                     </div>
                 </div>
                 
@@ -52,7 +115,7 @@
                         <span x-show="showInfo">Hide Profile Details</span>
                         <svg class="w-4 h-4 ml-1 transform transition-transform" :class="{'rotate-180': showInfo}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div x-show="showInfo" x-transition class="p-4 sm:p-6 bg-white/95 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 text-sm border-t">
+                    <div x-show="showInfo" x-transition style="display: none;" class="p-4 sm:p-6 bg-white/95 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 text-sm border-t">
                         <div>
                             <h4 class="font-bold text-indigo-700 mb-2 border-b pb-1">Personal Data</h4>
                             <p class="mb-1"><span class="text-gray-500">Birthdate:</span> {{ $student->birthdate ? date('M d, Y', strtotime($student->birthdate)) : 'N/A' }}</p>
@@ -106,7 +169,7 @@
                     </div>
                     <div class="text-xs font-bold text-blue-600 uppercase flex items-center">
                         <span x-show="!showSchedule">Show</span>
-                        <span x-show="showSchedule">Hide</span>
+                        <span x-show="showSchedule" style="display: none;">Hide</span>
                         <svg class="w-4 h-4 ml-1 transform transition-transform" :class="{'rotate-180': showSchedule}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </button>

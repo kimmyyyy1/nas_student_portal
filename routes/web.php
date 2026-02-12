@@ -99,6 +99,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     Route::middleware('role:student')->group(function () {
         Route::get('/student/dashboard', [StudentPortalController::class, 'index'])->name('student.dashboard');
+        
+        // ⚡ BAGO: Route para sa Continuing Enrollment Form ⚡
+        Route::get('/student/renew-enrollment', \App\Livewire\ContinuingEnrollment::class)->name('student.renew-enrollment');
+        
         // Add other student-only routes here (e.g., View Grades)
     });
 
