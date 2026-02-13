@@ -14,19 +14,64 @@
     </x-slot>
 
     @php
+        // 1. STATUS & GENDER
         $stat = strtoupper($applicant->status ?? '');
         $isAdmitted = $stat === 'ADMITTED'; 
 
-        // 1. FIX GENDER DISPLAY
         $gender = strtoupper($applicant->gender);
         if(in_array($gender, ['BOY', 'M', 'MALE'])) $gender = 'MALE';
         if(in_array($gender, ['GIRL', 'F', 'FEMALE'])) $gender = 'FEMALE';
 
-        // 2. FETCH ENROLLMENT DETAILS (Phase 2 Data)
+        // 2. FORCE FETCH ENROLLMENT DETAILS
         $details = $applicant->enrollmentDetail; 
+        if (!$details) {
+            $details = \App\Models\EnrollmentDetail::where('email', $applicant->email ?? $applicant->user->email)
+                        ->orWhere('lrn', $applicant->lrn)
+                        ->latest()
+                        ->first();
+        }
+
+        // 3. DATA MAPPING (Priority: Details -> Applicant -> N/A)
+        // Helper function
+        function getVal($d, $a, $fieldD, $fieldA) {
+            return $d->$fieldD ?? ($a->$fieldA ?? 'N/A');
+        }
+
+        // Address
+        $street = getVal($details, $applicant, 'street_house_no', 'street_address');
+        $brgy   = getVal($details, $applicant, 'barangay', 'barangay');
+        $city   = getVal($details, $applicant, 'municipality_city', 'municipality_city');
+        $prov   = getVal($details, $applicant, 'province', 'province');
+        $zip    = $details->zip_code ?? ($applicant->zip_code ?? '');
+
+        // Father
+        $f_name    = getVal($details, $applicant, 'father_name', 'father_name');
+        $f_contact = getVal($details, $applicant, 'father_contact', 'father_contact');
+        $f_email   = getVal($details, $applicant, 'father_email', 'father_email');
+        $f_addr    = getVal($details, $applicant, 'father_address', 'father_address');
+
+        // Mother
+        $m_name    = $details->mother_maiden_name ?? ($applicant->mother_name ?? 'N/A');
+        $m_contact = getVal($details, $applicant, 'mother_contact', 'mother_contact');
+        $m_email   = getVal($details, $applicant, 'mother_email', 'mother_email');
+        $m_addr    = getVal($details, $applicant, 'mother_address', 'mother_address');
+
+        // Guardian
+        $g_name    = getVal($details, $applicant, 'guardian_name', 'guardian_name');
+        $g_rel     = getVal($details, $applicant, 'guardian_relationship', 'guardian_relationship');
+        $g_contact = getVal($details, $applicant, 'guardian_contact', 'guardian_contact');
+        $g_email   = $details->guardian_email ?? 'N/A';
+        $g_addr    = getVal($details, $applicant, 'guardian_address', 'guardian_address');
+
+        // Special Groups
+        $is_ip = $details->is_ip ?? $applicant->is_ip ?? 'No';
+        $ip_grp = $details->ip_group_name ?? $applicant->ip_group_name ?? '';
+        $is_pwd = $details->is_pwd ?? $applicant->is_pwd ?? 'No';
+        $pwd_id = $details->pwd_disability ?? $applicant->pwd_disability ?? '';
+        $is_4ps = $details->is_4ps ?? $applicant->is_4ps ?? 'No';
     @endphp
 
-    <div class="py-6 lg:py-12 bg-slate-50 min-h-screen w-full block">
+    <div class="py-6 lg:py-12 min-h-screen w-full block"> {{-- ⚡ REMOVED bg-slate-50 to show background ⚡ --}}
         <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
             
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 w-full">
@@ -34,22 +79,22 @@
                 {{-- LEFT SIDE: ALL FORM DETAILS --}}
                 <div class="w-full lg:col-span-3 space-y-6 lg:space-y-8">
                     
-                    {{-- HEADER CARD: STUDENT NAME & LRN --}}
-                    <div class="bg-indigo-900 rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl border-b-[6px] sm:border-b-8 border-yellow-400 w-full">
+                    {{-- HEADER CARD: GLASS EFFECT --}}
+                    <div class="bg-indigo-900/90 backdrop-blur-md rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl border-b-[6px] sm:border-b-8 border-yellow-400 w-full border border-white/10">
                         <div class="p-5 sm:p-8 lg:p-10 text-white w-full">
                             <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-5 lg:gap-6 w-full">
                                 <div class="w-full">
-                                    <span class="text-[9px] sm:text-[10px] block text-indigo-300 tracking-widest font-black uppercase mb-1.5 sm:mb-2">Verified Applicant Profile</span>
-                                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tighter leading-tight break-words w-full">
+                                    <span class="text-[9px] sm:text-[10px] block text-indigo-200 tracking-widest font-black uppercase mb-1.5 sm:mb-2">Verified Applicant Profile</span>
+                                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tighter leading-tight break-words w-full text-white">
                                         {{ $applicant->last_name }}, {{ $applicant->first_name }} 
                                         @if($applicant->middle_name && strtoupper($applicant->middle_name) !== 'N/A') {{ $applicant->middle_name }} @endif
                                         @if($details && $details->extension_name && strtoupper($details->extension_name) !== 'N/A') {{ $details->extension_name }} @endif
                                     </h1>
                                     
                                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-4 lg:mt-6 w-full sm:w-auto">
-                                        <div class="bg-black/20 px-3 sm:px-4 py-2 rounded-xl border border-white/10 flex-1 sm:flex-none">
-                                            <p class="text-[8px] sm:text-[9px] text-indigo-300 font-bold uppercase tracking-widest">LRN Number</p>
-                                            <p class="font-mono text-base sm:text-lg font-black tracking-widest">{{ $applicant->lrn }}</p>
+                                        <div class="bg-black/30 px-3 sm:px-4 py-2 rounded-xl border border-white/20 flex-1 sm:flex-none">
+                                            <p class="text-[8px] sm:text-[9px] text-indigo-200 font-bold uppercase tracking-widest">LRN Number</p>
+                                            <p class="font-mono text-base sm:text-lg font-black tracking-widest text-white">{{ $applicant->lrn }}</p>
                                         </div>
                                         <div class="bg-yellow-400 text-indigo-900 px-3 sm:px-4 py-2 rounded-xl flex-1 sm:flex-none">
                                             <p class="text-[8px] sm:text-[9px] font-black uppercase tracking-widest">Focus Sport</p>
@@ -58,92 +103,89 @@
                                     </div>
                                 </div>
                                 <div class="bg-white/10 backdrop-blur-md p-4 sm:p-5 lg:p-6 rounded-2xl lg:rounded-3xl border border-white/20 text-center w-full md:w-auto min-w-[150px] lg:min-w-[180px]">
-                                    <p class="text-white/50 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Current Status</p>
+                                    <p class="text-white/70 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Current Status</p>
                                     <span class="{{ $isAdmitted ? 'text-emerald-400' : 'text-yellow-400' }} text-xs sm:text-sm font-black uppercase tracking-widest">{{ $applicant->status }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- SECTION 1: STUDENT PERSONAL INFO --}}
-                    <div class="bg-white p-5 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2rem] shadow-xl border border-slate-100 w-full">
+                    {{-- SECTION 1: STUDENT PERSONAL INFO (GLASS EFFECT) --}}
+                    <div class="bg-white/90 backdrop-blur-md p-5 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2rem] shadow-xl border border-white/40 w-full">
                         <h3 class="text-indigo-900 font-black uppercase text-[10px] sm:text-xs tracking-widest mb-6 lg:mb-8 flex items-center">
                             <span class="bg-indigo-600 text-white w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center text-[9px] sm:text-[10px] mr-2.5 sm:mr-3 shrink-0">01</span> 
                             Student Personal Information
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 lg:gap-8 w-full">
                             <div>
-                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Date of Birth</label>
-                                <span class="font-bold text-slate-700 block mt-1 text-sm">{{ \Carbon\Carbon::parse($applicant->date_of_birth)->format('F d, Y') }}</span>
+                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest">Date of Birth</label>
+                                <span class="font-bold text-slate-800 block mt-1 text-sm">{{ \Carbon\Carbon::parse($applicant->date_of_birth)->format('F d, Y') }}</span>
                             </div>
                             <div>
-                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Age</label>
-                                <span class="font-bold text-slate-700 block mt-1 text-sm">{{ $applicant->age }} Years Old</span>
+                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest">Age</label>
+                                <span class="font-bold text-slate-800 block mt-1 text-sm">{{ $applicant->age }} Years Old</span>
                             </div>
                             
                             {{-- ⚡ FIXED: SEX / GENDER DISPLAY --}}
                             <div>
-                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Sex</label>
-                                <span class="font-bold text-slate-700 block mt-1 text-sm uppercase">{{ $gender }}</span>
+                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest">Sex</label>
+                                <span class="font-bold text-slate-800 block mt-1 text-sm uppercase">{{ $gender }}</span>
                             </div>
 
-                            {{-- EMAIL --}}
-                            <div class="sm:col-span-2 md:col-span-3 bg-indigo-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-indigo-100 w-full overflow-hidden">
+                            <div class="sm:col-span-2 md:col-span-3 bg-indigo-50/50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-indigo-100 w-full overflow-hidden">
                                 <label class="block text-[9px] sm:text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Student Email Address</label>
-                                <span class="font-black text-indigo-600 text-base sm:text-lg break-words">{{ $details->email ?? ($applicant->email ?? $applicant->user->email ?? 'N/A') }}</span>
+                                <span class="font-black text-indigo-600 text-base sm:text-lg break-words">{{ $applicant->email ?? $applicant->user->email ?? 'N/A' }}</span>
                             </div>
                             
-                            {{-- ⚡ REMOVED: CONTACT NO (Duplicate) --}}
-
-                            {{-- ⚡ FIXED: RESIDENTIAL ADDRESS (Split Fields from Enrollment Details or Applicant) --}}
-                            <div class="sm:col-span-2 md:col-span-3 pt-5 lg:pt-6 border-t border-slate-100 w-full">
-                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 sm:mb-4">Residential Address</label>
+                            {{-- ⚡ FIXED: RESIDENTIAL ADDRESS (Split Fields) --}}
+                            <div class="sm:col-span-2 md:col-span-3 pt-5 lg:pt-6 border-t border-slate-200 w-full">
+                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 sm:mb-4">Residential Address</label>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs sm:text-sm w-full">
                                     <div>
-                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Street / House No.</p>
-                                        <p class="font-bold text-slate-700 break-words">{{ $details->street_house_no ?? ($applicant->street_address ?? 'N/A') }}</p>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Street / House No.</p>
+                                        <p class="font-bold text-slate-800 break-words">{{ $street }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Barangay</p>
-                                        <p class="font-bold text-slate-700 break-words">{{ $details->barangay ?? ($applicant->barangay ?? 'N/A') }}</p>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Barangay</p>
+                                        <p class="font-bold text-slate-800 break-words">{{ $brgy }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Municipality / City</p>
-                                        <p class="font-bold text-slate-700 break-words">{{ $details->municipality_city ?? ($applicant->municipality_city ?? 'N/A') }}</p>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Municipality / City</p>
+                                        <p class="font-bold text-slate-800 break-words">{{ $city }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Province</p>
-                                        <p class="font-bold text-slate-700 break-words">{{ $details->province ?? ($applicant->province ?? 'N/A') }}</p>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Province</p>
+                                        <p class="font-bold text-slate-800 break-words">{{ $prov }}</p>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- SPECIAL GROUPS --}}
                             <div class="sm:col-span-2 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full mt-2">
-                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $applicant->is_ip == 'Yes' ? 'bg-yellow-50 border border-yellow-100' : 'bg-slate-50 border border-slate-100' }}">
-                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Indigenous Group (IP)</p>
-                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $applicant->is_ip == 'Yes' ? 'text-yellow-700' : 'text-slate-700' }}">
-                                        {{ $applicant->is_ip == 'Yes' ? 'YES ('.$applicant->ip_group_name.')' : 'NO' }}
+                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $is_ip == 'Yes' ? 'bg-yellow-50/80 border border-yellow-200' : 'bg-slate-50/50 border border-slate-200' }}">
+                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Indigenous Group (IP)</p>
+                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $is_ip == 'Yes' ? 'text-yellow-700' : 'text-slate-600' }}">
+                                        {{ $is_ip == 'Yes' ? 'YES ('.$ip_grp.')' : 'NO' }}
                                     </p>
                                 </div>
-                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $applicant->is_pwd == 'Yes' ? 'bg-yellow-50 border border-yellow-100' : 'bg-slate-50 border border-slate-100' }}">
-                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Person with Disability (PWD)</p>
-                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $applicant->is_pwd == 'Yes' ? 'text-yellow-700' : 'text-slate-700' }}">
-                                        {{ $applicant->is_pwd == 'Yes' ? 'YES ('.$applicant->pwd_disability.')' : 'NO' }}
+                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $is_pwd == 'Yes' ? 'bg-yellow-50/80 border border-yellow-200' : 'bg-slate-50/50 border border-slate-200' }}">
+                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Person with Disability (PWD)</p>
+                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $is_pwd == 'Yes' ? 'text-yellow-700' : 'text-slate-600' }}">
+                                        {{ $is_pwd == 'Yes' ? 'YES ('.$pwd_id.')' : 'NO' }}
                                     </p>
                                 </div>
-                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $applicant->is_4ps == 'Yes' ? 'bg-yellow-50 border border-yellow-100' : 'bg-slate-50 border border-slate-100' }}">
-                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">4Ps Beneficiary</p>
-                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $applicant->is_4ps == 'Yes' ? 'text-yellow-700' : 'text-slate-700' }}">
-                                        {{ $applicant->is_4ps == 'Yes' ? 'YES' : 'NO' }}
+                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $is_4ps == 'Yes' ? 'bg-yellow-50/80 border border-yellow-200' : 'bg-slate-50/50 border border-slate-200' }}">
+                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">4Ps Beneficiary</p>
+                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $is_4ps == 'Yes' ? 'text-yellow-700' : 'text-slate-600' }}">
+                                        {{ $is_4ps == 'Yes' ? 'YES' : 'NO' }}
                                     </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- SECTION 2: PARENTS & GUARDIAN INFO --}}
-                    <div class="bg-white p-5 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2rem] shadow-xl border border-slate-100 w-full">
+                    {{-- SECTION 2: PARENTS & GUARDIAN INFO (GLASS EFFECT) --}}
+                    <div class="bg-white/90 backdrop-blur-md p-5 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2rem] shadow-xl border border-white/40 w-full">
                         <h3 class="text-indigo-900 font-black uppercase text-[10px] sm:text-xs tracking-widest mb-6 lg:mb-8 flex items-center">
                             <span class="bg-indigo-600 text-white w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center text-[9px] sm:text-[10px] mr-2.5 sm:mr-3 shrink-0">02</span> 
                             Parents & Guardian Information
@@ -151,109 +193,96 @@
                         <div class="space-y-8 sm:space-y-10 text-xs sm:text-sm w-full">
                             
                             {{-- FATHER --}}
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pb-6 border-b border-slate-100 w-full">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pb-6 border-b border-slate-200 w-full">
                                 <div class="md:col-span-2 flex items-center gap-2 w-full">
                                     <div class="h-px bg-slate-200 flex-1"></div>
-                                    <span class="text-[9px] sm:text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-200 shrink-0">Father's Information</span>
+                                    <span class="text-[9px] sm:text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-slate-50/50 px-3 py-1 rounded-full border border-slate-200 shrink-0">Father's Information</span>
                                     <div class="h-px bg-slate-200 flex-1"></div>
                                 </div>
                                 <div class="w-full">
-                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Full Name</p>
-                                    {{-- ⚡ FIXED: GET FROM ENROLLMENT DETAILS --}}
-                                    <p class="font-bold text-slate-700 uppercase text-base sm:text-lg break-words">
-                                        {{ $details->father_name ?? 'N/A' }}
-                                    </p>
+                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Full Name</p>
+                                    <p class="font-bold text-slate-800 uppercase text-base sm:text-lg break-words">{{ $f_name }}</p>
                                 </div>
                                 <div class="w-full">
-                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Contact / Email</p>
-                                    <p class="font-bold text-slate-700 break-words">{{ $details->father_contact ?? 'N/A' }}</p>
-                                    <p class="text-[10px] sm:text-xs text-blue-600 break-words">{{ $details->father_email ?? 'N/A' }}</p>
+                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Contact / Email</p>
+                                    <p class="font-bold text-slate-800 break-words">{{ $f_contact }}</p>
+                                    <p class="text-[10px] sm:text-xs text-blue-600 break-words">{{ $f_email }}</p>
                                 </div>
-                                {{-- ⚡ FIXED: FATHER'S ADDRESS RESTORED --}}
                                 <div class="md:col-span-2 w-full">
-                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Father's Address</p>
-                                    <p class="font-bold text-slate-700 break-words">
-                                        {{ $details->father_address ?? 'Same as Student' }}
-                                    </p>
+                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Father's Address</p>
+                                    <p class="font-bold text-slate-800 break-words">{{ $f_addr }}</p>
                                 </div>
                             </div>
 
                             {{-- MOTHER --}}
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pb-6 border-b border-slate-100 w-full">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pb-6 border-b border-slate-200 w-full">
                                 <div class="md:col-span-2 flex items-center gap-2 w-full">
                                     <div class="h-px bg-slate-200 flex-1"></div>
-                                    <span class="text-[9px] sm:text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-200 shrink-0">Mother's Information</span>
+                                    <span class="text-[9px] sm:text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-slate-50/50 px-3 py-1 rounded-full border border-slate-200 shrink-0">Mother's Information</span>
                                     <div class="h-px bg-slate-200 flex-1"></div>
                                 </div>
                                 <div class="w-full">
-                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Maiden Name</p>
-                                    {{-- ⚡ FIXED: GET FROM ENROLLMENT DETAILS --}}
-                                    <p class="font-bold text-slate-700 uppercase text-base sm:text-lg break-words">
-                                        {{ $details->mother_maiden_name ?? 'N/A' }}
-                                    </p>
+                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Maiden Name</p>
+                                    <p class="font-bold text-slate-800 uppercase text-base sm:text-lg break-words">{{ $m_name }}</p>
                                 </div>
                                 <div class="w-full">
-                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Contact / Email</p>
-                                    <p class="font-bold text-slate-700 break-words">{{ $details->mother_contact ?? 'N/A' }}</p>
-                                    <p class="text-[10px] sm:text-xs text-blue-600 break-words">{{ $details->mother_email ?? 'N/A' }}</p>
+                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Contact / Email</p>
+                                    <p class="font-bold text-slate-800 break-words">{{ $m_contact }}</p>
+                                    <p class="text-[10px] sm:text-xs text-blue-600 break-words">{{ $m_email }}</p>
                                 </div>
-                                {{-- ⚡ FIXED: MOTHER'S ADDRESS RESTORED --}}
                                 <div class="md:col-span-2 w-full">
-                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Mother's Address</p>
-                                    <p class="font-bold text-slate-700 break-words">
-                                        {{ $details->mother_address ?? 'Same as Student' }}
-                                    </p>
+                                    <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Mother's Address</p>
+                                    <p class="font-bold text-slate-800 break-words">{{ $m_addr }}</p>
                                 </div>
                             </div>
 
                             {{-- GUARDIAN --}}
-                            <div class="bg-indigo-900 p-5 sm:p-6 rounded-2xl lg:rounded-3xl text-white shadow-xl w-full">
-                                <div class="text-[9px] sm:text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-3 sm:mb-4">Designated Guardian (Emergency Contact)</div>
+                            <div class="bg-indigo-900/90 backdrop-blur-md p-5 sm:p-6 rounded-2xl lg:rounded-3xl text-white shadow-xl w-full border border-white/10">
+                                <div class="text-[9px] sm:text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-3 sm:mb-4">Designated Guardian (Emergency Contact)</div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full">
                                     <div class="w-full">
-                                        <p class="text-[8px] sm:text-[9px] font-black text-indigo-400 uppercase">Guardian Name & Relationship</p>
-                                        {{-- ⚡ FIXED: GET FROM ENROLLMENT DETAILS --}}
-                                        <p class="font-black text-base sm:text-lg uppercase leading-tight break-words">{{ $details->guardian_name ?? $applicant->guardian_name }} ({{ $details->guardian_relationship ?? $applicant->guardian_relationship }})</p>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-indigo-300 uppercase">Guardian Name & Relationship</p>
+                                        <p class="font-black text-base sm:text-lg uppercase leading-tight break-words">{{ $g_name }} ({{ $g_rel }})</p>
                                     </div>
                                     <div class="w-full">
-                                        <p class="text-[8px] sm:text-[9px] font-black text-indigo-400 uppercase">Contact / Email</p>
-                                        <p class="font-black text-base sm:text-lg break-words">{{ $details->guardian_contact ?? $applicant->guardian_contact }}</p>
-                                        <p class="text-[10px] sm:text-xs text-indigo-200 break-words">{{ $details->guardian_email ?? 'N/A' }}</p>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-indigo-300 uppercase">Contact / Email</p>
+                                        <p class="font-black text-base sm:text-lg break-words">{{ $g_contact }}</p>
+                                        <p class="text-[10px] sm:text-xs text-indigo-200 break-words">{{ $g_email }}</p>
                                     </div>
                                     <div class="sm:col-span-2 border-t border-white/10 pt-4 w-full">
-                                        <p class="text-[8px] sm:text-[9px] font-black text-indigo-400 uppercase">Guardian Home Address</p>
-                                        <p class="font-bold text-xs sm:text-sm break-words">{{ $details->guardian_address ?? 'Same as Student' }}</p>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-indigo-300 uppercase">Guardian Home Address</p>
+                                        <p class="font-bold text-xs sm:text-sm break-words">{{ $g_addr }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- SECTION 3: SCHOOL INFO --}}
-                    <div class="bg-white p-5 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2rem] shadow-xl border border-slate-100 w-full">
+                    {{-- SECTION 3: SCHOOL INFO (GLASS EFFECT) --}}
+                    <div class="bg-white/90 backdrop-blur-md p-5 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2rem] shadow-xl border border-white/40 w-full">
                         <h3 class="text-indigo-900 font-black uppercase text-[10px] sm:text-xs tracking-widest mb-6 lg:mb-8 flex items-center">
                             <span class="bg-indigo-600 text-white w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center text-[9px] sm:text-[10px] mr-2.5 sm:mr-3 shrink-0">03</span> 
                             School Information (For Transferees)
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-8 text-xs sm:text-sm w-full">
-                            <div class="sm:col-span-2 bg-slate-50 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-100 w-full">
-                                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Last School Attended</p>
+                            <div class="sm:col-span-2 bg-slate-50/50 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200 w-full">
+                                <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Last School Attended</p>
                                 <p class="font-black text-slate-800 text-base sm:text-lg uppercase leading-tight break-words">{{ $details->school_name ?? 'NOT A TRANSFEREE' }}</p>
                                 <p class="text-[10px] sm:text-xs text-slate-500 mt-1 break-words">School ID: {{ $details->school_id ?? 'N/A' }} | Type: {{ $details->school_type ?? 'N/A' }}</p>
                             </div>
                             <div class="w-full">
-                                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Last Grade & School Year</p>
-                                <p class="font-bold text-slate-700 break-words">Grade {{ $details->last_grade_level ?? 'N/A' }} | S.Y. {{ $details->last_school_year ?? 'N/A' }}</p>
+                                <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Last Grade & School Year</p>
+                                <p class="font-bold text-slate-800 break-words">Grade {{ $details->last_grade_level ?? 'N/A' }} | S.Y. {{ $details->last_school_year ?? 'N/A' }}</p>
                             </div>
                             <div class="w-full">
-                                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">School Address</p>
-                                <p class="font-bold text-slate-700 break-words">{{ $details->school_address ?? 'N/A' }}</p>
+                                <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">School Address</p>
+                                <p class="font-bold text-slate-800 break-words">{{ $details->school_address ?? 'N/A' }}</p>
                             </div>
                         </div>
                     </div>
 
-                    {{-- SECTION 4: DOCUMENTS --}}
-                    <div class="bg-white p-5 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2rem] shadow-xl border border-slate-100 w-full">
+                    {{-- SECTION 4: DOCUMENTS (GLASS EFFECT) --}}
+                    <div class="bg-white/90 backdrop-blur-md p-5 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2rem] shadow-xl border border-white/40 w-full">
                         <h3 class="text-indigo-900 font-black uppercase text-[10px] sm:text-xs tracking-widest mb-6 lg:mb-8 flex items-center">
                             <span class="bg-indigo-600 text-white w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center text-[9px] sm:text-[10px] mr-2.5 sm:mr-3 shrink-0">04</span> 
                             Submitted Official Requirements
@@ -263,10 +292,11 @@
                                 $files = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
                                 $labels = [
                                     'sa_info_form' => 'Student-Athlete Info Form',
-                                    'report_card' => 'Previous Report Card (SF9)',
-                                    'medical_clearance' => 'Medical Clearance (PPE)',
                                     'scholarship_app_form' => 'Scholarship Application',
+                                    'sa_profile_form' => 'Athlete Profile Summary',
+                                    'ppe_clearance' => 'Medical Clearance (PPE)',
                                     'psa_birth_cert' => 'PSA Birth Certificate',
+                                    'report_card' => 'Previous Report Card (SF9)',
                                     'guardian_id' => 'Guardian Govt ID',
                                     'kukkiwon_cert' => 'Kukkiwon Certificate (TKD)',
                                     'ip_cert' => 'IP Certification',
@@ -277,13 +307,13 @@
                             @endphp
 
                             @forelse($files as $key => $link)
-                                <div class="flex items-center justify-between p-3 sm:p-4 border border-slate-100 rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-indigo-50 transition-all group w-full">
+                                <div class="flex items-center justify-between p-3 sm:p-4 border border-slate-200 rounded-xl sm:rounded-2xl bg-slate-50/50 hover:bg-indigo-50/50 transition-all group w-full">
                                     <div class="flex items-center gap-3 sm:gap-4 overflow-hidden w-full">
                                         <div class="bg-white p-2 sm:p-3 rounded-lg sm:rounded-xl text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white shrink-0 transition-colors">
                                             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         </div>
                                         <div class="truncate min-w-0">
-                                            <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Requirement</p>
+                                            <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Requirement</p>
                                             <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $labels[$key] ?? str_replace('_', ' ', $key) }}</p>
                                         </div>
                                     </div>
@@ -303,9 +333,12 @@
                 {{-- RIGHT SIDE: FINAL ADMISSION (STICKY SIDEBAR) --}}
                 <div class="w-full lg:col-span-1 no-print">
                     <div class="sticky top-8 space-y-5 sm:space-y-6 w-full">
-                        <div class="bg-white shadow-2xl rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 overflow-hidden w-full">
+                        {{-- ⚡ GLASS EFFECT FOR SIDEBAR ⚡ --}}
+                        <div class="bg-white/90 backdrop-blur-md shadow-2xl rounded-[2rem] sm:rounded-[2.5rem] border border-white/40 overflow-hidden w-full">
+                            
                             @if($isAdmitted)
-                                <div class="bg-emerald-600 p-6 sm:p-8 text-center text-white relative w-full">
+                                {{-- ADMITTED STATE: NO MORE BUTTONS --}}
+                                <div class="bg-emerald-600/90 backdrop-blur-md p-6 sm:p-8 text-center text-white relative w-full">
                                     <h3 class="font-black uppercase tracking-tighter italic text-lg sm:text-xl flex items-center justify-center gap-2">
                                         <svg class="w-6 h-6 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         Officially Admitted
@@ -314,7 +347,7 @@
                                 </div>
                                 <div class="p-5 sm:p-8 w-full text-center">
                                     <div class="mb-4">
-                                        <label class="block text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 sm:mb-3">Official Student ID</label>
+                                        <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 sm:mb-3">Official Student ID</label>
                                         <div class="bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border-2 border-slate-800 text-white w-full">
                                             <span class="font-mono text-xl sm:text-2xl font-black tracking-[0.1em] sm:tracking-[0.2em] text-emerald-400">
                                                 {{ $applicant->student_id ?? date('Y').'-'.str_pad($applicant->id, 5, '0', STR_PAD_LEFT) }}
@@ -323,8 +356,10 @@
                                     </div>
                                     <p class="text-xs font-bold text-slate-400 mt-6 italic">No further actions required.</p>
                                 </div>
+                            
                             @else
-                                <div class="bg-indigo-600 p-6 sm:p-8 text-center text-white relative w-full">
+                                {{-- PENDING STATE: SHOW BUTTONS --}}
+                                <div class="bg-indigo-600/90 backdrop-blur-md p-6 sm:p-8 text-center text-white relative w-full">
                                     <h3 class="font-black uppercase tracking-tighter italic text-lg sm:text-xl">Admit Student</h3>
                                     <p class="text-[9px] sm:text-[10px] font-bold text-white/70 uppercase mt-1">Final Registrar Approval</p>
                                 </div>
@@ -332,20 +367,22 @@
                                     <form action="{{ route('official-enrollment.store', $applicant->id) }}" method="POST" class="space-y-5 sm:space-y-6 w-full">
                                         @csrf
                                         <div class="text-center w-full">
-                                            <label class="block text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 sm:mb-3">Generated Student ID</label>
+                                            <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 sm:mb-3">Generated Student ID</label>
                                             <div class="bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border-2 border-slate-800 text-white w-full">
                                                 <span class="font-mono text-xl sm:text-2xl font-black tracking-[0.1em] sm:tracking-[0.2em] text-indigo-400">
                                                     {{ date('Y') }}-{{ str_pad($applicant->id, 5, '0', STR_PAD_LEFT) }}
                                                 </span>
                                             </div>
                                         </div>
+
                                         <button type="submit" onclick="return confirm('Officially admit this student?')" 
                                             class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 sm:py-5 px-4 sm:px-6 rounded-xl sm:rounded-[1.5rem] shadow-xl shadow-emerald-100 transition-all transform hover:-translate-y-1 active:scale-95 uppercase tracking-wider sm:tracking-widest text-[10px] sm:text-xs flex justify-center items-center gap-2 sm:gap-3">
                                             CONFIRM & ADMIT
                                             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         </button>
                                     </form>
-                                    <div class="mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-slate-100 w-full">
+
+                                    <div class="mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-slate-200 w-full">
                                         <form action="{{ route('official-enrollment.return', $applicant->id) }}" method="POST" class="w-full">
                                             @csrf @method('PATCH')
                                             <button type="submit" onclick="return confirm('Return for revision?')" 
@@ -356,6 +393,7 @@
                                     </div>
                                 </div>
                             @endif
+
                         </div>
                     </div>
                 </div>
