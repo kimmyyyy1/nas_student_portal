@@ -36,6 +36,53 @@
         </div>
     </x-slot>
 
+    @php
+        // 1. FIX GENDER
+        $gender = strtoupper($student->gender ?? $student->sex);
+        if(in_array($gender, ['BOY', 'M', 'MALE'])) $gender = 'MALE';
+        if(in_array($gender, ['GIRL', 'F', 'FEMALE'])) $gender = 'FEMALE';
+
+        // 2. FORCE FETCH DATA (Smart Fallback Logic)
+        $details = \App\Models\EnrollmentDetail::where('email', $student->email_address)
+                    ->orWhere('lrn', $student->lrn)
+                    ->latest() 
+                    ->first();
+
+        $applicantFallback = \App\Models\Applicant::where('lrn', $student->lrn)->first();
+
+        // 3. VARIABLE MAPPING (Priority: Details -> Applicant -> Student Record -> 'N/A')
+        function getData($d, $a, $s, $fieldD, $fieldA, $fieldS) {
+            return $d->$fieldD ?? ($a->$fieldA ?? ($s->$fieldS ?? 'N/A'));
+        }
+
+        // Address
+        $street = getData($details, $applicantFallback, $student, 'street_house_no', 'street_address', 'street_address');
+        $brgy = getData($details, $applicantFallback, $student, 'barangay', 'barangay', 'barangay');
+        $city = getData($details, $applicantFallback, $student, 'municipality_city', 'municipality_city', 'municipality_city');
+        $prov = getData($details, $applicantFallback, $student, 'province', 'province', 'province');
+        $zip  = $details->zip_code ?? ($applicantFallback->zip_code ?? ($student->zip_code ?? ''));
+
+        // Guardian
+        $g_name = getData($details, $applicantFallback, $student, 'guardian_name', 'guardian_name', 'guardian_name');
+        $g_rel = getData($details, $applicantFallback, $student, 'guardian_relationship', 'guardian_relationship', 'guardian_relationship');
+        $g_contact = getData($details, $applicantFallback, $student, 'guardian_contact', 'guardian_contact', 'guardian_contact');
+        
+        // ⚡ ROBUST FLAG CHECKING (Handles 'Yes', 'yes', 1, true, etc.) ⚡
+        $raw_ip = $details->is_ip ?? ($applicantFallback->is_ip ?? ($student->is_ip ?? 'No'));
+        $is_ip = in_array(strtolower(trim($raw_ip)), ['yes', '1', 'true', 'y']);
+        $ip_grp = $details->ip_group_name ?? ($applicantFallback->ip_group_name ?? ($student->ip_group_name ?? ''));
+        
+        $raw_pwd = $details->is_pwd ?? ($applicantFallback->is_pwd ?? ($student->is_pwd ?? 'No'));
+        $is_pwd = in_array(strtolower(trim($raw_pwd)), ['yes', '1', 'true', 'y']);
+        $pwd_id = $details->pwd_disability ?? ($applicantFallback->pwd_disability ?? ($student->pwd_disability ?? ''));
+        
+        $raw_4ps = $details->is_4ps ?? ($applicantFallback->is_4ps ?? ($student->is_4ps ?? 'No'));
+        $is_4ps = in_array(strtolower(trim($raw_4ps)), ['yes', '1', 'true', 'y']);
+        
+        // Other Remarks
+        $otherRemarks = $details->other_remarks ?? ($applicantFallback->other_remarks ?? ($student->other_remarks ?? ''));
+    @endphp
+
     <div class="py-6 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
             
@@ -52,8 +99,7 @@
                 </div>
             @endif
 
-            {{-- ⚡ BAGO: RENEWAL / CONTINUING ENROLLMENT BANNER ⚡ --}}
-            {{-- Ipakita kapag Promoted, Conditional, o kaya 'Continuing' ang current status niya --}}
+            {{-- ⚡ RENEWAL / CONTINUING ENROLLMENT BANNER ⚡ --}}
             @if(in_array($student->promotion_status, ['Promoted', 'Conditional']) || str_contains($student->promotion_status, 'Honors') || $student->status === 'Continuing')
                 <div class="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-2xl shadow-xl overflow-hidden mb-6 sm:mb-8 border border-indigo-400 relative">
                     <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
@@ -115,22 +161,33 @@
                         <span x-show="showInfo">Hide Profile Details</span>
                         <svg class="w-4 h-4 ml-1 transform transition-transform" :class="{'rotate-180': showInfo}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
+                    
                     <div x-show="showInfo" x-transition style="display: none;" class="p-4 sm:p-6 bg-white/95 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 text-sm border-t">
                         <div>
                             <h4 class="font-bold text-indigo-700 mb-2 border-b pb-1">Personal Data</h4>
                             <p class="mb-1"><span class="text-gray-500">Birthdate:</span> {{ $student->birthdate ? date('M d, Y', strtotime($student->birthdate)) : 'N/A' }}</p>
                             <p class="mb-1"><span class="text-gray-500">Age:</span> {{ $student->birthdate ? \Carbon\Carbon::parse($student->birthdate)->age : 'N/A' }}</p>
-                            <p class="mb-1"><span class="text-gray-500">Sex:</span> {{ $student->sex }}</p>
+                            <p class="mb-1"><span class="text-gray-500">Sex:</span> {{ $gender }}</p>
+                            
+                            {{-- Specific Groups Badges --}}
+                            @if($is_ip || $is_pwd || $is_4ps || !empty($otherRemarks))
+                                <div class="mt-2 flex flex-wrap gap-1">
+                                    @if($is_ip) <span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-[9px] font-bold rounded uppercase">IP: {{ $ip_grp ?: 'Yes' }}</span> @endif
+                                    @if($is_pwd) <span class="px-2 py-0.5 bg-purple-100 text-purple-800 text-[9px] font-bold rounded uppercase">PWD: {{ $pwd_id ?: 'Yes' }}</span> @endif
+                                    @if($is_4ps) <span class="px-2 py-0.5 bg-rose-100 text-rose-800 text-[9px] font-bold rounded uppercase">4Ps</span> @endif
+                                    @if(!empty($otherRemarks)) <span class="px-2 py-0.5 bg-gray-200 text-gray-800 text-[9px] font-bold rounded uppercase">{{ $otherRemarks }}</span> @endif
+                                </div>
+                            @endif
                         </div>
                         <div>
                             <h4 class="font-bold text-indigo-700 mb-2 border-b pb-1">Contact Info</h4>
-                            <p class="mb-1"><span class="text-gray-500">Email:</span> {{ $student->email_address }}</p>
-                            <p class="mb-1"><span class="text-gray-500">Address:</span> {{ $student->municipality_city }}, {{ $student->province }}</p>
+                            <p class="mb-1"><span class="text-gray-500">Email:</span> <span class="break-all">{{ $student->email_address }}</span></p>
+                            <p class="mb-1"><span class="text-gray-500">Address:</span> {{ $brgy }}, {{ $city }}, {{ $prov }} {{ $zip ? '('.$zip.')' : '' }}</p>
                         </div>
                         <div>
                             <h4 class="font-bold text-indigo-700 mb-2 border-b pb-1">Guardian</h4>
-                            <p class="mb-1"><span class="text-gray-500">Name:</span> {{ $student->guardian_name ?? 'N/A' }}</p>
-                            <p class="mb-1"><span class="text-gray-500">Contact:</span> {{ $student->guardian_contact ?? 'N/A' }}</p>
+                            <p class="mb-1"><span class="text-gray-500">Name:</span> {{ $g_name }} <span class="italic text-xs text-gray-400">({{ $g_rel }})</span></p>
+                            <p class="mb-1"><span class="text-gray-500">Contact:</span> {{ $g_contact }}</p>
                         </div>
                     </div>
                 </div>
