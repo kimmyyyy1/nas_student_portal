@@ -48,11 +48,8 @@
         </div>
     </x-slot>
 
-    {{-- 👇 FIX: 'py-2' sa mobile, 'md:py-12' sa desktop --}}
     <div class="py-2 md:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
-            
-            {{-- ❌ REMOVED: Wala na ang Back Button --}}
             
             {{-- ALERTS --}}
             @if(session('success'))
@@ -113,13 +110,13 @@
                             </select>
                         </div>
 
-                        {{-- 4. SPORT (UPDATED LIST) --}}
+                        {{-- 4. SPORT --}}
                         <div class="w-full lg:w-40">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Sport</label>
                             <select name="sport" class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 text-gray-900 cursor-pointer">
                                 <option value="">All Sports</option>
-                                {{-- 👇 Exact list from your screenshot --}}
-                                @foreach(['Taekwondo', 'Table Tennis', 'Judo', 'Gymnastics', 'Badminton', 'Athletics', 'Aquatics'] as $sport)
+                                {{-- ⚡ INALIS NA ANG MGA NASA LOOB NG PARENTHESIS ⚡ --}}
+                                @foreach(['Aquatics', 'Athletics', 'Badminton', 'Gymnastics', 'Judo', 'Table Tennis', 'Taekwondo', 'Weightlifting'] as $sport)
                                     <option value="{{ $sport }}" {{ request('sport') == $sport ? 'selected' : '' }}>{{ $sport }}</option>
                                 @endforeach
                             </select>
@@ -172,7 +169,6 @@
                             @forelse($students as $student)
                                 <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
                                     
-                                    {{-- 1. STUDENT ID --}}
                                     <td class="px-4 py-3">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 mr-2 hidden sm:block">
@@ -190,7 +186,6 @@
                                         </div>
                                     </td>
 
-                                    {{-- 2. NAME --}}
                                     <td class="px-4 py-3">
                                         <div class="text-sm font-bold text-gray-900 uppercase leading-tight">
                                             {{ $student->last_name }}, {{ $student->first_name }}
@@ -198,7 +193,6 @@
                                         <div class="text-xs text-gray-500">{{ $student->email_address }}</div>
                                     </td>
 
-                                    {{-- 3. GRADE & SECTION --}}
                                     <td class="px-4 py-3">
                                         @if($student->status === 'Graduate')
                                             <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
@@ -214,18 +208,67 @@
                                         @endif
                                     </td>
 
-                                    {{-- 4. SPORT --}}
+                                    {{-- 4. SPORT (ULTIMATE ROBUST LOGIC) --}}
                                     <td class="px-4 py-3">
-                                        @if($student->team)
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-                                                {{ $student->team->sport ?? $student->team->sport_type ?? $student->team->team_name }}
+                                        @php
+                                            $details = $student->enrollmentDetail; 
+                                            if (!$details && $student->user) {
+                                                $details = $student->user->enrollmentDetail;
+                                            }
+                                            if (!$details && (!empty($student->lrn) || !empty($student->email_address))) {
+                                                $details = \App\Models\EnrollmentDetail::where(function($query) use ($student) {
+                                                    if(!empty($student->lrn)) $query->where('lrn', $student->lrn);
+                                                    if(!empty($student->email_address)) $query->orWhere('email', $student->email_address);
+                                                })->latest()->first();
+                                            }
+
+                                            $applicantFallback = null;
+                                            if (!empty($student->lrn)) {
+                                                $applicantFallback = \App\Models\Applicant::where('lrn', $student->lrn)->first();
+                                            }
+
+                                            $displaySport = $student->sport 
+                                                            ?? ($details->sport ?? null) 
+                                                            ?? ($applicantFallback->sport ?? null) 
+                                                            ?? ($student->team->sport ?? $student->team->sport_type ?? $student->team->team_name ?? null);
+
+                                            if (!empty($displaySport) && $displaySport !== 'N/A' && $displaySport !== 'None') {
+                                                $sportLower = strtolower($displaySport);
+                                                
+                                                // ⚡ CLEAN DISPLAY NAMES ⚡
+                                                if (str_contains($sportLower, 'aquatic') || str_contains($sportLower, 'swim')) {
+                                                    $displaySport = 'Aquatics';
+                                                } elseif (str_contains($sportLower, 'athletic') || str_contains($sportLower, 'track')) {
+                                                    $displaySport = 'Athletics';
+                                                } elseif (str_contains($sportLower, 'taekwondo')) {
+                                                    $displaySport = 'Taekwondo';
+                                                } elseif (str_contains($sportLower, 'gymnastic')) {
+                                                    $displaySport = 'Gymnastics';
+                                                } elseif (str_contains($sportLower, 'badminton')) {
+                                                    $displaySport = 'Badminton';
+                                                } elseif (str_contains($sportLower, 'judo')) {
+                                                    $displaySport = 'Judo';
+                                                } elseif (str_contains($sportLower, 'table tennis') || str_contains($sportLower, 'tabletennis')) {
+                                                    $displaySport = 'Table Tennis';
+                                                } elseif (str_contains($sportLower, 'weightlifting')) {
+                                                    $displaySport = 'Weightlifting';
+                                                } else {
+                                                    $displaySport = ucwords(strtolower($displaySport));
+                                                }
+                                            } else {
+                                                $displaySport = null;
+                                            }
+                                        @endphp
+
+                                        @if($displaySport)
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-100 shadow-sm">
+                                                {{ $displaySport }}
                                             </span>
                                         @else
                                             <span class="text-xs text-gray-400 italic">None</span>
                                         @endif
                                     </td>
 
-                                    {{-- 5. STATUS --}}
                                     <td class="px-4 py-3 text-center">
                                         @php
                                             $statusColor = match($student->status) {
@@ -242,7 +285,6 @@
                                         </span>
                                     </td>
 
-                                    {{-- 6. ACTION --}}
                                     <td class="px-4 py-3 text-right text-sm font-medium">
                                         <a href="{{ route('students.show', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 transition">
                                             View
@@ -263,8 +305,6 @@
                     </table>
                 </div>
                 
-                {{-- 👇 FIX PAGINATION: Added 'appends(request()->query())' --}}
-                {{-- Ito ang dahilan kung bakit hindi mawawala ang filter kapag nag-next page ka --}}
                 <div class="px-4 py-3 border-t border-gray-200">
                     {{ $students->appends(request()->query())->links() }}
                 </div>
@@ -272,12 +312,10 @@
         </div>
     </div>
 
-    {{-- LIVE UPDATE SCRIPT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             setInterval(function() {
                 const urlParams = new URLSearchParams(window.location.search);
-                // Only auto-update if no filters are active to avoid messing up search results
                 if (!urlParams.has('search') && !urlParams.has('page') && !urlParams.has('sport') && !urlParams.has('grade_level')) {
                     updateTable();
                 }

@@ -34,7 +34,7 @@
         $brgy = getData($details, $applicantFallback, $student, 'barangay', 'barangay', 'barangay');
         $city = getData($details, $applicantFallback, $student, 'municipality_city', 'municipality_city', 'municipality_city');
         $prov = getData($details, $applicantFallback, $student, 'province', 'province', 'province');
-        // ⚡ Ensure zip code is fetched properly
+        // ⚡ EXACT ZIP CODE FETCH ⚡
         $zip  = $details->zip_code ?? ($applicantFallback->zip_code ?? ($student->zip_code ?? ''));
 
         // Father
@@ -56,7 +56,7 @@
         $g_email = $details->guardian_email ?? 'N/A';
         $g_addr = getData($details, $applicantFallback, $student, 'guardian_address', 'guardian_address', 'guardian_address');
         
-        // ROBUST FLAG CHECKING (Handles 'Yes', 'yes', 1, true, etc.)
+        // ROBUST FLAG CHECKING
         $raw_ip = $details->is_ip ?? ($applicantFallback->is_ip ?? ($student->is_ip ?? 'No'));
         $is_ip = in_array(strtolower(trim($raw_ip)), ['yes', '1', 'true', 'y']);
         $ip_grp = $details->ip_group_name ?? ($applicantFallback->ip_group_name ?? ($student->ip_group_name ?? ''));
@@ -70,6 +70,11 @@
         
         // Other Remarks
         $otherRemarks = $details->other_remarks ?? ($applicantFallback->other_remarks ?? ($student->other_remarks ?? ''));
+        
+        // ⚡ SPORT & CATEGORY ⚡
+        $displaySport = $student->sport ?? ($applicantFallback->sport ?? ($details->sport ?? 'N/A'));
+        // Subukang kunin ang category sa team, kung wala, sa applicant's sport specification
+        $displayCategory = $student->team->sport_type ?? ($applicantFallback->sport_specification ?? '-');
     @endphp
 
     <div class="py-6 md:py-12">
@@ -165,7 +170,8 @@
                                     <i class='bx bx-trophy mr-2 text-yellow-500 text-lg'></i> Sports Info
                                 </h3>
                                 <div class="space-y-4">
-                                    <div><p class="text-xs text-gray-500 mb-1">Team / Sport</p><p class="font-bold text-gray-800 text-lg">{{ $student->team->team_name ?? $student->sport ?? 'No Team' }}</p></div>
+                                    <div><p class="text-xs text-gray-500 mb-1">Focus Sport</p><p class="font-bold text-gray-800 text-lg uppercase">{{ $displaySport }}</p></div>
+                                    <div><p class="text-xs text-gray-500 mb-1">Category / Type</p><p class="font-medium text-gray-700">{{ $displayCategory }}</p></div>
                                 </div>
                             </div>
                         </div>
@@ -187,18 +193,17 @@
                                             <div><p class="text-[10px] font-bold text-gray-400 uppercase">Street / House No.</p><p class="text-sm font-medium text-gray-800">{{ $street }}</p></div>
                                             <div><p class="text-[10px] font-bold text-gray-400 uppercase">Barangay</p><p class="text-sm font-medium text-gray-800">{{ $brgy }}</p></div>
                                             <div><p class="text-[10px] font-bold text-gray-400 uppercase">Municipality / City</p><p class="text-sm font-medium text-gray-800">{{ $city }}</p></div>
-                                            {{-- ⚡ FIXED: ADDED ZIP CODE TO DISPLAY ⚡ --}}
+                                            {{-- ⚡ FIXED ZIP CODE DISPLAY ⚡ --}}
                                             <div>
                                                 <p class="text-[10px] font-bold text-gray-400 uppercase">Province</p>
                                                 <p class="text-sm font-medium text-gray-800">
                                                     {{ $prov }} 
-                                                    @if(!empty($zip)) <span class="text-gray-500">({{ $zip }})</span> @endif
+                                                    @if(!empty($zip) && $zip != 'N/A') <span class="text-gray-500">({{ $zip }})</span> @endif
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {{-- SPECIAL GROUPS --}}
                                     @if($is_ip || $is_pwd || $is_4ps || !empty($otherRemarks))
                                         <div class="sm:col-span-2 mt-2 pt-4 border-t border-gray-100 border-dashed">
                                             <div class="flex flex-wrap gap-3">
@@ -247,7 +252,7 @@
                                         <div class="flex items-center mb-3"><i class='bx bxs-shield-alt-2 text-orange-500 mr-2 text-lg'></i><span class="text-xs font-black text-orange-700 uppercase tracking-widest">Emergency Contact / Guardian</span></div>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Guardian Name</p><p class="font-bold text-gray-900 text-base">{{ $g_name }}</p><p class="text-xs text-gray-500 italic">{{ $g_rel }}</p></div>
-                                            <div><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Contact Number</p><p class="text-lg font-mono font-bold text-gray-800">{{ $g_contact }}</p></div>
+                                            <div><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Contact Number</p><a href="tel:{{ $g_contact }}" class="inline-flex items-center text-lg font-mono font-bold text-gray-800 hover:text-orange-600 transition">{{ $g_contact }}</a></div>
                                             <div class="sm:col-span-2 mt-2 pt-2 border-t border-orange-200/50"><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Guardian Address</p><p class="text-sm text-gray-700">{{ $g_addr }}</p></div>
                                             @if($g_email != 'N/A')
                                                 <div class="sm:col-span-2 mt-1"><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Email</p><p class="text-sm text-gray-700">{{ $g_email }}</p></div>

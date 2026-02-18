@@ -106,31 +106,45 @@
                                             <option value="Female" {{ old('sex', in_array($currentGender, ['GIRL', 'F', 'FEMALE']) ? 'Female' : '') == 'Female' ? 'selected' : '' }}>Female</option>
                                         </select>
                                     </div>
+                                    
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthdate</label><input type="date" id="birthdate" name="birthdate" value="{{ old('birthdate', $student->birthdate ? \Carbon\Carbon::parse($student->birthdate)->format('Y-m-d') : '') }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     
-                                    {{-- REMOVED BIRTHPLACE AND RELIGION --}}
+                                    <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthplace</label><input type="text" name="birthplace" value="{{ old('birthplace', $student->birthplace) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
+                                    
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Religion</label><input type="text" name="religion" value="{{ old('religion', $student->religion) }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                     
                                     {{-- CHECKBOXES & OTHERS --}}
                                     <div class="md:col-span-3 mt-4 pt-4 border-t border-gray-100 border-dashed">
                                         <div class="flex flex-col md:flex-row md:items-center gap-4">
                                             <div class="flex flex-wrap gap-4">
                                                 <label class="flex items-center space-x-2 cursor-pointer">
-                                                    <input type="checkbox" name="is_ip" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip', getEditVal($details, $applicantFallback, $student, 'is_ip', 'is_ip', 'is_ip')) == 'Yes' ? 'checked' : '' }}> 
+                                                    @php
+                                                        $rawIp = getEditVal($details, $applicantFallback, $student, 'is_ip', 'is_ip', 'is_ip');
+                                                        $isCheckedIp = in_array(strtolower(trim($rawIp)), ['yes', '1', 'true', 'y']);
+                                                    @endphp
+                                                    <input type="checkbox" name="is_ip" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip', $isCheckedIp ? 'Yes' : '') == 'Yes' ? 'checked' : '' }}> 
                                                     <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
                                                 </label>
                                                 <label class="flex items-center space-x-2 cursor-pointer">
-                                                    <input type="checkbox" name="is_pwd" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd', getEditVal($details, $applicantFallback, $student, 'is_pwd', 'is_pwd', 'is_pwd')) == 'Yes' ? 'checked' : '' }}> 
+                                                    @php
+                                                        $rawPwd = getEditVal($details, $applicantFallback, $student, 'is_pwd', 'is_pwd', 'is_pwd');
+                                                        $isCheckedPwd = in_array(strtolower(trim($rawPwd)), ['yes', '1', 'true', 'y']);
+                                                    @endphp
+                                                    <input type="checkbox" name="is_pwd" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd', $isCheckedPwd ? 'Yes' : '') == 'Yes' ? 'checked' : '' }}> 
                                                     <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
                                                 </label>
                                                 <label class="flex items-center space-x-2 cursor-pointer">
-                                                    <input type="checkbox" name="is_4ps" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps', getEditVal($details, $applicantFallback, $student, 'is_4ps', 'is_4ps', 'is_4ps')) == 'Yes' ? 'checked' : '' }}> 
+                                                    @php
+                                                        $raw4ps = getEditVal($details, $applicantFallback, $student, 'is_4ps', 'is_4ps', 'is_4ps');
+                                                        $isChecked4ps = in_array(strtolower(trim($raw4ps)), ['yes', '1', 'true', 'y']);
+                                                    @endphp
+                                                    <input type="checkbox" name="is_4ps" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps', $isChecked4ps ? 'Yes' : '') == 'Yes' ? 'checked' : '' }}> 
                                                     <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
                                                 </label>
                                             </div>
 
                                             <div class="flex items-center flex-1 w-full md:w-auto">
                                                 <label for="other_remarks" class="text-xs font-bold text-gray-600 uppercase mr-2 whitespace-nowrap">Others Details:</label>
-                                                {{-- Merged ip_group_name and pwd_disability into one field for edit view based on previous code, or you can split them if preferred in your controller --}}
                                                 @php
                                                     $ipGrp = getEditVal($details, $applicantFallback, $student, 'ip_group_name', 'ip_group_name', 'ip_group_name');
                                                     $pwdId = getEditVal($details, $applicantFallback, $student, 'pwd_disability', 'pwd_disability', 'pwd_disability');
@@ -150,11 +164,12 @@
                             <div class="md:col-span-2">
                                 <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex items-center"><i class='bx bx-map mr-2'></i> Complete Address</h3>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div class="mt-3 md:col-span-2 lg:col-span-1"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Street / House No.</label><input type="text" name="street_address" value="{{ getEditVal($details, $applicantFallback, $student, 'street_house_no', 'street_address', 'street_address') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm"></div>
-                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Barangay</label><input type="text" name="barangay" value="{{ getEditVal($details, $applicantFallback, $student, 'barangay', 'barangay', 'barangay') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm" required></div>
-                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">City/Municipality</label><input type="text" name="municipality_city" value="{{ getEditVal($details, $applicantFallback, $student, 'municipality_city', 'municipality_city', 'municipality_city') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm" required></div>
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Region</label><input type="text" name="region" value="{{ getEditVal($details, $applicantFallback, $student, 'region', 'region', 'region') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm" required></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Province</label><input type="text" name="province" value="{{ getEditVal($details, $applicantFallback, $student, 'province', 'province', 'province') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm" required></div>
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">City/Municipality</label><input type="text" name="municipality_city" value="{{ getEditVal($details, $applicantFallback, $student, 'municipality_city', 'municipality_city', 'municipality_city') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm" required></div>
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Barangay</label><input type="text" name="barangay" value="{{ getEditVal($details, $applicantFallback, $student, 'barangay', 'barangay', 'barangay') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm" required></div>
                                     
+                                    <div class="mt-3 md:col-span-4"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Street / House No.</label><input type="text" name="street_address" value="{{ getEditVal($details, $applicantFallback, $student, 'street_house_no', 'street_address', 'street_address') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm"></div>
                                 </div>
                             </div>
 
@@ -195,7 +210,7 @@
                             {{-- ACADEMIC & SPORTS --}}
                             <div class="md:col-span-2 bg-gray-50 p-6 rounded-lg border border-gray-200">
                                 <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i class='bx bx-trophy mr-2 text-yellow-600'></i> Academic & Sports</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                                     
                                     {{-- 1. GRADE LEVEL --}}
                                     <div>
@@ -215,15 +230,40 @@
                                         </select>
                                     </div>
 
+                                    {{-- ⚡ FOCUS SPORT ⚡ --}}
                                     <div>
-                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Sports Team</label>
-                                        <select name="team_id" class="w-full border-gray-300 rounded-md shadow-sm">
-                                            <option value="">-- No Team Yet --</option>
-                                            @foreach($teams as $team)
-                                                <option value="{{ $team->id }}" {{ old('team_id', $student->team_id) == $team->id ? 'selected' : '' }}>{{ $team->team_name }}</option>
+                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Focus Sport</label>
+                                        <select id="sport" name="sport" class="w-full border-gray-300 rounded-md shadow-sm">
+                                            <option value="">-- Select Sport --</option>
+                                            @php
+                                                $currentSport = old('sport', $student->sport ?? ($applicantFallback->sport ?? ($details->sport ?? '')));
+                                                $sportsList = ['Aquatics (Swimming)', 'Athletics (Track and Field)', 'Badminton', 'Gymnastics', 'Judo', 'Table Tennis', 'Taekwondo', 'Weightlifting'];
+                                            @endphp
+                                            @foreach($sportsList as $sportOption)
+                                                <option value="{{ $sportOption }}" {{ $currentSport == $sportOption ? 'selected' : '' }}>
+                                                    {{ $sportOption }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
+
+                                    {{-- ⚡ DYNAMIC CATEGORY / TYPE (Dropdown or Text Input) ⚡ --}}
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Category / Type</label>
+                                        @php
+                                            $currentCategory = old('sport_specification', $student->sport_specification ?? ($applicantFallback->sport_specification ?? 'None'));
+                                        @endphp
+                                        
+                                        <div id="category_container">
+                                            <select class="w-full border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500">
+                                                <option value="None">None</option>
+                                            </select>
+                                        </div>
+                                        
+                                        {{-- Hidden input holds the actual value --}}
+                                        <input type="hidden" id="current_category" value="{{ $currentCategory }}">
+                                    </div>
+
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Entry Year</label><input type="number" name="entry_year" class="w-full border-gray-300 rounded-md shadow-sm" value="{{ old('entry_year', $student->entry_year) }}"></div>
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Promotion Status</label>
@@ -273,7 +313,7 @@
         </div>
     </div>
 
-    {{-- SCRIPTS (PHOTO PREVIEW & FILTER) --}}
+    {{-- SCRIPTS (PHOTO PREVIEW & DYNAMIC DROPDOWNS) --}}
     <script>
         // Photo Preview Logic
         function previewImage(event) {
@@ -292,26 +332,20 @@
 
         // DEPENDENT DROPDOWN LOGIC WRAPPER
         function initStudentForm() {
-            // 1. KUNIN ANG DATA (Blade -> JS)
+            // --- SECTION DROPDOWN LOGIC ---
             const allSections = @json($sections ?? []); 
             const currentSectionId = @json(old('section_id', $student->section_id ?? ''));
-
             const gradeSelect = document.getElementById('grade_level');
             const sectionSelect = document.getElementById('section_id');
 
-            // Safety check
-            if (!gradeSelect || !sectionSelect) return;
-
             function filterSections() {
+                if (!gradeSelect || !sectionSelect) return;
                 const selectedGradeText = gradeSelect.value;
-                // Extract number only (e.g., "Grade 7" -> "7")
                 const gradeNumber = selectedGradeText.replace(/[^0-9]/g, '');
 
-                // Clear dropdown
                 sectionSelect.innerHTML = ''; 
 
                 if (gradeNumber) {
-                    // Filter Sections based on Grade Level
                     const filteredSections = allSections.filter(section => {
                         if(!section.grade_level) return false;
                         const sectionGradeNumber = section.grade_level.toString().replace(/[^0-9]/g, '');
@@ -319,23 +353,16 @@
                     });
 
                     if (filteredSections.length > 0) {
-                        // Add default option
                         const defaultOption = document.createElement('option');
                         defaultOption.value = "";
                         defaultOption.text = "-- Select Section --";
                         sectionSelect.appendChild(defaultOption);
                         
-                        // Populate Options
                         filteredSections.forEach(section => {
                             const option = document.createElement('option');
                             option.value = section.id;
                             option.text = section.section_name;
-
-                            // Pre-select logic
-                            if (currentSectionId && currentSectionId == section.id) {
-                                option.selected = true;
-                            }
-
+                            if (currentSectionId && currentSectionId == section.id) option.selected = true;
                             sectionSelect.appendChild(option);
                         });
                     } else {
@@ -352,22 +379,98 @@
                 }
             }
 
-            // Remove old listener to avoid duplication (sa Livewire navigation)
-            gradeSelect.removeEventListener('change', filterSections);
-            // Add new listener
-            gradeSelect.addEventListener('change', filterSections);
+            if (gradeSelect) {
+                gradeSelect.removeEventListener('change', filterSections);
+                gradeSelect.addEventListener('change', filterSections);
+                if(gradeSelect.value) filterSections();
+            }
 
-            // Run immediately logic to populate saved data
-            if(gradeSelect.value) {
-                filterSections();
+            // --- SPORT CATEGORY DROPDOWN LOGIC ---
+            // ⚡ ONLY Taekwondo and Gymnastics get predefined dropdowns ⚡
+            const sportDropdowns = {
+                'Taekwondo': ['Kyorugi', 'Poomsae'],
+                'Gymnastics': ['Artistic', 'Rhythmic']
+            };
+
+            // ⚡ Aquatics and Athletics get text input to "Please specify" ⚡
+            const specifySports = ['Aquatics (Swimming)', 'Athletics (Track and Field)'];
+
+            const sportSelect = document.getElementById('sport');
+            const categoryContainer = document.getElementById('category_container');
+            const currentCategoryInput = document.getElementById('current_category');
+
+            function updateCategories() {
+                if (!sportSelect || !categoryContainer) return;
+
+                const selectedSport = sportSelect.value;
+                const currentCategory = currentCategoryInput ? currentCategoryInput.value : '';
+                
+                // Clear container
+                categoryContainer.innerHTML = '';
+
+                if (sportDropdowns[selectedSport]) {
+                    // 1. Create Dropdown for Taekwondo & Gymnastics
+                    const select = document.createElement('select');
+                    select.name = 'sport_specification';
+                    select.className = 'w-full border-gray-300 rounded-md shadow-sm';
+                    
+                    const defaultOpt = document.createElement('option');
+                    defaultOpt.value = "";
+                    defaultOpt.text = "-- Select Category --";
+                    select.appendChild(defaultOpt);
+
+                    sportDropdowns[selectedSport].forEach(cat => {
+                        const opt = document.createElement('option');
+                        opt.value = cat;
+                        opt.text = cat;
+                        if (cat === currentCategory) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+                    
+                    categoryContainer.appendChild(select);
+                    
+                } else if (specifySports.includes(selectedSport)) {
+                    // 2. Create Text Input for Aquatics & Athletics
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.name = 'sport_specification';
+                    input.className = 'w-full border-gray-300 rounded-md shadow-sm';
+                    input.placeholder = 'Please specify...';
+                    
+                    // Don't put "None" or dropdown values into the text box
+                    if (!['None', 'N/A', '-', 'Kyorugi', 'Poomsae', 'Artistic', 'Rhythmic'].includes(currentCategory)) {
+                        input.value = currentCategory;
+                    }
+                    
+                    categoryContainer.appendChild(input);
+
+                } else {
+                    // 3. For all other sports (Badminton, Judo, Table Tennis, Weightlifting), NO CHOICES
+                    const select = document.createElement('select');
+                    select.name = 'sport_specification';
+                    select.className = 'w-full border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500';
+                    select.style.pointerEvents = 'none'; // Make it look disabled
+                    
+                    const noneOpt = document.createElement('option');
+                    noneOpt.value = "None";
+                    noneOpt.text = "None";
+                    noneOpt.selected = true;
+                    select.appendChild(noneOpt);
+                    
+                    categoryContainer.appendChild(select);
+                }
+            }
+
+            if (sportSelect) {
+                sportSelect.removeEventListener('change', updateCategories);
+                sportSelect.addEventListener('change', updateCategories);
+                // Trigger on load
+                updateCategories();
             }
         }
 
         // --- EVENT LISTENERS ---
-        // 1. Para sa Hard Refresh (F5)
         document.addEventListener('DOMContentLoaded', initStudentForm);
-        
-        // 2. Para sa Livewire Navigation (wire:navigate)
         document.addEventListener('livewire:navigated', initStudentForm);
 
     </script>

@@ -7,8 +7,9 @@ use App\Models\Section;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\ActivityLog; 
-use App\Models\Applicant; // 👈 FIXED: Changed from EnrollmentApplication
+use App\Models\Applicant; 
 use App\Models\Staff;
+use App\Models\EnrollmentDetail; // Kailangan ito para sa Fallback Filter
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -39,13 +40,11 @@ class StudentController extends Controller
         ]);
     }
 
-    // ... (index, create, store, edit, update, destroy, show methods are fine) ...
-    // ... (bulkUploadForm, processBulkUpload, myAdvisoryClass, updateAdvisoryGrade methods are fine) ...
-
     public function index(Request $request): View
     {
-        // ... (Keep existing index logic) ...
         $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
+        
+        // Eager load relations
         $query = Student::with(['section', 'team']);
 
         if ($request->filled('search')) {
@@ -70,10 +69,27 @@ class StudentController extends Controller
             $query->where('status', $request->status);
         }
 
+        // ⚡ FIXED SPORT FILTER LOGIC (Inalis ang 'sport_type' dahil wala ito sa table) ⚡
         if ($request->filled('sport')) {
-            $query->whereHas('team', function($q) use ($request) {
-                $q->where('sport', $request->sport)
-                  ->orWhere('team_name', 'like', "%{$request->sport}%");
+            $sport = $request->sport;
+            
+            // Kunin ang base name (halimbawa: "Taekwondo" mula sa dropdown)
+            $searchSport = explode(' ', $sport)[0];
+            $searchSport = rtrim($searchSport, 's'); 
+
+            // 1. Kunin ang LRNs mula sa fallback tables na may ganitong sport
+            $applicantLrns = Applicant::where('sport', 'LIKE', "%{$searchSport}%")->pluck('lrn')->toArray();
+            $detailLrns = EnrollmentDetail::where('sport', 'LIKE', "%{$searchSport}%")->pluck('lrn')->toArray();
+
+            $query->where(function($q) use ($searchSport, $applicantLrns, $detailLrns) {
+                // A. Check sa Teams relationship (Tinitingnan ang 'sport' at 'team_name' columns lang)
+                $q->whereHas('team', function($t) use ($searchSport) {
+                      $t->where('sport', 'LIKE', "%{$searchSport}%")
+                        ->orWhere('team_name', 'LIKE', "%{$searchSport}%");
+                  })
+                  // B. Check fallbacks gamit ang LRN (Para sa mga records tulad ni Kim Medrano)
+                  ->orWhereIn('lrn', $applicantLrns)
+                  ->orWhereIn('lrn', $detailLrns);
             });
         }
 
@@ -90,29 +106,9 @@ class StudentController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        // ... (Keep existing store logic) ...
-        // For brevity, I won't repeat the long validation array unless you need it changed.
-        // Assuming the logic inside is correct as per your previous code.
-        
-        $validatedData = $request->validate([
-            'nas_student_id' => 'required|string|unique:students|max:255',
-            'lrn' => 'required|string|unique:students|max:20',
-            // ... other validations ...
-            'last_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            // ...
-            'email_address' => 'required|email|max:255|unique:students,email_address',
-            // ...
-        ]);
-        
-        // ... (rest of store logic) ...
-        // Note: Just copying logic structure to save space, but ensure full code is used.
-        
-        // Use the exact code you provided for store()
         return $this->originalStore($request); 
     }
     
-    // Helper to keep your store code intact (Paste your full store method content here)
     public function originalStore(Request $request) {
          $validatedData = $request->validate([
             'nas_student_id' => 'required|string|unique:students|max:255',
@@ -209,8 +205,6 @@ class StudentController extends Controller
 
     public function update(Request $request, Student $student): RedirectResponse
     {
-        // ... (Keep existing update logic) ...
-        // Using your exact code for update
         $validatedData = $request->validate([
             'nas_student_id' => ['required', 'string', 'max:255', Rule::unique('students')->ignore($student->id)],
             'lrn' => ['required', 'string', 'max:255', Rule::unique('students')->ignore($student->id)],
@@ -227,6 +221,8 @@ class StudentController extends Controller
             'grade_level' => 'required|string',
             'section_id' => 'nullable|exists:sections,id',
             'team_id' => 'nullable|exists:teams,id',
+            'sport' => 'nullable|string|max:255',
+            'sport_specification' => 'nullable|string|max:255',
             'status' => 'required|in:New,Continuing,Transfer out,Graduate,Enrolled',
             'promotion_status' => 'nullable|in:Promoted,Conditional,Retained,Promoted with Honors,Promoted with High Honors,Promoted with Highest Honors',
             'region' => 'required|string|max:255',
@@ -250,6 +246,10 @@ class StudentController extends Controller
         $validatedData['is_ip'] = $request->has('is_ip');
         $validatedData['is_pwd'] = $request->has('is_pwd');
         $validatedData['is_4ps'] = $request->has('is_4ps');
+
+        if(empty($validatedData['sport_specification'])) {
+            $validatedData['sport_specification'] = 'None';
+        }
 
         $photoUrl = null;
         if ($request->hasFile('photo')) {
@@ -307,7 +307,6 @@ class StudentController extends Controller
 
     public function processBulkUpload(Request $request)
     {
-        // ... (Keep existing bulk upload logic) ...
         $validator = Validator::make($request->all(), [
             'photos' => 'required',
             'photos.*' => 'image|mimes:jpg,jpeg,png|max:4500', 
@@ -401,19 +400,14 @@ class StudentController extends Controller
         return back()->with('success', 'Student grade updated.');
     }
 
-    // 👇 FIXED: Corrected methods below to use 'Applicant' instead of 'EnrollmentApplication'
-
     public function enrollmentList()
     {
-        // 👇 FIXED
         $qualifiedApplicants = Applicant::where('status', 'Qualified')->orderBy('last_name')->get();
         return view('students.enrollment', compact('qualifiedApplicants'));
     }
 
     public function enrollmentManager(): View
     {
-        // 👇 FIXED: Note - Removed 'where enrollment_status' as it might not exist in Applicant table. 
-        // If you have a column for submission status in Applicant, use that.
         $pendingEnrollees = Applicant::where('status', 'Qualified')->get();
         
         $students = Student::whereIn('status', ['Enrolled', 'New', 'Continuing'])->orderBy('last_name')->get();
@@ -434,7 +428,6 @@ class StudentController extends Controller
 
     public function showEnrollmentProcess($id): View
     {
-        // 👇 FIXED
         $application = Applicant::findOrFail($id);
         $sections = Section::where('grade_level', $application->grade_level_applied)->orderBy('section_name')->get();
         return view('students.process-enrollment', compact('application', 'sections'));
