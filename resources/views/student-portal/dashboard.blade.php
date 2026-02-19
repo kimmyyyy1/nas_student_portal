@@ -55,6 +55,10 @@
             return $d->$fieldD ?? ($a->$fieldA ?? ($s->$fieldS ?? 'N/A'));
         }
 
+        // ⚡ FETCH EXTENSION NAME ⚡
+        $raw_ext = $details->extension_name ?? ($applicantFallback->extension_name ?? '');
+        $ext_name = (in_array(strtoupper(trim($raw_ext)), ['N/A', 'NONE', ''])) ? '' : trim($raw_ext);
+
         // Address
         $street = getData($details, $applicantFallback, $student, 'street_house_no', 'street_address', 'street_address');
         $brgy = getData($details, $applicantFallback, $student, 'barangay', 'barangay', 'barangay');
@@ -116,7 +120,6 @@
         // ==========================================
         // ⚙️ ENROLLMENT PERIOD CONFIGURATION (DYNAMIC) ⚙️
         // ==========================================
-        // Kinukuha na ngayon ang dates mula sa system_settings table!
         $currentDate = date('Y-m-d');
 
         $enrollmentStartDate = \App\Models\SystemSetting::where('setting_key', 'enrollment_start_date')->value('setting_value') ?? date('Y') . '-06-01';
@@ -124,7 +127,6 @@
         
         $isEnrollmentOpen = ($currentDate >= $enrollmentStartDate && $currentDate <= $enrollmentEndDate);
         
-        // Para sa magandang display ng dates
         $displayStartDate = date('F j, Y', strtotime($enrollmentStartDate));
         $displayEndDate   = date('F j, Y', strtotime($enrollmentEndDate));
     @endphp
@@ -156,7 +158,6 @@
                                 Ready for the Next School Year?
                             </h3>
                             
-                            {{-- Text Changes based on Enrollment Period --}}
                             @if($isEnrollmentOpen)
                                 <p class="text-indigo-100 text-xs sm:text-sm font-medium">Please submit your updated documents to renew your NASCENT SAS scholarship and enroll.</p>
                             @else
@@ -166,7 +167,6 @@
                             @endif
                         </div>
                         
-                        {{-- Button Changes based on Enrollment Period --}}
                         @if($isEnrollmentOpen)
                             <a href="{{ route('student.renew-enrollment') }}" wire:navigate class="w-full sm:w-auto bg-white hover:bg-slate-50 text-indigo-700 font-black py-3 sm:py-4 px-6 sm:px-8 rounded-xl shadow-lg transition-transform transform hover:scale-105 active:scale-95 uppercase tracking-widest text-xs flex justify-center items-center gap-2 shrink-0 border-b-4 border-indigo-200">
                                 Renew Enrollment <i class='bx bx-right-arrow-alt text-lg'></i>
@@ -197,8 +197,13 @@
                         </div>
 
                         <div>
-                            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">{{ $student->last_name }}, {{ $student->first_name }}</h1>
-                            <p class="text-xs sm:text-sm text-gray-500 font-semibold">NAS ID: <span class="text-indigo-600">{{ $student->nas_student_id }}</span></p>
+                            {{-- ⚡ FIXED NAME FORMAT WITH EXTENSION & MIDDLE NAME ⚡ --}}
+                            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
+                                {{ $student->last_name }}@if(!empty($ext_name)) {{ $ext_name }}@endif, 
+                                {{ $student->first_name }} 
+                                <span class="text-gray-500 font-normal text-lg sm:text-xl">{{ $student->middle_name }}</span>
+                            </h1>
+                            <p class="text-xs sm:text-sm text-gray-500 font-semibold mt-1">NAS ID: <span class="text-indigo-600">{{ $student->nas_student_id }}</span></p>
                             <p class="text-xs sm:text-sm text-gray-500">LRN: {{ $student->lrn ?? 'N/A' }}</p>
                         </div>
                     </div>
@@ -206,7 +211,7 @@
                     {{-- Status Badges --}}
                     <div class="text-center md:text-right space-y-2 sm:space-y-1 w-full md:w-auto mt-4 md:mt-0 flex flex-col items-center md:items-end">
                         <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full w-auto">
-                            {{ $student->grade_level }} - {{ $student->section->section_name ?? 'Unassigned' }}
+                            Grade {{ trim(str_ireplace('grade', '', strtolower($student->grade_level))) }} - {{ $student->section->section_name ?? 'Unassigned' }}
                         </span>
                         
                         {{-- ⚡ SPORT BADGE ⚡ --}}

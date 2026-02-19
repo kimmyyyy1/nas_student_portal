@@ -147,8 +147,6 @@
                     {{-- 
                         🚫 RESTRICTED SECTIONS 
                         Logic: Show these ONLY if the user is NOT "Registrar".
-                        If user name contains "Registrar", hide them. 
-                        Otherwise (like ICT Support), show them.
                     --}}
                     @if(Auth::user()->name !== 'Registrar') 
 
@@ -197,16 +195,40 @@
             </div>
         </div>
 
+        {{-- ⚡ DYNAMIC PROFILE INFO LOGIC ⚡ --}}
+        @php
+            $displayRole = ucfirst(Auth::user()->role);
+            $displayName = Auth::user()->name;
+
+            if (Auth::user()->role === 'student') {
+                $loggedInStudent = Auth::user()->student; // Assuming user has a 'student' relationship
+                
+                if ($loggedInStudent) {
+                    // Kunin ang details para sa extension name fallback
+                    $stDetails = \App\Models\EnrollmentDetail::where('lrn', $loggedInStudent->lrn)
+                                ->orWhere('email', $loggedInStudent->email_address)
+                                ->latest()->first();
+                    $stAppFallback = \App\Models\Applicant::where('lrn', $loggedInStudent->lrn)->first();
+                    
+                    $rawExt = $stDetails->extension_name ?? ($stAppFallback->extension_name ?? '');
+                    $extName = (in_array(strtoupper(trim($rawExt)), ['N/A', 'NONE', ''])) ? '' : trim($rawExt);
+                    
+                    // Format: First Name Middle Name Last Name Jr.
+                    $displayName = trim($loggedInStudent->first_name . ' ' . $loggedInStudent->middle_name . ' ' . $loggedInStudent->last_name . ' ' . $extName);
+                }
+            }
+        @endphp
+
         <div class="p-4 border-t border-gray-200/50 bg-gray-50/80 shrink-0 backdrop-blur-sm mt-auto">
             <div class="flex items-center mb-3">
                 <div class="flex-shrink-0">
                     <div class="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                        {{ substr(Auth::user()->name, 0, 1) }}
+                        {{ substr($displayName, 0, 1) }}
                     </div>
                 </div>
                 <div class="ml-3 w-full min-w-0">
-                    <p class="text-sm font-bold text-gray-900 truncate">{{ Auth::user()->name }}</p>
-                    <p class="text-xs text-gray-500 truncate capitalize">{{ Auth::user()->role }}</p>
+                    <p class="text-sm font-bold text-gray-900 truncate" title="{{ $displayName }}">{{ $displayName }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ $displayRole }}</p>
                 </div>
             </div>
 
