@@ -151,16 +151,40 @@
                         
                         {{-- LEFT COLUMN: INFO CARDS --}}
                         <div class="space-y-6">
-                            {{-- ACADEMIC INFO --}}
+                            
+                            {{-- ⚡ FIXED ACADEMIC INFO ⚡ --}}
                             <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
                                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2 flex items-center">
                                     <i class='bx bx-book-reader mr-2 text-indigo-500 text-lg'></i> Academic Info
                                 </h3>
                                 <div class="space-y-4">
-                                    <div class="flex justify-between"><span class="text-sm text-gray-500">Grade Level</span><span class="font-bold text-gray-800">{{ $student->grade_level }}</span></div>
-                                    <div class="flex justify-between"><span class="text-sm text-gray-500">Section</span><span class="font-bold text-gray-800">{{ $student->section->section_name ?? 'Unassigned' }}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-sm text-gray-500">Adviser</span><span class="text-sm font-medium text-indigo-600 text-right">@if($student->section && $student->section->adviser) {{ $student->section->adviser->first_name }} {{ $student->section->adviser->last_name }} @else N/A @endif</span></div>
-                                    <div class="flex justify-between items-center pt-2"><span class="text-sm text-gray-500">Status</span><span class="px-2 py-1 text-xs font-bold rounded-full bg-green-100 text-green-700">{{ $student->status }}</span></div>
+                                    {{-- FORMATTED GRADE LEVEL --}}
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Grade Level</span>
+                                        <span class="font-black text-indigo-700 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-lg shadow-sm">
+                                            Grade {{ trim(str_ireplace('grade', '', strtolower($student->grade_level))) }}
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Section</span>
+                                        <span class="font-bold text-gray-800">{{ $student->section->section_name ?? 'Unassigned' }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Adviser</span>
+                                        <span class="text-sm font-medium text-indigo-600 text-right">
+                                            @if($student->section && $student->section->adviser) 
+                                                {{ $student->section->adviser->first_name }} {{ $student->section->adviser->last_name }} 
+                                            @else 
+                                                N/A 
+                                            @endif
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-3 border-t border-gray-50 mt-2">
+                                        <span class="text-sm text-gray-500">Status</span>
+                                        <span class="px-3 py-1 text-xs font-bold rounded-full border {{ $student->status == 'Enrolled' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-gray-100 text-gray-700 border-gray-200' }}">
+                                            {{ $student->status }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -193,7 +217,6 @@
                                             <div><p class="text-[10px] font-bold text-gray-400 uppercase">Street / House No.</p><p class="text-sm font-medium text-gray-800">{{ $street }}</p></div>
                                             <div><p class="text-[10px] font-bold text-gray-400 uppercase">Barangay</p><p class="text-sm font-medium text-gray-800">{{ $brgy }}</p></div>
                                             <div><p class="text-[10px] font-bold text-gray-400 uppercase">Municipality / City</p><p class="text-sm font-medium text-gray-800">{{ $city }}</p></div>
-                                            {{-- ⚡ FIXED ZIP CODE DISPLAY ⚡ --}}
                                             <div>
                                                 <p class="text-[10px] font-bold text-gray-400 uppercase">Province</p>
                                                 <p class="text-sm font-medium text-gray-800">

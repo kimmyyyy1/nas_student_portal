@@ -9,15 +9,13 @@ use App\Models\User;
 use App\Models\ActivityLog; 
 use App\Models\Applicant; 
 use App\Models\Staff;
-use App\Models\EnrollmentDetail; // Kailangan ito para sa Fallback Filter
+use App\Models\EnrollmentDetail; 
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use App\Mail\AdmissionAccepted;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator; 
 
@@ -40,11 +38,13 @@ class StudentController extends Controller
         ]);
     }
 
+    /**
+     * Display the Student Directory with filters.
+     */
     public function index(Request $request): View
     {
         $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
         
-        // Eager load relations
         $query = Student::with(['section', 'team']);
 
         if ($request->filled('search')) {
@@ -69,25 +69,19 @@ class StudentController extends Controller
             $query->where('status', $request->status);
         }
 
-        // ⚡ FIXED SPORT FILTER LOGIC (Inalis ang 'sport_type' dahil wala ito sa table) ⚡
         if ($request->filled('sport')) {
             $sport = $request->sport;
-            
-            // Kunin ang base name (halimbawa: "Taekwondo" mula sa dropdown)
             $searchSport = explode(' ', $sport)[0];
             $searchSport = rtrim($searchSport, 's'); 
 
-            // 1. Kunin ang LRNs mula sa fallback tables na may ganitong sport
             $applicantLrns = Applicant::where('sport', 'LIKE', "%{$searchSport}%")->pluck('lrn')->toArray();
             $detailLrns = EnrollmentDetail::where('sport', 'LIKE', "%{$searchSport}%")->pluck('lrn')->toArray();
 
             $query->where(function($q) use ($searchSport, $applicantLrns, $detailLrns) {
-                // A. Check sa Teams relationship (Tinitingnan ang 'sport' at 'team_name' columns lang)
                 $q->whereHas('team', function($t) use ($searchSport) {
                       $t->where('sport', 'LIKE', "%{$searchSport}%")
                         ->orWhere('team_name', 'LIKE', "%{$searchSport}%");
                   })
-                  // B. Check fallbacks gamit ang LRN (Para sa mga records tulad ni Kim Medrano)
                   ->orWhereIn('lrn', $applicantLrns)
                   ->orWhereIn('lrn', $detailLrns);
             });
@@ -97,104 +91,19 @@ class StudentController extends Controller
         return view('students.index', compact('students', 'sections'));
     }
 
-    public function create(): View
-    {
-        $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
-        $teams = Team::orderBy('team_name')->get();
-        return view('students.create', compact('sections', 'teams'));
+    /**
+     * Show student profile.
+     */
+    public function show(Request $request, Student $student) 
+    { 
+        $student->load(['section.adviser', 'team']);
+        $queryParams = $request->query();
+        return view('students.show', compact('student', 'queryParams')); 
     }
 
-    public function store(Request $request): RedirectResponse
-    {
-        return $this->originalStore($request); 
-    }
-    
-    public function originalStore(Request $request) {
-         $validatedData = $request->validate([
-            'nas_student_id' => 'required|string|unique:students|max:255',
-            'lrn' => 'required|string|unique:students|max:20',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-            'last_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'sex' => 'required|in:Male,Female',
-            'birthdate' => 'required|date',
-            'age' => 'nullable|integer',
-            'birthplace' => 'required|string|max:255',
-            'religion' => 'nullable|string|max:255',
-            'entry_year' => 'nullable|digits:4',
-            'grade_level' => 'required|string',
-            'section_id' => 'nullable|exists:sections,id',
-            'team_id' => 'nullable|exists:teams,id',
-            'status' => 'required|in:New,Continuing,Transfer out,Graduate', 
-            'region' => 'required|string|max:255',
-            'province' => 'required|string|max:255',
-            'municipality_city' => 'required|string|max:255',
-            'barangay' => 'required|string|max:255',
-            'street_address' => 'nullable|string|max:255',
-            'zip_code' => 'nullable|string|max:20',
-            'contact_number' => 'nullable|string|max:20',
-            'email_address' => 'required|email|max:255|unique:students,email_address',
-            'guardian_name' => 'required|string|max:255',
-            'guardian_relationship' => 'required|string|max:255',
-            'guardian_email' => 'nullable|email|max:255',
-            'guardian_contact' => 'required|string|max:20',
-            'guardian_address' => 'nullable|string|max:255',
-            'enrollment_date' => 'nullable|date',
-            'lis_status' => 'nullable|string',
-            'enrollment_remarks' => 'nullable|string',
-        ]);
-
-        $validatedData['is_ip'] = $request->has('is_ip');
-        $validatedData['is_pwd'] = $request->has('is_pwd');
-        $validatedData['is_4ps'] = $request->has('is_4ps');
-        
-        $photoUrl = null;
-        if ($request->hasFile('photo')) {
-            try {
-                $this->configureCloudinary(); 
-                $uploadApi = new UploadApi();
-                $result = $uploadApi->upload($request->file('photo')->getRealPath(), [
-                    'folder' => 'students/photos'
-                ]);
-                $photoUrl = $result['secure_url']; 
-            } catch (\Exception $e) { }
-        }
-
-        $studentData = collect($validatedData)->except(['photo'])->toArray();
-        if ($photoUrl) {
-            $studentData['id_picture'] = $photoUrl;
-        }
-        
-        $student = Student::create($studentData);
-
-        $tempPassword = 'NAS-' . date('Y') . '-' . Str::upper(Str::random(6));
-        User::create([
-            'name' => $student->first_name . ' ' . $student->last_name,
-            'email' => $student->email_address,
-            'password' => Hash::make($tempPassword),
-            'role' => 'student',
-            'student_id' => $student->id,
-        ]);
-
-        $user = Auth::user();
-        $role = ucfirst($user->role);
-        
-        ActivityLog::create([
-            'user_id' => $user->id,
-            'action' => 'Registration',
-            'description' => "<strong>{$role}</strong> {$user->name} registered new student: <strong>{$student->last_name}, {$student->first_name}</strong>.",
-        ]);
-
-        if ($student->email_address) {
-            try {
-                Mail::to($student->email_address)->send(new AdmissionAccepted($student, $tempPassword));
-            } catch (\Exception $e) {}
-        }
-
-        return redirect()->route('students.index')->with('success', "Student record created! Password: {$tempPassword}");
-    }
-
+    /**
+     * Edit student information.
+     */
     public function edit(Request $request, Student $student): View
     {
         $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
@@ -203,6 +112,9 @@ class StudentController extends Controller
         return view('students.edit', compact('student', 'sections', 'teams', 'queryParams'));
     }
 
+    /**
+     * Update student record.
+     */
     public function update(Request $request, Student $student): RedirectResponse
     {
         $validatedData = $request->validate([
@@ -285,7 +197,10 @@ class StudentController extends Controller
 
         return redirect()->route('students.index')->with('success', 'Student record updated successfully.');
     }
-    
+
+    /**
+     * Delete student record and associated user.
+     */
     public function destroy(Student $student): RedirectResponse
     {
         if($student->user) $student->user->delete();
@@ -293,18 +208,17 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student record deleted.');
     }
 
-    public function show(Request $request, Student $student) 
-    { 
-        $student->load(['section.adviser', 'team']);
-        $queryParams = $request->query();
-        return view('students.show', compact('student', 'queryParams')); 
-    }
-
+    /**
+     * Form for bulk uploading photos matched by Student ID.
+     */
     public function bulkUploadForm(): View
     {
         return view('students.bulk-upload');
     }
 
+    /**
+     * Process bulk photo upload.
+     */
     public function processBulkUpload(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -376,6 +290,9 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', $message);
     }
 
+    /**
+     * List advisory class for teachers.
+     */
     public function myAdvisoryClass()
     {
         $user = Auth::user();
@@ -390,6 +307,9 @@ class StudentController extends Controller
         return view('teacher.advisory-list', compact('section', 'students'));
     }
 
+    /**
+     * Update grade/promotion for advisory class.
+     */
     public function updateAdvisoryGrade(Request $request, $id)
     {
         $student = Student::findOrFail($id);
@@ -398,38 +318,5 @@ class StudentController extends Controller
             'promotion_status' => 'nullable|string',
         ]));
         return back()->with('success', 'Student grade updated.');
-    }
-
-    public function enrollmentList()
-    {
-        $qualifiedApplicants = Applicant::where('status', 'Qualified')->orderBy('last_name')->get();
-        return view('students.enrollment', compact('qualifiedApplicants'));
-    }
-
-    public function enrollmentManager(): View
-    {
-        $pendingEnrollees = Applicant::where('status', 'Qualified')->get();
-        
-        $students = Student::whereIn('status', ['Enrolled', 'New', 'Continuing'])->orderBy('last_name')->get();
-        return view('students.enrollment-manager', compact('students', 'pendingEnrollees'));
-    }
-
-    public function updateEnrollment(Request $request, $id): RedirectResponse
-    {
-        $student = Student::findOrFail($id);
-        $student->update($request->validate([
-            'status' => 'required',
-            'enrollment_date' => 'nullable|date',
-            'lis_status' => 'nullable',
-            'enrollment_remarks' => 'nullable',
-        ]));
-        return back()->with('success', 'Enrollment details updated.');
-    }
-
-    public function showEnrollmentProcess($id): View
-    {
-        $application = Applicant::findOrFail($id);
-        $sections = Section::where('grade_level', $application->grade_level_applied)->orderBy('section_name')->get();
-        return view('students.process-enrollment', compact('application', 'sections'));
     }
 }

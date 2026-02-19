@@ -81,6 +81,52 @@
         
         // Other Remarks
         $otherRemarks = $details->other_remarks ?? ($applicantFallback->other_remarks ?? ($student->other_remarks ?? ''));
+
+        // ⚡ SPORT LOGIC ⚡
+        $displaySport = $student->sport 
+                        ?? ($details->sport ?? null) 
+                        ?? ($applicantFallback->sport ?? null) 
+                        ?? ($student->team->sport ?? $student->team->sport_type ?? $student->team->team_name ?? null);
+
+        if (!empty($displaySport) && $displaySport !== 'N/A' && $displaySport !== 'None') {
+            $sportLower = strtolower($displaySport);
+            if (str_contains($sportLower, 'aquatic') || str_contains($sportLower, 'swim')) {
+                $displaySport = 'Aquatics';
+            } elseif (str_contains($sportLower, 'athletic') || str_contains($sportLower, 'track')) {
+                $displaySport = 'Athletics';
+            } elseif (str_contains($sportLower, 'taekwondo')) {
+                $displaySport = 'Taekwondo';
+            } elseif (str_contains($sportLower, 'gymnastic')) {
+                $displaySport = 'Gymnastics';
+            } elseif (str_contains($sportLower, 'badminton')) {
+                $displaySport = 'Badminton';
+            } elseif (str_contains($sportLower, 'judo')) {
+                $displaySport = 'Judo';
+            } elseif (str_contains($sportLower, 'table tennis') || str_contains($sportLower, 'tabletennis')) {
+                $displaySport = 'Table Tennis';
+            } elseif (str_contains($sportLower, 'weightlifting')) {
+                $displaySport = 'Weightlifting';
+            } else {
+                $displaySport = ucwords(strtolower($displaySport));
+            }
+        } else {
+            $displaySport = 'No Sport'; // Fallback text
+        }
+
+        // ==========================================
+        // ⚙️ ENROLLMENT PERIOD CONFIGURATION (DYNAMIC) ⚙️
+        // ==========================================
+        // Kinukuha na ngayon ang dates mula sa system_settings table!
+        $currentDate = date('Y-m-d');
+
+        $enrollmentStartDate = \App\Models\SystemSetting::where('setting_key', 'enrollment_start_date')->value('setting_value') ?? date('Y') . '-06-01';
+        $enrollmentEndDate   = \App\Models\SystemSetting::where('setting_key', 'enrollment_end_date')->value('setting_value') ?? date('Y') . '-08-31';
+        
+        $isEnrollmentOpen = ($currentDate >= $enrollmentStartDate && $currentDate <= $enrollmentEndDate);
+        
+        // Para sa magandang display ng dates
+        $displayStartDate = date('F j, Y', strtotime($enrollmentStartDate));
+        $displayEndDate   = date('F j, Y', strtotime($enrollmentEndDate));
     @endphp
 
     <div class="py-6 md:py-12">
@@ -109,11 +155,27 @@
                                 <i class='bx bxs-graduation text-2xl text-yellow-400'></i> 
                                 Ready for the Next School Year?
                             </h3>
-                            <p class="text-indigo-100 text-xs sm:text-sm font-medium">Please submit your updated documents to renew your NASCENT SAS scholarship and enroll.</p>
+                            
+                            {{-- Text Changes based on Enrollment Period --}}
+                            @if($isEnrollmentOpen)
+                                <p class="text-indigo-100 text-xs sm:text-sm font-medium">Please submit your updated documents to renew your NASCENT SAS scholarship and enroll.</p>
+                            @else
+                                <p class="text-indigo-200 text-xs sm:text-sm font-medium">
+                                    <i class='bx bx-time-five'></i> Enrollment period is currently closed. It will open from <strong class="text-white">{{ $displayStartDate }}</strong> to <strong class="text-white">{{ $displayEndDate }}</strong>.
+                                </p>
+                            @endif
                         </div>
-                        <a href="{{ route('student.renew-enrollment') }}" wire:navigate class="w-full sm:w-auto bg-white hover:bg-slate-50 text-indigo-700 font-black py-3 sm:py-4 px-6 sm:px-8 rounded-xl shadow-lg transition-transform transform hover:scale-105 active:scale-95 uppercase tracking-widest text-xs flex justify-center items-center gap-2 shrink-0 border-b-4 border-indigo-200">
-                            Renew Enrollment <i class='bx bx-right-arrow-alt text-lg'></i>
-                        </a>
+                        
+                        {{-- Button Changes based on Enrollment Period --}}
+                        @if($isEnrollmentOpen)
+                            <a href="{{ route('student.renew-enrollment') }}" wire:navigate class="w-full sm:w-auto bg-white hover:bg-slate-50 text-indigo-700 font-black py-3 sm:py-4 px-6 sm:px-8 rounded-xl shadow-lg transition-transform transform hover:scale-105 active:scale-95 uppercase tracking-widest text-xs flex justify-center items-center gap-2 shrink-0 border-b-4 border-indigo-200">
+                                Renew Enrollment <i class='bx bx-right-arrow-alt text-lg'></i>
+                            </a>
+                        @else
+                            <button disabled class="cursor-not-allowed w-full sm:w-auto bg-indigo-800/50 text-indigo-300 font-black py-3 sm:py-4 px-6 sm:px-8 rounded-xl shadow-inner uppercase tracking-widest text-xs flex justify-center items-center gap-2 shrink-0 border border-indigo-500/30">
+                                <i class='bx bxs-lock-alt text-lg'></i> Enrollment Closed
+                            </button>
+                        @endif
                     </div>
                 </div>
             @endif
@@ -147,8 +209,9 @@
                             {{ $student->grade_level }} - {{ $student->section->section_name ?? 'Unassigned' }}
                         </span>
                         
+                        {{-- ⚡ SPORT BADGE ⚡ --}}
                         <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full w-auto">
-                            {{ $student->team->team_name ?? $student->sport ?? 'No Sport' }}
+                            {{ $displaySport }}
                         </span>
                         <div class="text-xs text-gray-400 mt-1 font-bold">Status: <span class="text-slate-600">{{ $student->status }}</span></div>
                     </div>

@@ -39,11 +39,7 @@
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     Bulk Upload
                 </a>
-
-                <a href="{{ route('students.create') }}" wire:navigate class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center justify-center shadow transition w-full sm:w-auto">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    New Student
-                </a>
+                {{-- Tinanggal na ang "New Student" button dito --}}
             </div>
         </div>
     </x-slot>
@@ -201,7 +197,10 @@
                                         @elseif($student->status === 'Transfer out')
                                             <span class="text-xs text-red-500 italic font-medium">Transferred Out</span>
                                         @else
-                                            <div class="text-sm text-gray-900 font-medium">{{ $student->grade_level }}</div>
+                                            {{-- ⚡ FIXED GRADE LEVEL DISPLAY ⚡ --}}
+                                            <div class="text-sm text-gray-900 font-medium">
+                                                Grade {{ trim(str_ireplace('grade', '', strtolower($student->grade_level))) }}
+                                            </div>
                                             <div class="text-xs text-gray-500">
                                                 {{ $student->section->section_name ?? 'Unassigned' }}
                                             </div>

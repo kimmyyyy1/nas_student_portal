@@ -59,22 +59,35 @@
             @php
                 // ⚡ CENTRALIZED STATUS LOGIC ⚡
                 $currentStatus = strtoupper($application->status);
-                $isAdmitted  = str_contains($currentStatus, 'ENROLLED') || str_contains($currentStatus, 'ADMITTED');
-                $isQualified = str_contains($currentStatus, 'QUALIFIED') && !str_contains($currentStatus, 'NOT');
-                $isPhase2    = str_contains($currentStatus, '2ND LEVEL') || str_contains($currentStatus, 'REQUIREMENTS');
-                $isRejected  = str_contains($currentStatus, 'NOT QUALIFIED') || str_contains($currentStatus, 'REJECTED') || str_contains($currentStatus, 'FAILED');
-                $isReturned  = str_contains($currentStatus, 'RETURNED');
+
+                // Check for ADMITTED status to trigger the final redirect
+                $isRedirectReady = str_contains($currentStatus, 'ADMITTED') || str_contains($currentStatus, 'ENROLLED AND ADMITTED');
+                
+                // Other statuses
+                $isSubmitted   = str_contains($currentStatus, 'OFFICIALLY ENROLLED') && !$isRedirectReady;
+                $isQualified   = str_contains($currentStatus, 'QUALIFIED') && !str_contains($currentStatus, 'NOT');
+                $isPhase2      = str_contains($currentStatus, '2ND LEVEL') || str_contains($currentStatus, 'REQUIREMENTS');
+                $isRejected    = str_contains($currentStatus, 'NOT QUALIFIED') || str_contains($currentStatus, 'REJECTED') || str_contains($currentStatus, 'FAILED');
+                $isReturned    = str_contains($currentStatus, 'RETURNED');
                 
                 // Progress Bar Width
-                $displayProgress = 25; // Default (Phase 1)
-                if($isAdmitted) $displayProgress = 100;
+                $displayProgress = 25; 
+                if($isRedirectReady) $displayProgress = 100;
+                elseif($isSubmitted) $displayProgress = 90;
                 elseif($isQualified) $displayProgress = 85;
                 elseif($isPhase2) $displayProgress = 50;
 
                 // Status Badge Color
                 $statusColor = 'bg-yellow-100 text-yellow-700 border-yellow-200';
                 $dotColor = 'bg-yellow-500';
-                if($isQualified || $isAdmitted) {
+                
+                if($isRedirectReady) {
+                    $statusColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                    $dotColor = 'bg-emerald-500';
+                } elseif($isSubmitted) {
+                     $statusColor = 'bg-blue-100 text-blue-700 border-blue-200';
+                     $dotColor = 'bg-blue-500';
+                } elseif($isQualified) {
                     $statusColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
                     $dotColor = 'bg-emerald-500';
                 } elseif($isRejected || $isReturned) {
@@ -82,6 +95,29 @@
                     $dotColor = 'bg-red-500';
                 }
             @endphp
+
+            {{-- ⚡ AUTO-REDIRECT SCRIPT (ONLY IF ADMITTED) ⚡ --}}
+            @if($isRedirectReady)
+                <div 
+                    x-data="{ isRedirecting: false }" 
+                    x-init="if(!isRedirecting) { 
+                        isRedirecting = true; 
+                        setTimeout(() => { window.location.href = '{{ route('student.dashboard') }}' }, 3000); 
+                    }"
+                    class="fixed inset-0 bg-white/95 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-center animate-fade-in"
+                >
+                    <div class="mb-6 relative">
+                        <div class="h-20 w-20 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class='bx bx-check text-3xl text-indigo-600 font-bold'></i>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-3xl font-black text-gray-800 mb-2 tracking-tight">Congratulations, Scholar!</h2>
+                    <p class="text-gray-500 font-medium mb-1">Your admission is confirmed.</p>
+                    <p class="text-indigo-600 text-sm animate-pulse font-bold mt-4">Redirecting to your Student Portal...</p>
+                </div>
+            @endif
 
             {{-- STATUS TRACKER CARD --}}
             <div class="bg-white rounded-[2rem] shadow-xl shadow-indigo-100/50 border border-slate-100 overflow-hidden relative">
@@ -107,13 +143,15 @@
                         {{-- Phase Indicator --}}
                         <div class="mt-4 md:mt-0 text-right">
                             <span class="block text-4xl font-black text-slate-200">
-                                @if($isAdmitted) FINAL
+                                @if($isRedirectReady) FINAL
+                                @elseif($isSubmitted) PENDING
                                 @elseif($isQualified) PHASE 3
                                 @elseif($isPhase2) PHASE 2
                                 @else PHASE 1 @endif
                             </span>
                             <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">
-                                @if($isAdmitted) Enrollment Complete
+                                @if($isRedirectReady) Officially Admitted
+                                @elseif($isSubmitted) For Admin Verification
                                 @elseif($isQualified) Proceed to Enrollment
                                 @else Assessment Ongoing @endif
                             </span>
@@ -129,7 +167,7 @@
                             <span class="{{ $displayProgress >= 25 ? 'text-indigo-600' : '' }}">Registration</span>
                             <span class="{{ $displayProgress >= 50 ? 'text-indigo-600' : '' }}">1st Assessment</span>
                             <span class="{{ $displayProgress >= 85 ? 'text-indigo-600' : '' }}">2nd Assessment</span>
-                            <span class="{{ $displayProgress >= 100 ? 'text-emerald-600' : '' }}">Final Result</span>
+                            <span class="{{ $displayProgress >= 90 ? 'text-emerald-600' : '' }}">Final Result</span>
                         </div>
                     </div>
                 </div>
@@ -203,7 +241,7 @@
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     Application Unsuccessful
                                 </p>
-                                <p class="text-white text-sm leading-relaxed mb-3">We regret to inform you that your application did not meet the required criteria for this scholarship batch. Thank you for your interest in NASCENT SAS.</p>
+                                <p class="text-white text-sm leading-relaxed mb-3">We regret to inform you that your application did not meet the required criteria for this scholarship batch.</p>
                                 
                                 @if(!empty($application->rejection_reason))
                                     <div class="mt-4 p-3 bg-red-900/40 rounded-xl border border-red-500/30">
@@ -214,15 +252,31 @@
                             </div>
                         </div>
 
-                    {{-- ⚡ SCENARIO 4: ADMITTED / ENROLLED (FINAL STAGE) ⚡ --}}
-                    @elseif($isAdmitted)
+                    {{-- ⚡ SCENARIO: SUBMITTED (WAITING FOR ADMIN) ⚡ --}}
+                    @elseif($isSubmitted)
+                        <div class="relative z-10 mb-6">
+                            <div class="bg-blue-500/30 border border-blue-400/40 p-4 rounded-2xl mb-2">
+                                <p class="text-blue-50 text-xs font-bold uppercase tracking-wide mb-2 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Enrollment Form Submitted
+                                </p>
+                                <p class="text-white text-sm leading-relaxed">Your official enrollment form and requirements have been submitted. Please wait for the Registrar to verify your documents and officially ADMIT you to the system.</p>
+                            </div>
+                        </div>
+                        <button disabled class="w-full bg-blue-600 border border-blue-500 text-white font-black py-3.5 rounded-xl cursor-not-allowed relative z-10 text-xs uppercase tracking-widest shadow-lg flex justify-center items-center opacity-80">
+                            <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Waiting for Admission
+                        </button>
+
+                    {{-- ⚡ SCENARIO: ADMITTED (READY TO REDIRECT) ⚡ --}}
+                    @elseif($isRedirectReady)
                         <div class="relative z-10 mb-6">
                             <div class="bg-emerald-500/30 border border-emerald-400/40 p-4 rounded-2xl mb-2">
                                 <p class="text-emerald-50 text-xs font-bold uppercase tracking-wide mb-2 flex items-center">
-                                    <svg class="w-5 h-5 mr-2 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     Enrollment Confirmed
                                 </p>
-                                <p class="text-white text-sm leading-relaxed">Welcome to NAS! You are now officially admitted as a NASCENT SAS Scholar. Please wait for further announcements regarding the opening of classes.</p>
+                                <p class="text-white text-sm leading-relaxed">Welcome to NAS! You are now officially admitted as a NASCENT SAS Scholar.</p>
                             </div>
                         </div>
                         <button disabled class="w-full bg-emerald-600 border border-emerald-500 text-white font-black py-3.5 rounded-xl cursor-not-allowed relative z-10 text-xs uppercase tracking-widest shadow-lg flex justify-center items-center">
@@ -238,7 +292,7 @@
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                     Action Required
                                 </p>
-                                <p class="text-white text-sm">Some documents were declined. Please check the remarks and re-upload the corrected files.</p>
+                                <p class="text-white text-sm">Please check the remarks and re-upload the corrected files.</p>
                             </div>
                         </div>
 

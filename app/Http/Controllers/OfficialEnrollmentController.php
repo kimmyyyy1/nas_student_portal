@@ -53,9 +53,8 @@ class OfficialEnrollmentController extends Controller
     {
         $applicant = Applicant::with('enrollmentDetail')->findOrFail($id);
 
-        // 🛡️ SECURITY CHECK (ADDED THIS)
+        // 🛡️ SECURITY CHECK
         // Haharangin nito kung hindi pa "Officially Enrolled" ang status.
-        // Iwas ito sa mga nagmamarunong na palitan ang URL/ID manually.
         if ($applicant->status !== 'Officially Enrolled') {
             return redirect()->route('official-enrollment.index')
                 ->with('error', 'Security Alert: Unauthorized action. This applicant is not ready for enrollment.');
@@ -137,14 +136,20 @@ class OfficialEnrollmentController extends Controller
 
     /**
      * Return application to student for corrections.
-     * ✅ FIX: Updates status to allow re-submission.
+     * ✅ FIX: Added Security Check to prevent returning Admitted students.
      */
     public function returnToApplicant(Request $request, $id)
     {
         $applicant = Applicant::findOrFail($id);
 
+        // 🛡️ SECURITY CHECK FOR RETURN (ADDED THIS)
+        // Maiiwasan nito na ma-click ng Admin ang 'Return' button sa estudyanteng Admitted na.
+        if ($applicant->status !== 'Officially Enrolled') {
+            return redirect()->route('official-enrollment.index')
+                ->with('error', 'Action denied. You can only return applications that are currently "Officially Enrolled".');
+        }
+
         // Update status para makapag-edit ulit si Student.
-        // Ang 'Qualified (Returned)' ay tatanggapin ng ApplicantPortalController.
         $applicant->update([
             'status' => 'Qualified (Returned)',
         ]);

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Artisan;
 // --- CORE CONTROLLERS ---
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettingController; 
 
 // --- PORTAL CONTROLLERS ---
 use App\Http\Controllers\ApplicantPortalController;
@@ -34,17 +35,19 @@ use App\Http\Controllers\StaffController;
 |--------------------------------------------------------------------------
 */
 
+// 1. ROOT REDIRECT LOGIC
 Route::get('/', function () {
     if (Auth::check()) {
-        $role = Auth::user()->role;
-        if ($role === 'student') return redirect()->route('student.dashboard');
-        if ($role === 'applicant') return redirect()->route('applicant.dashboard');
+        $user = Auth::user();
+        if ($user->role === 'student') return redirect()->route('student.dashboard');
+        if ($user->role === 'applicant') return redirect()->route('applicant.dashboard');
+        if ($user->role === 'teacher') return redirect()->route('dashboard'); 
         return redirect()->route('dashboard');
     }
     return view('auth.login');
 });
 
-// Clear Cache Route (Utility)
+// 2. UTILITY ROUTE: CLEAR CACHE
 Route::get('/clear-all', function() {
     try {
         Artisan::call('config:clear');
@@ -62,7 +65,7 @@ Route::get('/clear-all', function() {
 // ==========================================
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // Dashboard & Common Profile
+    // ⚡ THE MASTER DASHBOARD ROUTE ⚡
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/recent-activity', [DashboardController::class, 'getRecentActivity'])->name('recent.activity');
     Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
@@ -79,7 +82,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // ==========================================
-    //  GROUP 1: APPLICANT PORTAL (Only for Applicants)
+    //  GROUP 1: APPLICANT PORTAL
     // ==========================================
     Route::prefix('applicant')->name('applicant.')->middleware('role:applicant')->group(function() {
         Route::get('/dashboard', [ApplicantPortalController::class, 'index'])->name('dashboard');
@@ -95,31 +98,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ==========================================
-    //  GROUP 2: STUDENT PORTAL (Only for Students)
+    //  GROUP 2: STUDENT PORTAL
     // ==========================================
     Route::middleware('role:student')->group(function () {
         Route::get('/student/dashboard', [StudentPortalController::class, 'index'])->name('student.dashboard');
-        
-        // ⚡ BAGO: Route para sa Continuing Enrollment Form ⚡
         Route::get('/student/renew-enrollment', \App\Livewire\ContinuingEnrollment::class)->name('student.renew-enrollment');
-        
-        // Add other student-only routes here (e.g., View Grades)
     });
 
     // ==========================================
-    //  GROUP 3: TEACHER PORTAL (Only for Teachers)
+    //  GROUP 3: TEACHER PORTAL
     // ==========================================
     Route::middleware('role:teacher')->group(function () {
         Route::get('/teacher/advisory', [TeacherController::class, 'advisory'])->name('teacher.advisory');
-        // Add grading routes here if teachers need to encode grades
     });
 
     // ==========================================
-    //  GROUP 4: ADMIN / REGISTRAR (THE FORTRESS) 🛡️
-    //  Dito natin nilagay ang "role:admin" para secured!
+    //  GROUP 4: ADMIN (THE FORTRESS) 🛡️
     // ==========================================
     Route::middleware('role:admin')->group(function () {
         
+        // System Settings
+        Route::get('/admin/settings', [SettingController::class, 'index'])->name('admin.settings');
+        Route::post('/admin/settings', [SettingController::class, 'update'])->name('admin.settings.update');
+
         // 1. Admission / Review
         Route::get('/admission', [EnrollmentController::class, 'index'])->name('admission.index');
         Route::get('/admission/{id}', [EnrollmentController::class, 'show'])->name('admission.show'); 
@@ -128,7 +129,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/admission/decline_document/{id}/{doc_key}', [EnrollmentController::class, 'declineDocument'])->name('admission.decline_document');
         Route::get('/admission/{id}/pdf', [EnrollmentController::class, 'generatePdf'])->name('admission.pdf');
 
-        // 2. Official Enrollment (ITO ANG GUSTO MONG PROTEKTAHAN)
+        // 2. Official Enrollment (Admission Confirmation)
         Route::get('/official-enrollment', [OfficialEnrollmentController::class, 'index'])->name('official-enrollment.index');
         Route::get('/official-enrollment/process/{id}', [OfficialEnrollmentController::class, 'show'])->name('official-enrollment.show');
         Route::post('/official-enrollment/store/{id}', [OfficialEnrollmentController::class, 'store'])->name('official-enrollment.store');
@@ -138,7 +139,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/students/bulk-upload', [StudentController::class, 'bulkUploadForm'])->name('students.bulk-upload');
         Route::post('/students/bulk-upload', [StudentController::class, 'processBulkUpload'])->name('students.process-bulk-upload');
         Route::get('/students-enrollment-list', [StudentController::class, 'enrollmentList'])->name('students.enrollment'); 
-        Route::resource('students', StudentController::class);
+        
+        // ⚡ CLEANUP: Disabled 'create' and 'store' for students as they come from Admission ⚡
+        Route::resource('students', StudentController::class)->except(['create', 'store']);
 
         Route::resource('sections', SectionController::class);
         Route::resource('subjects', SubjectController::class);
@@ -168,8 +171,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
         Route::resource('reports', ReportController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
 
-    }); // <-- END OF ADMIN MIDDLEWARE GROUP
+    }); 
 
-}); // <-- END OF AUTH MIDDLEWARE
+}); 
 
 require __DIR__.'/auth.php';

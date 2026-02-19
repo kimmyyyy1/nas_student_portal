@@ -16,7 +16,11 @@
     @php
         // 1. STATUS & GENDER
         $stat = strtoupper($applicant->status ?? '');
-        $isAdmitted = $stat === 'ADMITTED'; 
+        
+        // ⚡ FIX: Binago natin ang logic. Dahil "OFFICIALLY ENROLLED" ang initial status
+        // galing sa applicant, hindi na natin isasama ang 'ENROLLED' sa check para hindi 
+        // mawala ang Admit button. Dapat may "ADMITTED" talaga para maging true ito.
+        $isAdmitted = str_contains($stat, 'ADMITTED'); 
 
         $gender = strtoupper($applicant->gender);
         if(in_array($gender, ['BOY', 'M', 'MALE'])) $gender = 'MALE';
@@ -63,15 +67,26 @@
         $g_email   = $details->guardian_email ?? 'N/A';
         $g_addr    = getVal($details, $applicant, 'guardian_address', 'guardian_address');
 
-        // Special Groups
-        $is_ip = $details->is_ip ?? $applicant->is_ip ?? 'No';
-        $ip_grp = $details->ip_group_name ?? $applicant->ip_group_name ?? '';
-        $is_pwd = $details->is_pwd ?? $applicant->is_pwd ?? 'No';
-        $pwd_id = $details->pwd_disability ?? $applicant->pwd_disability ?? '';
-        $is_4ps = $details->is_4ps ?? $applicant->is_4ps ?? 'No';
+        // ⚡ SPECIAL GROUPS LOGIC (FIXED) ⚡
+        // Logic: Check raw value if it exists in expected "truthy" values
+        
+        // IP Logic
+        $raw_ip = $details->is_ip ?? ($applicant->is_ip ?? 'No');
+        // Convert to boolean for easier checking
+        $is_ip = (in_array(strtolower($raw_ip), ['yes', '1', 'true', 'on'])); 
+        $ip_grp = $details->ip_group_name ?? ($applicant->ip_group_name ?? 'N/A');
+
+        // PWD Logic
+        $raw_pwd = $details->is_pwd ?? ($applicant->is_pwd ?? 'No');
+        $is_pwd = (in_array(strtolower($raw_pwd), ['yes', '1', 'true', 'on']));
+        $pwd_id = $details->pwd_disability ?? ($applicant->pwd_disability ?? 'N/A');
+
+        // 4Ps Logic
+        $raw_4ps = $details->is_4ps ?? ($applicant->is_4ps ?? 'No');
+        $is_4ps = (in_array(strtolower($raw_4ps), ['yes', '1', 'true', 'on']));
     @endphp
 
-    <div class="py-6 lg:py-12 min-h-screen w-full block"> {{-- ⚡ REMOVED bg-slate-50 to show background ⚡ --}}
+    <div class="py-6 lg:py-12 min-h-screen w-full block"> 
         <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
             
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 w-full">
@@ -126,7 +141,6 @@
                                 <span class="font-bold text-slate-800 block mt-1 text-sm">{{ $applicant->age }} Years Old</span>
                             </div>
                             
-                            {{-- ⚡ FIXED: SEX / GENDER DISPLAY --}}
                             <div>
                                 <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest">Sex</label>
                                 <span class="font-bold text-slate-800 block mt-1 text-sm uppercase">{{ $gender }}</span>
@@ -137,7 +151,6 @@
                                 <span class="font-black text-indigo-600 text-base sm:text-lg break-words">{{ $applicant->email ?? $applicant->user->email ?? 'N/A' }}</span>
                             </div>
                             
-                            {{-- ⚡ FIXED: RESIDENTIAL ADDRESS (Split Fields) --}}
                             <div class="sm:col-span-2 md:col-span-3 pt-5 lg:pt-6 border-t border-slate-200 w-full">
                                 <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 sm:mb-4">Residential Address</label>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs sm:text-sm w-full">
@@ -160,26 +173,33 @@
                                 </div>
                             </div>
 
-                            {{-- SPECIAL GROUPS --}}
+                            {{-- ⚡ SPECIAL GROUPS (FIXED) ⚡ --}}
                             <div class="sm:col-span-2 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full mt-2">
-                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $is_ip == 'Yes' ? 'bg-yellow-50/80 border border-yellow-200' : 'bg-slate-50/50 border border-slate-200' }}">
+                                
+                                {{-- IP --}}
+                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $is_ip ? 'bg-yellow-50/80 border border-yellow-200' : 'bg-slate-50/50 border border-slate-200' }}">
                                     <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Indigenous Group (IP)</p>
-                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $is_ip == 'Yes' ? 'text-yellow-700' : 'text-slate-600' }}">
-                                        {{ $is_ip == 'Yes' ? 'YES ('.$ip_grp.')' : 'NO' }}
+                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $is_ip ? 'text-yellow-700' : 'text-slate-600' }}">
+                                        {{ $is_ip ? 'YES ('.$ip_grp.')' : 'NO' }}
                                     </p>
                                 </div>
-                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $is_pwd == 'Yes' ? 'bg-yellow-50/80 border border-yellow-200' : 'bg-slate-50/50 border border-slate-200' }}">
+
+                                {{-- PWD --}}
+                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $is_pwd ? 'bg-yellow-50/80 border border-yellow-200' : 'bg-slate-50/50 border border-slate-200' }}">
                                     <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Person with Disability (PWD)</p>
-                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $is_pwd == 'Yes' ? 'text-yellow-700' : 'text-slate-600' }}">
-                                        {{ $is_pwd == 'Yes' ? 'YES ('.$pwd_id.')' : 'NO' }}
+                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $is_pwd ? 'text-yellow-700' : 'text-slate-600' }}">
+                                        {{ $is_pwd ? 'YES ('.$pwd_id.')' : 'NO' }}
                                     </p>
                                 </div>
-                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $is_4ps == 'Yes' ? 'bg-yellow-50/80 border border-yellow-200' : 'bg-slate-50/50 border border-slate-200' }}">
+
+                                {{-- 4Ps --}}
+                                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl {{ $is_4ps ? 'bg-yellow-50/80 border border-yellow-200' : 'bg-slate-50/50 border border-slate-200' }}">
                                     <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">4Ps Beneficiary</p>
-                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $is_4ps == 'Yes' ? 'text-yellow-700' : 'text-slate-600' }}">
-                                        {{ $is_4ps == 'Yes' ? 'YES' : 'NO' }}
+                                    <p class="font-bold text-xs sm:text-sm mt-0.5 {{ $is_4ps ? 'text-yellow-700' : 'text-slate-600' }}">
+                                        {{ $is_4ps ? 'YES' : 'NO' }}
                                     </p>
                                 </div>
+
                             </div>
                         </div>
                     </div>
