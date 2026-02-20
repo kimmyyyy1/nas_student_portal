@@ -144,6 +144,12 @@
                         <i class='bx bx-user-pin text-lg mr-3 {{ request()->routeIs('students.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Student Directory
                     </a>
 
+                    {{-- 👇 DITO KO IDINAGDAG ANG SYSTEM SETTINGS BUTTON 👇 --}}
+                    <a href="{{ url('/admin/settings') }}" wire:navigate class="{{ $navSubClass }} {{ request()->is('admin/settings') ? $activeBlue : $inactiveBlue }}">
+                        <i class='bx bx-cog text-lg mr-3 {{ request()->is('admin/settings') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> System Settings
+                    </a>
+                    {{-- 👆 HANGGANG DITO 👆 --}}
+
                     {{-- 
                         🚫 RESTRICTED SECTIONS 
                         Logic: Show these ONLY if the user is NOT "Registrar".
