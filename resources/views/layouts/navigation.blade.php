@@ -44,10 +44,8 @@
              </button>
         </div>
 
-        {{-- ⚡ ALPINEJS SCROLL FIX APPLIED HERE ⚡ --}}
-        <div id="sidebar-menu" class="flex-1 overflow-y-auto no-scrollbar"
-             x-init="$el.scrollTop = sessionStorage.getItem('sidebarScroll') || 0"
-             @scroll.throttle.50ms="sessionStorage.setItem('sidebarScroll', $el.scrollTop)">
+        {{-- TINANGGAL NATIN DITO YUNG x-init PARA HINDI MAG-DELAY --}}
+        <div id="sidebar-menu" class="flex-1 overflow-y-auto no-scrollbar">
              
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
                 <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" wire:navigate 
@@ -247,3 +245,29 @@
         </div>
     </nav>
 </div>
+
+{{-- ⚡ PERFECT FIX FOR LIVEWIRE 3 SCROLL FLICKER ⚡ --}}
+<script data-navigate-once>
+    // 1. Kapag kinlick mo ang link (bago pa magpalit ng page), isave ang scroll position
+    document.addEventListener('livewire:navigating', () => {
+        const sidebar = document.getElementById('sidebar-menu');
+        if (sidebar) {
+            sessionStorage.setItem('sidebarScroll', sidebar.scrollTop);
+        }
+    });
+
+    // 2. Pagka-load ng bagong page (walang delay), ibalik agad sa dating position
+    document.addEventListener('livewire:navigated', () => {
+        const sidebar = document.getElementById('sidebar-menu');
+        if (sidebar) {
+            sidebar.scrollTop = sessionStorage.getItem('sidebarScroll') || 0;
+        }
+    });
+
+    // 3. Backup kung nag-manual refresh (F5) yung user
+    document.addEventListener('scroll', (e) => {
+        if(e.target.id === 'sidebar-menu') {
+            sessionStorage.setItem('sidebarScroll', e.target.scrollTop);
+        }
+    }, true);
+</script>
