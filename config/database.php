@@ -54,9 +54,10 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            // 👇 FIXED: Direct path to the SSL Certificate for TiDB Cloud
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => base_path('database/cacert.pem'),
+                PDO::ATTR_PERSISTENT => true,
+                PDO::ATTR_TIMEOUT => 120,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             ]) : [],
         ],
 
