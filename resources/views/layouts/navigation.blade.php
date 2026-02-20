@@ -12,7 +12,7 @@
 
 <div x-data="{ open: false }">
 
-    {{-- 1. MOBILE & TABLET HEADER --}}
+    {{-- 1. MOBILE & TABLET HEADER (Shows hamburger menu up to 'md' breakpoint) --}}
     <div class="lg:hidden fixed top-0 left-0 w-full h-16 bg-white/90 backdrop-blur-md border-b border-gray-200/50 z-40 flex items-center justify-between px-4 sm:px-6 shadow-sm transition-all duration-300">
         <div class="flex items-center">
             <img src="{{ asset('images/nas/horizontal.png') }}" alt="NAS Logo" class="h-8 md:h-10 w-auto drop-shadow-sm">
@@ -22,7 +22,7 @@
         </button>
     </div>
 
-    {{-- 2. MOBILE & TABLET OVERLAY --}}
+    {{-- 2. MOBILE & TABLET OVERLAY (Dims background when sidebar is open) --}}
     <div x-show="open" @click="open = false"
          x-transition:enter="transition-opacity ease-linear duration-300"
          x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -32,6 +32,7 @@
     </div>
 
     {{-- 3. SIDEBAR --}}
+    {{-- Hidden by default on Mobile/Tablet (-translate-x-full), visible on 'lg' screens --}}
     <nav :class="{'translate-x-0': open, '-translate-x-full': !open}"
          class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-xl border-r border-white/20 z-50 shadow-2xl no-print 
                 transition-transform duration-300 ease-in-out 
@@ -44,9 +45,7 @@
              </button>
         </div>
 
-        {{-- TINANGGAL NATIN DITO YUNG x-init PARA HINDI MAG-DELAY --}}
         <div id="sidebar-menu" class="flex-1 overflow-y-auto no-scrollbar">
-             
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
                 <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" wire:navigate 
                    class="block w-full px-6 transform active:scale-95 transition-transform duration-200">
@@ -117,7 +116,7 @@
 
                 @else
                     {{-- ========================================================================= --}}
-                    {{-- 👑 ADMIN DASHBOARD --}}
+                    {{-- 👑 ADMIN DASHBOARD (APPLIES TO 'admin', 'registrar', 'ict support', etc.) --}}
                     {{-- ========================================================================= --}}
                     
                     <a href="{{ route('dashboard') }}" wire:navigate
@@ -125,7 +124,7 @@
                         <i class='bx bxs-dashboard text-xl mr-3 {{ request()->routeIs('dashboard') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Admin Dashboard
                     </a>
 
-                    {{-- 🔹 ENROLLMENT GROUP --}}
+                    {{-- 🔹 ENROLLMENT GROUP (Visible to EVERYONE) --}}
                     <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Enrollment</p></div>
                     
                     <a href="{{ route('admission.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('admission.*') ? $activeBlue : $inactiveBlue }}">
@@ -145,10 +144,16 @@
                         <i class='bx bx-user-pin text-lg mr-3 {{ request()->routeIs('students.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Student Directory
                     </a>
 
+                    {{-- 👇 DITO KO IDINAGDAG ANG SYSTEM SETTINGS BUTTON 👇 --}}
                     <a href="{{ url('/admin/settings') }}" wire:navigate class="{{ $navSubClass }} {{ request()->is('admin/settings') ? $activeBlue : $inactiveBlue }}">
                         <i class='bx bx-cog text-lg mr-3 {{ request()->is('admin/settings') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> System Settings
                     </a>
+                    {{-- 👆 HANGGANG DITO 👆 --}}
 
+                    {{-- 
+                        🚫 RESTRICTED SECTIONS 
+                        Logic: Show these ONLY if the user is NOT "Registrar".
+                    --}}
                     @if(Auth::user()->name !== 'Registrar') 
 
                         <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Academics</p></div>
@@ -202,9 +207,10 @@
             $displayName = Auth::user()->name;
 
             if (Auth::user()->role === 'student') {
-                $loggedInStudent = Auth::user()->student; 
+                $loggedInStudent = Auth::user()->student; // Assuming user has a 'student' relationship
                 
                 if ($loggedInStudent) {
+                    // Kunin ang details para sa extension name fallback
                     $stDetails = \App\Models\EnrollmentDetail::where('lrn', $loggedInStudent->lrn)
                                 ->orWhere('email', $loggedInStudent->email_address)
                                 ->latest()->first();
@@ -213,6 +219,7 @@
                     $rawExt = $stDetails->extension_name ?? ($stAppFallback->extension_name ?? '');
                     $extName = (in_array(strtoupper(trim($rawExt)), ['N/A', 'NONE', ''])) ? '' : trim($rawExt);
                     
+                    // Format: First Name Middle Name Last Name Jr.
                     $displayName = trim($loggedInStudent->first_name . ' ' . $loggedInStudent->middle_name . ' ' . $loggedInStudent->last_name . ' ' . $extName);
                 }
             }
@@ -246,28 +253,15 @@
     </nav>
 </div>
 
-{{-- ⚡ PERFECT FIX FOR LIVEWIRE 3 SCROLL FLICKER ⚡ --}}
-<script data-navigate-once>
-    // 1. Kapag kinlick mo ang link (bago pa magpalit ng page), isave ang scroll position
-    document.addEventListener('livewire:navigating', () => {
+{{-- SCRIPT: Restore sidebar scroll position --}}
+<script>
+    (function() {
         const sidebar = document.getElementById('sidebar-menu');
+        const key = 'sidebarScroll';
         if (sidebar) {
-            sessionStorage.setItem('sidebarScroll', sidebar.scrollTop);
+            const saved = sessionStorage.getItem(key);
+            if (saved) sidebar.scrollTop = parseInt(saved);
+            sidebar.addEventListener('scroll', () => sessionStorage.setItem(key, sidebar.scrollTop));
         }
-    });
-
-    // 2. Pagka-load ng bagong page (walang delay), ibalik agad sa dating position
-    document.addEventListener('livewire:navigated', () => {
-        const sidebar = document.getElementById('sidebar-menu');
-        if (sidebar) {
-            sidebar.scrollTop = sessionStorage.getItem('sidebarScroll') || 0;
-        }
-    });
-
-    // 3. Backup kung nag-manual refresh (F5) yung user
-    document.addEventListener('scroll', (e) => {
-        if(e.target.id === 'sidebar-menu') {
-            sessionStorage.setItem('sidebarScroll', e.target.scrollTop);
-        }
-    }, true);
+    })();
 </script>
