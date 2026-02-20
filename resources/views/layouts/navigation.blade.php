@@ -45,7 +45,6 @@
         </div>
 
         {{-- ⚡ WIRE:IGNORE.SELF ADDED HERE ⚡ --}}
-        {{-- Ito ang pipigil sa Livewire na sirain at i-reset ang container tuwing nag-na-navigate --}}
         <div id="sidebar-menu" class="flex-1 overflow-y-auto no-scrollbar" wire:ignore.self>
              
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
@@ -146,9 +145,13 @@
                         <i class='bx bx-user-pin text-lg mr-3 {{ request()->routeIs('students.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Student Directory
                     </a>
 
-                    <a href="{{ url('/admin/settings') }}" wire:navigate class="{{ $navSubClass }} {{ request()->is('admin/settings') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-cog text-lg mr-3 {{ request()->is('admin/settings') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> System Settings
-                    </a>
+                    {{-- 👇 BINAGONG PART: NAKATAGO NA SA REGISTRAR ANG SYSTEM SETTINGS 👇 --}}
+                    @if(Auth::user()->name !== 'Registrar')
+                        <a href="{{ url('/admin/settings') }}" wire:navigate class="{{ $navSubClass }} {{ request()->is('admin/settings') ? $activeBlue : $inactiveBlue }}">
+                            <i class='bx bx-cog text-lg mr-3 {{ request()->is('admin/settings') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> System Settings
+                        </a>
+                    @endif
+                    {{-- 👆 HANGGANG DITO 👆 --}}
 
                     @if(Auth::user()->name !== 'Registrar') 
 
