@@ -59,6 +59,13 @@ class NotificationsBell extends Component
 
                 // Redirect
                 if ($applicantId) {
+                    $message = $data['message'] ?? '';
+                    if (str_starts_with($message, 'Enrollment form submitted') || str_starts_with($message, 'New application from')) {
+                        // Check if it's enrollment to redirect to the correct verification page
+                        if (str_starts_with($message, 'Enrollment form submitted')) {
+                            return redirect()->route('official-enrollment.show', ['id' => $applicantId]);
+                        }
+                    }
                     return redirect()->route('admission.show', ['id' => $applicantId]);
                 }
             }
@@ -81,12 +88,28 @@ class NotificationsBell extends Component
         }
     }
 
+    public function clearAll()
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            
+            // Delete all notifications for this user from the database
+            $user->notifications()->delete();
+            
+            // Sync the counts
+            $this->notificationCount = 0;
+            $this->lastNotificationId = null;
+            
+            $this->dispatch('notifications-cleared');
+        }
+    }
+
     public function render()
     {
         $notifications = collect();
         if (Auth::check()) {
-            // Render unread notifications only
-            $notifications = Auth::user()->unreadNotifications()->latest()->take(10)->get();
+            // Render BOTH read and unread notifications for history (up to 15)
+            $notifications = Auth::user()->notifications()->latest()->take(15)->get();
         }
 
         return view('livewire.notifications-bell', [
