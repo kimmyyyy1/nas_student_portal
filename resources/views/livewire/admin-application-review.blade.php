@@ -300,7 +300,79 @@
                                                 'pwd_id' => 'PWD ID',
                                                 '4ps_id' => '4Ps ID or Certification'
                                             ];
+
+                                            $isRenewal = $application->status === 'Pending Renewal' || ($remarks['is_renewal'] ?? false);
                                         @endphp
+
+                                        {{-- ⚡ RENEWAL HEADER ⚡ --}}
+                                        @if($isRenewal)
+                                            <tr class="bg-orange-50/50">
+                                                <td colspan="5" class="px-6 py-3 text-orange-800 font-black text-[10px] tracking-[0.2em] uppercase border-y border-orange-200">
+                                                    <i class='bx bx-refresh mr-1 text-lg align-middle'></i> Scholarship Renewal Documents
+                                                </td>
+                                            </tr>
+                                            @php
+                                                $renewalDocs = [
+                                                    'renewal_sa_info_form' => 'Student-Athlete’s Information Form',
+                                                    'renewal_report_card' => 'Latest Report Card (SF9)',
+                                                    'renewal_medical_clearance' => 'Updated Medical Clearance'
+                                                ];
+                                            @endphp
+                                            @foreach($renewalDocs as $key => $label)
+                                                @php
+                                                    $isUploaded = isset($files[$key]) && !empty($files[$key]);
+                                                    $status = $statuses[$key] ?? 'pending';
+                                                    $badgeClass = match($status) {
+                                                        'approved' => 'bg-emerald-100/90 text-emerald-800 border-emerald-200',
+                                                        'declined' => 'bg-red-100/90 text-red-800 border-red-200',
+                                                        default => 'bg-amber-100/90 text-amber-800 border-amber-200',
+                                                    };
+                                                @endphp
+                                                <tr class="bg-orange-50/20 hover:bg-orange-50/40 transition group align-top border-b border-orange-100/50">
+                                                    <td class="px-2 py-3 lg:px-6 lg:py-5 font-bold text-orange-900 leading-tight break-words text-[9px] md:text-xs lg:text-sm">
+                                                        <span class="inline-block w-2 h-2 rounded-full bg-orange-400 mr-2"></span>{{ $label }}
+                                                    </td>
+                                                    <td class="px-1 py-3 lg:px-2 lg:py-5 text-center align-middle">
+                                                        @if($isUploaded)
+                                                            <span class="inline-flex px-1.5 py-0.5 sm:px-2 sm:py-1 lg:px-3 lg:py-1 text-[7px] sm:text-[9px] font-black uppercase rounded sm:rounded-full border shadow-sm {{ $badgeClass }} leading-none">{{ $status }}</span>
+                                                        @else
+                                                            <span class="text-orange-300 text-[8px] lg:text-[10px] italic font-bold">Pending</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="px-1 py-3 lg:px-2 lg:py-5 text-center align-middle">
+                                                        @if($isUploaded)
+                                                            <a href="{{ $files[$key] }}" target="_blank" class="text-orange-700 hover:text-orange-900 font-black text-[8px] lg:text-[10px] flex flex-col items-center justify-center gap-0.5 lg:gap-1 group/link">
+                                                                <div class="p-1 md:p-1.5 lg:p-2 bg-orange-100/80 rounded-md lg:rounded-lg group-hover/link:bg-orange-200 transition">
+                                                                    <svg class="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                                </div>
+                                                                VIEW
+                                                            </a>
+                                                        @else - @endif
+                                                    </td>
+                                                    <td class="px-1 py-3 lg:px-2 lg:py-5 text-center no-print align-middle">
+                                                        @if($isUploaded)
+                                                            <div class="flex flex-col md:flex-row justify-center items-center gap-1 md:gap-2 lg:gap-3">
+                                                                <a href="{{ route('admission.approve_document', ['id' => $application->id, 'doc_key' => $key]) }}" class="p-1.5 lg:p-2.5 rounded-md lg:rounded-xl bg-emerald-50/80 text-emerald-600 hover:bg-emerald-500 hover:text-white transition shadow-sm border border-emerald-200" title="Approve">
+                                                                    <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                                </a>
+                                                                <a href="{{ route('admission.decline_document', ['id' => $application->id, 'doc_key' => $key]) }}" class="p-1.5 lg:p-2.5 rounded-md lg:rounded-xl bg-red-50/80 text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200" title="Decline">
+                                                                    <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                                </a>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                    <td class="px-2 py-3 lg:px-6 lg:py-4 no-print align-middle">
+                                                        <textarea name="document_remarks[{{ $key }}]" rows="2" class="w-full text-[9px] lg:text-xs border-orange-200 bg-white/50 focus:bg-white rounded-md lg:rounded-xl focus:border-orange-500 focus:ring-orange-500 shadow-sm transition placeholder-orange-300 p-2 lg:p-3 leading-tight lg:leading-relaxed resize-none" placeholder="Remarks...">{{ $remarks[$key] ?? '' }}</textarea>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            <tr class="bg-slate-50">
+                                                <td colspan="5" class="px-6 py-3 text-slate-600 font-black text-[10px] tracking-[0.2em] uppercase border-y border-slate-200">
+                                                    Initial Application Documents
+                                                </td>
+                                            </tr>
+                                        @endif
+
                                         @foreach($docs as $key => $label)
                                             @php
                                                 $isUploaded = isset($files[$key]) && !empty($files[$key]);
@@ -392,6 +464,10 @@
                                     </optgroup>
                                     <optgroup label="Declined">
                                         <option value="Not Qualified" {{ in_array($application->status, ['Not Qualified', 'Rejected', 'Failed']) ? 'selected' : '' }}>Not Qualified</option>
+                                    </optgroup>
+                                    <optgroup label="Renewal Management">
+                                        <option value="Pending Renewal" {{ $application->status == 'Pending Renewal' ? 'selected' : '' }}>Pending Renewal (Documents Submitted)</option>
+                                        <option value="Officially Enrolled" {{ ($application->status == 'Officially Enrolled' && ($remarks['is_renewal'] ?? false)) ? 'selected' : '' }}>Renewal Officially Enrolled</option>
                                     </optgroup>
                                 </select>
                             </div>

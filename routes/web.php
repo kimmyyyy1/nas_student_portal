@@ -70,12 +70,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/recent-activity', [DashboardController::class, 'getRecentActivity'])->name('recent.activity');
     Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
     
-    // Notifications
-    Route::get('/notifications/mark-all-read', function () {
-        auth()->user()->unreadNotifications->markAsRead();
-        return back();
-    })->name('notifications.readAll');
-
     // Profile Settings
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -102,6 +96,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     Route::middleware('role:student')->group(function () {
         Route::get('/student/dashboard', [StudentPortalController::class, 'index'])->name('student.dashboard');
+        
+        // ⚡ DISABLED MUNA PARA SA CLEANUP (CLOUD ERROR FIX) ⚡
         Route::get('/student/renew-enrollment', \App\Livewire\ContinuingEnrollment::class)->name('student.renew-enrollment');
     });
 

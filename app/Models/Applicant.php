@@ -60,6 +60,8 @@ class Applicant extends Model
         'guardian_email',
         
         // System / Admin Fields
+        'email_address',
+        'sex',
         'uploaded_files',
         'status',
         'is_enrolled', // Added tracking field

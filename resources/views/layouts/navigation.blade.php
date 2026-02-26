@@ -17,9 +17,12 @@
         <div class="flex items-center">
             <img src="{{ asset('images/nas/horizontal.png') }}" alt="NAS Logo" class="h-8 md:h-10 w-auto drop-shadow-sm">
         </div>
-        <button @click="open = !open" class="p-2 rounded-md text-gray-600 hover:bg-black/5 focus:outline-none transition transform active:scale-90">
-            <i class='bx bx-menu text-3xl md:text-4xl'></i>
-        </button>
+        
+        <div class="flex items-center gap-3">
+            <button @click="open = !open" class="p-2 rounded-md text-gray-600 hover:bg-black/5 focus:outline-none transition transform active:scale-90">
+                <i class='bx bx-menu text-3xl md:text-4xl'></i>
+            </button>
+        </div>
     </div>
 
     {{-- 2. MOBILE & TABLET OVERLAY --}}
@@ -145,13 +148,11 @@
                         <i class='bx bx-user-pin text-lg mr-3 {{ request()->routeIs('students.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Student Directory
                     </a>
 
-                    {{-- 👇 BINAGONG PART: NAKATAGO NA SA REGISTRAR ANG SYSTEM SETTINGS 👇 --}}
                     @if(Auth::user()->name !== 'Registrar')
                         <a href="{{ url('/admin/settings') }}" wire:navigate class="{{ $navSubClass }} {{ request()->is('admin/settings') ? $activeBlue : $inactiveBlue }}">
                             <i class='bx bx-cog text-lg mr-3 {{ request()->is('admin/settings') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> System Settings
                         </a>
                     @endif
-                    {{-- 👆 HANGGANG DITO 👆 --}}
 
                     @if(Auth::user()->name !== 'Registrar') 
 
@@ -222,16 +223,18 @@
             }
         @endphp
 
-        <div class="p-4 border-t border-gray-200/50 bg-gray-50/80 shrink-0 backdrop-blur-sm mt-auto">
-            <div class="flex items-center mb-3">
-                <div class="flex-shrink-0">
-                    <div class="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                        {{ substr($displayName, 0, 1) }}
+        <div class="p-4 border-t border-gray-200/50 bg-gray-50/80 shrink-0 backdrop-blur-sm mt-auto relative">
+            <div class="flex items-center mb-3 justify-between">
+                <div class="flex items-center min-w-0">
+                    <div class="flex-shrink-0">
+                        <div class="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                            {{ substr($displayName, 0, 1) }}
+                        </div>
                     </div>
-                </div>
-                <div class="ml-3 w-full min-w-0">
-                    <p class="text-sm font-bold text-gray-900 truncate" title="{{ $displayName }}">{{ $displayName }}</p>
-                    <p class="text-xs text-gray-500 truncate">{{ $displayRole }}</p>
+                    <div class="ml-3 min-w-0">
+                        <p class="text-sm font-bold text-gray-900 truncate" title="{{ $displayName }}">{{ $displayName }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ $displayRole }}</p>
+                    </div>
                 </div>
             </div>
 

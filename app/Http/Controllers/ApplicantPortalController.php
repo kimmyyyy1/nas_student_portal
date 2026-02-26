@@ -8,13 +8,13 @@ use App\Models\User;
 use App\Models\EnrollmentDetail; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Notification; 
-use App\Notifications\ApplicantDocumentsSubmitted; 
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewApplicantNotification;
 
 class ApplicantPortalController extends Controller
 {
@@ -110,19 +110,13 @@ class ApplicantPortalController extends Controller
 
         $applicant = Applicant::create($data);
 
+        // Notify admins
+        $admins = User::where('role', 'admin')->get();
+        $message = "New application from: {$applicant->first_name} {$applicant->last_name}";
+        Notification::send($admins, new NewApplicantNotification($applicant, $message));
+
         // 4. Upload
         $this->handleInitialFileUploads($request, $applicant);
-
-        // 5. Notify Admins
-        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
-        if ($admins->count() > 0) {
-            Notification::send($admins, new ApplicantDocumentsSubmitted(
-                $applicant, 
-                'new', 
-                'Application Form', 
-                'Initial Registration'
-            ));
-        }
 
         return redirect()->route('applicant.dashboard')->with('success', 'Application submitted! Please wait for the initial assessment.');
     }
@@ -206,29 +200,10 @@ class ApplicantPortalController extends Controller
             'status' => 'Requirements Submitted & For Review'
         ]);
 
-        if (count($uploadedDocNames) > 0) {
-            $admins = User::whereIn('role', ['admin', 'registrar'])->get();
-            if ($admins->count() > 0) {
-                foreach ($admins as $admin) {
-                    $admin->notifications()
-                          ->where('data->applicant_id', $applicant->id)
-                          ->where('data->link', 'like', '%admission%')
-                          ->whereNull('read_at')
-                          ->delete();
-                }
-                $count = count($uploadedDocNames);
-                $fileList = $count <= 2 
-                    ? implode(' and ', $uploadedDocNames) 
-                    : $count . ' Documents (' . $uploadedDocNames[0] . ' and others)';
-
-                Notification::send($admins, new ApplicantDocumentsSubmitted(
-                    $applicant, 
-                    $isResubmission ? 'resubmission' : 'new',
-                    $fileList, 
-                    'Admission Requirements'
-                ));
-            }
-        }
+        // Notify admins
+        $admins = User::where('role', 'admin')->get();
+        $message = "Requirements uploaded by: {$applicant->first_name} {$applicant->last_name}";
+        Notification::send($admins, new NewApplicantNotification($applicant, $message));
 
         return redirect()->route('applicant.dashboard')->with('success', 'Requirements submitted successfully!');
     }
@@ -359,22 +334,10 @@ class ApplicantPortalController extends Controller
             'status' => 'Officially Enrolled'
         ]);
 
-        // --- NOTIFICATIONS ---
-        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
-        if ($admins->count() > 0) {
-            foreach ($admins as $admin) {
-                $admin->notifications()
-                      ->where('data->applicant_id', $applicant->id)
-                      ->where('data->link', 'like', '%official-enrollment%')
-                      ->whereNull('read_at')
-                      ->delete();
-            }
-            $message = count($uploadedDocNames) > 0 
-                ? "Enrollment Form and " . count($uploadedDocNames) . " Requirements" 
-                : "Official Enrollment Form";
-
-            Notification::send($admins, new ApplicantDocumentsSubmitted($applicant, 'new', $message, 'Official Enrollment'));
-        }
+        // Notify admins
+        $admins = User::where('role', 'admin')->get();
+        $message = "Enrollment form submitted by: {$applicant->first_name} {$applicant->last_name}";
+        Notification::send($admins, new NewApplicantNotification($applicant, $message));
 
         // ✅ REDIRECT BACK TO APPLICANT DASHBOARD
         // Mananatili siyang applicant hanggang i-approve ng admin.

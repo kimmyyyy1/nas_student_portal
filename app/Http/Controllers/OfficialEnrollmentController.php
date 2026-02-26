@@ -17,7 +17,7 @@ class OfficialEnrollmentController extends Controller
      */
     public function index()
     {
-        $enrollees = Applicant::where('status', 'Officially Enrolled')
+        $enrollees = Applicant::whereIn('status', ['Officially Enrolled', 'Pending Renewal'])
                               ->with('enrollmentDetail')
                               ->orderBy('updated_at', 'desc')
                               ->paginate(10);
@@ -54,71 +54,92 @@ class OfficialEnrollmentController extends Controller
         $applicant = Applicant::with('enrollmentDetail')->findOrFail($id);
 
         // 🛡️ SECURITY CHECK
-        // Haharangin nito kung hindi pa "Officially Enrolled" ang status.
-        if ($applicant->status !== 'Officially Enrolled') {
+        if (!in_array($applicant->status, ['Officially Enrolled', 'Pending Renewal'])) {
             return redirect()->route('official-enrollment.index')
                 ->with('error', 'Security Alert: Unauthorized action. This applicant is not ready for enrollment.');
         }
 
-        // Check if student already exists in student table via LRN
-        if (Student::where('lrn', $applicant->lrn)->exists()) {
-            return redirect()->route('official-enrollment.index')
-                ->with('error', 'This student is already recorded in the Student Directory.');
-        }
-
         DB::transaction(function () use ($applicant) {
-            
-            // A. GENERATE STUDENT ID (Format: 2026-30001)
-            $year = date('Y');
-            $studentId = $year . '-' . str_pad($applicant->id, 5, '0', STR_PAD_LEFT);
-
             $details = $applicant->enrollmentDetail;
             $files = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
+            $remarks = is_string($applicant->document_remarks) ? json_decode($applicant->document_remarks, true) : ($applicant->document_remarks ?? []);
+            
+            // Check if it's a renewal
+            $isRenewal = ($applicant->status === 'Pending Renewal') || ($remarks['is_renewal'] ?? false);
+            
+            // Find existing student by LRN
+            $existingStudent = Student::where('lrn', $applicant->lrn)->first();
 
-            // B. CREATE STUDENT RECORD
-            Student::create([
-                'nas_student_id'   => $studentId, 
-                'lrn'              => $applicant->lrn,
-                'id_picture'       => $files['id_picture'] ?? null, 
+            if ($existingStudent) {
+                // RENEWAL LOGIC: Update existing record
+                $updateData = [
+                    'status' => 'Enrolled',
+                    'enrollment_date' => now(),
+                    'promotion_status' => null, // Clear promotion status once officially enrolled
+                ];
 
-                // Personal Info
-                'first_name'       => $applicant->first_name,
-                'last_name'        => $applicant->last_name,
-                'middle_name'      => $applicant->middle_name,
-                'sex'              => $applicant->gender,
-                'birthdate'        => $applicant->date_of_birth, 
-                'age'              => $applicant->age,
+                // Update Grade Level if specified in renewal
+                if (isset($remarks['renewal_grade_level'])) {
+                    $updateData['grade_level'] = $remarks['renewal_grade_level'];
+                }
+
+                // Update Photo if provided
+                if (isset($files['id_picture'])) {
+                    $updateData['id_picture'] = $files['id_picture'];
+                }
+
+                $existingStudent->update($updateData);
                 
-                // Special Categories
-                'is_ip'            => $applicant->is_ip,
-                'is_pwd'           => $applicant->is_pwd,
-                'is_4ps'           => $applicant->is_4ps,
+            } else {
+                // NEW STUDENT LOGIC: Create record
+                $year = date('Y');
+                $studentId = $year . '-' . str_pad($applicant->id, 5, '0', STR_PAD_LEFT);
 
-                // Academic & Sports
-                'grade_level'      => '7', 
-                'status'           => 'Enrolled',
-                
-                // Address & Contact
-                'region'           => $applicant->region,
-                'province'         => $applicant->province,
-                'municipality_city'=> $applicant->municipality_city, 
-                'barangay'         => $applicant->barangay,
-                'street_address'   => $details->street_house_no ?? $applicant->street_address,
-                'zip_code'         => $applicant->zip_code,
-                'contact_number'   => $applicant->guardian_contact,
-                
-                // Email
-                'email_address'    => $details->email ?? ($applicant->user->email ?? 'N/A'), 
+                Student::create([
+                    'nas_student_id'   => $studentId, 
+                    'lrn'              => $applicant->lrn,
+                    'id_picture'       => $files['id_picture'] ?? null, 
 
-                // Guardian Info
-                'guardian_name'         => $applicant->guardian_name,
-                'guardian_relationship' => $applicant->guardian_relationship,
-                'guardian_contact'      => $applicant->guardian_contact,
-                'guardian_email'        => $applicant->guardian_email,
-                'guardian_address'      => $details->guardian_address ?? 'Same as Student',
-            ]);
+                    // Personal Info
+                    'first_name'       => $applicant->first_name,
+                    'last_name'        => $applicant->last_name,
+                    'middle_name'      => $applicant->middle_name,
+                    'sex'              => $applicant->gender,
+                    'birthdate'        => $applicant->date_of_birth, 
+                    'age'              => $applicant->age,
+                    
+                    // Special Categories
+                    'is_ip'            => $applicant->is_ip,
+                    'is_pwd'           => $applicant->is_pwd,
+                    'is_4ps'           => $applicant->is_4ps,
 
-            // C. UPDATE USER ROLE
+                    // Academic & Sports
+                    'grade_level'      => '7', // Default for new
+                    'status'           => 'Enrolled',
+                    'enrollment_date'  => now(),
+                    
+                    // Address & Contact
+                    'region'           => $applicant->region,
+                    'province'         => $applicant->province,
+                    'municipality_city'=> $applicant->municipality_city, 
+                    'barangay'         => $applicant->barangay,
+                    'street_address'   => $details->street_house_no ?? $applicant->street_address,
+                    'zip_code'         => $applicant->zip_code,
+                    'contact_number'   => $applicant->guardian_contact,
+                    
+                    // Email
+                    'email_address'    => $details->email ?? ($applicant->user->email ?? 'N/A'), 
+
+                    // Guardian Info
+                    'guardian_name'         => $applicant->guardian_name,
+                    'guardian_relationship' => $applicant->guardian_relationship,
+                    'guardian_contact'      => $applicant->guardian_contact,
+                    'guardian_email'        => $applicant->guardian_email,
+                    'guardian_address'      => $details->guardian_address ?? 'Same as Student',
+                ]);
+            }
+
+            // C. UPDATE USER ROLE (Ensure they are a student)
             $user = User::find($applicant->user_id);
             if($user) {
                 $user->update(['role' => 'student']);
@@ -131,7 +152,7 @@ class OfficialEnrollmentController extends Controller
         });
 
         return redirect()->route('official-enrollment.index')
-            ->with('success', 'Applicant successfully enrolled! Student record created and user role updated.');
+            ->with('success', 'Enrollment finalized successfully!');
     }
 
     /**

@@ -437,8 +437,6 @@
         </div>
     </div>
     
-    {{-- AlpineJS for interactivity --}}
-    <script src="//unpkg.com/alpinejs" defer></script>
     <style> .bg-pattern { background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 24px 24px; } 
     .custom-scrollbar::-webkit-scrollbar { width: 8px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }

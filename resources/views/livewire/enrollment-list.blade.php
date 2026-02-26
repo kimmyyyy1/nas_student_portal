@@ -45,6 +45,7 @@
                             <tr class="text-slate-500 uppercase text-[10px] font-black tracking-wider">
                                 <th class="py-4 px-6 whitespace-nowrap">App ID</th>
                                 <th class="py-4 px-6">Name</th>
+                                <th class="py-4 px-6 text-center">Type</th>
                                 <th class="py-4 px-6 text-center whitespace-nowrap">LRN</th>
                                 <th class="py-4 px-6 text-center">Sport</th>
                                 <th class="py-4 px-6 text-center">Status</th>
@@ -53,6 +54,10 @@
                         </thead>
                         <tbody class="text-slate-600 text-sm font-medium divide-y divide-slate-100">
                             @foreach($enrollees as $applicant)
+                                @php
+                                    $remarks = is_string($applicant->document_remarks) ? json_decode($applicant->document_remarks, true) : ($applicant->document_remarks ?? []);
+                                    $isRenewal = ($applicant->status === 'Pending Renewal') || ($remarks['is_renewal'] ?? false);
+                                @endphp
                                 <tr class="hover:bg-slate-50 transition-colors group align-middle">
                                     
                                     {{-- App ID --}}
@@ -64,6 +69,19 @@
                                     <td class="py-4 px-6 whitespace-nowrap">
                                         <div class="font-black text-slate-800 uppercase tracking-tight">{{ $applicant->last_name }}, {{ $applicant->first_name }}</div>
                                         <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{{ $applicant->email }}</div>
+                                    </td>
+
+                                    {{-- Type --}}
+                                    <td class="py-4 px-6 text-center whitespace-nowrap">
+                                        @if($isRenewal)
+                                            <span class="inline-flex items-center px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest bg-orange-100 text-orange-700 border border-orange-200">
+                                                Renewal
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest bg-indigo-100 text-indigo-700 border border-indigo-200">
+                                                New
+                                            </span>
+                                        @endif
                                     </td>
 
                                     {{-- LRN --}}
@@ -84,14 +102,19 @@
                                     <td class="py-4 px-6 text-center whitespace-nowrap">
                                         @php
                                             $stat = strtoupper($applicant->status);
-                                            $isAdmitted = str_contains($stat, 'ADMITTED') || str_contains($stat, 'ENROLLED') && !str_contains($stat, 'OFFICIALLY');
+                                            $isAdmitted = str_contains($stat, 'ADMITTED') || str_contains($stat, 'ENROLLED') && !str_contains($stat, 'OFFICIALLY') && !str_contains($stat, 'RENEWAL');
                                             $isPending = str_contains($stat, 'OFFICIALLY ENROLLED') || str_contains($stat, 'VERIFICATION');
+                                            $isRenewalPending = str_contains($stat, 'PENDING RENEWAL');
                                             $isReturned = str_contains($stat, 'RETURN');
                                         @endphp
 
                                         @if($isAdmitted)
                                             <span class="bg-emerald-100 text-emerald-800 py-1.5 px-4 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-200 shadow-sm">
                                                 Admitted
+                                            </span>
+                                        @elseif($isRenewalPending)
+                                            <span class="bg-orange-100 text-orange-800 py-1.5 px-4 rounded-full text-[9px] font-black uppercase tracking-widest border border-orange-300 animate-pulse shadow-sm">
+                                                Renewal Check
                                             </span>
                                         @elseif($isPending)
                                             <span class="bg-yellow-100 text-yellow-800 py-1.5 px-4 rounded-full text-[9px] font-black uppercase tracking-widest border border-yellow-300 animate-pulse shadow-sm">

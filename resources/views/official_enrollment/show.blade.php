@@ -307,43 +307,97 @@
                             <span class="bg-indigo-600 text-white w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center text-[9px] sm:text-[10px] mr-2.5 sm:mr-3 shrink-0">04</span> 
                             Submitted Official Requirements
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
-                            @php
-                                $files = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
-                                $labels = [
-                                    'sa_info_form' => 'Student-Athlete Info Form',
-                                    'scholarship_app_form' => 'Scholarship Application',
-                                    'sa_profile_form' => 'Athlete Profile Summary',
-                                    'ppe_clearance' => 'Medical Clearance (PPE)',
-                                    'psa_birth_cert' => 'PSA Birth Certificate',
-                                    'report_card' => 'Previous Report Card (SF9)',
-                                    'guardian_id' => 'Guardian Govt ID',
-                                    'kukkiwon_cert' => 'Kukkiwon Certificate (TKD)',
-                                    'ip_cert' => 'IP Certification',
-                                    'pwd_id' => 'PWD ID Card',
-                                    '4ps_id' => '4Ps Membership/ID',
-                                    'id_picture' => 'Official 2x2 Photo'
-                                ];
-                            @endphp
 
-                            @forelse($files as $key => $link)
-                                <div class="flex items-center justify-between p-3 sm:p-4 border border-slate-200 rounded-xl sm:rounded-2xl bg-slate-50/50 hover:bg-indigo-50/50 transition-all group w-full">
-                                    <div class="flex items-center gap-3 sm:gap-4 overflow-hidden w-full">
-                                        <div class="bg-white p-2 sm:p-3 rounded-lg sm:rounded-xl text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white shrink-0 transition-colors">
-                                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        </div>
-                                        <div class="truncate min-w-0">
-                                            <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Requirement</p>
-                                            <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $labels[$key] ?? str_replace('_', ' ', $key) }}</p>
-                                        </div>
-                                    </div>
-                                    <a href="{{ $link }}" target="_blank" class="bg-slate-800 hover:bg-indigo-600 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
-                                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                    </a>
+                        @php
+                            $remarks = is_string($applicant->document_remarks) ? json_decode($applicant->document_remarks, true) : ($applicant->document_remarks ?? []);
+                            $isRenewal = $applicant->status === 'Pending Renewal' || ($remarks['is_renewal'] ?? false);
+                            $files = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
+                            
+                            $renewalLabels = [
+                                'renewal_sa_info_form' => 'Student-Athlete’s Information Form',
+                                'renewal_report_card' => 'Latest Report Card (SF9)',
+                                'renewal_medical_clearance' => 'Updated Medical Clearance'
+                            ];
+
+                            $initialLabels = [
+                                'sa_info_form' => 'Student-Athlete Info Form',
+                                'scholarship_app_form' => 'Scholarship Application',
+                                'sa_profile_form' => 'Athlete Profile Summary',
+                                'ppe_clearance' => 'Medical Clearance (PPE)',
+                                'psa_birth_cert' => 'PSA Birth Certificate',
+                                'report_card' => 'Previous Report Card (SF9)',
+                                'guardian_id' => 'Guardian Govt ID',
+                                'kukkiwon_cert' => 'Kukkiwon Certificate (TKD)',
+                                'ip_cert' => 'IP Certification',
+                                'pwd_id' => 'PWD ID Card',
+                                '4ps_id' => '4Ps Membership/ID',
+                                'id_picture' => 'Official 2x2 Photo'
+                            ];
+                        @endphp
+
+                        @if($isRenewal)
+                            {{-- ⚡ RENEWAL DOCUMENTS SUBSECTION ⚡ --}}
+                            <div class="mb-8 w-full">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <span class="px-3 py-1 bg-orange-100 text-orange-700 text-[10px] font-black uppercase rounded-full border border-orange-200 shadow-sm animate-pulse">Scholarship Renewal Documents</span>
+                                    <div class="h-px bg-orange-100 flex-1"></div>
                                 </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
+                                    @php $hasRenewal = false; @endphp
+                                    @foreach($renewalLabels as $key => $label)
+                                        @if(isset($files[$key]) && !empty($files[$key]))
+                                            @php $hasRenewal = true; @endphp
+                                            <div class="flex items-center justify-between p-3 sm:p-4 border border-orange-200 rounded-xl sm:rounded-2xl bg-orange-50/50 hover:bg-orange-100/50 transition-all group w-full">
+                                                <div class="flex items-center gap-3 sm:gap-4 overflow-hidden w-full">
+                                                    <div class="bg-white p-2 sm:p-3 rounded-lg sm:rounded-xl text-orange-600 shadow-sm group-hover:bg-orange-600 group-hover:text-white shrink-0 transition-colors">
+                                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                    </div>
+                                                    <div class="truncate min-w-0">
+                                                        <p class="text-[8px] sm:text-[9px] font-black text-orange-500 uppercase">Renewal Requirement</p>
+                                                        <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $label }}</p>
+                                                    </div>
+                                                </div>
+                                                <a href="{{ $files[$key] }}" target="_blank" class="bg-orange-600 hover:bg-orange-700 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
+                                                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                </a>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                    @if(!$hasRenewal)
+                                        <div class="col-span-1 md:col-span-2 text-center py-4 w-full">
+                                            <p class="text-orange-400 italic text-xs">No specific renewal files found in this submission.</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 mb-4 mt-6">
+                                <span class="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black uppercase rounded-full border border-slate-200">Initial Application Files</span>
+                                <div class="h-px bg-slate-100 flex-1"></div>
+                            </div>
+                        @endif
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
+                            @forelse($initialLabels as $key => $label)
+                                @if(isset($files[$key]) && !empty($files[$key]))
+                                    <div class="flex items-center justify-between p-3 sm:p-4 border border-slate-200 rounded-xl sm:rounded-2xl bg-slate-50/50 hover:bg-indigo-50/50 transition-all group w-full">
+                                        <div class="flex items-center gap-3 sm:gap-4 overflow-hidden w-full">
+                                            <div class="bg-white p-2 sm:p-3 rounded-lg sm:rounded-xl text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white shrink-0 transition-colors">
+                                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            </div>
+                                            <div class="truncate min-w-0">
+                                                <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Requirement</p>
+                                                <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $label }}</p>
+                                            </div>
+                                        </div>
+                                        <a href="{{ $files[$key] }}" target="_blank" class="bg-slate-800 hover:bg-indigo-600 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                        </a>
+                                    </div>
+                                @endif
                             @empty
                                 <div class="col-span-1 md:col-span-2 text-center py-6 sm:py-8 w-full">
-                                    <p class="text-slate-400 italic text-xs sm:text-sm">No files uploaded.</p>
+                                    <p class="text-slate-400 italic text-xs sm:text-sm">No initial files found.</p>
                                 </div>
                             @endforelse
                         </div>

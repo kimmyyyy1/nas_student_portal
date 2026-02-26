@@ -1,498 +1,275 @@
 <x-app-layout>
-    
     <x-slot name="header">
-        
-        {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER: Compact View                                --}}
-        {{-- ============================================================= --}}
-        <div class="flex md:hidden items-center justify-between w-full">
-            
-            {{-- Dashboard Badge --}}
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 uppercase shadow-sm border border-indigo-200">
-                <i class='bx bxs-dashboard mr-1.5 text-sm'></i> Dashboard
-            </span>
-
-            {{-- Live Indicator --}}
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
-                <span class="w-1.5 h-1.5 bg-green-600 rounded-full mr-1"></span> LIVE
-            </span>
-
-        </div>
-
-        {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Standard View                              --}}
-        {{-- ============================================================= --}}
-        <div class="hidden md:flex items-center justify-between w-full py-2">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
-                {{ __('Dashboard') }}
-            </h2>
-            
-            <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
-                <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
-            </span>
-        </div>
-
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Dashboard') }}
+        </h2>
     </x-slot>
 
-    {{-- 👇 FIX: Normal 'py-4' na lang, wala nang negative margins --}}
-    <div class="py-4 md:py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+        #student-map {
+            height: 580px;
+            width: 100%;
+            border-radius: 2rem;
+            z-index: 1;
+            background: #0f172a !important; 
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+        }
+        
+        /* 🛰️ ELITE SATELLITE PULSE (Cyan Neon) */
+        .custom-div-icon { background: none; border: none; }
+        .marker-neon { width: 40px; height: 40px; position: relative; }
+        .pulse-ring {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px; height: 12px;
+            background: rgba(34, 211, 238, 0.4);
+            border: 1.5px solid #22d3ee; border-radius: 50%;
+            animation: pulse-ring 2.5s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { width: 8px; height: 8px; opacity: 1; }
+            100% { width: 45px; height: 45px; opacity: 0; }
+        }
+        .marker-inner-elite {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: #1e293b; border: 2.5px solid #22d3ee;
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            position: relative; z-index: 2;
+        }
+        .marker-img-elite { width: 100%; height: 100%; object-fit: cover; }
+        .marker-label-elite {
+            position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.9); backdrop-blur: 4px;
+            color: #fff; padding: 1px 8px; border-radius: 6px;
+            font-size: 8px; font-weight: 800; text-transform: uppercase; white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.1); opacity: 0; transition: 0.3s;
+        }
+        .custom-div-icon:hover .marker-label-elite { opacity: 1; bottom: -28px; }
+
+        .glow-favicon {
+            filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.6));
+            animation: float-favicon 4s ease-in-out infinite;
+        }
+        @keyframes float-favicon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+    </style>
+
+    <div class="py-12 min-h-screen bg-transparent text-slate-800">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- ======================================================= --}}
-            {{-- LOGIC: TEACHER VIEW                                     --}}
-            {{-- ======================================================= --}}
-            @if(Auth::user()->role === 'teacher')
-                
-                @if(isset($staffError))
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm flex items-center">
-                        <i class='bx bx-error-circle text-2xl mr-3'></i>
-                        <div>
-                            <p class="font-bold">Configuration Error</p>
-                            <p>{{ $staffError }} Please contact the Admin to create your Staff Profile.</p>
-                        </div>
-                    </div>
-                @else
-                    {{-- WELCOME BANNER --}}
-                    <div class="bg-gradient-to-r from-blue-900 to-indigo-800 text-white overflow-hidden shadow-lg sm:rounded-lg mb-6 relative border border-blue-700">
-                        <div class="p-6 relative z-10 flex justify-between items-center">
-                            <div>
-                                <h3 class="text-2xl font-bold drop-shadow-md">Welcome, Teacher {{ Auth::user()->name }}!</h3>
-                                <p class="text-blue-100 text-sm mt-1">Manage your advisory class and subject loads efficiently.</p>
-                            </div>
-                            <div class="text-right hidden md:block">
-                                <span class="text-xs font-bold text-blue-300 uppercase tracking-wider">System Date</span>
-                                <p class="text-xl font-semibold drop-shadow-md">{{ date('F d, Y') }}</p>
-                            </div>
-                        </div>
-                        <div class="absolute right-0 top-0 h-full w-1/3 bg-white opacity-10 skew-x-12 transform origin-bottom-right"></div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {{-- ADVISORY CLASS CARD --}}
-                        <div class="md:col-span-2">
-                            <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200 h-full flex flex-col">
-                                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                                    <h4 class="font-bold text-gray-700 flex items-center uppercase text-sm tracking-wide">
-                                        <i class='bx bx-chalkboard text-xl mr-2 text-indigo-600'></i>
-                                        My Advisory Class
-                                    </h4>
-                                    @if(isset($advisorySection) && $advisorySection)
-                                        <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200">
-                                            {{ $advisoryCount ?? 0 }} Students
-                                        </span>
-                                    @endif
-                                </div>
-
-                                <div class="p-6 flex-grow flex flex-col justify-center">
-                                    @if(isset($advisorySection) && $advisorySection)
-                                        <div class="text-center mb-8">
-                                            <h1 class="text-4xl font-extrabold text-indigo-700 leading-tight">
-                                                {{ $advisorySection->grade_level }} - {{ $advisorySection->section_name }}
-                                            </h1>
-                                            <p class="text-sm text-gray-500 mt-2 font-medium flex justify-center items-center">
-                                                <i class='bx bx-building-house mr-1'></i> Room: {{ $advisorySection->room_number ?? 'TBA' }}
-                                            </p>
-                                        </div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-auto">
-                                            <a href="{{ route('teacher.advisory') }}" wire:navigate class="block p-4 bg-indigo-50 border border-indigo-100 rounded-lg hover:bg-indigo-100 transition text-center group shadow-sm hover:shadow-md">
-                                                <i class='bx bx-list-ul text-3xl text-indigo-600 mb-2 group-hover:scale-110 transition block'></i>
-                                                <span class="font-bold text-indigo-800 text-xs uppercase tracking-wide">View Masterlist</span>
-                                            </a>
-                                            <a href="{{ route('attendances.index') }}" wire:navigate class="block p-4 bg-green-50 border border-green-100 rounded-lg hover:bg-green-100 transition text-center group shadow-sm hover:shadow-md">
-                                                <i class='bx bx-check-circle text-3xl text-green-600 mb-2 group-hover:scale-110 transition block'></i>
-                                                <span class="font-bold text-green-800 text-xs uppercase tracking-wide">Check Attendance</span>
-                                            </a>
-                                        </div>
-                                    @else
-                                        <div class="text-center py-10 text-gray-400">
-                                            <i class='bx bx-folder-minus text-6xl mb-3 opacity-50'></i>
-                                            <p class="font-medium text-lg">No advisory class assigned yet.</p>
-                                            <p class="text-xs mt-1">Please contact the Registrar/Admin for assignments.</p>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- MY LOADS / SCHEDULE --}}
-                        <div class="md:col-span-1 space-y-6">
-                            <div class="bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
-                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase flex justify-between items-center">
-                                    <span><i class='bx bx-book-open mr-1'></i> My Loads</span>
-                                    <a href="{{ route('schedules.my') }}" wire:navigate class="text-xs text-blue-600 hover:text-blue-800 hover:underline">View All</a>
-                                </div>
-                                <div class="p-4">
-                                    @if(isset($mySchedules) && $mySchedules->count() > 0)
-                                        <ul class="space-y-3">
-                                            @foreach($mySchedules->take(5) as $sched)
-                                                <li class="text-sm border-b border-gray-100 pb-2 last:border-0 hover:bg-gray-50 p-2 rounded transition">
-                                                    <div class="flex justify-between items-start">
-                                                        <span class="font-bold text-gray-800">{{ $sched->subject->subject_name ?? 'Subject' }}</span>
-                                                        <span class="text-[10px] font-bold text-white bg-gray-400 px-1.5 py-0.5 rounded uppercase">{{ substr($sched->day, 0, 3) }}</span>
-                                                    </div>
-                                                    <div class="flex justify-between mt-1 items-center">
-                                                        <span class="text-xs text-gray-500">{{ $sched->section->section_name ?? 'Section' }}</span>
-                                                        <span class="text-xs text-indigo-600 font-mono font-bold">{{ date('h:i A', strtotime($sched->time_start)) }}</span>
-                                                    </div>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    @else
-                                        <div class="text-center py-6">
-                                            <p class="text-xs text-gray-400 italic">No teaching loads assigned.</p>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md text-white overflow-hidden group">
-                                <div class="p-5 text-center">
-                                    <i class='bx bx-edit text-4xl mb-2 text-white opacity-90 group-hover:scale-110 transition duration-300'></i>
-                                    <h4 class="font-bold mb-1">Grading System</h4>
-                                    <p class="text-xs mb-4 opacity-90">Encode grades for your students.</p>
-                                    <a href="{{ route('grades.index') }}" wire:navigate class="inline-block bg-white text-orange-600 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition shadow text-xs uppercase">
-                                        Open Grade Sheet
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-            {{-- ======================================================= --}}
-            {{-- LOGIC: ADMIN VIEW (Default)                             --}}
-            {{-- ======================================================= --}}
-            @else
-                
-                {{-- 1. STATISTICS CARDS --}}
+            @if(auth()->user()->role === 'admin')
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    {{-- Students --}}
-                    <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-blue-600 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Students</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-students" data-target="{{ $totalStudents ?? 0 }}">0</p>
+                    <!-- Total Students Card -->
+                    <div x-data="{ 
+                            hover: false, 
+                            total: {{ $totalStudents }},
+                            male: {{ $maleCount }},
+                            female: {{ $femaleCount }},
+                            get malePercent() { return this.total > 0 ? (this.male / this.total * 100).toFixed(0) : 0 },
+                            get femalePercent() { return this.total > 0 ? (this.female / this.total * 100).toFixed(0) : 0 }
+                         }" 
+                         @mouseenter="hover = true" 
+                         @mouseleave="hover = false"
+                         class="bg-white/90 backdrop-blur-sm overflow-hidden shadow-sm sm:rounded-2xl p-6 border-l-4 border-indigo-500 relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                        
+                        <div class="flex items-center justify-between" x-show="!hover" x-transition:enter="transition ease-out duration-300">
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Students</p>
+                                <h3 class="text-3xl font-black tracking-tighter count-up" data-target="{{ $totalStudents }}">0</h3>
+                            </div>
+                            <div class="bg-indigo-50 p-3 rounded-2xl text-indigo-600">
+                                <i class='bx bxs-user-detail text-3xl'></i>
+                            </div>
                         </div>
-                        <div class="p-3 rounded-full bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
-                            <i class='bx bx-user-pin text-3xl'></i>
+
+                        <div class="absolute inset-0 p-6 flex flex-col justify-center bg-white/95" x-show="hover" x-transition:enter="transition ease-out duration-300">
+                            <div class="flex justify-between items-end mb-2">
+                                <p class="text-[10px] font-black text-slate-500 uppercase">Gender Distribution</p>
+                                <span class="text-[10px] font-black text-indigo-600" x-text="total + ' TOTAL'"></span>
+                            </div>
+                            <div class="flex h-3.5 w-full rounded-full overflow-hidden bg-slate-100 shadow-inner">
+                                <div class="bg-blue-500 h-full transition-all duration-1000 ease-out" :style="'width: ' + malePercent + '%'"></div>
+                                <div class="bg-rose-400 h-full transition-all duration-1000 ease-out" :style="'width: ' + femalePercent + '%'"></div>
+                            </div>
+                            <div class="flex justify-between mt-3">
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                                    <span class="text-[10px] font-black text-slate-600 uppercase" x-text="'M: ' + male + ' (' + malePercent + '%)'"></span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2 h-2 rounded-full bg-rose-400"></div>
+                                    <span class="text-[10px] font-black text-slate-600 uppercase" x-text="'F: ' + female + ' (' + femalePercent + '%)'"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    {{-- Sections --}}
-                    <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-green-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Sections</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-sections" data-target="{{ $activeSections ?? 0 }}">0</p>
-                        </div>
-                        <div class="p-3 rounded-full bg-green-100 text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
-                            <i class='bx bx-chalkboard text-3xl'></i>
+                    <!-- Active Sections -->
+                    <div class="bg-white/90 backdrop-blur-sm overflow-hidden shadow-sm sm:rounded-2xl p-6 border-l-4 border-emerald-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Sections</p><h3 class="text-3xl font-black tracking-tighter count-up" data-target="{{ $activeSections }}">0</h3></div>
+                            <div class="bg-emerald-50 p-3 rounded-2xl text-emerald-600"><i class='bx bxs-objects-horizontal-left text-3xl'></i></div>
                         </div>
                     </div>
 
-                    {{-- Teams --}}
-                    <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-yellow-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Sports Teams</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-teams" data-target="{{ $sportsTeams ?? 0 }}">0</p>
-                        </div>
-                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 group-hover:bg-yellow-600 group-hover:text-white transition">
-                            <i class='bx bx-trophy text-3xl'></i>
+                    <!-- Sports Card -->
+                    <div class="bg-white/90 backdrop-blur-sm overflow-hidden shadow-sm sm:rounded-2xl p-6 border-l-4 border-amber-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sports</p><h3 class="text-3xl font-black tracking-tighter count-up" data-target="{{ $totalTeams }}">0</h3></div>
+                            <div class="bg-amber-50 p-3 rounded-2xl text-amber-600"><i class='bx bxs-medal text-3xl'></i></div>
                         </div>
                     </div>
 
-                    {{-- Events/Plans --}}
-                    <div class="bg-white overflow-hidden shadow-md sm:rounded-lg p-6 border-l-4 border-red-500 flex items-center justify-between group hover:shadow-xl transition transform hover:-translate-y-1">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Upcoming Plans</p>
-                            <p class="text-3xl font-extrabold text-gray-800 mt-1 count-up" id="stat-plans" data-target="{{ $upcomingPlans ?? 0 }}">0</p>
-                        </div>
-                        <div class="p-3 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
-                            <i class='bx bx-run text-3xl'></i>
+                    <!-- Upcoming Plans -->
+                    <div class="bg-white/90 backdrop-blur-sm overflow-hidden shadow-sm sm:rounded-2xl p-6 border-l-4 border-rose-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Upcoming Plans</p><h3 class="text-3xl font-black tracking-tighter count-up" data-target="{{ $upcomingPlans }}">0</h3></div>
+                            <div class="bg-rose-50 p-3 rounded-2xl text-rose-600"><i class='bx bxs-calendar-event text-3xl'></i></div>
                         </div>
                     </div>
                 </div>
 
-                {{-- 2. BOTTOM SECTION: ACTIVITY & SPOTLIGHT --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    
-                    {{-- RECENT ACTIVITY (SERVER-SIDE RENDERED) --}}
-                    <div class="md:col-span-2 bg-white overflow-hidden shadow-md sm:rounded-lg border border-gray-200">
-                        <div class="p-6 text-gray-900">
-                            <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-2">
-                                <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                                    <i class='bx bx-history mr-2 text-indigo-600'></i> Recent System Activity
-                                </h3>
-                            </div>
-                            
-                            {{-- SSR Content (Instant) --}}
-                            <div class="space-y-6 relative" id="activity-list">
-                                <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>
-                                
-                                @forelse($activities as $activity)
-                                    @php
-                                        $dotColor = match($activity->action) {
-                                            'Updated Grades' => 'bg-indigo-500',
-                                            'Checked Attendance' => 'bg-green-500',
-                                            'Login' => 'bg-blue-400',
-                                            default => 'bg-gray-400'
-                                        };
-                                        $actionText = match($activity->action) {
-                                            'Updated Grades' => 'updated the grades',
-                                            'Checked Attendance' => 'recorded the attendance',
-                                            'Login' => 'has logged in',
-                                            default => strtolower($activity->action)
-                                        };
-                                        $role = ucfirst($activity->user->role ?? '');
-                                        $name = $activity->user->name ?? 'System';
-                                        $cleanDesc = strip_tags(str_replace(['Updated Grades', 'Checked Attendance'], '', $activity->description));
-                                    @endphp
-
-                                    <div class="flex gap-x-3 relative z-10 mb-4 last:mb-0">
-                                        <div class="flex-none w-5 flex justify-center mt-1">
-                                            <div class="w-3.5 h-3.5 rounded-full border-2 border-white {{ $dotColor }} shadow-sm"></div>
-                                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Activity Stream -->
+                    <div class="md:col-span-1 bg-white/90 backdrop-blur-sm overflow-hidden shadow-md sm:rounded-2xl flex flex-col h-full border border-gray-200">
+                        <div class="p-5 border-b border-gray-100 bg-slate-50/50 flex justify-between items-center">
+                            <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center"><i class='bx bx-history mr-2 text-indigo-500'></i> Activity Stream</h3>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        </div>
+                        <div class="p-6 flex-grow overflow-y-auto max-h-[500px] custom-scroll relative">
+                            <div id="activity-list" class="space-y-6 relative">
+                                <div class="absolute left-[9px] top-2 bottom-2 w-px bg-slate-200"></div>
+                                @foreach($activities as $activity)
+                                    @php $color = match($activity->action) { 'Updated Grades' => 'bg-indigo-500', 'Checked Attendance' => 'bg-emerald-500', 'Login' => 'bg-blue-400', default => 'bg-slate-400' }; @endphp
+                                    <div class="flex gap-x-4 relative z-10 mb-6 last:mb-0">
+                                        <div class="flex-none w-[18px] flex justify-center mt-1.5"><div class="w-3.5 h-3.5 rounded-full border-2 border-white {{ $color }} shadow-sm"></div></div>
                                         <div class="flex-grow">
-                                            <div class="text-sm text-gray-800">
-                                                @if($role) <span class="font-bold text-indigo-700">{{ $role }}</span> @endif
-                                                <span class="font-bold text-gray-900">{{ $name }}</span>
-                                                <span class="text-gray-600">{{ $actionText }}.</span>
-                                            </div>
-                                            @if($activity->action != 'Login')
-                                                <p class="text-xs text-gray-500 italic mb-1">{{ $cleanDesc }}</p>
-                                            @endif
-                                            <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                                                <i class='bx bx-time'></i> {{ $activity->created_at->diffForHumans() }}
-                                            </p>
+                                            <div class="text-[13px] text-slate-700 leading-relaxed font-medium"><span class="font-bold text-slate-900">{{ $activity->user->name ?? 'System' }}</span> {{ strtolower($activity->action) }}.</div>
+                                            <p class="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-wider">{{ $activity->created_at->diffForHumans() }}</p>
                                         </div>
                                     </div>
-                                @empty
-                                    <div class="text-center py-8 text-gray-400 text-sm">
-                                        <i class='bx bx-sleep-y text-2xl mb-2'></i>
-                                        <p>No recent activities logged.</p>
-                                    </div>
-                                @endforelse
+                                @endforeach
                             </div>
                         </div>
                     </div>
 
-                    {{-- Campus Spotlight (Modal Feature) --}}
-                    <div x-data="{ showModal: false }" class="bg-white overflow-hidden shadow-md sm:rounded-lg flex flex-col h-full border border-gray-200">
-                        <div class="p-6 text-gray-900 flex-grow">
-                            <h3 class="text-lg font-bold text-gray-800 mb-2">Campus Spotlight</h3>
-                            <p class="text-xs text-gray-500 mb-4 uppercase tracking-wide">National Academy of Sports</p>
-                            
-                            <div @click="showModal = true" class="bg-gray-100 h-48 rounded-lg flex items-center justify-center overflow-hidden mb-4 border border-gray-300 relative group cursor-pointer hover:shadow-lg transition-all duration-300">
-                                <img src="{{ asset('images/nas/NAS.png') }}" 
-                                     class="h-full w-full object-cover transition duration-500 group-hover:scale-110" 
-                                     alt="NAS Campus View"
-                                     onerror="this.src='https://placehold.co/600x400?text=No+Image';">
-                                
-                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                                    <i class='bx bx-zoom-in text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-md'></i>
-                                </div>
-                            </div>
-                            
-                            <div class="text-center mt-4">
-                                <p class="text-sm font-serif italic text-gray-600">
-                                    "Home of the Filipino Student-Athletes"
-                                </p>
+                    <!-- 🗺️ SATELLITE NATIONAL SCHOLAR LOCATOR -->
+                    <div class="md:col-span-2 bg-slate-900 overflow-hidden shadow-2xl sm:rounded-3xl flex flex-col h-full border border-slate-700 relative">
+                        <div class="p-6 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900/80 text-white">
+                            <div><h3 class="text-sm font-black uppercase tracking-widest flex items-center"><i class='bx bxs-map-pin mr-2 text-cyan-400'></i> National Scholar Locator</h3><p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">HD Satellite Surveillance View</p></div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button onclick="focusIsland('Luzon')" class="px-3 py-1.5 bg-cyan-500/10 text-cyan-400 text-[10px] font-black rounded-xl border border-cyan-500/20 hover:bg-cyan-500/20 transition">LUZON: {{ $islandCounts['Luzon'] }}</button>
+                                <button onclick="focusIsland('Visayas')" class="px-3 py-1.5 bg-amber-50 text-amber-600 text-[10px] font-black rounded-xl border border-amber-100/20 hover:bg-amber-100/20 transition">VISAYAS: {{ $islandCounts['Visayas'] }}</button>
+                                <button onclick="focusIsland('Mindanao')" class="px-3 py-1.5 bg-rose-50 text-rose-600 text-[10px] font-black rounded-xl border border-rose-100/20 hover:bg-rose-100/20 transition">MINDANAO: {{ $islandCounts['Mindanao'] }}</button>
                             </div>
                         </div>
                         
-                        <template x-teleport="body">
-                            <div x-show="showModal" 
-                                 style="display: none;"
-                                 x-transition:enter="transition ease-out duration-300"
-                                 x-transition:enter-start="opacity-0"
-                                 x-transition:enter-end="opacity-100"
-                                 x-transition:leave="transition ease-in duration-200"
-                                 x-transition:leave-start="opacity-100"
-                                 x-transition:leave-end="opacity-0"
-                                 class="fixed inset-0 z-[9999] flex items-center justify-center p-6"> 
-                                
-                                <div class="fixed inset-0 bg-gray-900/95 backdrop-blur-sm transition-opacity" @click="showModal = false"></div>
-
-                                <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[90vh] overflow-hidden transform transition-all scale-100">
-                                    <button @click="showModal = false" class="absolute top-3 right-3 text-gray-500 hover:text-gray-900 z-20 bg-white/80 rounded-full p-2 hover:bg-white transition shadow-sm">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </button>
-
-                                    <div class="flex-1 bg-gray-100 flex items-center justify-center min-h-0 p-1 overflow-hidden">
-                                        <img src="{{ asset('images/nas/NAS.png') }}" 
-                                             class="max-w-full max-h-full w-auto h-auto object-contain rounded shadow-sm" 
-                                             alt="NAS Campus Large">
-                                    </div>
-                                    
-                                    <div class="p-4 bg-white border-t border-gray-100 text-center shrink-0">
-                                        <h2 class="text-xl font-bold text-blue-900 mb-1">National Academy of Sports - Main Campus</h2>
-                                        <p class="text-sm text-gray-600 font-serif italic">
-                                            Located at New Clark City, Capas, Tarlac. A world-class facility for our future champions.
-                                        </p>
-                                    </div>
+                        <div class="p-4 flex-grow relative min-h-[500px] bg-slate-900">
+                            <!-- Floating Favicon -->
+                            <div class="absolute top-8 right-8 z-[1000] glow-favicon"><img src="{{ asset('images/nas/favicon1.png') }}" class="w-14 h-14 object-contain" alt="NAS Logo"></div>
+                            <div id="student-map"></div>
+                            
+                            <!-- Legend -->
+                            <div class="absolute bottom-8 left-8 z-[1000] bg-slate-900/95 backdrop-blur-xl p-4 rounded-2xl shadow-2xl border border-slate-700 w-40 text-center">
+                                <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-800 pb-2">Tracking Legend</h4>
+                                <div class="flex items-center justify-center gap-2">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]"></div>
+                                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-wide">Scholar Pin</span>
                                 </div>
                             </div>
-                        </template>
+
+                            <div class="absolute top-8 left-20 z-[1000]">
+                                <div class="bg-cyan-600 px-4 py-2 rounded-xl shadow-lg border border-cyan-400/20 flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                    <span class="text-[10px] font-black text-white uppercase tracking-wider">{{ count($mapMarkers) }} {{ count($mapMarkers) === 1 ? 'SCHOLAR' : 'SCHOLARS' }} LOCATED</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
             @endif
-
         </div>
     </div>
 
-    {{-- 👇 SCRIPT: Dynamic Duration (No Waiting) & Optimized Polling --}}
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
-        let statsInterval = null;
-        let activityInterval = null;
+        let map = null, geoLayer = null;
+        const markersData = @json($mapMarkers);
 
         function initDashboard() {
-            // 1. CLEANUP
-            if (statsInterval) clearInterval(statsInterval);
-            if (activityInterval) clearInterval(activityInterval);
-
-            // 2. RUN ANIMATION
             animateCounters();
-
-            // 3. START POLLING (Every 30 seconds)
-            if(document.querySelector('.count-up')) {
-                statsInterval = setInterval(fetchStats, 30000); 
-            }
-
-            if(document.getElementById('activity-list')) {
-                activityInterval = setInterval(fetchActivities, 30000);
-            }
+            initMap();
         }
 
-        // --- SMOOTH ANIMATION (DYNAMIC DURATION) ---
-        function animateCounters() {
-            const counters = document.querySelectorAll('.count-up');
+        function initMap() {
+            const phBounds = L.latLngBounds(L.latLng(4.0, 116.0), L.latLng(22.0, 127.0));
+            map = L.map('student-map', { center: [12.8797, 121.7740], zoom: 6, minZoom: 5, maxZoom: 18, maxBounds: phBounds, maxBoundsViscosity: 1.0, zoomControl: true, scrollWheelZoom: true });
 
-            counters.forEach(counter => {
-                const target = +counter.getAttribute('data-target');
-                const startTime = performance.now();
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; Esri' }).addTo(map);
 
-                // Dynamic Duration: Fast for small numbers, Slower for big numbers (Max 2s)
-                const duration = Math.min(2000, Math.max(500, target * 50)); 
+            fetch('https://raw.githubusercontent.com/macandv/philippines-geojson/master/philippines-regions.json')
+                .then(r => r.json()).then(data => {
+                    const worldCoords = [[[-90, -200], [-90, 200], [90, 200], [90, -200], [-90, -200]]];
+                    data.features.forEach(feature => {
+                        const coords = L.GeoJSON.coordsToLatLngs(feature.geometry.coordinates, feature.geometry.type === 'MultiPolygon' ? 1 : 0);
+                        if (feature.geometry.type === 'Polygon') worldCoords.push(coords); else coords.forEach(c => worldCoords.push(c));
+                    });
+                    L.polygon(worldCoords, { color: 'none', fillColor: '#0f172a', fillOpacity: 1, interactive: false }).addTo(map);
+                    geoLayer = L.geoJSON(data, {
+                        style: { color: 'rgba(34, 211, 238, 0.2)', weight: 1.5, fillOpacity: 0 },
+                        onEachFeature: (feature, layer) => {
+                            const reg = feature.properties.REGION || '';
+                            if (['NCR','CAR','1','2','3','4A','4B','5'].some(id => reg.includes(id))) feature.properties.island = 'Luzon';
+                            else if (['6','7','8'].some(id => reg.includes(id))) feature.properties.island = 'Visayas'; else feature.properties.island = 'Mindanao';
+                        }
+                    }).addTo(map);
+                });
 
-                counter.innerText = '0'; 
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', opacity: 0.8, pointerEvents: 'none' }).addTo(map);
 
-                function update(currentTime) {
-                    const elapsed = currentTime - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-
-                    // Ease Out Quad
-                    const ease = 1 - (1 - progress) * (1 - progress);
-
-                    const current = Math.floor(ease * target);
-                    counter.innerText = current.toLocaleString();
-
-                    if (progress < 1) {
-                        requestAnimationFrame(update);
-                    } else {
-                        counter.innerText = target.toLocaleString();
-                    }
-                }
-
-                requestAnimationFrame(update);
+            markersData.forEach(s => {
+                const icon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div class="marker-neon"><div class="pulse-ring"></div><div class="marker-inner-elite"><img src="${s.photo}" class="marker-img-elite" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=4f46e5&color=fff&bold=true'"></div><div class="marker-label-elite">${s.name}</div></div>`,
+                    iconSize: [40, 40], iconAnchor: [20, 20]
+                });
+                L.marker(s.coords, { icon: icon }).addTo(map)
+                    .on('click', function(e) { map.flyTo(e.latlng, 16, { duration: 1.5 }); })
+                    .bindPopup(`<div class="p-4 text-center bg-slate-900 text-white rounded-2xl border border-slate-700"><div class="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-cyan-500 shadow-xl overflow-hidden"><img src="${s.photo}" class="w-full h-full object-cover"></div><h5 class="text-sm font-black uppercase tracking-wide">${s.name}</h5><p class="text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-3">${s.grade}</p><div class="bg-slate-800 px-3 py-2 rounded-xl text-[9px] font-bold text-slate-400 uppercase"><i class='bx bxs-map text-rose-500 mr-1'></i> ${s.location}</div></div>`, { closeButton: false, offset: [0, -5] });
             });
         }
 
-        // --- FETCH STATS (AJAX) ---
-        function fetchStats() {
-            fetch("{{ route('dashboard.stats') }}")
-                .then(response => response.json())
-                .then(data => {
-                    updateStatElement('stat-students', data.totalStudents);
-                    updateStatElement('stat-sections', data.activeSections);
-                    updateStatElement('stat-teams', data.totalTeams);
-                    updateStatElement('stat-plans', data.upcomingPlans);
-                })
-                .catch(error => console.error('Error fetching stats:', error));
-        }
-
-        function updateStatElement(id, newValue) {
-            const el = document.getElementById(id);
-            if(el) {
-                const oldValue = parseInt(el.innerText.replace(/,/g, ''));
-                el.setAttribute('data-target', newValue);
-                
-                if (oldValue !== newValue) {
-                    el.innerText = newValue.toLocaleString();
-                    el.classList.add('text-green-600', 'transition-colors', 'duration-500');
-                    setTimeout(() => el.classList.remove('text-green-600'), 1000);
-                }
+        function focusIsland(island) {
+            if (!map) return;
+            const colors = { 'Luzon': '#22d3ee', 'Visayas': '#fbbf24', 'Mindanao': '#f43f5e' };
+            map.flyTo({ 'Luzon': [16.0, 121.0], 'Visayas': [11.0, 123.0], 'Mindanao': [7.8, 125.0] }[island], island === 'Luzon' ? 7 : 8);
+            if (geoLayer) {
+                geoLayer.eachLayer(layer => {
+                    if (layer.feature.properties.island === island) layer.setStyle({ color: colors[island], fillOpacity: 0.1, weight: 2.5 });
+                    else layer.setStyle({ color: 'rgba(34, 211, 238, 0.2)', fillOpacity: 0, weight: 1.5 });
+                });
             }
         }
 
-        // --- FETCH ACTIVITIES (AJAX) ---
-        function fetchActivities() {
-            fetch("{{ route('recent.activity') }}")
-                .then(response => response.json())
-                .then(data => {
-                    const listContainer = document.getElementById('activity-list');
-                    if (!listContainer) return;
-
-                    if (data.length === 0) {
-                        listContainer.innerHTML = `
-                            <div class="text-center py-8">
-                                <i class='bx bx-sleep-y text-4xl text-gray-300 mb-2'></i>
-                                <p class="text-sm text-gray-400 italic">No recent activities logged.</p>
-                            </div>
-                        `;
-                        return;
-                    }
-
-                    let htmlContent = '<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>';
-                    
-                    data.forEach(activity => {
-                        let dotColor = 'bg-gray-400';
-                        if (activity.action === 'Updated Grades') dotColor = 'bg-indigo-500';
-                        else if (activity.action === 'Checked Attendance') dotColor = 'bg-green-500';
-                        else if (activity.action === 'Login') dotColor = 'bg-blue-400';
-
-                        let role = activity.user && activity.user.role ? activity.user.role.charAt(0).toUpperCase() + activity.user.role.slice(1) : '';
-                        let name = activity.user && activity.user.name ? activity.user.name : 'System';
-                        
-                        let actionText = activity.action.toLowerCase();
-                        if (activity.action === 'Updated Grades') actionText = 'updated the grades';
-                        else if (activity.action === 'Checked Attendance') actionText = 'recorded the attendance';
-                        else if (activity.action === 'Login') actionText = 'has logged in';
-
-                        let desc = activity.description;
-                        if (activity.action !== 'Login') {
-                            desc = desc.replace('Updated Grades', '').replace('Checked Attendance', '').trim();
-                            desc = desc.replace(/(<([^>]+)>)/gi, "");
-                        }
-
-                        htmlContent += `
-                            <div class="flex gap-x-3 relative z-10 mb-4 last:mb-0">
-                                <div class="flex-none w-5 flex justify-center mt-1">
-                                    <div class="w-3.5 h-3.5 rounded-full border-2 border-white ${dotColor} shadow-sm"></div>
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="text-sm text-gray-800">
-                                        ${role ? `<span class="font-bold text-indigo-700">${role}</span>` : ''}
-                                        <span class="font-bold text-gray-900">${name}</span>
-                                        <span class="text-gray-600">${actionText}.</span>
-                                    </div>
-                                    ${(activity.action !== 'Login') ? `<p class="text-xs text-gray-500 italic mb-1">${desc}</p>` : ''}
-                                    <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                                        <i class='bx bx-time'></i> ${activity.time_ago || 'Just now'}
-                                    </p>
-                                </div>
-                            </div>
-                        `;
-                    });
-
-                    if (listContainer.innerHTML.trim() !== htmlContent.trim()) {
-                        listContainer.innerHTML = htmlContent;
-                    }
-                })
-                .catch(error => console.error('Error fetching activities:', error));
+        function animateCounters() {
+            document.querySelectorAll('.count-up').forEach(c => {
+                const target = +c.getAttribute('data-target'), duration = 1500, start = performance.now();
+                function u(now) {
+                    const progress = Math.min((now - start) / duration, 1), ease = 1 - Math.pow(1 - progress, 3);
+                    c.innerText = Math.floor(ease * target).toLocaleString();
+                    if (progress < 1) requestAnimationFrame(u);
+                }
+                requestAnimationFrame(u);
+            });
         }
 
-        // --- EVENT LISTENERS ---
         document.addEventListener('DOMContentLoaded', initDashboard);
         document.addEventListener('livewire:navigated', initDashboard);
-
     </script>
 </x-app-layout>

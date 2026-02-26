@@ -1,6 +1,6 @@
 <div wire:poll.5s>
     {{-- DASHBOARD CARDS --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-6">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4 mb-6">
 
         <a href="{{ route('admission.index') }}" wire:navigate
             class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-blue-600 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ !request('status') ? 'ring-2 ring-blue-500 bg-blue-50' : '' }}">
@@ -66,6 +66,19 @@
                 <i class='bx bx-list-ul text-xl md:text-2xl text-indigo-200'></i>
             </div>
             <p class="text-[10px] text-indigo-600 mt-2 font-medium">Waitlisted</p>
+        </a>
+
+        <a href="{{ route('admission.index', ['status' => 'Pending Renewal']) }}" wire:navigate
+            class="bg-white overflow-hidden shadow-sm rounded-lg p-3 md:p-4 border-t-4 border-orange-500 flex flex-col justify-between hover:shadow-md transition cursor-pointer transform hover:-translate-y-1 h-full {{ request('status') == 'Pending Renewal' ? 'ring-2 ring-orange-500 bg-orange-50' : '' }}">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">Renewal</p>
+                    <p class="text-lg md:text-2xl font-extrabold text-gray-800" id="stat-renewal">
+                        {{ $countRenewal ?? 0 }}</p>
+                </div>
+                <i class='bx bx-refresh text-xl md:text-2xl text-orange-200'></i>
+            </div>
+            <p class="text-[10px] text-orange-600 mt-2 font-medium">Pending Renewal</p>
         </a>
 
         <a href="{{ route('admission.index', ['status' => 'Not Qualified']) }}" wire:navigate
@@ -244,6 +257,10 @@
                                         @elseif($badgeStatus == 'QUALIFIED')
                                             <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-green-100 text-green-800 border border-green-200">
                                                 Qualified
+                                            </span>
+                                        @elseif($badgeStatus == 'PENDING RENEWAL')
+                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-orange-100 text-orange-800 border border-orange-200 shadow-sm animate-pulse">
+                                                Pending Renewal
                                             </span>
                                         @elseif(in_array($badgeStatus, ['NOT QUALIFIED', 'REJECTED', 'FAILED']))
                                             <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-red-100 text-red-800 border border-red-200">

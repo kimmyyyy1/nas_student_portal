@@ -2,7 +2,7 @@
     <x-slot name="header">
         
         {{-- ============================================================= --}}
-        {{-- 📱 MOBILE HEADER: Compact Badge & Live Indicator              --}}
+        {{-- 📱 MOBILE HEADER: Compact Badge & Live Indicator               --}}
         {{-- ============================================================= --}}
         <div class="flex md:hidden items-center justify-between w-full py-1">
             
@@ -19,7 +19,7 @@
         </div>
 
         {{-- ============================================================= --}}
-        {{-- 💻 DESKTOP HEADER: Standard View                              --}}
+        {{-- 💻 DESKTOP HEADER: Standard View                               --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-2">
             
@@ -148,7 +148,22 @@
             @endif
 
             {{-- ⚡ RENEWAL / CONTINUING ENROLLMENT BANNER ⚡ --}}
-            @if(in_array($student->promotion_status, ['Promoted', 'Conditional']) || str_contains($student->promotion_status, 'Honors') || $student->status === 'Continuing')
+            @if($student->status === 'Pending Renewal')
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl shadow-xl overflow-hidden mb-6 sm:mb-8 border border-emerald-400 relative">
+                    <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+                        <div class="text-white text-center sm:text-left">
+                            <h3 class="text-lg sm:text-xl font-black uppercase tracking-widest mb-1 flex items-center justify-center sm:justify-start gap-2">
+                                <i class='bx bxs-check-circle text-2xl text-yellow-400'></i> 
+                                Renewal Application Submitted!
+                            </h3>
+                            <p class="text-emerald-100 text-xs sm:text-sm font-medium text-balance">Your application is currently being reviewed by the Registrar's Office. Please wait for further updates.</p>
+                        </div>
+                        <div class="w-full sm:w-auto bg-white/20 text-white font-black py-3 px-6 rounded-xl border border-white/30 uppercase tracking-widest text-xs flex justify-center items-center gap-2">
+                            <i class='bx bx-time text-lg'></i> Pending Review
+                        </div>
+                    </div>
+                </div>
+            @elseif((in_array($student->promotion_status, ['Promoted', 'Conditional']) || ($student->promotion_status && str_contains($student->promotion_status, 'Honors')) || $student->status === 'Continuing') && $student->status !== 'Enrolled')
                 <div class="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-2xl shadow-xl overflow-hidden mb-6 sm:mb-8 border border-indigo-400 relative">
                     <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
                     <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">

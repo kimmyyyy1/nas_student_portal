@@ -22,9 +22,6 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
         
-        {{-- AlpineJS --}}
-        <script src="//unpkg.com/alpinejs" defer></script>
-
         <style>
             * { font-family: 'Poppins', sans-serif !important; }
             
@@ -172,12 +169,12 @@
 
         </div>
 
-        {{-- ================================================================= --}}
-        {{-- LIVEWIRE NOTIFICATIONS (Real-time Bell)                           --}}
-        {{-- ================================================================= --}}
-        @auth
-            <livewire:notifications />
-        @endauth
+
+        @if(Auth::check() && Auth::user()->role === 'admin')
+            <div class="fixed bottom-4 right-4 z-50">
+                @livewire('notifications-bell')
+            </div>
+        @endif
 
         @livewireScripts
     </body>

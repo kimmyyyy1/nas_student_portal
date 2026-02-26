@@ -51,6 +51,8 @@ class AdmissionMasterlist extends Component
                 ]);
             } elseif ($this->status === 'Qualified') {
                 $query->where('status', 'Qualified');
+            } elseif ($this->status === 'Pending Renewal') {
+                $query->where('status', 'Pending Renewal');
             } elseif ($this->status === 'Waitlisted') {
                 $query->where('status', 'Waitlisted');
             } elseif ($this->status === 'Not Qualified') {
@@ -91,6 +93,8 @@ class AdmissionMasterlist extends Component
 
         $countWaitlisted = Applicant::where('status', 'Waitlisted')->count();
 
+        $countRenewal = Applicant::where('status', 'Pending Renewal')->count();
+
         // Count Rejected/Failed
         $countRejected = Applicant::whereIn('status', [
             'Not Qualified', 
@@ -117,6 +121,7 @@ class AdmissionMasterlist extends Component
             'countAssessment' => $countAssessment,
             'countQualified'  => $countQualified,
             'countWaitlisted' => $countWaitlisted,
+            'countRenewal'    => $countRenewal,
             'countRejected'   => $countRejected,
             'countEnrolled'   => $countEnrolled,
         ]);
