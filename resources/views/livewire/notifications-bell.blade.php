@@ -18,7 +18,7 @@
      x-on:notifications-cleared.window="open = false"
      wire:key="notif-bell-root">
     
-    <div wire:poll.2s="refreshNotifications"></div>
+    <div wire:poll.1s="refreshNotifications"></div>
 
     {{-- Bell Button --}}
     <button type="button"
