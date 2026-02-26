@@ -1,41 +1,24 @@
 <div class="relative" 
      x-data="{ 
          open: false, 
-         userInteracted: false,
-         pendingDing: false,
-         playDing() {
-             if (!this.userInteracted) {
-                 this.pendingDing = true;
-                 return;
-             }
-             let audio = this.$refs.ding;
-             if (audio) {
-                 audio.currentTime = 0;
-                 audio.play().catch(e => console.warn('Audio play failed:', e));
-             }
+         dingAudio: null,
+         init() {
+             this.dingAudio = new Audio('{{ asset('sounds/ding.mp3') }}');
+             this.dingAudio.preload = 'auto';
+             this.dingAudio.volume = 1.0;
          },
-         unlockAudio() {
-             if (this.userInteracted) return;
-             this.userInteracted = true;
-             let audio = this.$refs.ding;
-             if (audio) {
-                 audio.load();
-             }
-             if (this.pendingDing) {
-                 this.pendingDing = false;
-                 this.playDing();
+         playDing() {
+             if (this.dingAudio) {
+                 this.dingAudio.currentTime = 0;
+                 this.dingAudio.play().catch(() => {});
              }
          }
      }" 
-     x-init="$nextTick(() => { if ($refs.ding) $refs.ding.load(); })"
      x-on:play-ding.window="playDing()"
      x-on:notifications-cleared.window="open = false"
-     @click.window.once="unlockAudio()"
-     @keydown.window.once="unlockAudio()"
      wire:key="notif-bell-root">
     
     <div wire:poll.2s="refreshNotifications"></div>
-    <audio x-ref="ding" src="{{ asset('sounds/ding.mp3') }}" preload="auto"></audio>
 
     {{-- Bell Button --}}
     <button type="button"
