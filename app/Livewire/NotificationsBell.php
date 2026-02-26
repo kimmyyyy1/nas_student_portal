@@ -9,12 +9,16 @@ use Illuminate\Support\Facades\DB;
 class NotificationsBell extends Component
 {
     public $notificationCount = 0;
-    public $lastCount = 0;
+    public $lastNotificationId = null;
 
     public function mount()
     {
-        $this->refreshNotifications();
-        $this->lastCount = $this->notificationCount;
+        if (Auth::check()) {
+            $user = Auth::user();
+            $this->notificationCount = $user->unreadNotifications()->count();
+            $latest = $user->unreadNotifications()->latest()->first();
+            $this->lastNotificationId = $latest ? $latest->id : null;
+        }
     }
 
     public function refreshNotifications()
@@ -22,13 +26,16 @@ class NotificationsBell extends Component
         if (Auth::check()) {
             $user = Auth::user();
             
-            // Gamitin ang built-in relation para makuha ang bilang
             $this->notificationCount = $user->unreadNotifications()->count();
 
-            if ($this->notificationCount > $this->lastCount) {
+            $latest = $user->unreadNotifications()->latest()->first();
+            $currentLatestId = $latest ? $latest->id : null;
+
+            // Only ding if there's a genuinely NEW notification (different ID)
+            if ($currentLatestId && $currentLatestId !== $this->lastNotificationId) {
+                $this->lastNotificationId = $currentLatestId;
                 $this->dispatch('play-ding');
             }
-            $this->lastCount = $this->notificationCount;
         }
     }
 
@@ -68,7 +75,7 @@ class NotificationsBell extends Component
             
             // Sync the counts
             $this->notificationCount = 0;
-            $this->lastCount = 0;
+            $this->lastNotificationId = null;
             
             $this->dispatch('notifications-cleared');
         }
