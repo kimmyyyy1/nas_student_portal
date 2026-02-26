@@ -1,14 +1,8 @@
-<div class="py-6 lg:py-10 min-h-screen w-full block" wire:poll.5s>
+<div class="py-6 lg:py-10 min-h-screen w-full block" wire:poll.2s>
     
     <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {{-- Alerts (Glass Effect) --}}
-        @if (session()->has('message'))
-            <div class="mb-6 w-full bg-emerald-100/80 backdrop-blur-md border-l-4 border-emerald-500 text-emerald-800 p-4 rounded-r-lg shadow-lg flex items-center animate-fade-in-down">
-                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="font-medium text-sm lg:text-base">{{ session('message') }}</span>
-            </div>
-        @endif
+
 
         {{-- Update Notification (Glass Effect) --}}
         @if(str_contains($application->status, 'Resubmitted') || str_contains($application->status, 'Pending'))
@@ -265,7 +259,7 @@
                             </div>
                         </div>
                         
-                        <form action="{{ route('admission.process', $application->id) }}" method="POST" class="w-full">
+                        <form id="remarks-form" action="{{ route('admission.process', $application->id) }}" method="POST" class="w-full" onsubmit="return handleFormAjax(event, 'Remarks saved successfully!')">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="status" value="{{ $application->status }}">
@@ -352,12 +346,12 @@
                                                     <td class="px-1 py-3 lg:px-2 lg:py-5 text-center no-print align-middle">
                                                         @if($isUploaded)
                                                             <div class="flex flex-col md:flex-row justify-center items-center gap-1 md:gap-2 lg:gap-3">
-                                                                <a href="{{ route('admission.approve_document', ['id' => $application->id, 'doc_key' => $key]) }}" class="p-1.5 lg:p-2.5 rounded-md lg:rounded-xl bg-emerald-50/80 text-emerald-600 hover:bg-emerald-500 hover:text-white transition shadow-sm border border-emerald-200" title="Approve">
+                                                                <button type="button" onclick="docAction(this, '{{ route('admission.approve_document', ['id' => $application->id, 'doc_key' => $key]) }}')" class="p-1.5 lg:p-2.5 rounded-md lg:rounded-xl bg-emerald-50/80 text-emerald-600 hover:bg-emerald-500 hover:text-white transition shadow-sm border border-emerald-200" title="Approve">
                                                                     <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                                </a>
-                                                                <a href="{{ route('admission.decline_document', ['id' => $application->id, 'doc_key' => $key]) }}" class="p-1.5 lg:p-2.5 rounded-md lg:rounded-xl bg-red-50/80 text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200" title="Decline">
+                                                                </button>
+                                                                <button type="button" onclick="docAction(this, '{{ route('admission.decline_document', ['id' => $application->id, 'doc_key' => $key]) }}')" class="p-1.5 lg:p-2.5 rounded-md lg:rounded-xl bg-red-50/80 text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200" title="Decline">
                                                                     <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         @endif
                                                     </td>
@@ -406,12 +400,12 @@
                                                 <td class="px-1 py-3 lg:px-2 lg:py-5 text-center no-print align-middle">
                                                     @if($isUploaded)
                                                         <div class="flex flex-col md:flex-row justify-center items-center gap-1 md:gap-2 lg:gap-3">
-                                                            <a href="{{ route('admission.approve_document', ['id' => $application->id, 'doc_key' => $key]) }}" class="p-1.5 lg:p-2.5 rounded-md lg:rounded-xl bg-emerald-50/80 text-emerald-600 hover:bg-emerald-500 hover:text-white transition shadow-sm border border-emerald-200" title="Approve">
+                                                            <button type="button" onclick="docAction(this, '{{ route('admission.approve_document', ['id' => $application->id, 'doc_key' => $key]) }}')" class="p-1.5 lg:p-2.5 rounded-md lg:rounded-xl bg-emerald-50/80 text-emerald-600 hover:bg-emerald-500 hover:text-white transition shadow-sm border border-emerald-200" title="Approve">
                                                                 <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                            </a>
-                                                            <a href="{{ route('admission.decline_document', ['id' => $application->id, 'doc_key' => $key]) }}" class="p-1.5 lg:p-2.5 rounded-md lg:rounded-xl bg-red-50/80 text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200" title="Decline">
+                                                            </button>
+                                                            <button type="button" onclick="docAction(this, '{{ route('admission.decline_document', ['id' => $application->id, 'doc_key' => $key]) }}')" class="p-1.5 lg:p-2.5 rounded-md lg:rounded-xl bg-red-50/80 text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200" title="Decline">
                                                                 <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                                            </a>
+                                                            </button>
                                                         </div>
                                                     @endif
                                                 </td>
@@ -440,7 +434,7 @@
                 <div class="bg-white/10 backdrop-blur-md shadow-xl shadow-indigo-100/30 rounded-3xl border border-white/30 p-5 sm:p-6 lg:sticky lg:top-6 w-full text-slate-800">
                     <h3 class="text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-500/20 pb-3 sm:pb-4 mb-4 sm:mb-6">Application Decision</h3>
                     
-                    <form action="{{ route('admission.process', $application->id) }}" method="POST" class="w-full">
+                    <form id="status-form" action="{{ route('admission.process', $application->id) }}" method="POST" class="w-full" onsubmit="return handleFormAjax(event, 'Application status updated!')">
                         @csrf @method('PATCH')
                         
                         @if(isset($remarks) && is_array($remarks))
@@ -487,5 +481,86 @@
             </div>
 
         </div>
-    </div>
+    <script>
+        function handleFormAjax(e, successMsg) {
+            e.preventDefault();
+            var form = e.target;
+            var btn = form.querySelector('button[type="submit"]');
+            var origText = btn.innerHTML;
+            
+            // UI Feedback: Disable button and show saving state
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '<svg class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> SAVING...';
+            
+            var formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest', 
+                    'Accept': 'application/json' 
+                },
+                body: formData,
+                credentials: 'same-origin'
+            })
+            .then(function(response) {
+                var isSuccess = response.ok || response.redirected;
+                var msg = isSuccess ? successMsg : 'Something went wrong. Please try again.';
+                var color = isSuccess ? '#10b981' : '#ef4444'; // emerald-500 or red-500
+                var bgColor = isSuccess ? '#ecfdf5' : '#fef2f2';
+                var icon = isSuccess 
+                    ? '<svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+                    : '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                
+                // Create custom robust toast
+                var toast = document.createElement('div');
+                toast.className = 'fixed top-24 right-6 z-[9999999] pointer-events-none transform transition-all duration-500 translate-x-full opacity-0';
+                toast.innerHTML = `
+                    <div class="pointer-events-auto bg-white border-l-4 rounded-r-xl shadow-2xl p-4 flex items-start gap-3 w-80 ring-1 ring-black/5" style="border-left-color: ${color};">
+                        <div class="flex-shrink-0 mt-0.5">${icon}</div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-bold text-gray-800">${isSuccess ? 'Success' : 'Error'}</h3>
+                            <p class="text-xs text-gray-600 mt-1 font-medium">${msg}</p>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                // Animate In
+                setTimeout(() => {
+                    toast.classList.remove('translate-x-full', 'opacity-0');
+                    toast.classList.add('translate-x-0', 'opacity-100');
+                }, 50);
+                
+                // Animate Out & Remove
+                setTimeout(() => {
+                    toast.classList.remove('translate-x-0', 'opacity-100');
+                    toast.classList.add('translate-x-full', 'opacity-0');
+                    setTimeout(() => { if(toast.parentNode) toast.remove(); }, 500);
+                }, 5000);
+
+                // Restore Button State
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = origText;
+                
+                // Delay Livewire refresh so toast has time to be seen!
+                setTimeout(() => {
+                    try { Livewire.all()[0].$refresh(); } catch(e) {}
+                }, 1500);
+            })
+            .catch(function(error) {
+                console.error("AJAX Error:", error);
+                // Restore Button State on network error
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = origText;
+                alert("Network error occurred while saving.");
+            });
+            
+            return false;
+        }
+    </script>
 </div>

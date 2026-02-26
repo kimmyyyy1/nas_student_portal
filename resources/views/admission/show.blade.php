@@ -44,7 +44,6 @@
     </style>
 
     {{-- CALL THE LIVEWIRE COMPONENT --}}
-    {{-- We pass the application ID so the component can fetch fresh data --}}
     <livewire:admin-application-review :id="$application->id" />
 
 </x-app-layout>

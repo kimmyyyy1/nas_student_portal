@@ -69,7 +69,7 @@ class EnrollmentController extends Controller
         return view('admission.show', compact('application'));
     }
 
-    public function process(Request $request, $id): RedirectResponse {
+    public function process(Request $request, $id) {
         $application = Applicant::findOrFail($id);
         
         $validated = $request->validate([
@@ -91,20 +91,22 @@ class EnrollmentController extends Controller
 
         $application->update($validated);
         
-        return back()->with('success', "Application details updated.");
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Application details updated.']);
+        }
+
+        return redirect()->route('admission.show', ['id' => $id])->with('success', 'Application details updated.');
     }
 
-    public function approveDocument($id, $doc_key): RedirectResponse
+    public function approveDocument(Request $request, $id, $doc_key)
     {
         $application = Applicant::findOrFail($id);
         
         $statuses = $application->document_statuses ?? [];
         $remarks = $application->document_remarks ?? [];
         
-        // 1. Set Status to Approved
         $statuses[$doc_key] = 'approved';
         
-        // 2. Clear Remarks
         if(isset($remarks[$doc_key])) {
             $remarks[$doc_key] = null;
         }
@@ -114,23 +116,30 @@ class EnrollmentController extends Controller
             'document_remarks' => $remarks, 
             'date_checked' => now()
         ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => 'approved', 'doc_key' => $doc_key]);
+        }
         
         return back()->with('success', strtoupper(str_replace('_', ' ', $doc_key)) . ' approved.');
     }
 
-    public function declineDocument($id, $doc_key): RedirectResponse
+    public function declineDocument(Request $request, $id, $doc_key)
     {
         $application = Applicant::findOrFail($id);
         
         $statuses = $application->document_statuses ?? [];
         
-        // 1. Set Status to Declined
         $statuses[$doc_key] = 'declined';
         
         $application->update([
             'document_statuses' => $statuses,
             'date_checked' => now()
         ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => 'declined', 'doc_key' => $doc_key]);
+        }
         
         return back()->with('error', strtoupper(str_replace('_', ' ', $doc_key)) . ' declined. Please verify/add remarks.');
     }

@@ -113,13 +113,13 @@
         {{-- SYSTEM ALERTS (SUCCESS / ERROR TOASTS)                            --}}
         {{-- ================================================================= --}}
         
-        <div class="fixed top-20 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
+        <div class="fixed top-20 right-4 z-[999999] flex flex-col gap-2 pointer-events-none">
             
             {{-- SUCCESS ALERT --}}
             @if(session('success'))
                 <div x-data="{ show: true }" 
                      x-show="show" 
-                     x-init="setTimeout(() => show = false, 5000)"
+                     x-init="setTimeout(() => show = false, 8000)"
                      x-transition:enter="transform ease-out duration-300 transition"
                      x-transition:enter-start="translate-x-full opacity-0"
                      x-transition:enter-end="translate-x-0 opacity-100"
@@ -145,7 +145,7 @@
             @if(session('error'))
                 <div x-data="{ show: true }" 
                      x-show="show" 
-                     x-init="setTimeout(() => show = false, 5000)"
+                     x-init="setTimeout(() => show = false, 8000)"
                      x-transition:enter="transform ease-out duration-300 transition"
                      x-transition:enter-start="translate-x-full opacity-0"
                      x-transition:enter-end="translate-x-0 opacity-100"
@@ -175,6 +175,100 @@
                 @livewire('notifications-bell')
             </div>
         @endif
+
+        <script>
+            function showToast(message, type) {
+                var isSuccess = type === 'success';
+                var toast = document.createElement('div');
+                toast.className = 'app-toast';
+                toast.setAttribute('style',
+                    'position:fixed;top:80px;right:16px;z-index:999999;display:flex;align-items:center;gap:12px;padding:16px 20px;'
+                    + 'border-radius:16px;pointer-events:auto;font-family:inherit;'
+                    + 'border:1px solid ' + (isSuccess ? '#6ee7b7' : '#fca5a5') + ';'
+                    + 'background:' + (isSuccess ? '#ecfdf5' : '#fef2f2') + ';'
+                    + 'color:' + (isSuccess ? '#065f46' : '#991b1b') + ';'
+                    + 'box-shadow:0 10px 40px rgba(0,0,0,0.2);max-width:380px;'
+                );
+                toast.innerHTML = '<svg style="width:20px;height:20px;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="' + (isSuccess ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z') + '"></path></svg><span style="font-weight:700;font-size:14px">' + message + '</span>';
+                document.body.appendChild(toast);
+                setTimeout(function() {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.3s';
+                    setTimeout(function() { if(toast.parentNode) toast.remove(); }, 400);
+                }, 4000);
+            }
+
+            function refreshLivewire() {
+                setTimeout(function() {
+                    try { Livewire.all()[0].$refresh(); } catch(e) {}
+                }, 500);
+            }
+
+            function docAction(btn, url) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                var isApprove = url.indexOf('approve') !== -1;
+                fetch(url, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                    credentials: 'same-origin'
+                })
+                .then(function() {
+                    showToast(isApprove ? 'Document APPROVED ✓' : 'Document DECLINED ✗', isApprove ? 'success' : 'error');
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    refreshLivewire();
+                })
+                .catch(function() {
+                    showToast('Action failed. Please try again.', 'error');
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                });
+            }
+
+            function formSubmit(e, successMsg) {
+                e.preventDefault();
+                var form = e.target;
+                var btn = form.querySelector('button[type="submit"]');
+                var origText = btn.innerHTML;
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.innerHTML = 'Saving...';
+                var formData = new FormData(form);
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                    body: formData,
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    if (response.ok || response.redirected) {
+                        showToast(successMsg, 'success');
+                    } else {
+                        showToast('Something went wrong. Please try again.', 'error');
+                    }
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.innerHTML = origText;
+                    refreshLivewire();
+                })
+                .catch(function() {
+                    showToast('Network error. Please try again.', 'error');
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.innerHTML = origText;
+                });
+                return false;
+            }
+
+            // Prevent Livewire from removing toast elements during morphdom
+            document.addEventListener('livewire:init', function() {
+                Livewire.hook('morph.updating', function(el, component, skip) {
+                    if (el.el && el.el.classList && el.el.classList.contains('app-toast')) {
+                        skip();
+                    }
+                });
+            });
+        </script>
 
         @livewireScripts
     </body>
