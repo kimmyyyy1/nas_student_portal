@@ -46,7 +46,12 @@
         $brgy   = getVal($details, $applicant, 'barangay', 'barangay');
         $city   = getVal($details, $applicant, 'municipality_city', 'municipality_city');
         $prov   = getVal($details, $applicant, 'province', 'province');
+        $region = getVal($details, $applicant, 'region', 'region');
         $zip    = $details->zip_code ?? ($applicant->zip_code ?? '');
+
+        // New fields
+        $birthplace = $details->birthplace ?? ($applicant->birthplace ?? 'N/A');
+        $religion   = $details->religion ?? ($applicant->religion ?? 'N/A');
 
         // Father
         $f_name    = getVal($details, $applicant, 'father_name', 'father_name');
@@ -145,6 +150,14 @@
                                 <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest">Sex</label>
                                 <span class="font-bold text-slate-800 block mt-1 text-sm uppercase">{{ $gender }}</span>
                             </div>
+                            <div>
+                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest">Birthplace</label>
+                                <span class="font-bold text-slate-800 block mt-1 text-sm">{{ $birthplace }}</span>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest">Religion</label>
+                                <span class="font-bold text-slate-800 block mt-1 text-sm">{{ $religion }}</span>
+                            </div>
 
                             <div class="sm:col-span-2 md:col-span-3 bg-indigo-50/50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-indigo-100 w-full overflow-hidden">
                                 <label class="block text-[9px] sm:text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Student Email Address</label>
@@ -153,22 +166,26 @@
                             
                             <div class="sm:col-span-2 md:col-span-3 pt-5 lg:pt-6 border-t border-slate-200 w-full">
                                 <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 sm:mb-4">Residential Address</label>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs sm:text-sm w-full">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 text-xs sm:text-sm w-full">
                                     <div>
-                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Street / House No.</p>
-                                        <p class="font-bold text-slate-800 break-words">{{ $street }}</p>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Region</p>
+                                        <p class="font-bold text-slate-800 break-words">{{ $region }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Barangay</p>
-                                        <p class="font-bold text-slate-800 break-words">{{ $brgy }}</p>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Province</p>
+                                        <p class="font-bold text-slate-800 break-words">{{ $prov }}</p>
                                     </div>
                                     <div>
                                         <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Municipality / City</p>
                                         <p class="font-bold text-slate-800 break-words">{{ $city }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Province</p>
-                                        <p class="font-bold text-slate-800 break-words">{{ $prov }}</p>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Barangay</p>
+                                        <p class="font-bold text-slate-800 break-words">{{ $brgy }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Street / House No.</p>
+                                        <p class="font-bold text-slate-800 break-words">{{ $street }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -441,12 +458,17 @@
                                     <form action="{{ route('official-enrollment.store', $applicant->id) }}" method="POST" class="space-y-5 sm:space-y-6 w-full">
                                         @csrf
                                         <div class="text-center w-full">
-                                            <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 sm:mb-3">Generated Student ID</label>
-                                            <div class="bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border-2 border-slate-800 text-white w-full">
-                                                <span class="font-mono text-xl sm:text-2xl font-black tracking-[0.1em] sm:tracking-[0.2em] text-indigo-400">
-                                                    {{ date('Y') }}-{{ str_pad($applicant->id, 5, '0', STR_PAD_LEFT) }}
-                                                </span>
+                                            <label for="student_id" class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 sm:mb-3">Enter Student No. (Registrar)</label>
+                                            <div class="bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border-2 border-slate-800 w-full">
+                                                <input type="text" 
+                                                       name="student_id" 
+                                                       id="student_id"
+                                                       value="{{ old('student_id', $applicant->student_id ?? '') }}" 
+                                                       required 
+                                                       placeholder="e.g. 2026-00001" 
+                                                       class="w-full bg-transparent text-center font-mono text-xl sm:text-2xl font-black tracking-[0.1em] sm:tracking-[0.2em] text-indigo-400 border-0 border-b-2 border-indigo-500/50 focus:border-indigo-400 focus:ring-0 placeholder-slate-600 uppercase">
                                             </div>
+                                            <p class="text-[8px] text-slate-400 mt-2 italic">This will be the official Student Number assigned by the Registrar</p>
                                         </div>
 
                                         <button type="submit" onclick="return confirm('Officially admit this student?')" 

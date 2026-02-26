@@ -5,58 +5,108 @@
         </h2>
     </x-slot>
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- MapLibre GL JS — True 3D Terrain Engine -->
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
     <style>
+        /* ============================================ */
+        /* 🇵🇭 TRUE 3D PHILIPPINES MAP                  */
+        /* ============================================ */
         #student-map {
-            height: 580px;
+            height: 400px;
             width: 100%;
-            border-radius: 2rem;
-            z-index: 1;
-            background: #0f172a !important; 
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+            border-radius: 1.25rem;
+            overflow: hidden;
         }
-        
-        /* 🛰️ ELITE SATELLITE PULSE (Cyan Neon) */
-        .custom-div-icon { background: none; border: none; }
-        .marker-neon { width: 40px; height: 40px; position: relative; }
-        .pulse-ring {
+
+        /* Scholar Avatar Markers */
+        .scholar-marker {
+            width: 48px; height: 48px;
+            cursor: pointer;
+            position: relative;
+        }
+        .scholar-marker .pulse {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 12px; height: 12px;
-            background: rgba(34, 211, 238, 0.4);
-            border: 1.5px solid #22d3ee; border-radius: 50%;
-            animation: pulse-ring 2.5s infinite;
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: rgba(252, 209, 22, 0.2);
+            border: 2px solid rgba(252, 209, 22, 0.5);
+            animation: marker-pulse 2.5s ease-out infinite;
         }
-        @keyframes pulse-ring {
-            0% { width: 8px; height: 8px; opacity: 1; }
-            100% { width: 45px; height: 45px; opacity: 0; }
+        @keyframes marker-pulse {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
         }
-        .marker-inner-elite {
-            width: 36px; height: 36px; border-radius: 50%;
-            background: #1e293b; border: 2.5px solid #22d3ee;
-            box-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        .scholar-marker .avatar {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            border: 3px solid #FCD116;
+            box-shadow: 0 0 20px rgba(252, 209, 22, 0.5), 0 4px 15px rgba(0,0,0,0.4);
+            overflow: hidden;
             position: relative; z-index: 2;
+            background: linear-gradient(135deg, #0038A8, #CE1126);
+            transition: transform 0.3s, box-shadow 0.3s;
         }
-        .marker-img-elite { width: 100%; height: 100%; object-fit: cover; }
-        .marker-label-elite {
+        .scholar-marker:hover .avatar {
+            transform: scale(1.25);
+            box-shadow: 0 0 35px rgba(252, 209, 22, 0.9), 0 8px 25px rgba(0,0,0,0.5);
+        }
+        .scholar-marker .avatar img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .scholar-marker .name-tag {
             position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
-            background: rgba(15, 23, 42, 0.9); backdrop-blur: 4px;
-            color: #fff; padding: 1px 8px; border-radius: 6px;
+            background: linear-gradient(135deg, #0038A8, #002060);
+            color: #FCD116; padding: 2px 10px; border-radius: 8px;
             font-size: 8px; font-weight: 800; text-transform: uppercase; white-space: nowrap;
-            border: 1px solid rgba(255,255,255,0.1); opacity: 0; transition: 0.3s;
+            border: 1px solid rgba(252, 209, 22, 0.3);
+            opacity: 0; transition: all 0.3s;
+            pointer-events: none;
         }
-        .custom-div-icon:hover .marker-label-elite { opacity: 1; bottom: -28px; }
+        .scholar-marker:hover .name-tag { opacity: 1; bottom: -28px; }
 
-        .glow-favicon {
-            filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.6));
-            animation: float-favicon 4s ease-in-out infinite;
+        /* MapLibre Popup Override */
+        .maplibregl-popup-content {
+            background: linear-gradient(145deg, #001a4d, #002b80) !important;
+            border: 2px solid #FCD116 !important;
+            border-radius: 1.25rem !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5), 0 0 25px rgba(252, 209, 22, 0.15) !important;
+            color: white !important;
+            padding: 20px !important;
+            min-width: 200px;
+            text-align: center;
         }
-        @keyframes float-favicon {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+        .maplibregl-popup-tip { border-top-color: #002b80 !important; }
+        .maplibregl-popup-close-button { color: #FCD116 !important; font-size: 18px; }
+
+        /* Sun float */
+        .ph-sun-float { animation: sun-float 5s ease-in-out infinite; }
+        @keyframes sun-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-6px) rotate(5deg); }
+            75% { transform: translateY(3px) rotate(-3deg); }
         }
+
+        /* Flag bar */
+        .flag-stripe-bar {
+            background: linear-gradient(to right, #0038A8 50%, #CE1126 50%);
+            position: relative; overflow: hidden;
+        }
+        .flag-stripe-bar::before {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+            border-left: 30px solid white;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+        }
+
+        /* Navigation controls restyle */
+        .maplibregl-ctrl-group { background: rgba(0, 26, 77, 0.9) !important; border: 1px solid rgba(252,209,22,0.3) !important; border-radius: 12px !important; }
+        .maplibregl-ctrl-group button { color: #FCD116 !important; }
+        .maplibregl-ctrl-group button + button { border-top: 1px solid rgba(252,209,22,0.15) !important; }
+        .maplibregl-ctrl-group button:hover { background: rgba(252,209,22,0.1) !important; }
+        .maplibregl-ctrl-attrib { background: rgba(0,26,77,0.7) !important; color: rgba(252,209,22,0.5) !important; font-size: 9px !important; border-radius: 8px !important; }
+        .maplibregl-ctrl-attrib a { color: rgba(252,209,22,0.6) !important; }
     </style>
 
     <div class="py-12 min-h-screen bg-transparent text-slate-800">
@@ -158,49 +208,85 @@
                         </div>
                     </div>
 
-                    <!-- 🗺️ SATELLITE NATIONAL SCHOLAR LOCATOR -->
-                    <div class="md:col-span-2 bg-slate-900 overflow-hidden shadow-2xl sm:rounded-3xl flex flex-col h-full border border-slate-700 relative">
-                        <div class="p-6 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900/80 text-white">
-                            <div><h3 class="text-sm font-black uppercase tracking-widest flex items-center"><i class='bx bxs-map-pin mr-2 text-cyan-400'></i> National Scholar Locator</h3><p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">HD Satellite Surveillance View</p></div>
+                    <!-- 🇵🇭 TRUE 3D PHILIPPINES MAP -->
+                    <div class="md:col-span-2 overflow-hidden shadow-2xl sm:rounded-3xl flex flex-col h-full relative" style="border: 2px solid #FCD116;">
+                        
+                        <div class="flag-stripe-bar h-1.5"></div>
+                        
+                        <!-- Header -->
+                        <div class="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-white" style="background: linear-gradient(135deg, #001a4d, #002b80);">
+                            <div class="flex items-center gap-4">
+                                <div class="ph-sun-float flex-shrink-0">
+                                    <svg width="44" height="44" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="50" cy="50" r="18" fill="#FCD116"/>
+                                        @for($i = 0; $i < 8; $i++)
+                                            <line x1="50" y1="10" x2="50" y2="28" stroke="#FCD116" stroke-width="3" stroke-linecap="round" transform="rotate({{ $i * 45 }} 50 50)"/>
+                                        @endfor
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-black uppercase tracking-widest" style="color: #FCD116;">
+                                        <i class='bx bxs-map-pin mr-2' style="color: #CE1126;"></i> 3D National Scholar Map
+                                    </h3>
+                                    <p class="text-[9px] font-bold uppercase tracking-tighter" style="color: rgba(252,209,22,0.5);">National Academy of Sports — Real Terrain • Drag to Rotate • Scroll to Zoom</p>
+                                </div>
+                            </div>
                             <div class="flex flex-wrap items-center gap-2">
-                                <button onclick="focusIsland('Luzon')" class="px-3 py-1.5 bg-cyan-500/10 text-cyan-400 text-[10px] font-black rounded-xl border border-cyan-500/20 hover:bg-cyan-500/20 transition">LUZON: {{ $islandCounts['Luzon'] }}</button>
-                                <button onclick="focusIsland('Visayas')" class="px-3 py-1.5 bg-amber-50 text-amber-600 text-[10px] font-black rounded-xl border border-amber-100/20 hover:bg-amber-100/20 transition">VISAYAS: {{ $islandCounts['Visayas'] }}</button>
-                                <button onclick="focusIsland('Mindanao')" class="px-3 py-1.5 bg-rose-50 text-rose-600 text-[10px] font-black rounded-xl border border-rose-100/20 hover:bg-rose-100/20 transition">MINDANAO: {{ $islandCounts['Mindanao'] }}</button>
+                                <button onclick="focusIsland('Luzon')" class="px-4 py-2 text-[10px] font-black rounded-xl border transition-all hover:scale-105" style="background: rgba(0,56,168,0.3); color: #FCD116; border-color: rgba(252,209,22,0.3);">🔵 LUZON: {{ $islandCounts['Luzon'] }}</button>
+                                <button onclick="focusIsland('Visayas')" class="px-4 py-2 text-[10px] font-black rounded-xl border transition-all hover:scale-105" style="background: rgba(252,209,22,0.1); color: #FCD116; border-color: rgba(252,209,22,0.3);">🌟 VISAYAS: {{ $islandCounts['Visayas'] }}</button>
+                                <button onclick="focusIsland('Mindanao')" class="px-4 py-2 text-[10px] font-black rounded-xl border transition-all hover:scale-105" style="background: rgba(206,17,38,0.2); color: #FCD116; border-color: rgba(252,209,22,0.3);">🔴 MINDANAO: {{ $islandCounts['Mindanao'] }}</button>
+                                <button onclick="resetMap()" class="px-4 py-2 text-[10px] font-black rounded-xl border transition-all hover:scale-105" style="background: rgba(252,209,22,0.15); color: #FCD116; border-color: #FCD116;"><i class='bx bx-reset mr-1'></i> RESET MAP</button>
                             </div>
                         </div>
                         
-                        <div class="p-4 flex-grow relative min-h-[500px] bg-slate-900">
-                            <!-- Floating Favicon -->
-                            <div class="absolute top-8 right-8 z-[1000] glow-favicon"><img src="{{ asset('images/nas/favicon1.png') }}" class="w-14 h-14 object-contain" alt="NAS Logo"></div>
-                            <div id="student-map"></div>
+                        <!-- 3D Map -->
+                        <div class="relative flex-grow min-h-[380px]" style="background: #001a4d;">
                             
-                            <!-- Legend -->
-                            <div class="absolute bottom-8 left-8 z-[1000] bg-slate-900/95 backdrop-blur-xl p-4 rounded-2xl shadow-2xl border border-slate-700 w-40 text-center">
-                                <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-800 pb-2">Tracking Legend</h4>
-                                <div class="flex items-center justify-center gap-2">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]"></div>
-                                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-wide">Scholar Pin</span>
-                                </div>
+                            <!-- NAS Logo -->
+                            <div class="absolute top-4 right-4 z-[10] ph-sun-float">
+                                <img src="{{ asset('images/nas/favicon1.png') }}" class="w-12 h-12 object-contain" alt="NAS" style="filter: drop-shadow(0 0 12px rgba(252,209,22,0.6));">
                             </div>
 
-                            <div class="absolute top-8 left-20 z-[1000]">
-                                <div class="bg-cyan-600 px-4 py-2 rounded-xl shadow-lg border border-cyan-400/20 flex items-center gap-2">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                            <!-- Scholar Count -->
+                            <div class="absolute top-4 left-4 z-[10]">
+                                <div class="px-4 py-2 rounded-xl shadow-lg flex items-center gap-2" style="background: linear-gradient(135deg, #CE1126, #a00d1e); border: 1px solid rgba(252,209,22,0.3);">
+                                    <span class="w-2 h-2 rounded-full animate-pulse" style="background: #FCD116;"></span>
                                     <span class="text-[10px] font-black text-white uppercase tracking-wider">{{ count($mapMarkers) }} {{ count($mapMarkers) === 1 ? 'SCHOLAR' : 'SCHOLARS' }} LOCATED</span>
                                 </div>
                             </div>
+
+                            <!-- 3D Controls Hint -->
+                            <div class="absolute bottom-4 left-4 z-[10] px-3 py-2 rounded-xl" style="background: rgba(0,26,77,0.85); border: 1px solid rgba(252,209,22,0.15);">
+                                <div class="text-[9px] font-bold text-white/60 space-y-0.5">
+                                    <div>🖱️ <span style="color: #FCD116;">Right-drag</span> = Rotate & Tilt</div>
+                                    <div>🖱️ <span style="color: #FCD116;">Scroll</span> = Zoom in/out</div>
+                                    <div>🖱️ <span style="color: #FCD116;">Left-drag</span> = Pan</div>
+                                </div>
+                            </div>
+
+                            <!-- Lock/Unlock Button -->
+                            <div class="absolute top-4 left-1/2 -translate-x-1/2 z-[10]">
+                                <button id="map-lock-btn" onclick="toggleMapLock()" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all hover:scale-105 flex items-center gap-2" style="background: rgba(0,26,77,0.9); color: #FCD116; border: 1px solid #FCD116;">
+                                    <i class='bx bxs-lock-alt' id="lock-icon"></i> <span id="lock-text">CLICK TO UNLOCK MAP</span>
+                                </button>
+                            </div>
+
+                            <div id="student-map"></div>
                         </div>
+                        
+                        <div class="flag-stripe-bar h-1.5"></div>
                     </div>
                 </div>
             @endif
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- MapLibre GL JS — 3D Terrain Engine -->
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <script>
-        let map = null, geoLayer = null;
-        const markersData = @json($mapMarkers);
+        let map = null;
+        const markersData = @json($mapMarkers ?? []);
+        const markerElements = [];
 
         function initDashboard() {
             animateCounters();
@@ -208,52 +294,252 @@
         }
 
         function initMap() {
-            const phBounds = L.latLngBounds(L.latLng(4.0, 116.0), L.latLng(22.0, 127.0));
-            map = L.map('student-map', { center: [12.8797, 121.7740], zoom: 6, minZoom: 5, maxZoom: 18, maxBounds: phBounds, maxBoundsViscosity: 1.0, zoomControl: true, scrollWheelZoom: true });
+            const container = document.getElementById('student-map');
+            if (!container) return;
 
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; Esri' }).addTo(map);
+            // Destroy previous map instance
+            if (map) { map.remove(); map = null; }
+            markerElements.forEach(m => m.remove());
+            markerElements.length = 0;
 
-            fetch('https://raw.githubusercontent.com/macandv/philippines-geojson/master/philippines-regions.json')
-                .then(r => r.json()).then(data => {
-                    const worldCoords = [[[-90, -200], [-90, 200], [90, 200], [90, -200], [-90, -200]]];
-                    data.features.forEach(feature => {
-                        const coords = L.GeoJSON.coordsToLatLngs(feature.geometry.coordinates, feature.geometry.type === 'MultiPolygon' ? 1 : 0);
-                        if (feature.geometry.type === 'Polygon') worldCoords.push(coords); else coords.forEach(c => worldCoords.push(c));
-                    });
-                    L.polygon(worldCoords, { color: 'none', fillColor: '#0f172a', fillOpacity: 1, interactive: false }).addTo(map);
-                    geoLayer = L.geoJSON(data, {
-                        style: { color: 'rgba(34, 211, 238, 0.2)', weight: 1.5, fillOpacity: 0 },
-                        onEachFeature: (feature, layer) => {
-                            const reg = feature.properties.REGION || '';
-                            if (['NCR','CAR','1','2','3','4A','4B','5'].some(id => reg.includes(id))) feature.properties.island = 'Luzon';
-                            else if (['6','7','8'].some(id => reg.includes(id))) feature.properties.island = 'Visayas'; else feature.properties.island = 'Mindanao';
+            // Create 3D Map with real terrain
+            map = new maplibregl.Map({
+                container: 'student-map',
+                style: {
+                    version: 8,
+                    sources: {
+                        'satellite': {
+                            type: 'raster',
+                            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                            tileSize: 256,
+                            attribution: '&copy; Esri'
+                        },
+                        'terrain-source': {
+                            type: 'raster-dem',
+                            tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+                            tileSize: 256,
+                            encoding: 'terrarium'
+                        },
+                        'labels-bold': {
+                            type: 'raster',
+                            tiles: [
+                                'https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png',
+                                'https://b.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png',
+                                'https://c.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png'
+                            ],
+                            tileSize: 512,
+                            minzoom: 0,
+                            maxzoom: 18
+                        },
+                        'labels-extra': {
+                            type: 'raster',
+                            tiles: [
+                                'https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png',
+                                'https://b.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png'
+                            ],
+                            tileSize: 512,
+                            minzoom: 0,
+                            maxzoom: 18
                         }
-                    }).addTo(map);
-                });
+                    },
+                    layers: [
+                        {
+                            id: 'satellite-layer',
+                            type: 'raster',
+                            source: 'satellite',
+                            paint: { 'raster-brightness-min': 0.05, 'raster-brightness-max': 0.85, 'raster-contrast': 0.25, 'raster-saturation': 0.3 }
+                        },
+                        {
+                            id: 'labels-layer-1',
+                            type: 'raster',
+                            source: 'labels-bold',
+                            paint: { 'raster-opacity': 1.0 }
+                        },
+                        {
+                            id: 'labels-layer-2',
+                            type: 'raster',
+                            source: 'labels-extra',
+                            paint: { 'raster-opacity': 0.7 }
+                        }
+                    ],
+                    terrain: {
+                        source: 'terrain-source',
+                        exaggeration: 3.0
+                    },
+                    sky: {
+                        'sky-color': '#001a4d',
+                        'sky-horizon-blend': 0.4,
+                        'horizon-color': '#0038A8',
+                        'horizon-fog-blend': 0.7,
+                        'fog-color': '#001540',
+                        'fog-ground-blend': 0.85
+                    }
+                },
+                center: [121.774, 12.8797],
+                zoom: 6,
+                pitch: 45,
+                bearing: -10,
+                maxPitch: 85,
+                minZoom: 5.5,
+                maxZoom: 18,
+                maxBounds: [[116, 4.5], [128, 21.5]],
+                scrollZoom: false,
+                dragPan: false,
+                dragRotate: false,
+                touchZoomRotate: false,
+                doubleClickZoom: false
+            });
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', opacity: 0.8, pointerEvents: 'none' }).addTo(map);
+            // Navigation controls
+            map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
 
-            markersData.forEach(s => {
-                const icon = L.divIcon({
-                    className: 'custom-div-icon',
-                    html: `<div class="marker-neon"><div class="pulse-ring"></div><div class="marker-inner-elite"><img src="${s.photo}" class="marker-img-elite" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=4f46e5&color=fff&bold=true'"></div><div class="marker-label-elite">${s.name}</div></div>`,
-                    iconSize: [40, 40], iconAnchor: [20, 20]
+            map.on('load', () => {
+                // === MASK: Hide everything outside Philippines ===
+                fetch('https://raw.githubusercontent.com/macandv/philippines-geojson/master/philippines-regions.json')
+                    .then(r => r.json())
+                    .then(phGeo => {
+                        if (!map) return;
+
+                        // Build an inverted polygon: a huge world rectangle with PH cut out
+                        const worldOuter = [[-180, -90], [180, -90], [180, 90], [-180, 90], [-180, -90]];
+                        const phHoles = [];
+
+                        phGeo.features.forEach(f => {
+                            const coords = f.geometry.coordinates;
+                            if (f.geometry.type === 'Polygon') {
+                                phHoles.push(coords[0]);
+                            } else if (f.geometry.type === 'MultiPolygon') {
+                                coords.forEach(poly => phHoles.push(poly[0]));
+                            }
+                        });
+
+                        const maskCoords = [worldOuter, ...phHoles];
+
+                        map.addSource('ph-mask', {
+                            type: 'geojson',
+                            data: {
+                                type: 'Feature',
+                                geometry: { type: 'Polygon', coordinates: maskCoords }
+                            }
+                        });
+
+                        map.addLayer({
+                            id: 'ph-mask-layer',
+                            type: 'fill',
+                            source: 'ph-mask',
+                            paint: {
+                                'fill-color': '#001030',
+                                'fill-opacity': 0.92
+                            }
+                        });
+
+                        // Add PH border outline (golden glow)
+                        map.addSource('ph-border', {
+                            type: 'geojson',
+                            data: phGeo
+                        });
+
+                        map.addLayer({
+                            id: 'ph-border-line',
+                            type: 'line',
+                            source: 'ph-border',
+                            paint: {
+                                'line-color': 'rgba(252, 209, 22, 0.4)',
+                                'line-width': 1.5
+                            }
+                        });
+                    })
+                    .catch(e => console.log('GeoJSON mask fetch error:', e));
+
+                // === SCHOLAR MARKERS ===
+                markersData.forEach(s => {
+                    const el = document.createElement('div');
+                    el.className = 'scholar-marker';
+                    el.innerHTML = `
+                        <div class="pulse"></div>
+                        <div class="avatar">
+                            <img src="${s.photo}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=0038A8&color=FCD116&bold=true'" alt="${s.name}">
+                        </div>
+                        <div class="name-tag">${s.name}</div>
+                    `;
+
+                    const popup = new maplibregl.Popup({ offset: [0, -30], closeButton: true })
+                        .setHTML(`
+                            <div style="text-align:center;">
+                                <div style="width:70px;height:70px;border-radius:50%;border:3px solid #FCD116;overflow:hidden;margin:0 auto 10px;box-shadow:0 0 20px rgba(252,209,22,0.3);">
+                                    <img src="${s.photo}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=0038A8&color=FCD116&bold=true'">
+                                </div>
+                                <h5 style="font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px;">${s.name}</h5>
+                                <p style="font-size:10px;font-weight:700;color:#FCD116;text-transform:uppercase;letter-spacing:2px;margin:0 0 10px;">${s.grade}</p>
+                                <div style="background:rgba(0,56,168,0.4);padding:6px 12px;border-radius:10px;font-size:9px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.8);">
+                                    📍 ${s.location}
+                                </div>
+                            </div>
+                        `);
+
+                    const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+                        .setLngLat([s.coords[1], s.coords[0]])
+                        .setPopup(popup)
+                        .addTo(map);
+
+                    markerElements.push(marker);
+
+                    el.addEventListener('click', () => {
+                        map.flyTo({ center: [s.coords[1], s.coords[0]], zoom: 14, pitch: 70, bearing: Math.random() * 60 - 30, duration: 2000 });
+                    });
                 });
-                L.marker(s.coords, { icon: icon }).addTo(map)
-                    .on('click', function(e) { map.flyTo(e.latlng, 16, { duration: 1.5 }); })
-                    .bindPopup(`<div class="p-4 text-center bg-slate-900 text-white rounded-2xl border border-slate-700"><div class="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-cyan-500 shadow-xl overflow-hidden"><img src="${s.photo}" class="w-full h-full object-cover"></div><h5 class="text-sm font-black uppercase tracking-wide">${s.name}</h5><p class="text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-3">${s.grade}</p><div class="bg-slate-800 px-3 py-2 rounded-xl text-[9px] font-bold text-slate-400 uppercase"><i class='bx bxs-map text-rose-500 mr-1'></i> ${s.location}</div></div>`, { closeButton: false, offset: [0, -5] });
             });
         }
 
         function focusIsland(island) {
             if (!map) return;
-            const colors = { 'Luzon': '#22d3ee', 'Visayas': '#fbbf24', 'Mindanao': '#f43f5e' };
-            map.flyTo({ 'Luzon': [16.0, 121.0], 'Visayas': [11.0, 123.0], 'Mindanao': [7.8, 125.0] }[island], island === 'Luzon' ? 7 : 8);
-            if (geoLayer) {
-                geoLayer.eachLayer(layer => {
-                    if (layer.feature.properties.island === island) layer.setStyle({ color: colors[island], fillOpacity: 0.1, weight: 2.5 });
-                    else layer.setStyle({ color: 'rgba(34, 211, 238, 0.2)', fillOpacity: 0, weight: 1.5 });
-                });
+            const targets = {
+                'Luzon':    { center: [121.0, 16.0], zoom: 7, pitch: 55, bearing: -10 },
+                'Visayas':  { center: [123.0, 11.0], zoom: 7.5, pitch: 60, bearing: 15 },
+                'Mindanao': { center: [125.0, 7.8], zoom: 7.5, pitch: 50, bearing: -20 }
+            };
+            const t = targets[island];
+            map.flyTo({ center: t.center, zoom: t.zoom, pitch: t.pitch, bearing: t.bearing, duration: 2500, essential: true });
+        }
+
+        function resetMap() {
+            if (!map) return;
+            map.flyTo({
+                center: [121.774, 12.8797],
+                zoom: 6,
+                pitch: 45,
+                bearing: -10,
+                duration: 2000,
+                essential: true
+            });
+        }
+
+        let mapLocked = true;
+        function toggleMapLock() {
+            mapLocked = !mapLocked;
+            const icon = document.getElementById('lock-icon');
+            const text = document.getElementById('lock-text');
+            const btn = document.getElementById('map-lock-btn');
+            if (mapLocked) {
+                map.scrollZoom.disable();
+                map.dragPan.disable();
+                map.dragRotate.disable();
+                map.touchZoomRotate.disable();
+                map.doubleClickZoom.disable();
+                icon.className = 'bx bxs-lock-alt';
+                text.textContent = 'CLICK TO UNLOCK MAP';
+                btn.style.borderColor = '#FCD116';
+                btn.style.background = 'rgba(0,26,77,0.9)';
+            } else {
+                map.scrollZoom.enable();
+                map.dragPan.enable();
+                map.dragRotate.enable();
+                map.touchZoomRotate.enable();
+                map.doubleClickZoom.enable();
+                icon.className = 'bx bxs-lock-open-alt';
+                text.textContent = 'MAP UNLOCKED';
+                btn.style.borderColor = '#22c55e';
+                btn.style.background = 'rgba(0,77,26,0.9)';
             }
         }
 
@@ -270,6 +556,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', initDashboard);
-        document.addEventListener('livewire:navigated', initDashboard);
+        document.addEventListener('livewire:navigated', () => setTimeout(initDashboard, 100));
     </script>
 </x-app-layout>

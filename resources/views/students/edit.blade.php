@@ -95,6 +95,8 @@
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">First Name</label><input type="text" name="first_name" value="{{ old('first_name', $student->first_name) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Middle Name</label><input type="text" name="middle_name" value="{{ old('middle_name', $student->middle_name) }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                     
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Extension Name</label><input type="text" name="extension_name" value="{{ getEditVal($details, $applicantFallback, $student, 'extension_name', 'extension_name', 'extension_name') }}" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g. Jr., III"></div>
+                                    
                                     {{-- EMAIL ONLY --}}
                                     <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Email Address</label><input type="email" name="email_address" value="{{ getEditVal($details, $applicantFallback, $student, 'email', 'email', 'email_address') }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     
@@ -109,52 +111,37 @@
                                     
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthdate</label><input type="date" id="birthdate" name="birthdate" value="{{ old('birthdate', $student->birthdate ? \Carbon\Carbon::parse($student->birthdate)->format('Y-m-d') : '') }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     
-                                    <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthplace</label><input type="text" name="birthplace" value="{{ old('birthplace', $student->birthplace) }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
+                                    <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Birthplace</label><input type="text" name="birthplace" value="{{ getEditVal($details, $applicantFallback, $student, 'birthplace', 'birthplace', 'birthplace') }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                     
-                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Religion</label><input type="text" name="religion" value="{{ old('religion', $student->religion) }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Religion</label><input type="text" name="religion" value="{{ getEditVal($details, $applicantFallback, $student, 'religion', 'religion', 'religion') }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                     
                                     {{-- CHECKBOXES & OTHERS --}}
                                     <div class="md:col-span-3 mt-4 pt-4 border-t border-gray-100 border-dashed">
-                                        <div class="flex flex-col md:flex-row md:items-center gap-4">
-                                            <div class="flex flex-wrap gap-4">
-                                                <label class="flex items-center space-x-2 cursor-pointer">
-                                                    @php
-                                                        $rawIp = getEditVal($details, $applicantFallback, $student, 'is_ip', 'is_ip', 'is_ip');
-                                                        $isCheckedIp = in_array(strtolower(trim($rawIp)), ['yes', '1', 'true', 'y']);
-                                                    @endphp
-                                                    <input type="checkbox" name="is_ip" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip', $isCheckedIp ? 'Yes' : '') == 'Yes' ? 'checked' : '' }}> 
-                                                    <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
-                                                </label>
-                                                <label class="flex items-center space-x-2 cursor-pointer">
-                                                    @php
-                                                        $rawPwd = getEditVal($details, $applicantFallback, $student, 'is_pwd', 'is_pwd', 'is_pwd');
-                                                        $isCheckedPwd = in_array(strtolower(trim($rawPwd)), ['yes', '1', 'true', 'y']);
-                                                    @endphp
-                                                    <input type="checkbox" name="is_pwd" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd', $isCheckedPwd ? 'Yes' : '') == 'Yes' ? 'checked' : '' }}> 
-                                                    <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
-                                                </label>
-                                                <label class="flex items-center space-x-2 cursor-pointer">
-                                                    @php
-                                                        $raw4ps = getEditVal($details, $applicantFallback, $student, 'is_4ps', 'is_4ps', 'is_4ps');
-                                                        $isChecked4ps = in_array(strtolower(trim($raw4ps)), ['yes', '1', 'true', 'y']);
-                                                    @endphp
-                                                    <input type="checkbox" name="is_4ps" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps', $isChecked4ps ? 'Yes' : '') == 'Yes' ? 'checked' : '' }}> 
-                                                    <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
-                                                </label>
-                                            </div>
-
-                                            <div class="flex items-center flex-1 w-full md:w-auto">
-                                                <label for="other_remarks" class="text-xs font-bold text-gray-600 uppercase mr-2 whitespace-nowrap">Others Details:</label>
+                                        <div class="flex flex-wrap gap-6">
+                                            <label class="flex items-center space-x-2 cursor-pointer">
                                                 @php
-                                                    $ipGrp = getEditVal($details, $applicantFallback, $student, 'ip_group_name', 'ip_group_name', 'ip_group_name');
-                                                    $pwdId = getEditVal($details, $applicantFallback, $student, 'pwd_disability', 'pwd_disability', 'pwd_disability');
-                                                    $othersVal = array_filter([$ipGrp, $pwdId]);
-                                                    $othersValStr = implode(', ', $othersVal);
+                                                    $rawIp = getEditVal($details, $applicantFallback, $student, 'is_ip', 'is_ip', 'is_ip');
+                                                    $isCheckedIp = in_array(strtolower(trim($rawIp)), ['yes', '1', 'true', 'y']);
                                                 @endphp
-                                                <input type="text" id="other_remarks" name="other_remarks" value="{{ old('other_remarks', $student->other_remarks ?? $othersValStr) }}" 
-                                                       class="border-0 border-b border-gray-300 focus:border-indigo-500 focus:ring-0 text-sm w-full bg-transparent" 
-                                                       placeholder="Specific details (e.g. Manobo, Visual Impairment)">
-                                            </div>
+                                                <input type="checkbox" name="is_ip" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_ip', $isCheckedIp ? 'Yes' : '') == 'Yes' ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">Indigenous People (IP)</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                @php
+                                                    $rawPwd = getEditVal($details, $applicantFallback, $student, 'is_pwd', 'is_pwd', 'is_pwd');
+                                                    $isCheckedPwd = in_array(strtolower(trim($rawPwd)), ['yes', '1', 'true', 'y']);
+                                                @endphp
+                                                <input type="checkbox" name="is_pwd" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_pwd', $isCheckedPwd ? 'Yes' : '') == 'Yes' ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">PWD</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                @php
+                                                    $raw4ps = getEditVal($details, $applicantFallback, $student, 'is_4ps', 'is_4ps', 'is_4ps');
+                                                    $isChecked4ps = in_array(strtolower(trim($raw4ps)), ['yes', '1', 'true', 'y']);
+                                                @endphp
+                                                <input type="checkbox" name="is_4ps" value="Yes" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 h-4 w-4" {{ old('is_4ps', $isChecked4ps ? 'Yes' : '') == 'Yes' ? 'checked' : '' }}> 
+                                                <span class="text-xs font-bold text-gray-600 uppercase">4Ps Beneficiary</span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -169,7 +156,8 @@
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">City/Municipality</label><input type="text" name="municipality_city" value="{{ getEditVal($details, $applicantFallback, $student, 'municipality_city', 'municipality_city', 'municipality_city') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm" required></div>
                                     <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Barangay</label><input type="text" name="barangay" value="{{ getEditVal($details, $applicantFallback, $student, 'barangay', 'barangay', 'barangay') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm" required></div>
                                     
-                                    <div class="mt-3 md:col-span-4"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Street / House No.</label><input type="text" name="street_address" value="{{ getEditVal($details, $applicantFallback, $student, 'street_house_no', 'street_address', 'street_address') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm"></div>
+                                    <div class="mt-3 md:col-span-3"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Street / House No.</label><input type="text" name="street_address" value="{{ getEditVal($details, $applicantFallback, $student, 'street_house_no', 'street_address', 'street_address') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm"></div>
+                                    <div class="mt-3"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Zip Code</label><input type="text" name="zip_code" value="{{ getEditVal($details, $applicantFallback, $student, 'zip_code', 'zip_code', 'zip_code') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm"></div>
                                 </div>
                             </div>
 
@@ -198,12 +186,35 @@
                                 {{-- Guardian --}}
                                 <div class="bg-gray-50 p-4 rounded-lg">
                                     <h4 class="font-bold text-sm text-gray-700 mb-3">Guardian Information</h4>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Full Name</label><input type="text" name="guardian_name" value="{{ getEditVal($details, $applicantFallback, $student, 'guardian_name', 'guardian_name', 'guardian_name') }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
+                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Full Name</label><input type="text" name="guardian_name" value="{{ getEditVal($details, $applicantFallback, $student, 'guardian_name', 'guardian_name', 'guardian_name') }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                         <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Relationship</label><input type="text" name="guardian_relationship" value="{{ getEditVal($details, $applicantFallback, $student, 'guardian_relationship', 'guardian_relationship', 'guardian_relationship') }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
                                         <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Contact Number</label><input type="text" name="guardian_contact" value="{{ getEditVal($details, $applicantFallback, $student, 'guardian_contact', 'guardian_contact', 'guardian_contact') }}" class="w-full border-gray-300 rounded-md shadow-sm" required></div>
-                                        <div class="md:col-span-3"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Address</label><input type="text" name="guardian_address" value="{{ getEditVal($details, $applicantFallback, $student, 'guardian_address', 'guardian_address', 'guardian_address') }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
+                                        <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Email</label><input type="email" name="guardian_email" value="{{ getEditVal($details, $applicantFallback, $student, 'guardian_email', 'guardian_email', 'guardian_email') }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
+                                        <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Address</label><input type="text" name="guardian_address" value="{{ getEditVal($details, $applicantFallback, $student, 'guardian_address', 'guardian_address', 'guardian_address') }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                     </div>
+                                </div>
+                            </div>
+
+                            {{-- SCHOOL INFORMATION --}}
+                            <div class="md:col-span-2">
+                                <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex items-center"><i class='bx bx-building mr-2'></i> School Information</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">School Name</label><input type="text" name="school_name" value="{{ getEditVal($details, $applicantFallback, $student, 'school_name', 'school_name', 'school_name') }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">School ID</label><input type="text" name="school_id" value="{{ getEditVal($details, $applicantFallback, $student, 'school_id', 'school_id', 'school_id') }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">School Type</label>
+                                        <select name="school_type" class="w-full border-gray-300 rounded-md shadow-sm">
+                                            <option value="">Select Type</option>
+                                            @php $types = ['Public', 'Private', 'State University / College', 'Local University / College']; @endphp
+                                            @foreach($types as $type)
+                                                <option value="{{ $type }}" {{ getEditVal($details, $applicantFallback, $student, 'school_type', 'school_type', 'school_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Last Grade Level</label><input type="text" name="last_grade_level" value="{{ getEditVal($details, $applicantFallback, $student, 'last_grade_level', 'last_grade_level', 'last_grade_level') }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
+                                    <div><label class="block text-xs font-bold text-gray-600 uppercase mb-1">Last School Year</label><input type="text" name="last_school_year" value="{{ getEditVal($details, $applicantFallback, $student, 'last_school_year', 'last_school_year', 'last_school_year') }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
+                                    <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 uppercase mb-1">School Address</label><input type="text" name="school_address" value="{{ getEditVal($details, $applicantFallback, $student, 'school_address', 'school_address', 'school_address') }}" class="w-full border-gray-300 rounded-md shadow-sm"></div>
                                 </div>
                             </div>
 
@@ -275,26 +286,6 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
-
-                            {{-- ENROLLMENT LOGIC --}}
-                            <div class="md:col-span-2 bg-blue-50 p-4 rounded border border-blue-100">
-                                <h3 class="text-lg font-bold text-blue-800 mb-4">Enrollment System Fields</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-                                    <div><label class="block text-sm font-medium text-gray-700">Enrollment Date</label><input type="date" name="enrollment_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="{{ old('enrollment_date', $student->enrollment_date ? \Carbon\Carbon::parse($student->enrollment_date)->format('Y-m-d') : '') }}"></div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">LIS Status</label>
-                                        <select name="lis_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                            <option value="">-- Select --</option>
-                                            @foreach(['Enrolled', 'Pending', 'For Follow-up'] as $lis)
-                                                <option value="{{ $lis }}" {{ old('lis_status', $student->lis_status) == $lis ? 'selected' : '' }}>{{ $lis }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div><label class="block text-sm font-medium text-gray-700">Remarks</label><textarea name="enrollment_remarks" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">{{ old('enrollment_remarks', $student->enrollment_remarks) }}</textarea></div>
-                            </div>
-
                         </div> 
                         
                         {{-- 🟢 UPDATED ACTION BUTTONS (Mobile Friendly) --}}

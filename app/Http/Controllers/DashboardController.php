@@ -55,38 +55,91 @@ class DashboardController extends Controller
         $sportsBreakdown = Team::select('sport', DB::raw('count(*) as count'))->groupBy('sport')->orderBy('count', 'desc')->take(3)->get();
         $activities = ActivityLog::with('user')->latest()->take(5)->get();
 
+        // --- GEOCACHE: Load cached geocode results ---
+        $geocachePath = storage_path('app/geocache.json');
+        $geocache = file_exists($geocachePath) ? json_decode(file_get_contents($geocachePath), true) : [];
+        $geocacheUpdated = false;
+
         // --- HYPER-PRECISION COORDINATE MAPPING (Centered on residential areas) ---
         $locationMap = [
-            // EXACT COORDINATES FROM GOOGLE MAPS
-            'Cristo Rey' => [15.359441, 120.532322],
-            'Casalamitao' => [15.359441, 120.532322],
-            'Ferrer' => [15.359441, 120.532322],
+            // EXACT COORDINATES — Barangays in Capas, Tarlac
+            'Cristo Rey, Capas' => [15.3604, 120.5371],
+            'Cristo Rey'        => [15.3604, 120.5371],
+            'Casalamitao'       => [15.3580, 120.5340],
+            'Ferrer'            => [15.3550, 120.5300],
+            'Cojuangco'         => [15.3604, 120.5371],
             
             // TARLAC MUNICIPALITIES
-            'Capas' => [15.3333, 120.5833], 
-            'Concepcion' => [15.3258, 120.6567], 
-            'Tarlac City' => [15.4828, 120.5979],
-            'Tarlac' => [15.4828, 120.5979],
-            'Bamban' => [15.2744, 120.5667],
-            'Victoria' => [15.5722, 120.6781],
-            'Paniqui' => [15.6667, 120.5833],
-            'Gerona' => [15.6056, 120.5986],
-            'Camiling' => [15.6833, 120.4167],
-            'Moncada' => [15.8333, 120.5833],
-            'San Manuel' => [15.8333, 120.6],
-            'Santa Ignacia' => [15.6167, 120.4333],
-            'San Jose' => [15.45, 120.45],
-            'Mayantoc' => [15.5, 120.3833],
-            'Pura' => [15.6167, 120.65],
-            'Ramos' => [15.65, 120.6333],
-            'Anao' => [15.7333, 120.6167],
-            'San Clemente' => [15.7167, 120.35],
-            'O\'Donnell' => [15.3456, 120.4987],
+            'Capas'           => [15.3333, 120.5833], 
+            'Concepcion'      => [15.3258, 120.6567], 
+            'Tarlac City'     => [15.4828, 120.5979],
+            'Tarlac'          => [15.4828, 120.5979],
+            'Bamban'          => [15.2744, 120.5667],
+            'Victoria'        => [15.5722, 120.6781],
+            'Paniqui'         => [15.6667, 120.5833],
+            'Gerona'          => [15.6056, 120.5986],
+            'Camiling'        => [15.6833, 120.4167],
+            'Moncada'         => [15.8333, 120.5833],
+            'San Manuel'      => [15.8333, 120.6],
+            'Santa Ignacia'   => [15.6167, 120.4333],
+            'San Jose'        => [15.45, 120.45],
+            'Mayantoc'        => [15.5, 120.3833],
+            'Pura'            => [15.6167, 120.65],
+            'Ramos'           => [15.65, 120.6333],
+            'Anao'            => [15.7333, 120.6167],
+            'San Clemente'    => [15.7167, 120.35],
+            'O\'Donnell'      => [15.3456, 120.4987],
 
             // MAJOR HUBS
-            'Manila' => [14.5995, 120.9842],
-            'Quezon City' => [14.6760, 121.0437]
+            'Manila'          => [14.5995, 120.9842],
+            'Quezon City'     => [14.6760, 121.0437]
         ];
+
+        // --- NOMINATIM GEOCODING FUNCTION (with file cache) ---
+        $geocodeAddress = function($brgy, $city, $prov) use (&$geocache, &$geocacheUpdated, $geocachePath) {
+            $cacheKey = strtolower(trim("$brgy, $city, $prov"));
+            if (isset($geocache[$cacheKey])) {
+                return $geocache[$cacheKey]; // Return cached result
+            }
+
+            // Build query string for Nominatim
+            $parts = array_filter([$brgy, $city, $prov, 'Philippines']);
+            $query = implode(', ', $parts);
+
+            try {
+                $url = 'https://nominatim.openstreetmap.org/search?' . http_build_query([
+                    'q' => $query,
+                    'format' => 'json',
+                    'limit' => 1,
+                    'countrycodes' => 'ph',
+                ]);
+
+                $context = stream_context_create([
+                    'http' => [
+                        'header' => "User-Agent: NAS-StudentPortal/1.0\r\n",
+                        'timeout' => 5,
+                    ]
+                ]);
+
+                $response = @file_get_contents($url, false, $context);
+                if ($response) {
+                    $data = json_decode($response, true);
+                    if (!empty($data) && isset($data[0]['lat'], $data[0]['lon'])) {
+                        $coords = [(float)$data[0]['lat'], (float)$data[0]['lon']];
+                        $geocache[$cacheKey] = $coords;
+                        $geocacheUpdated = true;
+                        return $coords;
+                    }
+                }
+            } catch (\Exception $e) {
+                // Silently fail — fallback to locationMap
+            }
+
+            // Cache null to avoid repeated failed lookups
+            $geocache[$cacheKey] = null;
+            $geocacheUpdated = true;
+            return null;
+        };
 
         $allStudents = Student::select('first_name', 'last_name', 'region', 'province', 'grade_level', 'id_picture', 'municipality_city', 'barangay', 'street_address')->get();
         $mapMarkers = [];
@@ -116,11 +169,17 @@ class DashboardController extends Controller
             $coords = null;
             $fullAddress = strtoupper($street . ' ' . $brgy . ' ' . $city . ' ' . $prov . ' ' . $reg);
 
+            // Step 1: Try hardcoded locationMap first
             foreach ($locationMap as $key => $loc) {
                 if (stripos($fullAddress, strtoupper($key)) !== false) {
                     $coords = $loc;
                     break; 
                 }
+            }
+
+            // Step 2: If no match, try Nominatim geocoding
+            if (!$coords && (!empty($brgy) || !empty($city) || !empty($prov))) {
+                $coords = $geocodeAddress($brgy, $city, $prov);
             }
 
             if ($coords) {
@@ -134,12 +193,17 @@ class DashboardController extends Controller
 
                 $mapMarkers[] = [
                     'name' => trim($student->first_name . ' ' . $student->last_name),
-                    'grade' => $student->grade_level ?? 'N/A',
+                    'grade' => $student->grade_level ?? '-',
                     'location' => trim(($street ? $street . ', ' : '') . ($brgy ? $brgy . ', ' : '') . ($city ?: $prov)),
                     'coords' => $finalCoords,
                     'photo' => $student->id_picture ?: 'https://ui-avatars.com/api/?name=' . urlencode($student->first_name) . '&background=4f46e5&color=fff&bold=true'
                 ];
             }
+        }
+
+        // Save geocache if updated
+        if ($geocacheUpdated) {
+            @file_put_contents($geocachePath, json_encode($geocache, JSON_PRETTY_PRINT));
         }
 
         return view('dashboard', compact(

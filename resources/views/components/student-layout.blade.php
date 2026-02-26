@@ -49,10 +49,8 @@
                  class="w-full h-full object-cover" 
                  alt="Background">
             
-            {{-- 👇 DITO ANG PAGBABAGO: Dark Overlay sa halip na puti --}}
-            {{-- bg-black/40: 40% opacity na itim para hindi masakit sa mata --}}
-            {{-- backdrop-blur-sm: Swabeng blur para clear tignan --}}
-            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+            {{-- Lighter overlay so BG image is clearly visible --}}
+            <div class="absolute inset-0 bg-black/20 backdrop-blur-[1px]"></div>
         </div>
 
         {{-- =============================================== --}}
@@ -68,7 +66,7 @@
                 
                 @if (isset($header))
                     {{-- Header na may konting transparency --}}
-                    <header class="bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-20">
+                    <header class="bg-white/70 backdrop-blur-xl shadow-sm border-b border-white/30 sticky top-0 z-20">
                         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                             {{ $header }}
                         </div>
@@ -79,7 +77,7 @@
                     {{ $slot }}
                 </main>
 
-                <footer class="bg-white/90 backdrop-blur-sm border-t border-gray-200 mt-auto py-6">
+                <footer class="bg-white/60 backdrop-blur-xl border-t border-white/30 mt-auto py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500 font-medium uppercase tracking-wider">
                         &copy; {{ date('Y') }} National Academy of Sports. Student Portal.
                     </div>

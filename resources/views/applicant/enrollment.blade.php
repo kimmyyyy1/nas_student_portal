@@ -28,6 +28,31 @@
                       isPwd: '{{ old('is_pwd', $applicant->is_pwd ? 'Yes' : 'No') }}',
                       is4ps: '{{ old('is_4ps', $applicant->is_4ps ? 'Yes' : 'No') }}',
                       isTransferee: 'No',
+                      selectedRegion: '{{ old('region', $applicant->region ?? '') }}',
+                      selectedProvince: '{{ old('province', $applicant->province ?? '') }}',
+                      regionProvinces: {
+                          'Cordillera Administrative Region': ['Abra','Apayao','Benguet','Ifugao','Kalinga','Mountain Province'],
+                          'Region 1: Ilocos Region': ['Ilocos Norte','Ilocos Sur','La Union','Pangasinan'],
+                          'Region 2: Cagayan Valley': ['Batanes','Cagayan','Isabela','Nueva Vizcaya','Quirino'],
+                          'Region 3: Central Luzon': ['Aurora','Bataan','Bulacan','Nueva Ecija','Pampanga','Tarlac','Zambales'],
+                          'Region IV-A: CALABARZON': ['Batangas','Cavite','Laguna','Quezon','Rizal'],
+                          'Region IV-B: MIMAROPA': ['Marinduque','Occidental Mindoro','Oriental Mindoro','Palawan','Romblon'],
+                          'Region 5: Bicol Region': ['Albay','Camarines Norte','Camarines Sur','Catanduanes','Masbate','Sorsogon'],
+                          'National Capital Region': ['Metro Manila'],
+                          'Region 6: Western Visayas': ['Aklan','Antique','Capiz','Guimaras','Iloilo'],
+                          'Region 7: Central Visayas': ['Bohol','Cebu','Siquijor'],
+                          'Region 8: Eastern Visayas': ['Biliran','Eastern Samar','Leyte','Northern Samar','Samar','Southern Leyte'],
+                          'Negros Island Region': ['Negros Occidental','Negros Oriental'],
+                          'Region 9: Zamboanga Peninsula': ['Zamboanga Del Norte','Zamboanga del Sur','Zamboanga Sibugay'],
+                          'Region 10: Northern Mindanao': ['Bukidnon','Camiguin','Lanao Del Norte','Misamis Occidental','Misamis Oriental'],
+                          'Region 11: Davao Region': ['Compostela Valley','Davao del Norte','Davao del Sur','Davao Occidental','Davao Oriental'],
+                          'Region 12: SOCCSKSARGEN': ['Cotabato','Sarangani','South Cotabato','Sultan Kudarat'],
+                          'Region 13: CARAGA': ['Agusan del Norte','Agusan del Sur','Dinagat Islands','Surigao del Norte','Surigao del Sur'],
+                          'Bangsamoro Autonomous Region in Muslim Mindanao': ['Basilan','Lanao del Sur','Maguindanao','Sulu','Tawi-Tawi'],
+                      },
+                      get filteredProvinces() {
+                          return this.selectedRegion ? (this.regionProvinces[this.selectedRegion] || []) : [];
+                      },
                       
                       // Track File Uploads
                       files: {
@@ -123,6 +148,16 @@
                                     <option value="Female" {{ old('sex', $applicant->gender) == 'Female' ? 'selected' : '' }}>Female</option>
                                 </select>
                             </div>
+
+                            {{-- Birthplace & Religion --}}
+                            <div class="group/input">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Birthplace *</label>
+                                <input type="text" name="birthplace" value="{{ old('birthplace', $applicant->birthplace ?? '') }}" required placeholder="City/Municipality, Province" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-indigo-500 transition-all">
+                            </div>
+                            <div class="group/input">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Religion</label>
+                                <input type="text" name="religion" value="{{ old('religion', $applicant->religion ?? '') }}" placeholder="e.g. Roman Catholic" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-indigo-500 transition-all">
+                            </div>
                         </div>
 
                         {{-- Address --}}
@@ -134,13 +169,22 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Region *</label>
-                                    <select name="region" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-indigo-500 transition-all">
-                                        <option value="{{ $applicant->region }}" selected>{{ $applicant->region }}</option>
+                                    <select name="region" x-model="selectedRegion" @change="selectedProvince = ''" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-indigo-500 transition-all">
+                                        <option value="">Select Region</option>
+                                        <template x-for="region in Object.keys(regionProvinces)" :key="region">
+                                            <option :value="region" x-text="region" :selected="region === selectedRegion"></option>
+                                        </template>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Province *</label>
-                                    <input type="text" name="province" value="{{ old('province', $applicant->province) }}" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-indigo-500 transition-all">
+                                    <select name="province" x-model="selectedProvince" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:bg-white focus:border-indigo-500 transition-all">
+                                        <option value="">Select Province</option>
+                                        <template x-for="prov in filteredProvinces" :key="prov">
+                                            <option :value="prov" x-text="prov" :selected="prov === selectedProvince"></option>
+                                        </template>
+                                    </select>
+                                    <p x-show="!selectedRegion" class="text-[9px] text-slate-400 mt-1 italic">Please select a region first</p>
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipality/City *</label>

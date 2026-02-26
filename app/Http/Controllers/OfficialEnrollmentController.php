@@ -59,7 +59,7 @@ class OfficialEnrollmentController extends Controller
                 ->with('error', 'Security Alert: Unauthorized action. This applicant is not ready for enrollment.');
         }
 
-        DB::transaction(function () use ($applicant) {
+        DB::transaction(function () use ($applicant, $request) {
             $details = $applicant->enrollmentDetail;
             $files = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
             $remarks = is_string($applicant->document_remarks) ? json_decode($applicant->document_remarks, true) : ($applicant->document_remarks ?? []);
@@ -78,6 +78,11 @@ class OfficialEnrollmentController extends Controller
                     'promotion_status' => null, // Clear promotion status once officially enrolled
                 ];
 
+                // Update Student ID if provided by Registrar
+                if ($request->student_id) {
+                    $updateData['nas_student_id'] = $request->student_id;
+                }
+
                 // Update Grade Level if specified in renewal
                 if (isset($remarks['renewal_grade_level'])) {
                     $updateData['grade_level'] = $remarks['renewal_grade_level'];
@@ -92,8 +97,8 @@ class OfficialEnrollmentController extends Controller
                 
             } else {
                 // NEW STUDENT LOGIC: Create record
-                $year = date('Y');
-                $studentId = $year . '-' . str_pad($applicant->id, 5, '0', STR_PAD_LEFT);
+                // Use Registrar-entered Student No.
+                $studentId = $request->student_id;
 
                 Student::create([
                     'nas_student_id'   => $studentId, 
@@ -147,7 +152,8 @@ class OfficialEnrollmentController extends Controller
 
             // D. UPDATE APPLICANT STATUS
             $applicant->update([
-                'status' => 'Admitted'
+                'status' => 'Admitted',
+                'student_id' => $request->student_id,
             ]);
         });
 

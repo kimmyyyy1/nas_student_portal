@@ -34,8 +34,15 @@
         $brgy = getData($details, $applicantFallback, $student, 'barangay', 'barangay', 'barangay');
         $city = getData($details, $applicantFallback, $student, 'municipality_city', 'municipality_city', 'municipality_city');
         $prov = getData($details, $applicantFallback, $student, 'province', 'province', 'province');
+        $region = getData($details, $applicantFallback, $student, 'region', 'region', 'region');
         // ⚡ EXACT ZIP CODE FETCH ⚡
         $zip  = $details->zip_code ?? ($applicantFallback->zip_code ?? ($student->zip_code ?? ''));
+
+        // New fields
+        $birthplace = $details->birthplace ?? ($applicantFallback->birthplace ?? ($student->birthplace ?? 'N/A'));
+        $religion   = $details->religion ?? ($applicantFallback->religion ?? ($student->religion ?? 'N/A'));
+        $extensionName = $details->extension_name ?? ($applicantFallback->extension_name ?? ($student->extension_name ?? ''));
+        $studentNo = $student->nas_student_id ?? ($applicantFallback->student_id ?? 'N/A');
 
         // Father
         $f_name = getData($details, $applicantFallback, $student, 'father_name', 'father_name', 'father_name');
@@ -122,20 +129,6 @@
                             @endphp
                             <div class="absolute bottom-2 right-2 w-6 h-6 rounded-full border-2 border-white {{ $statusColor }}" title="{{ $student->status }}"></div>
                         </div>
-                        <div class="mt-4 md:mt-0 md:ml-6 text-center md:text-left w-full md:w-auto z-10 flex-1 md:pb-2">
-                            <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight break-words px-2 md:px-0">
-                                {{ $student->last_name }}, {{ $student->first_name }} 
-                                <span class="text-gray-500 font-normal text-lg md:text-xl block md:inline">{{ $student->middle_name }}</span>
-                            </h1>
-                            <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-2 text-sm text-gray-600">
-                                <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-mono font-bold border border-blue-100 flex items-center shadow-sm">
-                                    <i class='bx bx-id-card mr-1'></i> {{ $student->nas_student_id }}
-                                </span>
-                                <span class="flex items-center text-gray-500 font-medium">
-                                    <i class='bx bx-barcode mr-1'></i> LRN: {{ $student->lrn }}
-                                </span>
-                            </div>
-                        </div>
                     </div>
 
                     {{-- MOBILE EDIT BUTTON --}}
@@ -187,102 +180,128 @@
                                     </div>
                                 </div>
                             </div>
-
-                            {{-- SPORTS INFO --}}
-                            <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
-                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2 flex items-center">
-                                    <i class='bx bx-trophy mr-2 text-yellow-500 text-lg'></i> Sports Info
-                                </h3>
-                                <div class="space-y-4">
-                                    <div><p class="text-xs text-gray-500 mb-1">Focus Sport</p><p class="font-bold text-gray-800 text-lg uppercase">{{ $displaySport }}</p></div>
-                                    <div><p class="text-xs text-gray-500 mb-1">Category / Type</p><p class="font-medium text-gray-700">{{ $displayCategory }}</p></div>
-                                </div>
-                            </div>
                         </div>
 
                         {{-- RIGHT COLUMN: PERSONAL & FAMILY --}}
                         <div class="md:col-span-2 space-y-6">
                             
-                            {{-- PERSONAL INFO --}}
                             <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center pb-2 border-b border-gray-100"><span class="bg-indigo-100 p-2 rounded-lg mr-3 text-indigo-600"><i class='bx bx-user'></i></span> Personal Information</h3>
+                                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center pb-2 border-b border-gray-100"><span class="bg-indigo-100 p-2 rounded-lg mr-3 text-indigo-600"><i class='bx bx-user'></i></span> Student-Athlete's Information</h3>
                                 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-                                    <div><p class="text-xs uppercase tracking-wide text-gray-500 font-bold mb-1">Sex / Gender</p><p class="font-medium text-gray-900">{{ $gender }}</p></div>
-                                    <div><p class="text-xs uppercase tracking-wide text-gray-500 font-bold mb-1">Birthdate (Age)</p><p class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($student->birthdate)->format('F d, Y') }} <span class="text-gray-500 ml-1">({{ \Carbon\Carbon::parse($student->birthdate)->age }} yrs)</span></p></div>
-                                    <div class="sm:col-span-2"><p class="text-xs uppercase tracking-wide text-indigo-400 font-bold mb-1">Email Address</p><span class="font-medium text-indigo-600 break-words">{{ $student->email_address }}</span></div>
-                                    <div class="sm:col-span-2 pt-4 border-t border-gray-100">
-                                        <p class="text-xs uppercase tracking-wide text-gray-500 font-bold mb-3 flex items-center"><i class='bx bx-map mr-1'></i> Residential Address</p>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div><p class="text-[10px] font-bold text-gray-400 uppercase">Street / House No.</p><p class="text-sm font-medium text-gray-800">{{ $street }}</p></div>
-                                            <div><p class="text-[10px] font-bold text-gray-400 uppercase">Barangay</p><p class="text-sm font-medium text-gray-800">{{ $brgy }}</p></div>
-                                            <div><p class="text-[10px] font-bold text-gray-400 uppercase">Municipality / City</p><p class="text-sm font-medium text-gray-800">{{ $city }}</p></div>
-                                            <div>
-                                                <p class="text-[10px] font-bold text-gray-400 uppercase">Province</p>
-                                                <p class="text-sm font-medium text-gray-800">
-                                                    {{ $prov }} 
-                                                    @if(!empty($zip) && $zip != 'N/A') <span class="text-gray-500">({{ $zip }})</span> @endif
-                                                </p>
-                                            </div>
+                                {{-- Identification --}}
+                                <div class="mb-6 pb-4 border-b border-gray-100">
+                                    <p class="text-xs font-black text-indigo-500 uppercase tracking-widest mb-3">Identification</p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">LRN</p><p class="font-mono font-bold text-gray-900">{{ $student->lrn }}</p></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Student No.</p><p class="font-mono font-bold text-indigo-700">{{ $studentNo }}</p></div>
+                                    </div>
+                                </div>
+
+                                {{-- Personal Details --}}
+                                <div class="mb-6 pb-4 border-b border-gray-100">
+                                    <p class="text-xs font-black text-indigo-500 uppercase tracking-widest mb-3">Personal Details</p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Last Name</p><p class="font-bold text-gray-900 uppercase">{{ $student->last_name }}</p></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">First Name</p><p class="font-bold text-gray-900 uppercase">{{ $student->first_name }}</p></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Middle Name</p><p class="font-bold text-gray-900 uppercase">{{ $student->middle_name ?? 'N/A' }}</p></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Extension Name</p><p class="font-bold text-gray-900 uppercase">{{ $extensionName ?: 'N/A' }}</p></div>
+                                        <div class="sm:col-span-2"><p class="text-[10px] uppercase tracking-wide text-indigo-400 font-bold mb-1">Email Address</p><span class="font-medium text-indigo-600 break-words">{{ $student->email_address }}</span></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Sex</p><p class="font-bold text-gray-900 uppercase">{{ $gender }}</p></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Birthdate</p><p class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($student->birthdate)->format('F d, Y') }}</p></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Birthplace</p><p class="font-medium text-gray-900">{{ $birthplace }}</p></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Age</p><p class="font-bold text-gray-900">{{ \Carbon\Carbon::parse($student->birthdate)->age }} years old</p></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Religion</p><p class="font-medium text-gray-900">{{ $religion }}</p></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Sport</p><p class="font-black text-gray-900 text-lg uppercase">{{ $displaySport }}</p></div>
+                                    </div>
+                                </div>
+
+                                {{-- Special Groups --}}
+                                <div class="mb-6 pb-4 border-b border-gray-100">
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div class="p-3 rounded-xl {{ $is_ip ? 'bg-amber-50 border border-amber-200' : 'bg-gray-50 border border-gray-200' }}">
+                                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Indigenous People (IP)</p>
+                                            <p class="font-bold text-sm {{ $is_ip ? 'text-amber-700' : 'text-gray-600' }}">{{ $is_ip ? 'Yes' . ($ip_grp ? ' — ' . $ip_grp : '') : 'No' }}</p>
+                                        </div>
+                                        <div class="p-3 rounded-xl {{ $is_pwd ? 'bg-purple-50 border border-purple-200' : 'bg-gray-50 border border-gray-200' }}">
+                                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Person with Disability (PWD)</p>
+                                            <p class="font-bold text-sm {{ $is_pwd ? 'text-purple-700' : 'text-gray-600' }}">{{ $is_pwd ? 'Yes' . ($pwd_id ? ' — ' . $pwd_id : '') : 'No' }}</p>
+                                        </div>
+                                        <div class="p-3 rounded-xl {{ $is_4ps ? 'bg-rose-50 border border-rose-200' : 'bg-gray-50 border border-gray-200' }}">
+                                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">4Ps Beneficiary</p>
+                                            <p class="font-bold text-sm {{ $is_4ps ? 'text-rose-700' : 'text-gray-600' }}">{{ $is_4ps ? 'Yes' : 'No' }}</p>
                                         </div>
                                     </div>
+                                </div>
 
-                                    @if($is_ip || $is_pwd || $is_4ps || !empty($otherRemarks))
-                                        <div class="sm:col-span-2 mt-2 pt-4 border-t border-gray-100 border-dashed">
-                                            <div class="flex flex-wrap gap-3">
-                                                @if($is_ip) 
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                                                        IP: {{ $ip_grp ?: 'Yes' }}
-                                                    </span> 
-                                                @endif
-                                                @if($is_pwd) 
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200">
-                                                        PWD: {{ $pwd_id ?: 'Yes' }}
-                                                    </span> 
-                                                @endif
-                                                @if($is_4ps) 
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                                                        4Ps Beneficiary
-                                                    </span> 
-                                                @endif
-                                                @if(!empty($otherRemarks))
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-200">
-                                                        Others: {{ $otherRemarks }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endif
+                                {{-- Address --}}
+                                <div>
+                                    <p class="text-xs font-black text-indigo-500 uppercase tracking-widest mb-3 flex items-center"><i class='bx bx-map mr-1'></i> Residential Address</p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase">Region</p><p class="text-sm font-medium text-gray-800">{{ $region }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase">Province</p><p class="text-sm font-medium text-gray-800">{{ $prov }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase">Municipality / City</p><p class="text-sm font-medium text-gray-800">{{ $city }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase">Barangay</p><p class="text-sm font-medium text-gray-800">{{ $brgy }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase">Street / House No.</p><p class="text-sm font-medium text-gray-800">{{ $street }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase">Zip Code</p><p class="text-sm font-medium text-gray-800">{{ $zip ?: 'N/A' }}</p></div>
+                                    </div>
                                 </div>
                             </div>
 
+                            {{-- PARENTS' & GUARDIAN'S INFORMATION --}}
                             <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center pb-2 border-b border-gray-100"><span class="bg-blue-100 p-2 rounded-lg mr-3 text-blue-600"><i class='bx bxs-group'></i></span> Family & Guardian Information</h3>
+                                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center pb-2 border-b border-gray-100"><span class="bg-blue-100 p-2 rounded-lg mr-3 text-blue-600"><i class='bx bxs-group'></i></span> Parents' & Designated Guardian's Information</h3>
                                 <div class="space-y-6">
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-gray-50">
-                                        <div class="sm:col-span-2"><p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Father's Name</p><p class="font-bold text-gray-800 text-base uppercase">{{ $f_name }}</p></div>
-                                        <div><p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Contact No.</p><p class="text-sm font-medium text-gray-700">{{ $f_contact }}</p></div>
-                                        <div><p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Email</p><p class="text-sm font-medium text-blue-600">{{ $f_email }}</p></div>
-                                        <div class="sm:col-span-2"><p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Address</p><p class="text-sm font-medium text-gray-700">{{ $f_addr }}</p></div>
-                                    </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-gray-50">
-                                        <div class="sm:col-span-2"><p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Mother's Name</p><p class="font-bold text-gray-800 text-base uppercase">{{ $m_name }}</p></div>
-                                        <div><p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Contact No.</p><p class="text-sm font-medium text-gray-700">{{ $m_contact }}</p></div>
-                                        <div><p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Email</p><p class="text-sm font-medium text-blue-600">{{ $m_email }}</p></div>
-                                        <div class="sm:col-span-2"><p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Address</p><p class="text-sm font-medium text-gray-700">{{ $m_addr }}</p></div>
-                                    </div>
-                                    <div class="bg-orange-50 border border-orange-100 rounded-xl p-5">
-                                        <div class="flex items-center mb-3"><i class='bx bxs-shield-alt-2 text-orange-500 mr-2 text-lg'></i><span class="text-xs font-black text-orange-700 uppercase tracking-widest">Emergency Contact / Guardian</span></div>
+                                    {{-- Father --}}
+                                    <div class="pb-5 border-b border-gray-100">
+                                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3">Father's Information</p>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Guardian Name</p><p class="font-bold text-gray-900 text-base">{{ $g_name }}</p><p class="text-xs text-gray-500 italic">{{ $g_rel }}</p></div>
-                                            <div><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Contact Number</p><a href="tel:{{ $g_contact }}" class="inline-flex items-center text-lg font-mono font-bold text-gray-800 hover:text-orange-600 transition">{{ $g_contact }}</a></div>
-                                            <div class="sm:col-span-2 mt-2 pt-2 border-t border-orange-200/50"><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Guardian Address</p><p class="text-sm text-gray-700">{{ $g_addr }}</p></div>
-                                            @if($g_email != 'N/A')
-                                                <div class="sm:col-span-2 mt-1"><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Email</p><p class="text-sm text-gray-700">{{ $g_email }}</p></div>
-                                            @endif
+                                            <div class="sm:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Name (Last Name, First Name, Middle Name)</p><p class="font-bold text-gray-800 text-base uppercase">{{ $f_name }}</p></div>
+                                            <div class="sm:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Address</p><p class="text-sm font-medium text-gray-700">{{ $f_addr }}</p></div>
+                                            <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Contact No.</p><p class="text-sm font-medium text-gray-700">{{ $f_contact }}</p></div>
+                                            <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Email</p><p class="text-sm font-medium text-blue-600">{{ $f_email }}</p></div>
+                                        </div>
+                                    </div>
+                                    {{-- Mother --}}
+                                    <div class="pb-5 border-b border-gray-100">
+                                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3">Mother's Information</p>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div class="sm:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Name (Last Name, First Name, Middle Name)</p><p class="font-bold text-gray-800 text-base uppercase">{{ $m_name }}</p></div>
+                                            <div class="sm:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Address</p><p class="text-sm font-medium text-gray-700">{{ $m_addr }}</p></div>
+                                            <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Contact No.</p><p class="text-sm font-medium text-gray-700">{{ $m_contact }}</p></div>
+                                            <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Email</p><p class="text-sm font-medium text-blue-600">{{ $m_email }}</p></div>
+                                        </div>
+                                    </div>
+                                    {{-- Guardian --}}
+                                    <div class="bg-orange-50 border border-orange-100 rounded-xl p-5">
+                                        <div class="flex items-center mb-3"><i class='bx bxs-shield-alt-2 text-orange-500 mr-2 text-lg'></i><span class="text-xs font-black text-orange-700 uppercase tracking-widest">Guardian's Information (If not Parent)</span></div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Name (Last Name, First Name, Middle Name)</p><p class="font-bold text-gray-900 text-base uppercase">{{ $g_name }}</p></div>
+                                            <div><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Relationship</p><p class="font-bold text-gray-900">{{ $g_rel }}</p></div>
+                                            <div class="sm:col-span-2"><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Address</p><p class="text-sm text-gray-700">{{ $g_addr }}</p></div>
+                                            <div><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Contact No.</p><a href="tel:{{ $g_contact }}" class="inline-flex items-center font-mono font-bold text-gray-800 hover:text-orange-600 transition">{{ $g_contact }}</a></div>
+                                            <div><p class="text-[10px] font-bold text-orange-400 uppercase mb-1">Email</p><p class="text-sm text-gray-700">{{ $g_email }}</p></div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            {{-- SCHOOL INFORMATION --}}
+                            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center pb-2 border-b border-gray-100"><span class="bg-emerald-100 p-2 rounded-lg mr-3 text-emerald-600"><i class='bx bx-building'></i></span> School Information [New Only]</h3>
+                                @if($details && $details->school_name && $details->school_name !== 'N/A')
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Last Grade Level Completed</p><p class="font-medium text-gray-900">{{ $details->last_grade_level ?? 'N/A' }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Last School Year Completed</p><p class="font-medium text-gray-900">{{ $details->last_school_year ?? 'N/A' }}</p></div>
+                                        <div class="sm:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School Name</p><p class="font-bold text-gray-900 text-base uppercase">{{ $details->school_name }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School ID</p><p class="font-medium text-gray-900">{{ $details->school_id ?? 'N/A' }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School Type</p><p class="font-medium text-gray-900">{{ $details->school_type ?? 'N/A' }}</p></div>
+                                        <div class="sm:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School Address</p><p class="font-medium text-gray-900">{{ $details->school_address ?? 'N/A' }}</p></div>
+                                    </div>
+                                @else
+                                    <div class="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                        <p class="text-sm text-gray-400 italic">Not a transferee — No previous school information on file.</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
