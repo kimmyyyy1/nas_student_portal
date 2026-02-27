@@ -1,71 +1,78 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="page-title flex border-none">
-            {{ __('My Class Schedule') }}
+        <h2 class="page-title border-none">
+            {{ __('Class Schedule') }} <span class="mx-3 text-slate-300">|</span> <span class="text-indigo-600">Weekly Distribution</span>
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- Error Message (From Controller) --}}
+            {{-- Error Message --}}
             @if(session('error'))
-                <div class="mb-4 p-4 bg-red-100 text-red-800 rounded border-l-4 border-red-500 shadow-sm">
-                    {{ session('error') }}
+                <div class="mb-6 p-6 bg-rose-50 border-l-4 border-rose-500 rounded-2xl flex items-center gap-4 shadow-sm">
+                    <i class='bx bxs-error-circle text-rose-500 text-3xl'></i>
+                    <p class="text-rose-700 font-bold">{{ session('error') }}</p>
                 </div>
             @endif
 
-            {{-- Warning Message --}}
-            @if(isset($warning))
-                <div class="mb-4 p-4 bg-yellow-100 text-yellow-800 rounded border-l-4 border-yellow-500 shadow-sm">
-                    {{ $warning }}
+            <div class="bg-white/90 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-white/60 sm:rounded-[2.5rem] overflow-hidden">
+                <div class="px-10 py-8 border-b border-gray-100/50 bg-indigo-50/20 flex justify-between items-center">
+                    <h3 class="text-[13px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                        <i class='bx bx-calendar text-indigo-500 text-xl'></i> My Academic Load
+                    </h3>
                 </div>
-            @endif
 
-            <div class="premium-card !p-0 overflow-hidden">
-                <div class="p-6 md:p-8 text-slate-800 border-t border-white/40">
-                    
-                    {{-- FIX: Gamit na ang tamang variable ($mySchedules) --}}
+                <div class="p-0">
                     @if($mySchedules->isEmpty())
-                        <div class="text-center py-12 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                            <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <p class="text-lg font-medium">You have no assigned classes yet.</p>
-                            <p class="text-sm">Please contact the Registrar/Admin for assignments.</p>
+                        <div class="flex flex-col items-center justify-center py-24 opacity-40">
+                            <div class="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                                <i class='bx bx-calendar-x text-6xl text-slate-300'></i>
+                            </div>
+                            <h4 class="text-lg font-black text-slate-400 uppercase tracking-[0.2em]">Assignment Pending</h4>
+                            <p class="text-sm font-bold text-slate-400 mt-2">Please contact the Registrar for course assignments.</p>
                         </div>
                     @else
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-indigo-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Day</th>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Time</th>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Subject</th>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Section</th>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Room</th>
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="bg-slate-50/50">
+                                        <th class="px-10 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Day</th>
+                                        <th class="px-10 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Time Window</th>
+                                        <th class="px-10 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subject Intelligence</th>
+                                        <th class="px-10 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Section</th>
+                                        <th class="px-10 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Room</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    {{-- FIX: Gamit na ang tamang variable ($mySchedules) --}}
+                                <tbody class="divide-y divide-slate-100/60">
                                     @foreach($mySchedules as $sched)
-                                        <tr class="hover:bg-indigo-50 transition">
-                                            <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-700">
-                                                <span class="px-2 py-1 bg-gray-200 rounded text-xs font-bold text-gray-700">
+                                        <tr class="hover:bg-indigo-50/30 transition-colors duration-200">
+                                            <td class="px-10 py-6">
+                                                <span class="px-3 py-1 bg-slate-900 text-white text-[10px] font-black rounded-lg uppercase tracking-widest shadow-lg shadow-slate-200">
                                                     {{ substr($sched->day, 0, 3) }}
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-blue-600 font-medium font-mono">
-                                                {{ date('h:i A', strtotime($sched->time_start)) }} - {{ date('h:i A', strtotime($sched->time_end)) }}
+                                            <td class="px-10 py-6">
+                                                <div class="flex items-center gap-2">
+                                                    <i class='bx bx-time text-indigo-400'></i>
+                                                    <span class="text-sm font-black text-slate-700 font-mono tracking-tight">
+                                                        {{ date('h:i A', strtotime($sched->time_start)) }} — {{ date('h:i A', strtotime($sched->time_end)) }}
+                                                    </span>
+                                                </div>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-900">
-                                                {{ $sched->subject->subject_name }}
+                                            <td class="px-10 py-6">
+                                                <span class="text-sm font-black text-slate-800 tracking-tight">{{ $sched->subject->subject_name }}</span>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs font-bold uppercase border border-blue-200">
-                                                    {{ $sched->section->section_name }}
+                                            <td class="px-10 py-6 text-center">
+                                                <span class="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-indigo-100">
+                                                    {{ $sched->section->grade_level }} — {{ $sched->section->section_name }}
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-gray-500">
-                                                {{ $sched->room ?? 'TBA' }}
+                                            <td class="px-10 py-6 text-center">
+                                                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center justify-center gap-2">
+                                                    <i class='bx bx-building text-indigo-400/50 text-base'></i>
+                                                    {{ $sched->room ?? 'TBA' }}
+                                                </span>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -73,7 +80,6 @@
                             </table>
                         </div>
                     @endif
-
                 </div>
             </div>
         </div>

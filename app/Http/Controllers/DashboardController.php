@@ -40,7 +40,20 @@ class DashboardController extends Controller
                 $staffError = "Staff profile not found.";
             }
 
-            return view('dashboard', compact('advisorySection', 'advisoryCount', 'mySchedules', 'staffError'));
+            $activities = collect([]);
+            $islandCounts = [
+                'Luzon' => ['total' => 0, 'male' => 0, 'female' => 0],
+                'Visayas' => ['total' => 0, 'male' => 0, 'female' => 0],
+                'Mindanao' => ['total' => 0, 'male' => 0, 'female' => 0],
+                'Unknown' => ['total' => 0, 'male' => 0, 'female' => 0]
+            ];
+            $totalStudents = 0; $maleCount = 0; $femaleCount = 0; $activeSections = 0; $totalTeams = 0; $upcomingPlans = 0;
+
+            return view('dashboard', compact(
+                'advisorySection', 'advisoryCount', 'mySchedules', 'staffError',
+                'activities', 'islandCounts', 'totalStudents', 'maleCount', 'femaleCount',
+                'activeSections', 'totalTeams', 'upcomingPlans'
+            ));
         }
 
         // 3. ADMIN LOGIC (Default View)

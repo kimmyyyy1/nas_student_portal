@@ -109,6 +109,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ==========================================
+    //  GROUP 3.5: SHARED (ADMIN & TEACHER) 🏫
+    // ==========================================
+    Route::middleware('role:admin,teacher')->group(function () {
+        Route::get('/my-schedules', [ScheduleController::class, 'mySchedules'])->name('schedules.my');
+        
+        Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
+        Route::get('/grades/{section}', [GradeController::class, 'show'])->name('grades.show');
+        Route::patch('/grades/bulk-update', [GradeController::class, 'bulkUpdate'])->name('grades.bulk_update'); 
+
+        Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances.index');
+        Route::get('/attendances/{section}', [AttendanceController::class, 'show'])->name('attendances.show');
+        Route::post('/attendances/bulk-store', [AttendanceController::class, 'bulkStore'])->name('attendances.bulk_store');
+    });
+
+    // ==========================================
     //  GROUP 4: ADMIN (THE FORTRESS) 🛡️
     // ==========================================
     Route::middleware('role:admin')->group(function () {
@@ -141,16 +156,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::resource('sections', SectionController::class);
         Route::resource('subjects', SubjectController::class);
-        Route::get('/my-schedules', [ScheduleController::class, 'mySchedules'])->name('schedules.my');
         Route::resource('schedules', ScheduleController::class);
-
-        Route::patch('/grades/bulk-update', [GradeController::class, 'bulkUpdate'])->name('grades.bulk_update'); 
-        Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
-        Route::get('/grades/{section}', [GradeController::class, 'show'])->name('grades.show');
-
-        Route::post('/attendances/bulk-store', [AttendanceController::class, 'bulkStore'])->name('attendances.bulk_store');
-        Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances.index');
-        Route::get('/attendances/{section}', [AttendanceController::class, 'show'])->name('attendances.show');
 
         Route::resource('teams', TeamController::class);
         Route::resource('training-plans', TrainingPlanController::class);

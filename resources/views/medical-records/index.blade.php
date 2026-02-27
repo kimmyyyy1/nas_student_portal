@@ -45,13 +45,11 @@
                         <table class="min-w-full divide-y divide-gray-100/50 bg-transparent">
                             <thead class="premium-table-header">
                                 <tr>
-                                    <th>Student Name</th>
-                                    <th>Record Type</th>
-                                    <th>Status</th>
-                                    <th>Date Cleared</th>
-                                    <th class="relative pl-6 pr-4 sm:pr-6 text-right">
-                                        Actions
-                                    </th>
+                                    <th class="premium-table-header-cell text-left">STUDENT NAME</th>
+                                    <th class="premium-table-header-cell text-left">RECORD TYPE</th>
+                                    <th class="premium-table-header-cell text-left">STATUS</th>
+                                    <th class="premium-table-header-cell text-left">DATE CLEARED</th>
+                                    <th class="premium-table-header-cell text-left">ACTIONS</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100/50">
@@ -80,7 +78,7 @@
                                             {{ $record->date_cleared ? date('M d, Y', strtotime($record->date_cleared)) : 'Not Cleared' }}
                                         </td>
                                         
-                                        <td class="premium-table-cell text-right text-[13px] font-bold">
+                                        <td class="premium-table-cell text-left text-[13px] font-bold">
                                             
                                             <a href="{{ route('medical-records.edit', $record->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 transition">Edit</a>
                                             

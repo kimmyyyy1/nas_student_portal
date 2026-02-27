@@ -44,13 +44,10 @@
                         <table class="min-w-full divide-y divide-gray-100/50 bg-transparent">
                             <thead class="premium-table-header">
                                 <tr>
-                                    <th>Plan Name</th>
-                                    {{-- RENAMED TEAM TO FOCUS SPORT --}}
-                                    <th>Focus Sport</th>
-                                    <th>Duration</th>
-                                    <th class="relative pl-6 pr-4 sm:pr-6 text-right">
-                                        Actions
-                                    </th>
+                                    <th class="premium-table-header-cell w-1/3 text-left">PLAN NAME</th>
+                                    <th class="premium-table-header-cell w-1/4 text-left">FOCUS SPORT</th>
+                                    <th class="premium-table-header-cell w-1/4 text-left">DURATION</th>
+                                    <th class="premium-table-header-cell w-1/6 text-left">ACTIONS</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100/50">
@@ -66,7 +63,7 @@
                                         <td class="premium-table-cell font-bold text-[13px] text-slate-600">
                                             {{ date('M d', strtotime($plan->start_date)) }} - {{ date('M d, Y', strtotime($plan->end_date)) }}
                                         </td>
-                                        <td class="premium-table-cell text-right text-[13px] font-bold">
+                                        <td class="premium-table-cell text-left text-[13px] font-bold">
                                             
                                             <a href="{{ route('training-plans.edit', $plan->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 transition">Edit</a>
                                             
@@ -82,7 +79,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-6 py-10 whitespace-nowrap text-center text-gray-500">
+                                        <td colspan="5" class="px-6 py-10 whitespace-nowrap text-center text-gray-500">
                                             <div class="flex flex-col items-center justify-center">
                                                 <i class='bx bx-clipboard text-4xl text-gray-300 mb-2'></i>
                                                 <p class="text-lg font-medium">No training plans found.</p>

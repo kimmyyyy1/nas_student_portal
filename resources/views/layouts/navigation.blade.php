@@ -179,7 +179,7 @@
                         <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Sports</p></div>
                         
                         <a href="{{ route('teams.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('teams.*') ? $activeBlue : $inactiveBlue }}">
-                            <i class='bx bx-trophy text-lg mr-3 {{ request()->routeIs('teams.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Sports Teams
+                            <i class='bx bx-trophy text-lg mr-3 {{ request()->routeIs('teams.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Sports
                         </a>
                         <a href="{{ route('training-plans.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('training-plans.*') ? $activeBlue : $inactiveBlue }}">
                             <i class='bx bx-run text-lg mr-3 {{ request()->routeIs('training-plans.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Training Plans
@@ -241,14 +241,14 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center justify-center px-3 py-2 border border-slate-200 shadow-sm text-xs font-bold rounded-xl text-slate-700 bg-white/80 hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all hover:shadow-md hover:-translate-y-0.5">
-                    <i class='bx bx-user mr-1.5 text-sm text-slate-400'></i> Profile
+            <div class="grid grid-cols-2 gap-2">
+                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center justify-center px-2 py-2.5 border border-slate-200/60 shadow-sm text-[12px] font-bold rounded-xl text-slate-700 bg-white/80 hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap">
+                    <i class='bx bx-user mr-1.5 text-base text-indigo-500'></i> Profile
                 </a>
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
-                    <button type="submit" class="w-full flex items-center justify-center px-3 py-2 border border-transparent shadow-sm text-xs font-bold rounded-xl text-white bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all hover:shadow-md hover:-translate-y-0.5">
-                        <i class='bx bx-log-out mr-1.5 text-sm'></i> Sign Out
+                    <button type="submit" class="w-full flex items-center justify-center px-2 py-2.5 border border-transparent shadow-sm text-[12px] font-bold rounded-xl text-white bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap">
+                        <i class='bx bx-log-out mr-1.5 text-base'></i> Sign Out
                     </button>
                 </form>
             </div>

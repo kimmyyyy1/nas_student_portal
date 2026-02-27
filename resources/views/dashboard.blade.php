@@ -138,12 +138,12 @@
                             </div>
                         </div>
 
-                        <div class="absolute inset-0 p-7 flex flex-col justify-center bg-white/95 backdrop-blur-3xl" x-show="hover" x-transition:enter="transition ease-out duration-300">
+                        <div class="absolute inset-0 p-7 flex flex-col justify-center bg-indigo-50/95 backdrop-blur-3xl" x-show="hover" x-transition:enter="transition ease-out duration-300">
                             <div class="flex justify-between items-end mb-3">
                                 <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Gender Distribution</p>
                                 <span class="text-[10px] font-black text-indigo-600 tracking-wider" x-text="total + ' TOTAL'"></span>
                             </div>
-                            <div class="flex h-3.5 w-full rounded-full overflow-hidden bg-slate-100 shadow-inner">
+                            <div class="flex h-3.5 w-full rounded-full overflow-hidden bg-white/50 shadow-inner">
                                 <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-1000 ease-out" :style="'width: ' + malePercent + '%'"></div>
                                 <div class="bg-gradient-to-r from-rose-400 to-pink-500 h-full transition-all duration-1000 ease-out" :style="'width: ' + femalePercent + '%'"></div>
                             </div>
@@ -261,6 +261,144 @@
                         </div>
                     </div>
                 </div>
+
+            @elseif(auth()->user()->role === 'teacher')
+                <!-- 👨‍🏫 TEACHER DASHBOARD VIEW -->
+                <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-8 py-2">
+                    <div class="flex items-center gap-7">
+                        <div class="relative group">
+                            <div class="absolute -inset-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[2rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                            <div class="relative h-20 w-20 rounded-[1.8rem] bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white shadow-2xl ring-4 ring-white">
+                                <span class="text-4xl font-black uppercase drop-shadow-md">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                                <div class="absolute -bottom-1 -right-1 h-6 w-6 bg-emerald-400 rounded-full border-4 border-white shadow-lg z-10"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 class="text-4xl font-black text-slate-900 tracking-tight leading-none mb-2 flex items-center gap-3">
+                                Welcome, {{ auth()->user()->name }}!
+                                <img src="{{ asset('images/nas/nas-logo-spotlight.jpg') }}" alt="NAS Logo" class="h-10 w-10 object-cover rounded-full shadow-sm inline-block">
+                            </h1>
+                            <div class="flex items-center gap-3">
+                                <div class="hidden sm:inline-flex items-center px-4 py-1.5 bg-slate-900 text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl shadow-slate-200">Teacher Portal</div>
+                                <span class="text-[10px] font-black text-slate-800 uppercase tracking-[0.2em] opacity-80">National Academy of Sports</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if(isset($staffError))
+                    <div class="mb-8 p-6 bg-rose-50 border-l-4 border-rose-500 rounded-2xl flex items-center gap-4">
+                        <i class='bx bxs-error-circle text-rose-500 text-3xl'></i>
+                        <div>
+                            <p class="font-black text-rose-800 uppercase tracking-widest text-xs">System Alert</p>
+                            <p class="text-rose-700 font-bold text-sm mt-0.5">{{ $staffError }} Please contact the Administrator to link your staff profile.</p>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Advisory Card -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2.5rem] p-10 h-full relative overflow-hidden group hover:shadow-[0_15px_40px_rgba(79,70,229,0.1)] transition-all duration-700">
+                            <!-- Background Accent -->
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-indigo-500/10 transition-colors"></div>
+                            
+                            <div class="relative z-10 flex flex-col h-full">
+                                <div class="mb-10">
+                                    <p class="text-[11px] font-black text-indigo-500 uppercase tracking-[0.25em] mb-4">Advisory Class</p>
+                                    <h4 class="text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                                        {{ $advisorySection->grade_level }} — <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{{ $advisorySection->section_name }}</span>
+                                    </h4>
+                                    <div class="mt-4 flex items-center gap-2">
+                                        <div class="px-3 py-1 bg-white shadow-sm border border-slate-100 rounded-lg flex items-center gap-2">
+                                            <i class='bx bx-door-open text-indigo-500'></i>
+                                            <span class="text-[10px] font-black text-slate-600 uppercase tracking-widest">{{ $advisorySection->room }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                    <div class="p-6 bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 rounded-[2rem] border border-indigo-700/50 shadow-inner relative overflow-hidden">
+                                        <div class="absolute right-0 top-0 p-4 opacity-5">
+                                            <i class='bx bxs-user-check text-6xl text-white'></i>
+                                        </div>
+                                        <div class="relative z-10">
+                                            <p class="text-[10px] font-black text-indigo-200/80 uppercase tracking-widest mb-2">Class Analytics</p>
+                                            <div class="flex items-end gap-3">
+                                                <h5 class="text-5xl font-black text-white leading-none count-up drop-shadow-md" data-target="{{ $advisoryCount }}">0</h5>
+                                                <span class="text-xs font-bold text-indigo-200 uppercase tracking-widest mb-1.5">Active Students</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                <div class="mt-10">
+                                    <a href="{{ route('teacher.advisory') }}" wire:navigate class="w-full inline-flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 hover:shadow-blue-500/30 hover:-translate-y-1 transition-all duration-300">
+                                        Launch Management Hub <i class='bx bx-rocket text-xl'></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Loads / Schedules -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2.5rem] h-full flex flex-col overflow-hidden relative group hover:shadow-[0_15px_40px_rgba(79,70,229,0.1)] transition-all duration-700">
+                            <div class="p-10 border-b border-gray-100/50 bg-white/40 flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-[13px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                                        <div class="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                            <i class='bx bx-calendar-event text-xl'></i>
+                                        </div>
+                                        Academic Schedule
+                                    </h3>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mt-1.5 ml-11">Course Loads & Distribution</p>
+                                </div>
+                                <a href="{{ route('schedules.my') }}" wire:navigate class="px-5 py-2.5 bg-white text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all shadow-sm">
+                                    Full Sched
+                                </a>
+                            </div>
+
+                            <div class="p-10 flex-grow overflow-y-auto custom-scroll max-h-[450px]">
+                                @if($mySchedules->count() > 0)
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        @foreach($mySchedules as $sched)
+                                            <div class="group/item p-6 rounded-[2rem] border border-blue-500 bg-blue-600 hover:bg-blue-700 hover:border-blue-400 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/20 relative overflow-hidden">
+                                                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover/item:opacity-20 transition-opacity">
+                                                    <i class='bx bxs-collection text-4xl text-white'></i>
+                                                </div>
+                                                
+                                                <div class="flex items-start gap-4 text-white">
+                                                    <div class="flex-shrink-0 w-14 h-14 bg-white/10 rounded-2xl border border-white/20 flex flex-col items-center justify-center shadow-inner">
+                                                        <span class="text-[10px] font-black uppercase leading-none mb-0.5 text-white">{{ substr($sched->day, 0, 3) }}</span>
+                                                    </div>
+                                                    <div class="min-w-0 pr-4">
+                                                        <span class="text-[9px] font-black text-blue-200 uppercase tracking-widest block mb-1">Subject</span>
+                                                        <h5 class="text-lg font-black truncate tracking-tight leading-tight text-white">{{ $sched->subject->subject_name }}</h5>
+                                                        <div class="flex items-center gap-3 mt-3">
+                                                            <div class="flex items-center gap-1.5 px-2 py-1 bg-white/10 rounded-md">
+                                                                <i class='bx bx-time text-blue-200 text-xs'></i>
+                                                                <span class="text-[9px] font-bold uppercase tracking-wider text-white">{{ date('h:i A', strtotime($sched->time_start)) }}</span>
+                                                            </div>
+                                                            <div class="text-[9px] font-bold text-blue-200 uppercase tracking-widest">
+                                                                {{ $sched->section->grade_level }} — {{ $sched->section->section_name }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="flex flex-col items-center justify-center py-24 opacity-40">
+                                        <div class="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                                            <i class='bx bx-spreadsheet text-5xl text-slate-300'></i>
+                                        </div>
+                                        <p class="text-[12px] font-black text-slate-400 uppercase tracking-[0.2em]">Academic roster is empty</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             @endif
         </div>
     </div>
@@ -270,33 +408,44 @@
             animateCounters();
         }
 
-        const tooltip = document.getElementById('map-tooltip');
-        const ttIsland = document.getElementById('tt-island');
-        const ttCount = document.getElementById('tt-count');
-        const ttMale = document.getElementById('tt-male');
-        const ttFemale = document.getElementById('tt-female');
+        // We re-query these inside functions to avoid stale references after wire:navigate
+        function getTooltipElements() {
+            return {
+                tooltip: document.getElementById('map-tooltip'),
+                ttIsland: document.getElementById('tt-island'),
+                ttCount: document.getElementById('tt-count'),
+                ttMale: document.getElementById('tt-male'),
+                ttFemale: document.getElementById('tt-female')
+            };
+        }
 
         function showTooltip(island, count, maleCount = 0, femaleCount = 0) {
-            ttIsland.textContent = island;
-            ttCount.textContent = count;
-            ttMale.textContent = maleCount;
-            ttFemale.textContent = femaleCount;
-            tooltip.classList.add('show');
+            const el = getTooltipElements();
+            if (!el.tooltip) return;
+
+            el.ttIsland.textContent = island;
+            el.ttCount.textContent = count;
+            el.ttMale.textContent = maleCount;
+            el.ttFemale.textContent = femaleCount;
+            el.tooltip.classList.add('show');
         }
 
         function hideTooltip() {
-            tooltip.classList.remove('show');
+            const el = getTooltipElements();
+            if (el.tooltip) el.tooltip.classList.remove('show');
         }
 
         function moveTooltip(e, island, count, mCount, fCount) {
             const container = document.getElementById('map-container');
-            if(!container) return;
-            const rect = container.getBoundingClientRect();
+            const el = getTooltipElements();
             
+            if(!container || !el.tooltip) return;
+            
+            const rect = container.getBoundingClientRect();
             showTooltip(island, count, mCount, fCount);
 
             // Get tooltip dimensions
-            const ttRect = tooltip.getBoundingClientRect();
+            const ttRect = el.tooltip.getBoundingClientRect();
             const ttWidth = ttRect.width || 140;
             const ttHeight = ttRect.height || 80;
 
@@ -317,16 +466,26 @@
                 y = y + 20;
             }
 
-            tooltip.style.left = x + 'px';
-            tooltip.style.top = y + 'px';
+            el.tooltip.style.left = x + 'px';
+            el.tooltip.style.top = y + 'px';
         }
 
         function animateCounters() {
             document.querySelectorAll('.count-up').forEach(c => {
-                const target = +c.getAttribute('data-target'), duration = 1500, start = performance.now();
-                if (target === 0) return;
+                const targetText = c.getAttribute('data-target');
+                if (!targetText) return;
+                const target = parseInt(targetText, 10);
+                const duration = 1500;
+                const start = performance.now();
+                
+                if (isNaN(target) || target === 0) {
+                    c.innerText = "0";
+                    return;
+                }
+
                 function u(now) {
-                    const progress = Math.min((now - start) / duration, 1), ease = 1 - Math.pow(1 - progress, 3);
+                    const progress = Math.min((now - start) / duration, 1);
+                    const ease = 1 - Math.pow(1 - progress, 3);
                     c.innerText = Math.floor(ease * target).toLocaleString();
                     if (progress < 1) requestAnimationFrame(u);
                 }
@@ -334,7 +493,12 @@
             });
         }
 
+        // Initialize on first load
         document.addEventListener('DOMContentLoaded', initDashboard);
-        document.addEventListener('livewire:navigated', () => setTimeout(initDashboard, 100));
+        
+        // Re-initialize after Livewire navigation
+        document.addEventListener('livewire:navigated', () => {
+            setTimeout(initDashboard, 100);
+        });
     </script>
 </x-app-layout>

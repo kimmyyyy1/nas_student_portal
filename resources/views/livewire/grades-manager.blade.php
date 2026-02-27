@@ -4,178 +4,239 @@
 
     {{-- SUCCESS MESSAGE --}}
     @if (session()->has('success'))
-        <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 shadow-sm rounded relative animate-fade-in" role="alert">
-            <strong class="font-bold">Success!</strong>
-            <span class="block sm:inline">{{ session('success') }}</span>
+        <div class="mb-8 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 p-6 rounded-2xl shadow-xl flex items-center gap-4 animate-fade-in">
+            <div class="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 shadow-sm">
+                <i class='bx bx-check-circle text-2xl'></i>
+            </div>
+            <div>
+                <p class="text-sm font-black uppercase tracking-widest">Operation Successful</p>
+                <p class="text-xs font-bold opacity-80 mt-0.5">{{ session('success') }}</p>
+            </div>
         </div>
     @endif
 
     {{-- 👇 VIEW 1: GRID OF CARDS (Class Selection) --}}
     @if($view == 'grid')
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in items-stretch">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in items-stretch pb-10">
             @forelse($sections as $section)
                 <div wire:click="openGradingSheet({{ $section->id }})" 
-                     class="group premium-card !rounded-2xl border border-white/40 hover:border-indigo-300/50 transition duration-300 overflow-hidden flex flex-col h-full cursor-pointer relative shadow-sm hover:shadow-lg">
-                    <div class="px-6 py-8 flex flex-col h-full">
+                     class="group bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2.5rem] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-700 flex flex-col h-full cursor-pointer relative overflow-hidden">
+                    
+                    <!-- Background Softness -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-indigo-500/10 transition-colors"></div>
+                    
+                    <div class="px-10 py-10 flex flex-col h-full relative z-10">
                         <div class="flex-grow">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="p-3 bg-indigo-50 rounded-lg text-indigo-600 group-hover:bg-indigo-100 transition">
-                                    <i class='bx bx-edit text-xl'></i>
+                            <div class="flex justify-between items-start mb-8">
+                                <div class="h-14 w-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 transition-all duration-500 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white shadow-sm ring-1 ring-indigo-100/50">
+                                    <i class='bx bxs-edit-alt text-2xl'></i>
                                 </div>
-                                @if($section->adviser)
-                                    <div class="text-xs font-bold text-indigo-600 uppercase tracking-wide bg-indigo-50 px-2 py-1 rounded group-hover:bg-indigo-100 transition">
-                                        <i class='bx bx-user'></i> {{ $section->adviser->last_name }}
+                                <div class="flex flex-col items-end">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-auto">Load Status</span>
+                                    <div class="px-3 py-1 bg-white shadow-sm border border-slate-100 rounded-lg text-emerald-600 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                                        <div class="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                                        Active
                                     </div>
-                                @endif
+                                </div>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-1 group-hover:text-indigo-600 transition">
-                                {{ $section->grade_level }} - {{ $section->section_name }}
+
+                            <p class="text-[11px] font-black text-indigo-500 uppercase tracking-[0.25em] mb-2 font-poppins-override">Class Repository</p>
+                            <h3 class="text-3xl font-black text-slate-900 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors duration-300">
+                                {{ $section->grade_level }} — {{ $section->section_name }}
                             </h3>
-                            <div class="text-sm text-gray-500 mb-6 space-y-1">
-                                <p class="flex items-center gap-2">
-                                    <i class='bx bx-user text-gray-400'></i> 
-                                    <span>Students: <span class="font-medium text-gray-700">{{ $section->students_count ?? 0 }}</span></span>
-                                </p>
+                            
+                            <div class="mt-8 grid grid-cols-2 gap-4">
+                                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100/50 group-hover:bg-white transition-colors duration-300">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Students</p>
+                                    <p class="text-xl font-black text-slate-800 tracking-tight">{{ sprintf('%02d', $section->students_count ?? 0) }}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100/50 group-hover:bg-white transition-colors duration-300">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Adviser</p>
+                                    <p class="text-xs font-black text-slate-800 truncate uppercase tracking-tight">{{ $section->adviser->last_name ?? 'N/A' }}</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="pt-4 border-t border-gray-100 mt-auto">
-                            <div class="w-full flex justify-between items-center text-sm font-bold text-indigo-600 group-hover:text-indigo-800 transition">
-                                OPEN GRADING SHEET
-                                <i class='bx bx-right-arrow-alt text-lg transform group-hover:translate-x-1 transition'></i>
+
+                        <div class="mt-10 pt-6 border-t border-slate-100/60 flex items-center justify-between group-hover:translate-x-1 transition-transform duration-300">
+                            <span class="text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em]">Launch Academic Grading Hub</span>
+                            <div class="h-8 w-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
+                                <i class='bx bx-spreadsheet text-lg'></i>
                             </div>
                         </div>
                     </div>
                 </div>
             @empty
-                <div class="col-span-full text-center py-12 text-gray-500">
-                    <i class='bx bx-folder-open text-4xl mb-2'></i>
-                    <p>No classes found.</p>
+                <div class="col-span-full py-32 flex flex-col items-center opacity-30">
+                    <div class="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                        <i class='bx bx-folder-open text-6xl text-slate-300'></i>
+                    </div>
+                    <p class="text-[14px] font-black uppercase tracking-[0.2em]">No assigned academic rosters</p>
                 </div>
             @endforelse
         </div>
 
     {{-- 👇 VIEW 2: GRADING SHEET (Table View) --}}
     @elseif($view == 'sheet')
-        <div class="premium-card !p-0 overflow-hidden animate-fade-in">
-            <div class="p-6 md:p-8 border-b border-white/40">
+        <div class="grid grid-cols-1 gap-8 animate-fade-in pb-12">
+            <!-- Filtering Card -->
+            <div class="bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2.5rem] p-10 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                 
-                {{-- 👇 1. SUBJECT SELECTION DROPDOWN (ETO ANG KULANG MO KANINA) --}}
-                <div class="mb-6 p-4 bg-indigo-50 rounded-lg border border-indigo-100 flex flex-col md:flex-row md:items-center gap-4">
-                    <label class="font-bold text-gray-700 whitespace-nowrap">
-                        <i class='bx bx-book-bookmark'></i> Select Subject to Grade:
-                    </label>
-                    <select wire:model.live="selectedScheduleId" 
-                            class="w-full md:w-1/2 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">-- Choose a Subject --</option>
-                        @foreach($schedules as $sched)
-                            <option value="{{ $sched->id }}">
-                                {{ $sched->subject->subject_name ?? 'Subject' }} ({{ date('h:i A', strtotime($sched->time_start)) }})
-                            </option>
-                        @endforeach
-                    </select>
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                    <div class="flex items-center gap-7">
+                        <div class="h-20 w-20 rounded-[1.8rem] bg-indigo-600 flex items-center justify-center text-white shadow-2xl shadow-indigo-200">
+                            <i class='bx bxs-book-content text-4xl'></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-black text-indigo-500 uppercase tracking-[0.25em] mb-2">Academic Assessment</p>
+                            <h1 class="text-4xl font-black text-slate-900 tracking-tight leading-none">Course Grading Sheet</h1>
+                            <div class="mt-4 flex flex-wrap gap-4 font-bold text-slate-500 text-[11px] uppercase tracking-widest">
+                                <div class="flex items-center gap-2"><i class='bx bx-group text-indigo-400'></i> {{ $selectedSection->grade_level }} — {{ $selectedSection->section_name }}</div>
+                                <div class="flex items-center gap-2 font-poppins-override"><i class='bx bx-buildings text-indigo-400'></i> Room: <span class="text-slate-900">{{ $selectedSection->room ?? 'TBH' }}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white px-8 py-6 rounded-[2rem] border border-slate-100 shadow-sm min-w-0 lg:w-[450px]">
+                        <label class="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-3 block">Academic Subject Selection</label>
+                        <div class="relative">
+                            <i class='bx bx-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none'></i>
+                            <select wire:model.live="selectedScheduleId" 
+                                    class="w-full pl-6 pr-12 py-4 bg-slate-50 border-none rounded-xl text-xs font-black uppercase tracking-widest text-slate-800 focus:ring-2 focus:ring-indigo-500 appearance-none">
+                                <option value="">Select Academic Subject</option>
+                                @foreach($schedules as $sched)
+                                    <option value="{{ $sched->id }}">
+                                        {{ $sched->subject->subject_name ?? 'Subject' }} Roster ({{ date('h:i A', strtotime($sched->time_start)) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 👇 2. ERROR MESSAGE --}}
+            @if (session()->has('error'))
+                <div class="p-6 bg-rose-50 border-l-4 border-rose-500 rounded-2xl flex items-center gap-4 shadow-sm animate-pulse">
+                    <i class='bx bxs-error-circle text-rose-500 text-3xl'></i>
+                    <p class="text-rose-700 font-black text-xs uppercase tracking-widest">{{ session('error') }}</p>
+                </div>
+            @endif
+
+            {{-- 👇 3. MAIN TABLE DATA --}}
+            <div class="bg-white/70 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-white/60 sm:rounded-[2.5rem] overflow-hidden">
+                <div class="px-10 py-8 border-b border-gray-100/50 bg-white/40 flex justify-between items-center">
+                    <h3 class="text-[13px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                        <i class='bx bx-spreadsheet text-indigo-500 text-xl'></i> Performance Indicators
+                    </h3>
                 </div>
 
-                {{-- 👇 2. ERROR MESSAGE (Kung nakalimutan pumili ng subject) --}}
-                @if (session()->has('error'))
-                    <div class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded animate-pulse">
-                        <i class='bx bx-error-circle'></i> {{ session('error') }}
-                    </div>
-                @endif
-
-                {{-- 👇 3. TABLE (Lumalabas lang pag may napili nang subject) --}}
                 @if($selectedScheduleId)
-                    <div class="premium-table-container !rounded-none !border-x-0 !border-b-0 animate-fade-in">
-                        <table class="min-w-full divide-y divide-gray-100/50 bg-transparent">
-                            <thead class="premium-table-header">
-                                <tr>
-                                    <th>Student Name</th>
-                                    <th class="text-center">1st</th>
-                                    <th class="text-center">2nd</th>
-                                    <th class="text-center">3rd</th>
-                                    <th class="text-center">4th</th>
-                                    <th class="text-center">Final</th>
-                                    <th class="text-center">Status</th>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="bg-slate-50/50">
+                                    <th class="px-10 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student Name</th>
+                                    <th class="px-5 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Q1</th>
+                                    <th class="px-5 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Q2</th>
+                                    <th class="px-5 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Q3</th>
+                                    <th class="px-5 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Q4</th>
+                                    <th class="px-10 py-5 text-center text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">General Average</th>
+                                    <th class="px-10 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Promotion Status</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100/50">
+                            <tbody class="divide-y divide-slate-100/60 font-poppins-override">
                                 @forelse($students as $student)
-                                    <tr class="premium-table-row group">
-                                        <td class="premium-table-cell font-bold text-slate-800 uppercase tracking-wide">
-                                            {{ $student->last_name }}, {{ $student->first_name }}
+                                    <tr class="hover:bg-indigo-50/30 transition-colors duration-200 group">
+                                        <td class="px-10 py-6">
+                                            <div class="flex items-center gap-4">
+                                                <div class="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 font-bold overflow-hidden border border-slate-200 shadow-sm">
+                                                    @if($student->id_picture)
+                                                        <img src="{{ asset($student->id_picture) }}" class="h-full w-full object-cover">
+                                                    @else
+                                                        {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}
+                                                    @endif
+                                                </div>
+                                                <span class="text-sm font-black text-slate-800 tracking-tight uppercase">{{ $student->last_name }}, {{ $student->first_name }}</span>
+                                            </div>
                                         </td>
 
-                                        {{-- Q1 --}}
-                                        <td class="px-2 py-3">
-                                            <input type="number" min="60" max="100"
-                                                wire:model.live.debounce.500ms="gradesData.{{ $student->id }}.q1"
-                                                class="w-full text-center border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" placeholder="--">
-                                        </td>
-                                        {{-- Q2 --}}
-                                        <td class="px-2 py-3">
-                                            <input type="number" min="60" max="100"
-                                                wire:model.live.debounce.500ms="gradesData.{{ $student->id }}.q2"
-                                                class="w-full text-center border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" placeholder="--">
-                                        </td>
-                                        {{-- Q3 --}}
-                                        <td class="px-2 py-3">
-                                            <input type="number" min="60" max="100"
-                                                wire:model.live.debounce.500ms="gradesData.{{ $student->id }}.q3"
-                                                class="w-full text-center border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" placeholder="--">
-                                        </td>
-                                        {{-- Q4 --}}
-                                        <td class="px-2 py-3">
-                                            <input type="number" min="60" max="100"
-                                                wire:model.live.debounce.500ms="gradesData.{{ $student->id }}.q4"
-                                                class="w-full text-center border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" placeholder="--">
-                                        </td>
+                                        @foreach(['q1', 'q2', 'q3', 'q4'] as $q)
+                                            <td class="px-5 py-6">
+                                                <input type="number" min="60" max="100"
+                                                    wire:model.live.debounce.500ms="gradesData.{{ $student->id }}.{{ $q }}"
+                                                    class="w-16 mx-auto text-center border-none bg-slate-100/50 rounded-xl shadow-none font-bold text-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all py-3 px-0 placeholder-slate-300" placeholder="--">
+                                            </td>
+                                        @endforeach
 
-                                        {{-- Final Grade --}}
-                                        <td class="px-2 py-3 bg-indigo-50">
+                                        <td class="px-10 py-6 bg-indigo-50/20">
                                             <input type="text" readonly
                                                 wire:model="gradesData.{{ $student->id }}.final"
-                                                class="w-full text-center bg-transparent border-none font-bold text-indigo-700 text-sm focus:ring-0" placeholder="-">
+                                                class="w-20 mx-auto text-center bg-white border border-indigo-100 rounded-xl font-black text-indigo-600 text-sm py-2 px-0 shadow-sm" placeholder="-">
                                         </td>
 
-                                        {{-- Status --}}
-                                        <td class="px-2 py-3">
-                                            <select wire:model="studentStatus.{{ $student->id }}" 
-                                                    class="w-full text-xs border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                                <option value="">-- Select --</option>
-                                                <option value="Promoted" class="text-green-600 font-bold">Promoted</option>
-                                                <option value="Retained" class="text-red-600 font-bold">Retained</option>
-                                                <option value="Conditional" class="text-yellow-600 font-bold">Conditional</option>
-                                            </select>
+                                        <td class="px-10 py-6 min-w-[180px]">
+                                            <div class="relative">
+                                                <i class='bx bx-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-sm'></i>
+                                                <select wire:model="studentStatus.{{ $student->id }}" 
+                                                        class="w-full text-[10px] font-black uppercase tracking-widest border-none bg-white rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 py-3 pl-4 pr-10 appearance-none {{ ($studentStatus[$student->id] ?? '') === 'Promoted' ? 'text-emerald-600' : (($studentStatus[$student->id] ?? '') === 'Retained' ? 'text-rose-600' : 'text-slate-600') }}">
+                                                    <option value="">Roster Status</option>
+                                                    <option value="Promoted">Promoted</option>
+                                                    <option value="Retained">Retained</option>
+                                                    <option value="Conditional">Conditional</option>
+                                                </select>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-6 py-10 text-center text-gray-500">No students enrolled.</td>
+                                        <td colspan="7" class="px-10 py-20 text-center">
+                                            <div class="flex flex-col items-center opacity-30">
+                                                <i class='bx bx-user-x text-6xl mb-4 text-slate-300'></i>
+                                                <p class="text-[12px] font-black uppercase tracking-[0.2em]">No students in roster</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                    
-                    {{-- Save Button --}}
-                    <div class="mt-8 flex justify-end items-center gap-4">
-                        <span wire:loading wire:target="saveGrades" class="text-sm text-indigo-500 font-semibold animate-pulse tracking-widest uppercase">
-                            Saving grades...
-                        </span>
-                        <button wire:click="saveGrades" 
-                                wire:loading.attr="disabled"
-                                class="premium-btn-primary disabled:opacity-50 !py-3 !px-8 text-[13px]">
-                            <i class='bx bx-save text-lg'></i> Save Grades
-                        </button>
-                    </div>
                 @else
-                    {{-- EMPTY STATE: Kapag wala pang pinipiling subject --}}
-                    <div class="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                        <i class='bx bx-up-arrow-circle text-4xl text-indigo-300 mb-2 animate-bounce'></i>
-                        <h3 class="text-lg font-bold text-gray-700">No Subject Selected</h3>
-                        <p class="text-gray-500">Please select a subject from the dropdown above to start grading.</p>
+                    <div class="flex flex-col items-center justify-center py-32 opacity-60">
+                        <div class="h-24 w-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6 ring-2 ring-indigo-100 ring-offset-2 animate-bounce cursor-pointer">
+                            <i class='bx bx-up-arrow-alt text-6xl text-indigo-500'></i>
+                        </div>
+                        <h4 class="text-lg font-black text-slate-600 uppercase tracking-[0.2em]">Academic Access Required</h4>
+                        <p class="text-[11px] font-bold text-slate-500 mt-2 uppercase tracking-widest text-center">Select an academic subject above to initiate the grading process</p>
                     </div>
                 @endif
             </div>
+
+            @if($selectedScheduleId)
+                <!-- Advanced Controls -->
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6 mt-4">
+                    <div class="p-6 bg-white/40 border border-white/60 rounded-3xl flex items-center gap-4">
+                        <div class="h-10 w-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 shadow-sm border border-amber-100">
+                            <i class='bx bx-info-circle text-2xl'></i>
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] leading-relaxed max-w-[400px]">
+                            Grades are automatically computed for running averages. Final averages are rounded to the nearest intelligence point upon saving.
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-6">
+                        <div wire:loading wire:target="saveGrades" class="flex items-center gap-3">
+                            <div class="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                            <span class="text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] animate-pulse">Syncing Academic Data...</span>
+                        </div>
+                        <button wire:click="saveGrades" 
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center justify-center gap-4 px-10 py-5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-indigo-900/10 hover:shadow-indigo-900/20 hover:-translate-y-1 transition-all duration-300 disabled:opacity-50">
+                            <i class='bx bx-cloud-upload text-xl'></i> Commit Academic Records
+                        </button>
+                    </div>
+                </div>
+            @endif
         </div>
     @endif
 </div>

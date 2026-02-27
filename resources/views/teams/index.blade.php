@@ -10,7 +10,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="page-title">
-                {{ __('Sports and Teams') }}
+                {{ __('Sports') }}
             </h2>
             
             {{-- 🟢 DESKTOP ADD BUTTON (Hidden on Mobile) --}}
@@ -57,9 +57,9 @@
                         <table class="min-w-full divide-y divide-gray-100/50 bg-transparent">
                             <thead class="premium-table-header">
                                 <tr>
-                                    <th>FOCUS SPORTS</th>
-                                    <th>Coach</th>
-                                    <th class="relative text-right">Actions</th>
+                                    <th class="premium-table-header-cell w-1/2">FOCUS SPORTS</th>
+                                    <th class="premium-table-header-cell w-1/4">COACH</th>
+                                    <th class="premium-table-header-cell w-1/4">ACTIONS</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100/50">
@@ -75,7 +75,7 @@
                                             {{ $team->coach_name ?? 'N/A' }}
                                         </td>
                                         
-                                        <td class="premium-table-cell text-right text-[13px] font-bold">
+                                        <td class="premium-table-cell text-[13px] font-bold">
                                             
                                             <a href="{{ route('teams.edit', $team->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 transition">Edit</a>
                                             
