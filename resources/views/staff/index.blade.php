@@ -25,7 +25,7 @@
             
             {{-- TITLE --}}
             <div class="flex items-center justify-between w-full md:w-auto">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                <h2 class="page-title flex border-none">
                     {{ __('Staff Management') }}
                     <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
                         <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
@@ -71,7 +71,7 @@
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
+            <div class="premium-card !p-0 overflow-hidden">
                 <div class="p-0 md:p-6 text-gray-900">
                     
                     <div class="overflow-x-auto">

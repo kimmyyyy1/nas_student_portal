@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="page-title flex border-none">
             Academic Report for {{ $student->last_name }}, {{ $student->first_name }}
         </h2>
     </x-slot>
@@ -13,8 +13,8 @@
                 <p><strong>Section:</strong> {{ optional($student->section)->grade_level }} - {{ optional($student->section)->section_name }}</p>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+            <div class="premium-card !p-0 overflow-hidden">
+                <div class="p-6 md:p-8 text-slate-800 border-t border-white/40">
                     <h3 class="text-lg font-semibold mb-4">Grades Breakdown</h3>
                     
                     @if ($student->grades->isEmpty())

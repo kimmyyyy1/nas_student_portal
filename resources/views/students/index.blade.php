@@ -25,18 +25,18 @@
             
             {{-- TITLE --}}
             <div class="flex items-center justify-between w-full md:w-auto">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                <h2 class="font-black text-2xl md:text-3xl text-slate-800 tracking-tight flex items-center">
                     {{ __('Student Directory') }}
-                    <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
-                        <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
+                    <span class="ml-4 px-2.5 py-1 rounded-md text-[10px] font-black tracking-widest bg-rose-100 text-rose-600 animate-pulse flex items-center shadow-sm border border-rose-200">
+                        <span class="w-1.5 h-1.5 bg-rose-600 rounded-full mr-1.5"></span> LIVE
                     </span>
                 </h2>
             </div>
             
             {{-- HEADER BUTTONS --}}
             <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                <a href="{{ route('students.bulk-upload') }}" wire:navigate class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center justify-center shadow transition w-full sm:w-auto">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <a href="{{ route('students.bulk-upload') }}" wire:navigate class="premium-btn-secondary w-full sm:w-auto">
+                    <svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     Bulk Upload
                 </a>
                 {{-- Tinanggal na ang "New Student" button dito --}}
@@ -44,8 +44,8 @@
         </div>
     </x-slot>
 
-    <div class="py-2 md:py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+    <div class="py-2 md:py-8">
+        <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- ALERTS --}}
             @if(session('success'))
@@ -61,7 +61,7 @@
             @endif
 
             {{-- FILTER BAR --}}
-            <div class="mb-4 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+            <div class="mb-6 bg-white/60 backdrop-blur-xl p-4 sm:rounded-2xl shadow-sm border border-white/60">
                 <form method="GET" action="{{ route('students.index') }}">
                     <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
                         
@@ -131,12 +131,12 @@
 
                         {{-- 6. BUTTONS --}}
                         <div class="flex gap-2 w-full lg:w-auto">
-                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1.5 rounded text-sm font-bold shadow transition h-[34px] flex items-center justify-center flex-1 lg:flex-none">
-                                <i class='bx bx-filter-alt mr-1'></i> Filter
+                            <button type="submit" class="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all h-[38px] flex items-center justify-center flex-1 lg:flex-none">
+                                <i class='bx bx-filter-alt mr-1.5'></i> Filter
                             </button>
                             
                             @if(request()->hasAny(['search', 'grade_level', 'section_id', 'status', 'sport']))
-                                <a href="{{ route('students.index') }}" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded text-sm font-bold shadow transition h-[34px] flex items-center justify-center">
+                                <a href="{{ route('students.index') }}" class="bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-500 hover:text-rose-600 px-3 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[38px] flex items-center justify-center">
                                     <i class='bx bx-x text-lg'></i>
                                 </a>
                             @endif
@@ -147,25 +147,25 @@
             </div>
 
             {{-- TABLE SECTION --}}
-            <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200 overflow-hidden">
-                <div class="w-full overflow-x-auto"> 
-                    <table class="min-w-full divide-y divide-gray-200 whitespace-nowrap">
-                        <thead class="bg-gray-50">
+            <div class="premium-table-container">
+                <div class="w-full overflow-x-auto custom-scroll"> 
+                    <table class="min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent">
+                        <thead class="premium-table-header">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student ID</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Grade & Sec</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Sport</th>
-                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Grade & Sec</th>
+                                <th>Sport</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-right">Action</th>
                             </tr>
                         </thead>
                         
-                        <tbody id="student-list" class="bg-white divide-y divide-gray-200">
+                        <tbody id="student-list" class="divide-y divide-gray-50/50">
                             @forelse($students as $student)
-                                <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
+                                <tr class="premium-table-row">
                                     
-                                    <td class="px-4 py-3">
+                                    <td class="premium-table-cell">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 mr-2 hidden sm:block">
                                                 @if($student->id_picture)
@@ -182,14 +182,14 @@
                                         </div>
                                     </td>
 
-                                    <td class="px-4 py-3">
+                                    <td class="premium-table-cell">
                                         <div class="text-sm font-bold text-gray-900 uppercase leading-tight">
                                             {{ $student->last_name }}, {{ $student->first_name }}
                                         </div>
                                         <div class="text-xs text-gray-500">{{ $student->email_address }}</div>
                                     </td>
 
-                                    <td class="px-4 py-3">
+                                    <td class="premium-table-cell">
                                         @if($student->status === 'Graduate')
                                             <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
                                                 <i class='bx bxs-graduation mr-1'></i> Alumni
@@ -208,7 +208,7 @@
                                     </td>
 
                                     {{-- 4. SPORT (ULTIMATE ROBUST LOGIC) --}}
-                                    <td class="px-4 py-3">
+                                    <td class="premium-table-cell">
                                         @php
                                             $details = $student->enrollmentDetail; 
                                             if (!$details && $student->user) {
@@ -268,7 +268,7 @@
                                         @endif
                                     </td>
 
-                                    <td class="px-4 py-3 text-center">
+                                    <td class="premium-table-cell text-center">
                                         @php
                                             $statusColor = match($student->status) {
                                                 'New' => 'bg-green-100 text-green-800 border-green-200',
@@ -284,7 +284,7 @@
                                         </span>
                                     </td>
 
-                                    <td class="px-4 py-3 text-right text-sm font-medium">
+                                    <td class="premium-table-cell text-right text-[13px] font-bold">
                                         <a href="{{ route('students.show', ['student' => $student->id] + request()->query()) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 transition">
                                             View
                                         </a>
@@ -295,7 +295,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                                    <td colspan="6" class="px-6 py-12 text-center text-slate-400 font-medium">
                                         No enrolled students found.
                                     </td>
                                 </tr>
@@ -304,7 +304,7 @@
                     </table>
                 </div>
                 
-                <div class="px-4 py-3 border-t border-gray-200">
+                <div class="px-5 py-4 border-t border-white/60 bg-white/40">
                     {{ $students->appends(request()->query())->links() }}
                 </div>
             </div>

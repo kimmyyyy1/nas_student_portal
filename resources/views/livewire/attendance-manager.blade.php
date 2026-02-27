@@ -16,9 +16,9 @@
             @forelse($sections as $section)
                 {{-- CARD CONTAINER --}}
                 <div wire:click="openAttendanceSheet({{ $section->id }})" 
-                     class="group bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition duration-200 overflow-hidden flex flex-col h-full cursor-pointer relative">
+                     class="group premium-card !rounded-2xl border border-white/40 hover:border-indigo-300/50 transition duration-300 overflow-hidden flex flex-col h-full cursor-pointer relative shadow-sm hover:shadow-lg">
                     
-                    <div class="p-6 flex flex-col h-full">
+                    <div class="px-6 py-8 flex flex-col h-full">
                         {{-- UPPER CONTENT --}}
                         <div class="flex-grow">
                             {{-- Header ng Card --}}
@@ -70,8 +70,8 @@
 
     {{-- 👇 VIEW 2: ATTENDANCE SHEET (Table View) --}}
     @elseif($view == 'sheet')
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200 animate-fade-in">
-            <div class="p-6">
+        <div class="premium-card !p-0 overflow-hidden animate-fade-in">
+            <div class="p-6 md:p-8 border-b border-white/40">
                 
                 {{-- Date Picker --}}
                 <div class="mb-6 flex items-center gap-4">
@@ -80,36 +80,36 @@
                 </div>
 
                 {{-- Attendance Table --}}
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                <div class="premium-table-container !rounded-none !border-x-0 !border-b-0 mt-4">
+                    <table class="min-w-full divide-y divide-gray-100/50 bg-transparent">
+                        <thead class="premium-table-header">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student Name</th>
-                                <th class="px-6 py-3 text-center text-xs font-bold text-green-600 uppercase tracking-wider">Present</th>
-                                <th class="px-6 py-3 text-center text-xs font-bold text-yellow-600 uppercase tracking-wider">Late</th>
-                                <th class="px-6 py-3 text-center text-xs font-bold text-red-600 uppercase tracking-wider">Absent</th>
-                                <th class="px-6 py-3 text-center text-xs font-bold text-blue-600 uppercase tracking-wider">Excused</th>
+                                <th>Student Name</th>
+                                <th class="text-center text-emerald-600 font-black">Present</th>
+                                <th class="text-center text-amber-500 font-black">Late</th>
+                                <th class="text-center text-rose-500 font-black">Absent</th>
+                                <th class="text-center text-blue-500 font-black">Excused</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="divide-y divide-slate-100/50">
                             @forelse($students as $student)
                                 {{-- Main Row --}}
-                                <tr class="hover:bg-gray-50 transition {{ (isset($attendance[$student->id]) && $attendance[$student->id] === 'excused') ? 'bg-blue-50/30' : '' }}">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                <tr class="premium-table-row group {{ (isset($attendance[$student->id]) && $attendance[$student->id] === 'excused') ? 'bg-blue-50/30' : '' }}">
+                                    <td class="premium-table-cell font-bold text-slate-800 uppercase tracking-wide">
                                         {{ $student->last_name }}, {{ $student->first_name }}
                                     </td>
                                     
                                     {{-- Radio Buttons for Status --}}
-                                    <td class="px-6 py-4 text-center">
+                                    <td class="premium-table-cell text-center">
                                         <input type="radio" wire:model.live="attendance.{{ $student->id }}" value="present" class="text-green-600 focus:ring-green-500 cursor-pointer h-4 w-4">
                                     </td>
-                                    <td class="px-6 py-4 text-center">
+                                    <td class="premium-table-cell text-center">
                                         <input type="radio" wire:model.live="attendance.{{ $student->id }}" value="late" class="text-yellow-600 focus:ring-yellow-500 cursor-pointer h-4 w-4">
                                     </td>
-                                    <td class="px-6 py-4 text-center">
+                                    <td class="premium-table-cell text-center">
                                         <input type="radio" wire:model.live="attendance.{{ $student->id }}" value="absent" class="text-red-600 focus:ring-red-500 cursor-pointer h-4 w-4">
                                     </td>
-                                    <td class="px-6 py-4 text-center">
+                                    <td class="premium-table-cell text-center">
                                         <input type="radio" wire:model.live="attendance.{{ $student->id }}" value="excused" class="text-blue-600 focus:ring-blue-500 cursor-pointer h-4 w-4">
                                     </td>
                                 </tr>
@@ -142,9 +142,9 @@
                 </div>
                 
                 {{-- Save Button --}}
-                <div class="mt-6 flex justify-end">
-                    <button wire:click="saveAttendance" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-sm transition flex items-center gap-2">
-                        <i class='bx bx-save'></i> Save Attendance
+                <div class="mt-8 flex justify-end">
+                    <button wire:click="saveAttendance" class="premium-btn-primary !py-3 !px-8 text-[13px]">
+                        <i class='bx bx-save text-lg'></i> Save Attendance
                     </button>
                 </div>
             </div>

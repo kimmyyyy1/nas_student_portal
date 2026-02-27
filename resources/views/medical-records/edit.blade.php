@@ -22,7 +22,7 @@
         {{-- 💻 DESKTOP HEADER: Standard View                              --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full py-2">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+            <h2 class="page-title flex border-none">
                 {{ __('Edit Medical Record') }}: <span class="text-indigo-600 ml-2">{{ $medicalRecord->student->last_name ?? 'N/A' }}</span>
                 <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-600 animate-pulse flex items-center shadow-sm border border-green-200">
                     <span class="w-2 h-2 bg-green-600 rounded-full mr-1"></span> LIVE
@@ -47,8 +47,8 @@
                 </a>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-                <div class="p-6 text-gray-900">
+            <div class="premium-card !p-0 overflow-hidden">
+                <div class="p-6 md:p-8 text-slate-800 border-t border-white/40">
                     
                     @if ($errors->any())
                         <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded shadow-sm text-sm">

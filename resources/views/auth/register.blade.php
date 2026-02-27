@@ -45,7 +45,7 @@
                         <img src="{{ asset('images/nas/stack.png') }}" class="h-28 w-auto mx-auto drop-shadow-sm" alt="NAS Logo">
                     </a>
                     <h2 class="text-xl font-extrabold text-blue-900 mt-4 uppercase tracking-wide">Create Account</h2>
-                    <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Applicant Registration</p>
+                    <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Student Registration</p>
                 </div>
 
                 <form method="POST" action="{{ route('register') }}">

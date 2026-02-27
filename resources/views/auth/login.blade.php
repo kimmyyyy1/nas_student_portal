@@ -107,7 +107,7 @@
                 <div class="mt-8 pt-6 border-t border-gray-100 text-center">
                     <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-4">No account yet?</p>
                     <a href="{{ route('register') }}" class="inline-block px-6 py-2.5 bg-gray-100 hover:bg-white border border-transparent hover:border-gray-300 text-gray-700 text-xs font-bold uppercase tracking-wider rounded-full transition-all">
-                        Register as Applicant
+                        Register as Student
                     </a>
                 </div>
 

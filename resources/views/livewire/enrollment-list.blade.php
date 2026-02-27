@@ -8,8 +8,8 @@
         </div>
     @endif
 
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-100">
-        <div class="p-6 md:p-8 text-gray-900">
+    <div class="premium-card !p-0 overflow-hidden">
+        <div class="p-6 md:p-8 text-gray-900 border-b border-white/40">
             
             {{-- Header Area --}}
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -39,40 +39,40 @@
                     <p class="mt-2 text-xs text-slate-400 font-medium">Wait for qualified applicants to submit their enrollment forms.</p>
                 </div>
             @else
-                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
-                    <table class="min-w-full bg-white text-left border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200">
-                            <tr class="text-slate-500 uppercase text-[10px] font-black tracking-wider">
-                                <th class="py-4 px-6 whitespace-nowrap">App ID</th>
-                                <th class="py-4 px-6">Name</th>
-                                <th class="py-4 px-6 text-center">Type</th>
-                                <th class="py-4 px-6 text-center whitespace-nowrap">LRN</th>
-                                <th class="py-4 px-6 text-center">Sport</th>
-                                <th class="py-4 px-6 text-center">Status</th>
-                                <th class="py-4 px-6 text-center">Action</th>
+                <div class="premium-table-container !rounded-none !border-x-0 !border-b-0">
+                    <table class="min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent">
+                        <thead class="premium-table-header">
+                            <tr>
+                                <th>App ID</th>
+                                <th>Name</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">LRN</th>
+                                <th class="text-center">Sport</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="text-slate-600 text-sm font-medium divide-y divide-slate-100">
+                        <tbody class="divide-y divide-slate-100/50">
                             @foreach($enrollees as $applicant)
                                 @php
                                     $remarks = is_string($applicant->document_remarks) ? json_decode($applicant->document_remarks, true) : ($applicant->document_remarks ?? []);
                                     $isRenewal = ($applicant->status === 'Pending Renewal') || ($remarks['is_renewal'] ?? false);
                                 @endphp
-                                <tr class="hover:bg-slate-50 transition-colors group align-middle">
+                                <tr class="premium-table-row align-middle group">
                                     
                                     {{-- App ID --}}
-                                    <td class="py-4 px-6 whitespace-nowrap font-black text-indigo-600">
+                                    <td class="premium-table-cell font-black text-indigo-600">
                                         {{ str_pad($applicant->id, 6, '0', STR_PAD_LEFT) }}
                                     </td>
 
                                     {{-- Name --}}
-                                    <td class="py-4 px-6 whitespace-nowrap">
+                                    <td class="premium-table-cell">
                                         <div class="font-black text-slate-800 uppercase tracking-tight">{{ $applicant->last_name }}, {{ $applicant->first_name }}</div>
                                         <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{{ $applicant->email }}</div>
                                     </td>
 
                                     {{-- Type --}}
-                                    <td class="py-4 px-6 text-center whitespace-nowrap">
+                                    <td class="premium-table-cell text-center">
                                         @if($isRenewal)
                                             <span class="inline-flex items-center px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest bg-orange-100 text-orange-700 border border-orange-200">
                                                 Renewal
@@ -85,21 +85,21 @@
                                     </td>
 
                                     {{-- LRN --}}
-                                    <td class="py-4 px-6 text-center whitespace-nowrap">
-                                        <span class="bg-slate-100 text-slate-600 py-1.5 px-3 rounded-md text-xs font-mono font-bold border border-slate-200">
+                                    <td class="premium-table-cell text-center">
+                                        <span class="bg-slate-100/50 text-slate-600 py-1.5 px-3 rounded-md text-xs font-mono font-bold border border-slate-200/50">
                                             {{ $applicant->lrn }}
                                         </span>
                                     </td>
 
                                     {{-- Sport --}}
-                                    <td class="py-4 px-6 text-center whitespace-nowrap">
+                                    <td class="premium-table-cell text-center">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-50 text-blue-700 border border-blue-100">
                                             {{ $applicant->sport }}
                                         </span>
                                     </td>
 
                                     {{-- ⚡ DYNAMIC STATUS BADGE ⚡ --}}
-                                    <td class="py-4 px-6 text-center whitespace-nowrap">
+                                    <td class="premium-table-cell text-center">
                                         @php
                                             $stat = strtoupper($applicant->status);
                                             $isAdmitted = str_contains($stat, 'ADMITTED') || str_contains($stat, 'ENROLLED') && !str_contains($stat, 'OFFICIALLY') && !str_contains($stat, 'RENEWAL');
@@ -132,14 +132,14 @@
                                     </td>
 
                                     {{-- ⚡ DYNAMIC ACTION BUTTON ⚡ --}}
-                                    <td class="py-4 px-6 text-center whitespace-nowrap">
+                                    <td class="premium-table-cell text-center">
                                         @if($isAdmitted)
-                                            <a href="{{ route('official-enrollment.show', $applicant->id) }}" class="inline-flex items-center justify-center bg-slate-700 hover:bg-slate-800 text-white py-2 px-5 rounded-xl text-[10px] font-black shadow-md transition transform hover:-translate-y-0.5 whitespace-nowrap uppercase tracking-widest">
-                                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            <a href="{{ route('official-enrollment.show', $applicant->id) }}" class="premium-btn-secondary !py-1.5 !px-4 !text-[10px] uppercase tracking-widest">
+                                                <svg class="w-3.5 h-3.5 mr-1.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                 View Record
                                             </a>
                                         @else
-                                            <a href="{{ route('official-enrollment.show', $applicant->id) }}" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-5 rounded-xl text-[10px] font-black shadow-md transition transform hover:-translate-y-0.5 whitespace-nowrap uppercase tracking-widest">
+                                            <a href="{{ route('official-enrollment.show', $applicant->id) }}" class="premium-btn-primary !py-1.5 !px-4 !text-[10px] uppercase tracking-widest">
                                                 <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                 Verify & Enroll
                                             </a>

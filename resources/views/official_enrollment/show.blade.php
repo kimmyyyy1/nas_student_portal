@@ -107,8 +107,8 @@
                                     <span class="text-[9px] sm:text-[10px] block text-indigo-200 tracking-widest font-black uppercase mb-1.5 sm:mb-2">Verified Applicant Profile</span>
                                     <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tighter leading-tight break-words w-full text-white">
                                         {{ $applicant->last_name }}, {{ $applicant->first_name }} 
-                                        @if($applicant->middle_name && strtoupper($applicant->middle_name) !== 'N/A') {{ $applicant->middle_name }} @endif
-                                        @if($details && $details->extension_name && strtoupper($details->extension_name) !== 'N/A') {{ $details->extension_name }} @endif
+                                        @if(empty(trim($applicant->middle_name)) || in_array(trim(strtoupper($applicant->middle_name)), ['N/A', 'NA', 'NONE', '-'])) - @else {{ $applicant->middle_name }} @endif
+                                        @if(!empty($details->extension_name) && !in_array(trim(strtoupper($details->extension_name)), ['N/A', 'NA', 'NONE', '-'])) {{ $details->extension_name }} @endif
                                     </h1>
                                     
                                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-4 lg:mt-6 w-full sm:w-auto">
@@ -438,10 +438,17 @@
                                 </div>
                                 <div class="p-5 sm:p-8 w-full text-center">
                                     <div class="mb-4">
-                                        <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 sm:mb-3">Official Student ID</label>
+                                        <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 sm:mb-3">Official Student No.</label>
                                         <div class="bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border-2 border-slate-800 text-white w-full">
                                             <span class="font-mono text-xl sm:text-2xl font-black tracking-[0.1em] sm:tracking-[0.2em] text-emerald-400">
-                                                {{ $applicant->student_id ?? date('Y').'-'.str_pad($applicant->id, 5, '0', STR_PAD_LEFT) }}
+                                                @php
+                                                    $displayId = $applicant->student_id;
+                                                    if (!$displayId) {
+                                                        $std = \App\Models\Student::where('lrn', $applicant->lrn)->first();
+                                                        $displayId = $std ? $std->nas_student_id : date('Y').'-'.str_pad($applicant->id, 5, '0', STR_PAD_LEFT);
+                                                    }
+                                                @endphp
+                                                {{ $displayId }}
                                             </span>
                                         </div>
                                     </div>

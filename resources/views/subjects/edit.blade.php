@@ -7,15 +7,15 @@
     </style>
 
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Edit Subject: {{ $subject->subject_name }}
+        <h2 class="page-title border-none flex items-center">
+            Edit Subject: <span class="text-indigo-600 ml-2">{{ $subject->subject_name }}</span>
         </h2>
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-                <div class="p-6 text-gray-900">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 px-4">
+            <div class="premium-card !p-0 overflow-hidden">
+                <div class="p-6 md:p-8 text-slate-800 border-t border-white/40">
                     
                     @if ($errors->any())
                         <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded shadow-sm">
@@ -53,11 +53,11 @@
                             </div>
                         </div>
 
-                        <div class="mt-6 flex justify-end gap-2">
-                            <a href="{{ route('subjects.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out">
+                        <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                            <a href="{{ route('subjects.index') }}" class="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 font-bold py-2 px-4 rounded text-sm shadow-sm transition">
                                 Cancel
                             </a>
-                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out">
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded text-sm shadow-md transition transform hover:-translate-y-0.5">
                                 Update Subject
                             </button>
                         </div>

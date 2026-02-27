@@ -10,8 +10,8 @@
         </div>
     @endif
 
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-        <div class="p-6 text-gray-900">
+    <div class="premium-card !p-0 overflow-hidden">
+        <div class="p-6 text-gray-900 border-b border-white/40">
 
             {{-- DYNAMIC TITLE --}}
             @if($isCreating)
@@ -26,36 +26,36 @@
 
             {{-- TABLE VIEW --}}
             @if(!$isCreating && !$isEditing)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                <div class="premium-table-container !rounded-none !border-x-0 !border-b-0">
+                    <table class="min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent">
+                        <thead class="premium-table-header">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Section Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Grade Level</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Adviser</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Room</th>
-                                <th class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+                                <th>Section Name</th>
+                                <th>Grade Level</th>
+                                <th>Adviser</th>
+                                <th>Room</th>
+                                <th class="text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="divide-y divide-slate-100/50">
                             @forelse ($sections as $section)
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $section->section_name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                <tr class="premium-table-row group">
+                                    <td class="premium-table-cell text-sm font-bold text-gray-900">{{ $section->section_name }}</td>
+                                    <td class="premium-table-cell">
+                                        <span class="px-2 inline-flex text-[10px] leading-5 font-black uppercase tracking-widest rounded-full bg-blue-100 text-blue-800">
                                             {{ $section->grade_level }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="premium-table-cell">
                                         @if($section->adviser)
-                                            <div class="text-sm font-medium text-gray-900">{{ $section->adviser->last_name }}, {{ $section->adviser->first_name }}</div>
-                                            <div class="text-xs text-gray-500">{{ $section->adviser->email }}</div>
+                                            <div class="text-[13px] font-bold text-gray-900 uppercase tracking-tight">{{ $section->adviser->last_name }}, {{ $section->adviser->first_name }}</div>
+                                            <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{{ $section->adviser->email }}</div>
                                         @else
-                                            <span class="text-sm text-gray-400 italic">No Adviser Assigned</span>
+                                            <span class="text-xs text-gray-400 font-bold uppercase tracking-widest">No Adviser</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $section->room_number ?? 'TBA' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td class="premium-table-cell text-[13px] font-bold text-slate-500 uppercase tracking-widest">{{ $section->room_number ?? 'TBA' }}</td>
+                                    <td class="premium-table-cell text-right text-[13px] font-bold">
                                         {{-- EDIT BUTTON (Direct wire:click) --}}
                                         <button type="button" wire:click="edit({{ $section->id }})" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 cursor-pointer">Edit</button>
                                         

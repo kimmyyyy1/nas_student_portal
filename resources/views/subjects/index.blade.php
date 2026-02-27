@@ -27,10 +27,10 @@
         {{-- 💻 DESKTOP HEADER: Standard View                              --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex justify-between items-center w-full py-2">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+            <h2 class="page-title">
                 {{ __('Subjects') }}
-                <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
-                    <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
+                <span class="ml-4 px-2.5 py-1 rounded-md text-[10px] font-black tracking-widest bg-rose-100 text-rose-600 animate-pulse flex items-center shadow-sm border border-rose-200">
+                    <span class="w-1.5 h-1.5 bg-rose-600 rounded-full mr-1.5"></span> LIVE
                 </span>
             </h2>
             
@@ -39,7 +39,7 @@
                wire:navigate 
                id="desktop-add-btn"
                onclick="this.style.display='none'"
-               class="hidden md:flex bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm items-center justify-center shadow transition">
+               class="hidden md:flex premium-btn-primary">
                 {{-- SVG Plus Icon --}}
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add Subject
@@ -49,8 +49,8 @@
     </x-slot>
 
     {{-- 👇 CONTENT BODY --}}
-    <div class="py-2 md:py-12 font-poppins-override">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+    <div class="py-4 md:py-8 font-poppins-override">
+        <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- 🟢 MOBILE ADD BUTTON (Visible ONLY on Mobile) --}}
             <div class="block md:hidden mb-4" id="mobile-btn-container">
@@ -58,7 +58,7 @@
                    wire:navigate
                    id="mobile-add-btn"
                    onclick="document.getElementById('mobile-btn-container').style.display='none'"
-                   class="flex items-center justify-center w-full px-4 py-3 bg-blue-600 text-white rounded-lg shadow-md font-bold text-sm hover:bg-blue-700 active:scale-95 transition-all">
+                   class="w-full justify-center premium-btn-primary gap-2">
                     
                     {{-- 👇 FIXED: Pinalitan ang 'bx' font ng SVG para siguradong lumabas --}}
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -82,62 +82,8 @@
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-                <div class="p-0 md:p-6 text-gray-900">
-                    
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 whitespace-nowrap">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-4 md:px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Subject Code</th>
-                                    <th scope="col" class="px-4 md:px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Subject Name</th>
-                                    <th scope="col" class="hidden md:table-cell px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Description</th>
-                                    <th scope="col" class="relative px-4 md:px-6 py-3">
-                                        <span class="sr-only">Actions</span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse ($subjects as $subject)
-                                    <tr class="hover:bg-gray-50 transition">
-                                        <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                                            {{ $subject->subject_code }}
-                                        </td>
-                                        <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            {{ $subject->subject_name }}
-                                        </td>
-                                        <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ Str::limit($subject->description, 50) ?: 'N/A' }}
-                                        </td>
-                                        <td class="px-4 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('subjects.edit', $subject->id) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 transition">Edit</a>
-                                            
-                                            <form class="inline-block" method="POST" action="{{ route('subjects.destroy', $subject->id) }}" onsubmit="return confirm('Are you sure you want to delete this subject?');">
-                                                @csrf 
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 font-bold transition">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="px-6 py-12 whitespace-nowrap text-center text-gray-500">
-                                            <div class="flex flex-col items-center justify-center">
-                                                <i class='bx bx-book-content text-4xl text-gray-300 mb-2'></i>
-                                                <p class="text-lg font-medium">No subjects found.</p>
-                                                <p class="text-sm mt-1">Click "Add Subject" above to create one.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-            </div>
+            {{-- REMOVED DUPLICATE TABLE THAT WAS HARDCODED IN REPLACEMENT FOR LIVEWIRE COMPONENT --}}
+            @livewire('subjects-manager')
         </div>
     </div>
 

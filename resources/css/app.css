@@ -25,3 +25,50 @@
 body {
     background-color: transparent !important;
 }
+
+/* 4. SYSTEM-WIDE PREMIUM COMPONENTS */
+@layer components {
+    /* Standard Card Container */
+    .premium-card {
+        @apply bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2rem] p-6 sm:p-8;
+    }
+
+    /* Standard Table Container */
+    .premium-table-container {
+        @apply bg-white/70 backdrop-blur-xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-white/60 sm:rounded-3xl overflow-hidden;
+    }
+    
+    .premium-table-container table {
+        @apply min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent;
+    }
+
+    .premium-table-header {
+        @apply bg-white/40 border-b border-gray-100/50 backdrop-blur-md;
+    }
+    
+    .premium-table-header th {
+        @apply px-5 py-4 text-left text-[11px] font-black text-slate-500 uppercase tracking-widest;
+    }
+
+    .premium-table-row {
+        @apply hover:bg-white/50 transition duration-200 ease-in-out border-b border-gray-50/50 last:border-0;
+    }
+    
+    .premium-table-cell {
+        @apply px-5 py-3.5;
+    }
+
+    /* Standard Header Text */
+    .page-title {
+        @apply font-black text-2xl md:text-3xl text-slate-800 tracking-tight flex items-center;
+    }
+
+    /* Standard Buttons */
+    .premium-btn-primary {
+        @apply bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center;
+    }
+
+    .premium-btn-secondary {
+        @apply bg-white/80 hover:bg-white text-slate-700 font-bold py-2.5 px-5 rounded-xl shadow-sm border border-slate-200/50 hover:border-slate-300 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 flex items-center justify-center;
+    }
+}

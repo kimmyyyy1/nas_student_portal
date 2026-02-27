@@ -15,8 +15,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in items-stretch">
             @forelse($sections as $section)
                 <div wire:click="openGradingSheet({{ $section->id }})" 
-                     class="group bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition duration-200 overflow-hidden flex flex-col h-full cursor-pointer relative">
-                    <div class="p-6 flex flex-col h-full">
+                     class="group premium-card !rounded-2xl border border-white/40 hover:border-indigo-300/50 transition duration-300 overflow-hidden flex flex-col h-full cursor-pointer relative shadow-sm hover:shadow-lg">
+                    <div class="px-6 py-8 flex flex-col h-full">
                         <div class="flex-grow">
                             <div class="flex justify-between items-start mb-4">
                                 <div class="p-3 bg-indigo-50 rounded-lg text-indigo-600 group-hover:bg-indigo-100 transition">
@@ -56,8 +56,8 @@
 
     {{-- 👇 VIEW 2: GRADING SHEET (Table View) --}}
     @elseif($view == 'sheet')
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200 animate-fade-in">
-            <div class="p-6">
+        <div class="premium-card !p-0 overflow-hidden animate-fade-in">
+            <div class="p-6 md:p-8 border-b border-white/40">
                 
                 {{-- 👇 1. SUBJECT SELECTION DROPDOWN (ETO ANG KULANG MO KANINA) --}}
                 <div class="mb-6 p-4 bg-indigo-50 rounded-lg border border-indigo-100 flex flex-col md:flex-row md:items-center gap-4">
@@ -84,23 +84,23 @@
 
                 {{-- 👇 3. TABLE (Lumalabas lang pag may napili nang subject) --}}
                 @if($selectedScheduleId)
-                    <div class="overflow-x-auto animate-fade-in">
-                        <table class="min-w-full divide-y divide-gray-200 border-t border-gray-200">
-                            <thead class="bg-gray-50">
+                    <div class="premium-table-container !rounded-none !border-x-0 !border-b-0 animate-fade-in">
+                        <table class="min-w-full divide-y divide-gray-100/50 bg-transparent">
+                            <thead class="premium-table-header">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student Name</th>
-                                    <th class="px-2 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">1st</th>
-                                    <th class="px-2 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">2nd</th>
-                                    <th class="px-2 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">3rd</th>
-                                    <th class="px-2 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">4th</th>
-                                    <th class="px-2 py-3 text-center text-xs font-bold text-indigo-700 uppercase tracking-wider bg-indigo-50">Final</th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th>Student Name</th>
+                                    <th class="text-center">1st</th>
+                                    <th class="text-center">2nd</th>
+                                    <th class="text-center">3rd</th>
+                                    <th class="text-center">4th</th>
+                                    <th class="text-center">Final</th>
+                                    <th class="text-center">Status</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="divide-y divide-slate-100/50">
                                 @forelse($students as $student)
-                                    <tr class="hover:bg-gray-50 transition">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                    <tr class="premium-table-row group">
+                                        <td class="premium-table-cell font-bold text-slate-800 uppercase tracking-wide">
                                             {{ $student->last_name }}, {{ $student->first_name }}
                                         </td>
 
@@ -157,14 +157,14 @@
                     </div>
                     
                     {{-- Save Button --}}
-                    <div class="mt-6 flex justify-end items-center gap-4">
-                        <span wire:loading wire:target="saveGrades" class="text-sm text-indigo-500 font-semibold animate-pulse">
+                    <div class="mt-8 flex justify-end items-center gap-4">
+                        <span wire:loading wire:target="saveGrades" class="text-sm text-indigo-500 font-semibold animate-pulse tracking-widest uppercase">
                             Saving grades...
                         </span>
                         <button wire:click="saveGrades" 
                                 wire:loading.attr="disabled"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded shadow-sm transition flex items-center gap-2 disabled:opacity-50">
-                            <i class='bx bx-save'></i> Save Grades
+                                class="premium-btn-primary disabled:opacity-50 !py-3 !px-8 text-[13px]">
+                            <i class='bx bx-save text-lg'></i> Save Grades
                         </button>
                     </div>
                 @else

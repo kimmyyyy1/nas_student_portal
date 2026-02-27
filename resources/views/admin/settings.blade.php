@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+        <h2 class="page-title flex border-none">
             <i class='bx bx-cog mr-2 text-2xl'></i> {{ __('System Settings') }}
         </h2>
     </x-slot>
@@ -22,12 +22,12 @@
                 @csrf
 
                 {{-- 1. SCHOOL YEAR SETTINGS --}}
-                <div class="bg-white shadow-md sm:rounded-lg mb-8 overflow-hidden border border-gray-200">
-                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center">
+                <div class="premium-card !p-0 mb-8 overflow-hidden">
+                    <div class="px-6 md:px-8 py-5 border-b border-white/40 flex items-center">
                         <i class='bx bx-calendar text-2xl text-blue-600 mr-2'></i>
                         <h3 class="text-lg font-bold text-gray-800">Academic School Year</h3>
                     </div>
-                    <div class="p-6">
+                    <div class="p-6 md:p-8">
                         <div class="w-full md:w-1/2">
                             <label class="block text-sm font-bold text-gray-700 mb-2">Current School Year</label>
                             <input type="text" name="current_school_year" 
@@ -40,12 +40,12 @@
                 </div>
 
                 {{-- 2. ENROLLMENT SETTINGS (Centered and Expanded) --}}
-                <div class="bg-white shadow-md sm:rounded-lg overflow-hidden border border-gray-200 mb-8">
-                    <div class="px-6 py-4 bg-green-50 border-b border-green-100 flex items-center">
+                <div class="premium-card !p-0 mb-8 overflow-hidden">
+                    <div class="px-6 md:px-8 py-5 border-b border-white/40 flex items-center">
                         <i class='bx bx-edit text-2xl text-green-600 mr-2'></i>
                         <h3 class="text-lg font-bold text-green-900">Enrollment & Renewal Period</h3>
                     </div>
-                    <div class="p-6">
+                    <div class="p-6 md:p-8">
                         <p class="text-sm text-gray-600 mb-6">Set the dates when existing students can log into their portal to renew their enrollment for the new school year.</p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -67,7 +67,7 @@
 
                 {{-- SUBMIT BUTTON --}}
                 <div class="flex justify-end">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-transform transform hover:-translate-y-0.5 flex items-center">
+                    <button type="submit" class="premium-btn-primary py-3 px-8 text-sm">
                         <i class='bx bx-save text-xl mr-2'></i> Save Settings
                     </button>
                 </div>

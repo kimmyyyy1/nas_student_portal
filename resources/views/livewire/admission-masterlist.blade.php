@@ -111,8 +111,8 @@
     </div>
 
     {{-- MAIN CONTENT AREA --}}
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-        <div class="p-4 md:p-6 text-gray-900">
+    <div class="premium-card !p-0 overflow-hidden">
+        <div class="p-4 md:p-6 text-gray-900 border-b border-white/40">
 
             {{-- HEADER & SEARCH --}}
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -168,34 +168,24 @@
 
             {{-- TABLE --}}
             @if ($applications->count() > 0)
-                <div class="overflow-x-auto rounded-lg border border-gray-200">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                <div class="premium-table-container !rounded-none !border-x-0 !border-b-0">
+                    <table class="min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent">
+                        <thead class="premium-table-header">
                             <tr>
-                                <th
-                                    class="px-4 md:px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Details</th>
-                                <th
-                                    class="hidden md:table-cell px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Sport</th>
-                                <th
-                                    class="hidden md:table-cell px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Dates</th>
-                                <th
-                                    class="px-4 md:px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Status</th>
-                                <th
-                                    class="px-4 md:px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Action</th>
+                                <th>Details</th>
+                                <th class="hidden md:table-cell">Sport</th>
+                                <th class="hidden md:table-cell">Dates</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
 
-                        <tbody id="admission-list" class="bg-white divide-y divide-gray-200">
+                        <tbody id="admission-list" class="divide-y divide-slate-100/50">
                             @foreach ($applications as $app)
-                                <tr class="hover:bg-gray-50 transition">
+                                <tr class="premium-table-row align-middle group">
 
                                     {{-- APPLICANT DETAILS --}}
-                                    <td class="px-4 md:px-6 py-4">
+                                    <td class="premium-table-cell">
                                         <div class="flex items-center">
                                             <div
                                                 class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-xs uppercase shadow-sm">
@@ -219,7 +209,7 @@
                                     </td>
 
                                     {{-- SPORT (Desktop) --}}
-                                    <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <td class="hidden md:table-cell premium-table-cell">
                                         <div class="flex flex-col">
                                             <span class="font-bold text-indigo-900">{{ $app->sport }}</span>
                                             @if($app->sport_specification)
@@ -229,18 +219,18 @@
                                     </td>
 
                                     {{-- DATES (Desktop) --}}
-                                    <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <div class="flex flex-col text-xs">
-                                            <span>Submitted: {{ $app->created_at->format('M d, Y') }}</span>
+                                    <td class="hidden md:table-cell premium-table-cell">
+                                        <div class="flex flex-col text-[11px] font-bold text-slate-500 tracking-wide uppercase">
+                                            <span>Sub: {{ $app->created_at->format('M d') }}</span>
                                             @if ($app->date_checked)
-                                                <span class="text-green-600 font-medium">Checked:
+                                                <span class="text-emerald-500">Chk:
                                                     {{ \Carbon\Carbon::parse($app->date_checked)->format('M d') }}</span>
                                             @endif
                                         </div>
                                     </td>
 
                                     {{-- STATUS BADGES --}}
-                                    <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+                                    <td class="premium-table-cell">
                                         {{-- ⚡ FIXED: Added logic for "Admitted" / "Officially Enrolled" ⚡ --}}
                                         @php
                                             $badgeStatus = strtoupper($app->status);
@@ -278,10 +268,10 @@
                                     </td>
 
                                     {{-- ACTION --}}
-                                    <td class="px-4 md:px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                    <td class="premium-table-cell text-center">
                                         <a href="{{ route('admission.show', $app->id) }}" wire:navigate
-                                            class="text-indigo-600 hover:text-white border border-indigo-600 hover:bg-indigo-600 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center inline-flex items-center transition shadow-sm">
-                                            <i class='bx bx-show mr-1'></i> <span class="hidden md:inline">Review</span>
+                                            class="premium-btn-secondary !py-1.5 !px-3 !text-[10px] uppercase tracking-widest">
+                                            <i class='bx bx-show mr-1.5 text-slate-400'></i> <span class="hidden md:inline">Review</span>
                                         </a>
                                     </td>
                                 </tr>

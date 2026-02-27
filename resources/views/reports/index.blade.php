@@ -18,7 +18,7 @@
             
             {{-- KALIWA: Title Only (Removed Desktop Back Button too) --}}
             <div class="flex items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="page-title flex border-none">
                     {{ __('Reports & Documents Generation') }}
                 </h2>
             </div>
@@ -42,7 +42,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {{-- CARD 1: Grade Sheets --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500 hover:shadow-md transition">
+                <div class="premium-card !p-0 overflow-hidden">
                     <div class="p-6">
                         <div class="flex items-center mb-4">
                             <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
@@ -60,7 +60,7 @@
                 </div>
 
                 {{-- CARD 2: Report Cards --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-green-500 hover:shadow-md transition">
+                <div class="premium-card !p-0 overflow-hidden">
                     <div class="p-6">
                         <div class="flex items-center mb-4">
                             <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
@@ -78,7 +78,7 @@
                 </div>
 
                 {{-- CARD 3: Academic Awardees --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-yellow-500 hover:shadow-md transition">
+                <div class="premium-card !p-0 overflow-hidden">
                     <div class="p-6">
                         <div class="flex items-center mb-4">
                             <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
@@ -96,7 +96,7 @@
                 </div>
 
                 {{-- CARD 4: Student Ranking --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-indigo-600 hover:shadow-md transition">
+                <div class="premium-card !p-0 overflow-hidden">
                     <div class="p-6">
                         <div class="flex items-center mb-4">
                             <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">

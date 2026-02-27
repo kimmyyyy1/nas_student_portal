@@ -65,6 +65,7 @@ class Applicant extends Model
         'uploaded_files',
         'status',
         'is_enrolled', // Added tracking field
+        'student_id', // Official Student Number inputted by the Registrar
         'assessment_score',
         'rejection_reason',
         'document_remarks',

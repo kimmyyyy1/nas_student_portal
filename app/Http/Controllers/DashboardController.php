@@ -141,9 +141,14 @@ class DashboardController extends Controller
             return null;
         };
 
-        $allStudents = Student::select('first_name', 'last_name', 'region', 'province', 'grade_level', 'id_picture', 'municipality_city', 'barangay', 'street_address')->get();
+        $allStudents = Student::select('first_name', 'last_name', 'region', 'province', 'grade_level', 'id_picture', 'municipality_city', 'barangay', 'street_address', 'sex')->get();
         $mapMarkers = [];
-        $islandCounts = ['Luzon' => 0, 'Visayas' => 0, 'Mindanao' => 0, 'Unknown' => 0];
+        $islandCounts = [
+            'Luzon' => ['total' => 0, 'male' => 0, 'female' => 0],
+            'Visayas' => ['total' => 0, 'male' => 0, 'female' => 0],
+            'Mindanao' => ['total' => 0, 'male' => 0, 'female' => 0],
+            'Unknown' => ['total' => 0, 'male' => 0, 'female' => 0]
+        ];
 
         $luzonRegions = ['NCR', 'CAR', 'REGION I', 'REGION II', 'REGION III', 'REGION IV-A', 'REGION IV-B', 'REGION V', 'ILOCOS', 'CAGAYAN', 'CENTRAL LUZON', 'CALABARZON', 'MIMAROPA', 'BICOL'];
         $visayasRegions = ['REGION VI', 'REGION VII', 'REGION VIII', 'WESTERN VISAYAS', 'CENTRAL VISAYAS', 'EASTERN VISAYAS'];
@@ -156,13 +161,33 @@ class DashboardController extends Controller
             $prov   = trim($student->province ?: '');
             $reg    = trim($student->region ?: '');
 
-            // Island Grouping Logic
+            // Island Grouping Logic & Gender Tallying
             $r = strtoupper($reg);
             $foundIsland = false;
-            foreach($luzonRegions as $l) if(strpos($r, $l) !== false) { $islandCounts['Luzon']++; $foundIsland = true; break; }
-            if(!$foundIsland) foreach($visayasRegions as $v) if(strpos($r, $v) !== false) { $islandCounts['Visayas']++; $foundIsland = true; break; }
-            if(!$foundIsland) foreach($mindanaoRegions as $m) if(strpos($r, $m) !== false) { $islandCounts['Mindanao']++; $foundIsland = true; break; }
-            if(!$foundIsland) $islandCounts['Unknown']++;
+            $islandKey = 'Unknown';
+            
+            foreach($luzonRegions as $l) {
+                if(strpos($r, $l) !== false) { $islandKey = 'Luzon'; $foundIsland = true; break; }
+            }
+            if(!$foundIsland) {
+                foreach($visayasRegions as $v) {
+                    if(strpos($r, $v) !== false) { $islandKey = 'Visayas'; $foundIsland = true; break; }
+                }
+            }
+            if(!$foundIsland) {
+                foreach($mindanaoRegions as $m) {
+                    if(strpos($r, $m) !== false) { $islandKey = 'Mindanao'; $foundIsland = true; break; }
+                }
+            }
+
+            // Tally Total and Gender
+            $islandCounts[$islandKey]['total']++;
+            $sex = strtolower(trim($student->sex ?: ''));
+            if(in_array($sex, ['male', 'm', 'boy'])) {
+                $islandCounts[$islandKey]['male']++;
+            } else if(in_array($sex, ['female', 'f', 'girl'])) {
+                $islandCounts[$islandKey]['female']++;
+            }
 
             if (empty($city) && empty($prov) && empty($reg)) continue;
 

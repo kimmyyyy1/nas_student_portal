@@ -1,25 +1,25 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+            <h2 class="page-title">
                 {{ __('Section Management') }}
-                <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
-                    <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
+                <span class="ml-4 px-2.5 py-1 rounded-md text-[10px] font-black tracking-widest bg-rose-100 text-rose-600 animate-pulse flex items-center shadow-sm border border-rose-200">
+                    <span class="w-1.5 h-1.5 bg-rose-600 rounded-full mr-1.5"></span> LIVE
                 </span>
             </h2>
-            <a href="{{ route('sections.create') }}" wire:navigate class="hidden md:inline-flex bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm items-center shadow transition">
+            <a href="{{ route('sections.create') }}" wire:navigate class="hidden md:inline-flex premium-btn-primary">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add Section
             </a>
         </div>
     </x-slot>
 
-    <div class="py-4 md:py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+    <div class="py-4 md:py-8">
+        <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- 🟢 MOBILE ADD BUTTON --}}
             <div class="block md:hidden mb-4">
-                <a href="{{ route('sections.create') }}" wire:navigate class="flex items-center justify-center w-full px-4 py-3 bg-blue-600 text-white rounded-lg shadow-md font-bold text-sm hover:bg-blue-700 active:scale-95 transition-all">
+                <a href="{{ route('sections.create') }}" wire:navigate class="w-full justify-center premium-btn-primary gap-2">
                     <i class='bx bx-plus mr-2 text-xl'></i> Add New Section
                 </a>
             </div>
@@ -35,58 +35,58 @@
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-                <div class="p-0 md:p-6 text-gray-900">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 whitespace-nowrap">
-                            <thead class="bg-gray-50">
+            <div class="premium-card !p-0 overflow-hidden">
+                <div class="p-6 md:p-8 border-b border-white/40">
+                    <div class="premium-table-container !rounded-none !border-x-0 !border-b-0">
+                        <table class="min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent">
+                            <thead class="premium-table-header">
                                 <tr>
-                                    <th scope="col" class="px-4 md:px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Grade Level</th>
-                                    <th scope="col" class="px-4 md:px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Section Name</th>
-                                    <th scope="col" class="hidden md:table-cell px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Adviser</th>
-                                    <th scope="col" class="relative px-4 md:px-6 py-3"><span class="sr-only">Actions</span></th>
+                                    <th>Grade Level</th>
+                                    <th>Section Name</th>
+                                    <th class="hidden md:table-cell">Adviser</th>
+                                    <th class="relative pl-6 pr-4 sm:pr-6 text-right"><span class="sr-only">Actions</span></th>
                                 </tr>
                             </thead>
                             
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="divide-y divide-slate-100/50">
                                 @forelse ($sections as $section)
-                                    <tr class="hover:bg-gray-50 transition">
+                                    <tr class="premium-table-row group">
                                         {{-- 1. Grade Level --}}
-                                        <td class="px-4 md:px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 border border-orange-200">
+                                        <td class="premium-table-cell">
+                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold tracking-widest uppercase rounded-full bg-orange-100 text-orange-800 border border-orange-200">
                                                 {{ $section->grade_level }}
                                             </span>
                                         </td>
 
                                         {{-- 2. Section Name --}}
-                                        <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                        <td class="premium-table-cell text-sm font-bold text-slate-800 uppercase tracking-wide">
                                             {{ $section->section_name }}
                                         </td>
 
                                         {{-- 3. ADVISER (Fixed Logic) --}}
-                                        <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <div class="flex items-center">
-                                                <i class='bx bx-user text-gray-400 mr-2'></i>
+                                        <td class="hidden md:table-cell premium-table-cell text-[13px]">
+                                            <div class="flex items-center text-slate-700">
+                                                <i class='bx bx-user text-indigo-400 mr-2 text-lg'></i>
                                                 
                                                 {{-- Check kung may Relationship sa Staff --}}
                                                 @if(isset($section->adviser) && $section->adviser)
-                                                    <span class="font-medium text-gray-900">
+                                                    <span class="font-bold text-slate-800 uppercase tracking-tight">
                                                         {{ $section->adviser->first_name }} {{ $section->adviser->last_name }}
                                                     </span>
                                                 
                                                 {{-- Fallback: Check kung may adviser_name na text column --}}
                                                 @elseif(!empty($section->adviser_name))
-                                                    <span class="font-medium text-gray-900">{{ $section->adviser_name }}</span>
+                                                    <span class="font-bold text-slate-800 uppercase tracking-tight">{{ $section->adviser_name }}</span>
                                                 
                                                 {{-- Wala talagang assigned --}}
                                                 @else
-                                                    <span class="italic text-gray-400">No Adviser Assigned</span>
+                                                    <span class="italic text-slate-400 font-medium">No Adviser Assigned</span>
                                                 @endif
                                             </div>
                                         </td>
                                         
                                         {{-- 4. Actions --}}
-                                        <td class="px-4 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <td class="premium-table-cell text-right text-[13px] font-bold">
                                             <a href="{{ route('sections.edit', $section->id) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 transition">Edit</a>
                                             <form class="inline-block" method="POST" action="{{ route('sections.destroy', $section->id) }}" onsubmit="return confirm('Are you sure you want to delete this section?');">
                                                 @csrf @method('DELETE')

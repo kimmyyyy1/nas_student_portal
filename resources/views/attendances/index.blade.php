@@ -22,7 +22,7 @@
             
             {{-- DYNAMIC TITLE --}}
             {{-- Added truncate/min-w-0 para hindi itulak ang layout sa mobile --}}
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight truncate min-w-0 mr-2" x-text="title">
+            <h2 class="page-title mr-2" x-text="title">
                 {{ __('Attendance Checking') }}
             </h2>
 
@@ -31,14 +31,14 @@
                     x-cloak
                     x-transition
                     onclick="document.getElementById('hidden-back-btn').click()"
-                    class="hidden md:flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm transition duration-150 ease-in-out cursor-pointer shrink-0">
+                    class="hidden md:flex premium-btn-secondary shrink-0">
                 <i class='bx bx-arrow-back'></i> Back to Classes
             </button>
         </div>
     </x-slot>
 
-    <div class="py-6 md:py-12 font-poppins-override">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+    <div class="py-4 md:py-8 font-poppins-override">
+        <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- 🟢 MOBILE BACK BUTTON (Visible only on Mobile) --}}
             {{-- May sariling Alpine Listener para sumunod sa logic ng Livewire --}}
@@ -50,7 +50,7 @@
                  class="block md:hidden mb-6">
                 
                 <button onclick="document.getElementById('hidden-back-btn').click()"
-                        class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition cursor-pointer">
+                        class="premium-btn-secondary w-full justify-center">
                     <i class='bx bx-arrow-back mr-2'></i> Back to Classes
                 </button>
             </div>

@@ -10,8 +10,8 @@
         </div>
     @endif
 
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-        <div class="p-6 text-gray-900">
+    <div class="premium-card !p-0 overflow-hidden">
+        <div class="p-6 md:p-8 text-gray-900 border-b border-white/40">
 
             {{-- DYNAMIC TITLE --}}
             @if($isCreating)
@@ -26,38 +26,40 @@
 
             {{-- VIEW 1: TABLE LIST --}}
             @if(!$isCreating && !$isEditing)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                <div class="premium-table-container !rounded-none !border-x-0 !border-b-0">
+                    <table class="min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent">
+                        <thead class="premium-table-header">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Subject</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Section</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Teacher</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Schedule</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Room</th>
-                                <th class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+                                <th>Subject</th>
+                                <th>Section</th>
+                                <th>Teacher</th>
+                                <th>Schedule</th>
+                                <th>Room</th>
+                                <th class="text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="divide-y divide-slate-100/50">
                             @forelse ($schedules as $schedule)
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                <tr class="premium-table-row group">
+                                    <td class="premium-table-cell text-[13px] font-black tracking-widest text-indigo-600 uppercase">
                                         {{ $schedule->subject->subject_name ?? 'N/A' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $schedule->section->section_name ?? 'N/A' }}
+                                    <td class="premium-table-cell font-bold text-slate-800">
+                                        <div class="px-2 py-1 inline-flex text-[10px] leading-5 font-black uppercase tracking-widest rounded-md bg-blue-100 text-blue-800 shadow-sm border border-blue-200/50">
+                                            {{ $schedule->section->section_name ?? 'N/A' }}
+                                        </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ optional($schedule->staff)->first_name }} {{ optional($schedule->staff)->last_name }}
+                                    <td class="premium-table-cell">
+                                        <div class="font-bold text-[13px] text-slate-800">{{ optional($schedule->staff)->first_name }} {{ optional($schedule->staff)->last_name }}</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <span class="font-medium">{{ $schedule->day }}</span><br>
-                                        <span class="text-xs text-gray-500">
+                                    <td class="premium-table-cell">
+                                        <span class="font-bold text-teal-600 text-[13px] uppercase tracking-widest">{{ $schedule->day }}</span><br>
+                                        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                                             {{ date('g:i A', strtotime($schedule->time_start)) }} - {{ date('g:i A', strtotime($schedule->time_end)) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $schedule->room ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td class="premium-table-cell font-bold text-[13px] text-slate-500 uppercase tracking-widest">{{ $schedule->room ?? 'N/A' }}</td>
+                                    <td class="premium-table-cell text-right text-[13px] font-bold">
                                         {{-- Edit Button --}}
                                         <button wire:click="edit({{ $schedule->id }})" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 cursor-pointer">Edit</button>
                                         

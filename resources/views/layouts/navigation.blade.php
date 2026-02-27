@@ -36,7 +36,7 @@
 
     {{-- 3. SIDEBAR --}}
     <nav :class="{'translate-x-0': open, '-translate-x-full': !open}"
-         class="fixed left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-xl border-r border-white/20 z-50 shadow-2xl no-print 
+         class="fixed left-0 top-0 bottom-0 w-64 bg-white/60 backdrop-blur-2xl border-r border-white/50 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] no-print 
                 transition-transform duration-300 ease-in-out 
                 lg:translate-x-0 transform -translate-x-full lg:transition-none flex flex-col">
         
@@ -59,17 +59,19 @@
 
             <div class="px-3 space-y-1 pb-4">
                 @php
-                    $navMainClass = "flex items-center px-4 py-3 text-sm font-bold rounded-lg transition-all duration-200 group transform active:scale-95";
-                    $navSubClass = "flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group transform active:scale-95";
+                    $navMainClass = "flex items-center px-4 py-3 text-[13px] font-bold rounded-xl transition-all duration-300 group hover:translate-x-1";
+                    $navSubClass = "flex items-center px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-all duration-300 group hover:translate-x-1";
                     
-                    $activeIndigo = "bg-indigo-50 text-indigo-800 shadow-sm ring-1 ring-indigo-200";
-                    $inactiveIndigo = "text-gray-600 hover:bg-gray-50 hover:text-indigo-700";
+                    $activeStyle = "bg-gradient-to-r from-indigo-100/80 to-transparent text-indigo-700 font-extrabold shadow-sm relative before:absolute before:inset-y-2 before:left-0 before:w-1.5 before:bg-indigo-600 before:rounded-r-full";
+                    $inactiveStyle = "text-slate-500 hover:bg-white/50 hover:text-indigo-600";
                     
-                    $activeBlue = "bg-blue-50 text-blue-800 border-r-4 border-blue-600";
-                    $inactiveBlue = "text-gray-600 hover:bg-gray-50 hover:text-blue-700";
-
-                    $activeOrange = "bg-orange-50 text-orange-800 border-r-4 border-orange-600";
-                    $inactiveOrange = "text-gray-600 hover:bg-gray-50 hover:text-orange-700";
+                    // We map the old variable names to the new unified premium style
+                    $activeIndigo = $activeStyle;
+                    $inactiveIndigo = $inactiveStyle;
+                    $activeBlue = $activeStyle;
+                    $inactiveBlue = $inactiveStyle;
+                    $activeOrange = "bg-gradient-to-r from-orange-100/80 to-transparent text-orange-700 font-extrabold shadow-sm relative before:absolute before:inset-y-2 before:left-0 before:w-1.5 before:bg-orange-600 before:rounded-r-full";
+                    $inactiveOrange = "text-slate-500 hover:bg-white/50 hover:text-orange-600";
                 @endphp
 
                 @if(Auth::user()->role === 'student')
@@ -124,28 +126,28 @@
                     {{-- ========================================================================= --}}
                     
                     <a href="{{ route('dashboard') }}" wire:navigate
-                       class="{{ $navMainClass }} {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-800 shadow-sm ring-1 ring-blue-200' : 'text-gray-600 hover:bg-gray-50 hover:text-blue-700' }}">
-                        <i class='bx bxs-dashboard text-xl mr-3 {{ request()->routeIs('dashboard') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Admin Dashboard
+                       class="{{ $navMainClass }} {{ request()->routeIs('dashboard') ? $activeBlue : $inactiveBlue }}">
+                        <i class='bx bxs-dashboard text-xl mr-3 {{ request()->routeIs('dashboard') ? 'text-indigo-600 drop-shadow-sm' : 'text-slate-400 group-hover:text-indigo-500' }}'></i> Admin Dashboard
                     </a>
 
                     {{-- 🔹 ENROLLMENT GROUP --}}
-                    <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Enrollment</p></div>
+                    <div class="pt-5 pb-1.5"><p class="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Enrollment</p></div>
                     
                     <a href="{{ route('admission.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('admission.*') ? $activeBlue : $inactiveBlue }}">
-                        <img src="{{ asset('images/nas/NASCENT SAS ICON.png') }}" alt="NASCENT SAS ICON" class="h-5 w-5 mr-3">
+                        <img src="{{ asset('images/nas/NASCENT SAS ICON.png') }}" alt="NASCENT SAS ICON" class="h-5 w-5 mr-3 {{ request()->routeIs('admission.*') ? 'drop-shadow-sm' : 'opacity-70 group-hover:opacity-100' }}">
                         <span class="flex-1">NASCENT SAS</span>
                         @if(isset($pendingAdmissionsCount) && $pendingAdmissionsCount > 0)
-                            <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold text-red-100 bg-red-600 rounded-full shadow-sm">{{ $pendingAdmissionsCount }}</span>
+                            <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold text-rose-100 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full shadow-sm">{{ $pendingAdmissionsCount }}</span>
                         @endif
                     </a>
 
                     <a href="{{ route('official-enrollment.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('official-enrollment.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-user-plus text-lg mr-3 {{ request()->routeIs('official-enrollment.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i>
-                        Enrollment
+                        <i class='bx bx-user-plus text-lg mr-3 {{ request()->routeIs('official-enrollment.*') ? 'text-indigo-600 drop-shadow-sm' : 'text-slate-400 group-hover:text-indigo-500' }}'></i>
+                        Official Enrollment
                     </a>
 
                     <a href="{{ route('students.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('students.*') ? $activeBlue : $inactiveBlue }}">
-                        <i class='bx bx-user-pin text-lg mr-3 {{ request()->routeIs('students.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> Student Directory
+                        <i class='bx bx-user-pin text-lg mr-3 {{ request()->routeIs('students.*') ? 'text-indigo-600 drop-shadow-sm' : 'text-slate-400 group-hover:text-indigo-500' }}'></i> Student Directory
                     </a>
 
                     @if(Auth::user()->name !== 'Registrar')
@@ -223,29 +225,30 @@
             }
         @endphp
 
-        <div class="p-4 border-t border-gray-200/50 bg-gray-50/80 shrink-0 backdrop-blur-sm mt-auto relative">
-            <div class="flex items-center mb-3 justify-between">
+        <div class="p-5 border-t border-white/60 bg-white/40 shrink-0 backdrop-blur-md mt-auto relative shadow-[0_-4px_24px_rgba(0,0,0,0.02)]">
+            <div class="flex items-center mb-4 justify-between">
                 <div class="flex items-center min-w-0">
-                    <div class="flex-shrink-0">
-                        <div class="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                    <div class="flex-shrink-0 relative">
+                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shadow-md ring-2 ring-white">
                             {{ substr($displayName, 0, 1) }}
                         </div>
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full"></div>
                     </div>
                     <div class="ml-3 min-w-0">
-                        <p class="text-sm font-bold text-gray-900 truncate" title="{{ $displayName }}">{{ $displayName }}</p>
-                        <p class="text-xs text-gray-500 truncate">{{ $displayRole }}</p>
+                        <p class="text-[13px] font-black text-slate-800 truncate" title="{{ $displayName }}">{{ $displayName }}</p>
+                        <p class="text-[10px] font-bold tracking-widest uppercase text-indigo-500 truncate">{{ $displayRole }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-xs font-bold rounded-md text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition transform active:scale-95">
-                    <i class='bx bx-user mr-1 text-sm'></i> Profile
+            <div class="grid grid-cols-2 gap-3">
+                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center justify-center px-3 py-2 border border-slate-200 shadow-sm text-xs font-bold rounded-xl text-slate-700 bg-white/80 hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all hover:shadow-md hover:-translate-y-0.5">
+                    <i class='bx bx-user mr-1.5 text-sm text-slate-400'></i> Profile
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="w-full flex items-center justify-center px-3 py-2 border border-transparent shadow-sm text-xs font-bold rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition transform active:scale-95">
-                        <i class='bx bx-log-out mr-1 text-sm'></i> Sign Out
+                    <button type="submit" class="w-full flex items-center justify-center px-3 py-2 border border-transparent shadow-sm text-xs font-bold rounded-xl text-white bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all hover:shadow-md hover:-translate-y-0.5">
+                        <i class='bx bx-log-out mr-1.5 text-sm'></i> Sign Out
                     </button>
                 </form>
             </div>
@@ -253,27 +256,45 @@
     </nav>
 </div>
 
-{{-- ⚡ THE REAL FIX: INTERCEPTING THE DOM MORPH ENGINE ⚡ --}}
+{{-- ⚡ SIDEBAR SCROLL RESTORATION (wire:navigate compatible) ⚡ --}}
 <script data-navigate-once>
-    // 1. Initial Load: i-set agad yung scroll bago pa mag-load ang ibang elements
     (function() {
-        const sidebar = document.getElementById('sidebar-menu');
-        if (sidebar) sidebar.scrollTop = sessionStorage.getItem('sidebarScroll') || 0;
-    })();
+        const STORAGE_KEY = 'sidebarScroll';
 
-    // 2. Isave ang posisyon habang nagso-scroll ka
-    document.addEventListener('scroll', (e) => {
-        if (e.target.id === 'sidebar-menu') {
-            sessionStorage.setItem('sidebarScroll', e.target.scrollTop);
+        function restoreSidebarScroll() {
+            requestAnimationFrame(() => {
+                const sidebar = document.getElementById('sidebar-menu');
+                if (sidebar) {
+                    const saved = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0', 10);
+                    sidebar.scrollTop = saved;
+                    // Double-ensure after a tiny delay (browser may reset during paint)
+                    setTimeout(() => { sidebar.scrollTop = saved; }, 50);
+                }
+            });
         }
-    }, true);
 
-    // 3. I-intercept ang mismong Livewire Morphing para BAGO pa mag-paint ang browser, tapos na siya.
-    document.addEventListener('livewire:initialized', () => {
-        Livewire.hook('morph.updated', ({ el }) => {
-            if (el.id === 'sidebar-menu') {
-                el.scrollTop = sessionStorage.getItem('sidebarScroll') || 0;
+        function saveSidebarScroll(e) {
+            if (e.target && e.target.id === 'sidebar-menu') {
+                sessionStorage.setItem(STORAGE_KEY, e.target.scrollTop);
             }
+        }
+
+        // 1. Save scroll position continuously
+        document.addEventListener('scroll', saveSidebarScroll, true);
+
+        // 2. Restore on initial page load
+        restoreSidebarScroll();
+
+        // 3. Restore after every wire:navigate page swap (Livewire v3 SPA)
+        document.addEventListener('livewire:navigated', restoreSidebarScroll);
+
+        // 4. Also intercept Livewire morphdom updates (for non-navigate re-renders)
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.hook('morph.updated', ({ el }) => {
+                if (el.id === 'sidebar-menu') {
+                    restoreSidebarScroll();
+                }
+            });
         });
-    });
+    })();
 </script>

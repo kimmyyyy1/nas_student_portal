@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="page-title flex border-none">
                 {{ __('Awards & Recognition') }}
             </h2>
             <a href="{{ route('awards.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-bold text-sm shadow">
@@ -19,8 +19,8 @@
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+            <div class="premium-card !p-0 overflow-hidden">
+                <div class="p-6 md:p-8 text-slate-800 border-t border-white/40">
                     
                     @if($awards->isEmpty())
                         <p class="text-center text-gray-500 py-10">No awards recorded yet.</p>

@@ -27,17 +27,17 @@
         {{-- 💻 DESKTOP HEADER: Standard View                              --}}
         {{-- ============================================================= --}}
         <div class="hidden md:flex justify-between items-center w-full py-2 font-poppins-override">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+            <h2 class="page-title">
                 {{ __('Schedules') }}
-                <span class="ml-3 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
-                    <span class="w-2 h-2 bg-red-600 rounded-full mr-1"></span> LIVE
+                <span class="ml-4 px-2.5 py-1 rounded-md text-[10px] font-black tracking-widest bg-rose-100 text-rose-600 animate-pulse flex items-center shadow-sm border border-rose-200">
+                    <span class="w-1.5 h-1.5 bg-rose-600 rounded-full mr-1.5"></span> LIVE
                 </span>
             </h2>
             
             {{-- 🟢 DESKTOP BUTTON (Hidden on Mobile) --}}
             <button id="desktop-add-btn"
                     onclick="this.style.display='none'; document.getElementById('hidden-create-btn').click()"
-                    class="hidden md:flex bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm items-center justify-center shadow transition duration-150 ease-in-out">
+                    class="hidden md:flex premium-btn-primary">
                 {{-- SVG Plus Icon --}}
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add Schedule
@@ -47,8 +47,8 @@
     </x-slot>
 
     {{-- 👇 CONTENT BODY --}}
-    <div class="py-2 md:py-12 font-poppins-override">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+    <div class="py-4 md:py-8 font-poppins-override">
+        <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- 🟢 MOBILE ADD BUTTON (Visible ONLY on Mobile) --}}
             <div class="block md:hidden mb-4" id="mobile-btn-container">

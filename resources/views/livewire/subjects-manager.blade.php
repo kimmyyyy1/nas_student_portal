@@ -10,8 +10,8 @@
         </div>
     @endif
 
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-        <div class="p-6 text-gray-900">
+    <div class="premium-card !p-0 overflow-hidden">
+        <div class="p-6 text-gray-900 border-b border-white/40">
 
             {{-- DYNAMIC TITLE --}}
             @if($isCreating)
@@ -26,29 +26,29 @@
 
             {{-- VIEW 1: TABLE LIST --}}
             @if(!$isCreating && !$isEditing)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                <div class="premium-table-container !rounded-none !border-x-0 !border-b-0">
+                    <table class="min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent">
+                        <thead class="premium-table-header">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Subject Code</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Subject Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Description</th>
-                                <th class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Description</th>
+                                <th class="text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="divide-y divide-slate-100/50">
                             @forelse ($subjects as $subject)
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                <tr class="premium-table-row group">
+                                    <td class="premium-table-cell text-[13px] font-black tracking-widest text-indigo-600 uppercase">
                                         {{ $subject->subject_code }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td class="premium-table-cell font-bold text-slate-800">
                                         {{ $subject->subject_name }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="premium-table-cell text-xs text-slate-500 font-medium">
                                         {{ Str::limit($subject->description, 50) ?? 'N/A' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td class="premium-table-cell text-right text-[13px] font-bold">
                                         {{-- Edit Button --}}
                                         <button wire:click="edit({{ $subject->id }})" class="text-indigo-600 hover:text-indigo-900 font-bold mr-3 cursor-pointer">Edit</button>
                                         

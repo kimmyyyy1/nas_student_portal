@@ -23,8 +23,8 @@
         {{-- ============================================================= --}}
         <div class="hidden md:flex items-center justify-between w-full">
             <div class="flex items-center gap-4">
-                <img src="{{ asset('images/nas/NASCENT SAS ICON.png') }}" alt="NASCENT SAS ICON" class="h-12 w-auto">
-                <h2 class="text-2xl font-bold text-gray-800">NASCENT SAS</h2>
+                <img src="{{ asset('images/nas/NASCENT SAS ICON.png') }}" alt="NASCENT SAS ICON" class="h-10 w-auto drop-shadow-sm">
+                <h2 class="page-title">NASCENT SAS</h2>
             </div>
             {{-- LIVE INDICATOR --}}
             <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 animate-pulse flex items-center shadow-sm border border-red-200">
@@ -34,9 +34,9 @@
 
     </x-slot>
 
-    {{-- 👇 FIX: 'py-4' sa mobile para tamang-tama ang taas, 'md:py-12' sa desktop --}}
-    <div class="py-4 md:py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-4">
+    {{-- 👇 FIX: 'py-4' sa mobile para tamang-tama ang taas, 'md:py-8' sa desktop --}}
+    <div class="py-4 md:py-8">
+        <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8 px-4">
             @livewire('admission-masterlist')
         </div>
     </div>

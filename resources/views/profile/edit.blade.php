@@ -15,13 +15,13 @@
 
 <x-dynamic-component :component="$layout">
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="page-title">
             {{ __('Profile Settings') }}
         </h2>
     </x-slot>
 
     <div class="py-6 sm:py-12">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 px-4">
+        <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8 px-4">
             
             {{-- Success Message --}}
             @if (session('status') === 'profile-updated')
@@ -36,7 +36,7 @@
             @endif
 
             {{-- SINGLE CARD CONTAINER --}}
-            <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+            <div class="premium-card !p-0 overflow-hidden">
                 
                 {{-- Header / Banner --}}
                 <div class="bg-indigo-700 p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
@@ -147,7 +147,7 @@
 
                     {{-- SINGLE SAVE BUTTON --}}
                     <div class="mt-8 sm:mt-10 flex justify-end border-t border-gray-100 pt-6">
-                        <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3 bg-indigo-700 border border-transparent rounded-lg font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-800 focus:bg-indigo-800 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <button type="submit" class="premium-btn-primary !px-8 !py-3 w-full sm:w-auto justify-center">
                             <i class='bx bx-save text-lg mr-2'></i> Save All Changes
                         </button>
                     </div>
