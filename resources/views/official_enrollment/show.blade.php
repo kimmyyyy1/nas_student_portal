@@ -331,9 +331,15 @@
                             $files = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
                             
                             $renewalLabels = [
-                                'renewal_sa_info_form' => 'Student-Athlete’s Information Form',
-                                'renewal_report_card' => 'Latest Report Card (SF9)',
-                                'renewal_medical_clearance' => 'Updated Medical Clearance'
+                                'renewal_sa_info_form' => 'Student-Athlete Info Form',
+                                'renewal_basic_ed_form' => 'Basic Ed. Enrollment Form',
+                                'renewal_scholarship_agreement' => 'Scholarship Agreement',
+                                'renewal_uniform_measurement' => 'Uniform Measurement',
+                                'renewal_health_assessment' => 'Health Assessment Forms',
+                                'renewal_passport' => 'Passport (Optional)',
+                                'renewal_mother_id' => 'Mother ID (Optional)',
+                                'renewal_father_id' => 'Father ID (Optional)',
+                                'renewal_guardian_id' => 'Guardian ID'
                             ];
 
                             $initialLabels = [
@@ -458,29 +464,46 @@
                             @else
                                 {{-- PENDING STATE: SHOW BUTTONS --}}
                                 <div class="bg-indigo-600/90 backdrop-blur-md p-6 sm:p-8 text-center text-white relative w-full">
-                                    <h3 class="font-black uppercase tracking-tighter italic text-lg sm:text-xl">Admit Student</h3>
-                                    <p class="text-[9px] sm:text-[10px] font-bold text-white/70 uppercase mt-1">Final Registrar Approval</p>
+                                    <h3 class="font-black uppercase tracking-tighter italic text-lg sm:text-xl">{{ $isRenewal ? 'Confirm Renewal' : 'Admit Student' }}</h3>
+                                    <p class="text-[9px] sm:text-[10px] font-bold text-white/70 uppercase mt-1">Final Registrar {{ $isRenewal ? 'Verification' : 'Approval' }}</p>
                                 </div>
                                 <div class="p-5 sm:p-8 w-full">
                                     <form action="{{ route('official-enrollment.store', $applicant->id) }}" method="POST" class="space-y-5 sm:space-y-6 w-full">
                                         @csrf
-                                        <div class="text-center w-full">
-                                            <label for="student_id" class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 sm:mb-3">Enter Student No. (Registrar)</label>
-                                            <div class="bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border-2 border-slate-800 w-full">
-                                                <input type="text" 
-                                                       name="student_id" 
-                                                       id="student_id"
-                                                       value="{{ old('student_id', $applicant->student_id ?? '') }}" 
-                                                       required 
-                                                       placeholder="e.g. 2026-00001" 
-                                                       class="w-full bg-transparent text-center font-mono text-xl sm:text-2xl font-black tracking-[0.1em] sm:tracking-[0.2em] text-indigo-400 border-0 border-b-2 border-indigo-500/50 focus:border-indigo-400 focus:ring-0 placeholder-slate-600 uppercase">
+                                        @if($isRenewal)
+                                            <div class="text-center w-full">
+                                                <label class="block text-[9px] sm:text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2 sm:mb-3">Existing Student No.</label>
+                                                <div class="bg-emerald-900/50 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border-2 border-emerald-800 text-white w-full">
+                                                    @php
+                                                        $std = \App\Models\Student::where('lrn', $applicant->lrn)->first();
+                                                        $existingId = $std ? $std->nas_student_id : $applicant->student_id;
+                                                    @endphp
+                                                    <span class="font-mono text-xl sm:text-2xl font-black tracking-[0.1em] sm:tracking-[0.2em] text-emerald-400">
+                                                        {{ $existingId }}
+                                                    </span>
+                                                    <input type="hidden" name="student_id" value="{{ $existingId }}">
+                                                </div>
+                                                <p class="text-[8px] text-emerald-400/70 mt-2 flex justify-center items-center gap-1 italic"><i class='bx bxs-check-circle'></i> Continuing student detected</p>
                                             </div>
-                                            <p class="text-[8px] text-slate-400 mt-2 italic">This will be the official Student Number assigned by the Registrar</p>
-                                        </div>
+                                        @else
+                                            <div class="text-center w-full">
+                                                <label for="student_id" class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 sm:mb-3">Enter Student No. (Registrar)</label>
+                                                <div class="bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border-2 border-slate-800 w-full">
+                                                    <input type="text" 
+                                                           name="student_id" 
+                                                           id="student_id"
+                                                           value="{{ old('student_id', $applicant->student_id ?? '') }}" 
+                                                           required 
+                                                           placeholder="e.g. 2026-00001" 
+                                                           class="w-full bg-transparent text-center font-mono text-xl sm:text-2xl font-black tracking-[0.1em] sm:tracking-[0.2em] text-indigo-400 border-0 border-b-2 border-indigo-500/50 focus:border-indigo-400 focus:ring-0 placeholder-slate-600 uppercase">
+                                                </div>
+                                                <p class="text-[8px] text-slate-400 mt-2 italic">This will be the official Student Number assigned by the Registrar</p>
+                                            </div>
+                                        @endif
 
                                         <button type="submit" onclick="return confirm('Officially admit this student?')" 
                                             class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 sm:py-5 px-4 sm:px-6 rounded-xl sm:rounded-[1.5rem] shadow-xl shadow-emerald-100 transition-all transform hover:-translate-y-1 active:scale-95 uppercase tracking-wider sm:tracking-widest text-[10px] sm:text-xs flex justify-center items-center gap-2 sm:gap-3">
-                                            CONFIRM & ADMIT
+                                            {{ $isRenewal ? 'CONFIRM RENEWAL' : 'CONFIRM & ADMIT' }}
                                             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         </button>
                                     </form>

@@ -10,6 +10,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewApplicantNotification;
 
 class ContinuingEnrollment extends Component
 {
@@ -17,14 +19,27 @@ class ContinuingEnrollment extends Component
 
     public $grade_level;
     public $sa_info_form; 
-    public $report_card;
-    public $medical_clearance;
+    public $basic_ed_form;
+    public $scholarship_agreement;
+    public $uniform_measurement;
+    public $health_assessment;
+    public $passport;
+    public $mother_id;
+    public $father_id;
+    public $guardian_id;
 
     // Existing Data
     public $applicant;
     public $statuses = [];
     public $remarks = [];
     public $currentFiles = [];
+
+    private function calculateNextGrade($currentGrade)
+    {
+        $currentGradeNum = (int) filter_var($currentGrade, FILTER_SANITIZE_NUMBER_INT);
+        $nextGradeNum = $currentGradeNum < 12 && $currentGradeNum > 0 ? $currentGradeNum + 1 : ($currentGradeNum ?: 7);
+        return "Grade " . $nextGradeNum;
+    }
 
     public function mount()
     {
@@ -35,6 +50,9 @@ class ContinuingEnrollment extends Component
                          ->orWhere('lrn', $student->lrn ?? null)
                          ->first();
 
+        $currentGradeLevel = $student->grade_level ?? ($student->section->grade_level ?? 'Grade 7');
+        $computedGradeLevel = $this->calculateNextGrade($currentGradeLevel);
+
         if ($this->applicant) {
             $this->statuses = $this->applicant->document_statuses ?? [];
             $this->remarks = $this->applicant->document_remarks ?? [];
@@ -42,28 +60,36 @@ class ContinuingEnrollment extends Component
                                  ? json_decode($this->applicant->uploaded_files, true) 
                                  : ($this->applicant->uploaded_files ?? []);
             
-            $this->grade_level = $this->remarks['renewal_grade_level'] ?? '';
+            $this->grade_level = $this->remarks['renewal_grade_level'] ?? $computedGradeLevel;
+        } else {
+            $this->grade_level = $computedGradeLevel;
         }
     }
 
     protected function rules()
     {
-        $rules = [
-            'grade_level' => 'required|string',
-        ];
+        $rules = [];
 
         $fields = [
-            'sa_info_form'      => 'renewal_sa_info_form',
-            'report_card'       => 'renewal_report_card',
-            'medical_clearance' => 'renewal_medical_clearance',
+            'sa_info_form'          => 'renewal_sa_info_form',
+            'basic_ed_form'         => 'renewal_basic_ed_form',
+            'scholarship_agreement' => 'renewal_scholarship_agreement',
+            'uniform_measurement'   => 'renewal_uniform_measurement',
+            'health_assessment'     => 'renewal_health_assessment',
+            'passport'              => 'renewal_passport',
+            'mother_id'             => 'renewal_mother_id',
+            'father_id'             => 'renewal_father_id',
+            'guardian_id'           => 'renewal_guardian_id',
         ];
 
         foreach ($fields as $model => $key) {
             $status = $this->statuses[$key] ?? 'pending';
             $isMissing = !isset($this->currentFiles[$key]) || empty($this->currentFiles[$key]);
             
-            // Required if missing OR declined
-            if ($isMissing || $status === 'declined') {
+            $isOptional = in_array($model, ['passport', 'mother_id', 'father_id']);
+            
+            // Required if missing OR declined, unless optional
+            if (!$isOptional && ($isMissing || $status === 'declined')) {
                 $rules[$model] = 'required|mimes:jpg,jpeg,png,pdf|max:5120';
             } else {
                 $rules[$model] = 'nullable|mimes:jpg,jpeg,png,pdf|max:5120';
@@ -96,21 +122,24 @@ class ContinuingEnrollment extends Component
             $updatedStatuses = $this->statuses;
             $isNewSubmission = false;
 
-            // 1. Upload sa Cloudinary (Only if provided)
-            if ($this->sa_info_form) {
-                $fileUrls['renewal_sa_info_form'] = $uploadApi->upload($this->sa_info_form->getRealPath(), ['folder' => 'nas_requirements'])['secure_url'];
-                $updatedStatuses['renewal_sa_info_form'] = 'pending';
-                $isNewSubmission = true;
-            }
-            if ($this->report_card) {
-                $fileUrls['renewal_report_card'] = $uploadApi->upload($this->report_card->getRealPath(), ['folder' => 'nas_requirements'])['secure_url'];
-                $updatedStatuses['renewal_report_card'] = 'pending';
-                $isNewSubmission = true;
-            }
-            if ($this->medical_clearance) {
-                $fileUrls['renewal_medical_clearance'] = $uploadApi->upload($this->medical_clearance->getRealPath(), ['folder' => 'nas_requirements'])['secure_url'];
-                $updatedStatuses['renewal_medical_clearance'] = 'pending';
-                $isNewSubmission = true;
+            $uploadFields = [
+               'sa_info_form' => 'renewal_sa_info_form',
+               'basic_ed_form' => 'renewal_basic_ed_form',
+               'scholarship_agreement' => 'renewal_scholarship_agreement',
+               'uniform_measurement' => 'renewal_uniform_measurement',
+               'health_assessment' => 'renewal_health_assessment',
+               'passport' => 'renewal_passport',
+               'mother_id' => 'renewal_mother_id',
+               'father_id' => 'renewal_father_id',
+               'guardian_id' => 'renewal_guardian_id',
+            ];
+
+            foreach ($uploadFields as $model => $key) {
+                if ($this->$model) {
+                    $fileUrls[$key] = $uploadApi->upload($this->$model->getRealPath(), ['folder' => 'nas_requirements'])['secure_url'];
+                    $updatedStatuses[$key] = 'pending';
+                    $isNewSubmission = true;
+                }
             }
 
             // 2. Database Update - Student Record
@@ -151,8 +180,7 @@ class ContinuingEnrollment extends Component
                     $existingFiles[$key] = $url;
                     // Also update legacy keys for main table display
                     if ($key == 'renewal_sa_info_form') $existingFiles['scholarship_form'] = $url;
-                    if ($key == 'renewal_report_card') $existingFiles['report_card'] = $url;
-                    if ($key == 'renewal_medical_clearance') $existingFiles['medical_clearance'] = $url;
+                    if ($key == 'renewal_health_assessment') $existingFiles['medical_clearance'] = $url;
                 }
 
                 $applicant->update([
@@ -167,12 +195,14 @@ class ContinuingEnrollment extends Component
                 ]);
             }
 
-            // 4. (Notification system removed)
-            if ($isNewSubmission) {
-                // Admins can check the dashboard for 'Pending Renewal' status
+            // 4. Admin Notification
+            if ($isNewSubmission && $applicant) {
+                $admins = User::where('role', 'admin')->get();
+                $message = "Continuing Enrollment renewal submitted by: {$applicant->first_name} {$applicant->last_name} ({$this->grade_level})";
+                Notification::send($admins, new NewApplicantNotification($applicant, $message));
             }
 
-            $this->reset(['sa_info_form', 'report_card', 'medical_clearance']);
+            $this->reset(array_keys($uploadFields));
             $this->mount(); // Refresh data
             session()->flash('message', 'Renewal documents updated and submitted for review!');
 

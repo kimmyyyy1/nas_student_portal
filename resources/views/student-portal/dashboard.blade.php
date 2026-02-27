@@ -170,18 +170,27 @@
                         </div>
                     </div>
                 </div>
-            @elseif((in_array($student->promotion_status, ['Promoted', 'Conditional']) || ($student->promotion_status && str_contains($student->promotion_status, 'Honors')) || $student->status === 'Continuing') && $student->status !== 'Enrolled')
+            @elseif((in_array($student->promotion_status, ['Promoted', 'Conditional']) || ($student->promotion_status && str_contains($student->promotion_status, 'Honors')) || $student->status === 'Continuing' || $student->status === 'Renewal (Returned)') && $student->status !== 'Enrolled')
                 <div class="relative bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl shadow-lg overflow-hidden border border-indigo-400/30">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mt-20 -mr-20 blur-2xl"></div>
                     <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
                         <div class="text-white text-center sm:text-left">
                             <h3 class="text-lg sm:text-xl font-extrabold mb-1 flex items-center justify-center sm:justify-start gap-2">
-                                <i class='bx bxs-graduation text-2xl text-yellow-300'></i> 
-                                Ready for the Next School Year?
+                                @if($student->status === 'Renewal (Returned)')
+                                    <i class='bx bxs-error-circle text-2xl text-red-300 animate-pulse'></i> 
+                                    Renewal Application Needs Revision!
+                                @else
+                                    <i class='bx bxs-graduation text-2xl text-yellow-300'></i> 
+                                    Ready for the Next School Year?
+                                @endif
                             </h3>
                             
                             @if($isEnrollmentOpen)
-                                <p class="text-indigo-100 text-xs sm:text-sm font-medium">Please submit your updated documents to renew your NASCENT SAS scholarship and enroll.</p>
+                                @if($student->status === 'Renewal (Returned)')
+                                    <p class="text-orange-100 text-xs sm:text-sm font-medium">The Registrar has returned your application. Please check the remarks and resubmit your documents.</p>
+                                @else
+                                    <p class="text-indigo-100 text-xs sm:text-sm font-medium">Please submit your updated documents to renew your NASCENT SAS scholarship and enroll.</p>
+                                @endif
                             @else
                                 <p class="text-indigo-200 text-xs sm:text-sm font-medium">
                                     <i class='bx bx-time-five'></i> Enrollment period is currently closed. It will open from <strong class="text-white">{{ $displayStartDate }}</strong> to <strong class="text-white">{{ $displayEndDate }}</strong>.
@@ -216,9 +225,7 @@
                                 <span class="font-normal text-indigo-200 text-lg sm:text-xl">{{ formatData($student->middle_name) }}</span>
                             </h1>
                             <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 mt-2 text-indigo-200 text-xs sm:text-sm">
-                                <span class="font-semibold">NAS ID: <span class="text-white">{{ $student->nas_student_id }}</span></span>
-                                <span class="hidden sm:inline text-indigo-400">•</span>
-                                <span>LRN: <span class="text-white">{{ $student->lrn ?? '-' }}</span></span>
+                                <span class="font-semibold">Student No.: <span class="text-white">{{ $student->nas_student_id }}</span></span>
                             </div>
                         </div>
                     </div>

@@ -147,13 +147,15 @@ class OfficialEnrollmentController extends Controller
             // C. UPDATE USER ROLE (Ensure they are a student)
             $user = User::find($applicant->user_id);
             if($user) {
-                $user->update(['role' => 'student']);
+                // For renewals, the role might already be 'student'. Only update if not already.
+                if (!$isRenewal || $user->role !== 'student') {
+                    $user->update(['role' => 'student']);
+                }
             }
 
             // D. UPDATE APPLICANT STATUS
             $applicant->update([
-                'status' => 'Admitted',
-                'student_id' => $request->student_id,
+                'status' => 'Admitted'
             ]);
         });
 
@@ -163,22 +165,25 @@ class OfficialEnrollmentController extends Controller
 
     /**
      * Return application to student for corrections.
-     * ✅ FIX: Added Security Check to prevent returning Admitted students.
+     * ✅ FIX: Added Security Check to prevent returning Admitted students and handling Renewals.
      */
     public function returnToApplicant(Request $request, $id)
     {
         $applicant = Applicant::findOrFail($id);
 
-        // 🛡️ SECURITY CHECK FOR RETURN (ADDED THIS)
-        // Maiiwasan nito na ma-click ng Admin ang 'Return' button sa estudyanteng Admitted na.
-        if ($applicant->status !== 'Officially Enrolled') {
+        $remarks = is_string($applicant->document_remarks) ? json_decode($applicant->document_remarks, true) : ($applicant->document_remarks ?? []);
+        $isRenewal = $applicant->status === 'Pending Renewal' || ($remarks['is_renewal'] ?? false);
+
+        // 🛡️ SECURITY CHECK FOR RETURN
+        if ($applicant->status !== 'Officially Enrolled' && $applicant->status !== 'Pending Renewal') {
             return redirect()->route('official-enrollment.index')
-                ->with('error', 'Action denied. You can only return applications that are currently "Officially Enrolled".');
+                ->with('error', 'Action denied. You can only return active applications.');
         }
 
         // Update status para makapag-edit ulit si Student.
+        $newStatus = $isRenewal ? 'Renewal (Returned)' : 'Qualified (Returned)';
         $applicant->update([
-            'status' => 'Qualified (Returned)',
+            'status' => $newStatus,
         ]);
 
         return redirect()->route('official-enrollment.index')
