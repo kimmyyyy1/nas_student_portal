@@ -17,16 +17,16 @@
 
             {{-- LEFT CONTENT AREA (GLASSMOPHISM: Transparent White Background) --}}
             {{-- ⚡ GINAWANG bg-white/10 para kitang-kita ang background image ⚡ --}}
-            <div id="print-area" class="w-full lg:col-span-3 bg-white/10 backdrop-blur-md shadow-2xl shadow-black/5 rounded-3xl overflow-hidden border border-white/30 relative text-slate-800">
+            <div id="print-area" class="w-full lg:col-span-3 bg-white/50 backdrop-blur-md shadow-2xl shadow-black/5 rounded-3xl overflow-hidden border border-white/60 relative text-slate-800">
                 
-                <div class="h-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 w-full opacity-80"></div>
+                <div class="h-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 w-full opacity-100"></div>
 
                 <div class="p-5 sm:p-8 lg:p-10 space-y-8 lg:space-y-12 w-full">
                     
                     {{-- HEADER --}}
-                    <div class="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 mb-6 bg-white/40 backdrop-blur-md rounded-2xl md:rounded-3xl border border-white/50 shadow-sm gap-4 lg:gap-6 w-full">
+                    <div class="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 mb-6 bg-white/70 backdrop-blur-md rounded-2xl md:rounded-3xl border border-white/70 shadow-sm gap-4 lg:gap-6 w-full">
                         <div class="w-full md:w-32 lg:w-40 flex justify-center md:justify-start flex-shrink-0">
-                            <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" alt="NAS Logo" class="h-16 sm:h-20 lg:h-28 w-auto object-contain drop-shadow-md">
+                            <img src="{{ asset('images/nas/NAS LOGO.png') }}" alt="NAS Logo" class="h-16 sm:h-20 lg:h-28 w-auto object-contain drop-shadow-md">
                         </div>
                         <div class="flex-1 w-full flex flex-col items-center justify-center text-center px-1 sm:px-4">
                             <h1 class="text-xs sm:text-sm lg:text-[16px] font-black text-slate-900 uppercase leading-tight tracking-tight max-w-3xl mx-auto drop-shadow-sm">
