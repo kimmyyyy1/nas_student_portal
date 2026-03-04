@@ -197,7 +197,7 @@ class ContinuingEnrollment extends Component
 
             // 4. Admin Notification
             if ($isNewSubmission && $applicant) {
-                $admins = User::where('role', 'admin')->get();
+                $admins = User::whereIn('role', ['admin', 'registrar'])->get();
                 $message = "Continuing Enrollment renewal submitted by: {$applicant->first_name} {$applicant->last_name} ({$this->grade_level})";
                 Notification::send($admins, new NewApplicantNotification($applicant, $message));
             }

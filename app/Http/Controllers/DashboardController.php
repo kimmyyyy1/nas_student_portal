@@ -71,7 +71,30 @@ class DashboardController extends Controller
         $enrollmentCompleted = Applicant::whereIn('status', ['Officially Enrolled', 'Enrolled'])->count();
 
         $sportsBreakdown = Team::select('sport', DB::raw('count(*) as count'))->groupBy('sport')->orderBy('count', 'desc')->take(3)->get();
-        $activities = ActivityLog::with('user')->latest()->take(5)->get();
+        
+        // Enhance Activity Stream: Prioritize actual actions over simple logins
+        $activitiesQuery = ActivityLog::with('user')
+            ->where('action', '!=', 'Login');
+
+        // If user is Registrar, only show activities from students and applicants
+        if ($user->role === 'registrar') {
+            $activitiesQuery->whereHas('user', function($q) {
+                $q->whereIn('role', ['student', 'applicant']);
+            });
+        }
+
+        $activities = $activitiesQuery->latest()->take(5)->get();
+            
+        // Fallback to latest including logins if we don't have enough actions
+        if ($activities->count() < 3) {
+            $fallbackQuery = ActivityLog::with('user');
+            if ($user->role === 'registrar') {
+                $fallbackQuery->whereHas('user', function($q) {
+                    $q->whereIn('role', ['student', 'applicant']);
+                });
+            }
+            $activities = $fallbackQuery->latest()->take(5)->get();
+        }
 
         // --- GEOCACHE: Load cached geocode results ---
         $geocachePath = storage_path('app/geocache.json');
@@ -259,7 +282,28 @@ class DashboardController extends Controller
 
     public function getRecentActivity()
     {
-        $activities = ActivityLog::with('user')->latest()->take(5)->get()->map(function ($activity) {
+        $activitiesQuery = ActivityLog::with('user')
+            ->where('action', '!=', 'Login');
+
+        if (auth()->user()->role === 'registrar') {
+            $activitiesQuery->whereHas('user', function($q) {
+                $q->whereIn('role', ['student', 'applicant']);
+            });
+        }
+
+        $activitiesQuery = $activitiesQuery->latest()->take(5)->get();
+            
+        if ($activitiesQuery->count() < 3) {
+            $fallbackQuery = ActivityLog::with('user');
+            if (auth()->user()->role === 'registrar') {
+                $fallbackQuery->whereHas('user', function($q) {
+                    $q->whereIn('role', ['student', 'applicant']);
+                });
+            }
+            $activitiesQuery = $fallbackQuery->latest()->take(5)->get();
+        }
+
+        $activities = $activitiesQuery->map(function ($activity) {
             return [
                 'action' => $activity->action,
                 'description' => $activity->description,

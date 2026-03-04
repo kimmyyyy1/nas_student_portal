@@ -113,7 +113,7 @@
     <div class="py-12 min-h-screen bg-transparent text-slate-800">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            @if(auth()->user()->role === 'admin')
+            @if(in_array(auth()->user()->role, ['admin', 'registrar']))
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
                     <!-- Total Students Card -->
                     <div x-data="{ 
@@ -239,7 +239,23 @@
                                     <div class="flex gap-x-5 relative z-10">
                                         <div class="flex-none w-[22px] flex justify-center mt-1"><div class="w-4 h-4 rounded-full border-[3px] border-white {{ $color }} shadow-sm"></div></div>
                                         <div class="flex-grow bg-white/60 p-4 rounded-2xl border border-white shadow-sm hover:shadow-md transition-shadow">
-                                            <div class="text-[13px] text-slate-700 leading-relaxed"><span class="font-bold text-slate-900">{{ $activity->user->name ?? 'System' }}</span> {{ strtolower($activity->action) }}.</div>
+                                            <div class="text-[13px] text-slate-700 leading-relaxed">
+                                                <span class="font-bold text-slate-900">{{ $activity->user->name ?? 'System' }}</span>
+                                                @if($activity->user)
+                                                    @php
+                                                        $roleBadge = match($activity->user->role) {
+                                                            'student' => ['Student', 'bg-blue-100 text-blue-700 border-blue-200'],
+                                                            'applicant' => ['Applicant', 'bg-amber-100 text-amber-700 border-amber-200'],
+                                                            'teacher' => ['Teacher', 'bg-emerald-100 text-emerald-700 border-emerald-200'],
+                                                            'registrar' => ['Registrar', 'bg-purple-100 text-purple-700 border-purple-200'],
+                                                            'admin' => ['Admin', 'bg-rose-100 text-rose-700 border-rose-200'],
+                                                            default => [ucfirst($activity->user->role), 'bg-slate-100 text-slate-600 border-slate-200'],
+                                                        };
+                                                    @endphp
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border {{ $roleBadge[1] }} ml-1.5">{{ $roleBadge[0] }}</span>
+                                                @endif
+                                                {{ strtolower($activity->action) }}.
+                                            </div>
                                             <p class="text-[10px] text-slate-400 mt-1.5 uppercase font-bold tracking-wider"><i class='bx bx-time-five mr-1'></i>{{ $activity->created_at->diffForHumans() }}</p>
                                         </div>
                                     </div>

@@ -70,11 +70,12 @@
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">System Role <span class="text-red-500">*</span></label>
                                 <select name="role" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm cursor-pointer" required>
                                     <option value="">Select Role</option>
+                                    <option value="registrar" {{ old('role', $staff->role) == 'registrar' ? 'selected' : '' }}>Registrar</option>
                                     <option value="teacher" {{ old('role', $staff->role) == 'teacher' ? 'selected' : '' }}>Teacher / Adviser</option>
                                     <option value="coach" {{ old('role', $staff->role) == 'coach' ? 'selected' : '' }}>Coach</option>
                                     <option value="sass" {{ old('role', $staff->role) == 'sass' ? 'selected' : '' }}>SASS (Medical/Welfare)</option>
                                     <option value="staff" {{ old('role', $staff->role) == 'staff' ? 'selected' : '' }}>Staff / Support</option>
-                                    <option value="admin" {{ old('role', $staff->role) == 'admin' ? 'selected' : '' }}>Administrator</option>
+                                    <option value="admin" {{ old('role', $staff->role) == 'admin' ? 'selected' : '' }}>Administrator (IT)</option>
                                 </select>
                             </div>
                         </div>

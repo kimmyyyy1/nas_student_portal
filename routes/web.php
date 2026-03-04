@@ -126,12 +126,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     //  GROUP 4: ADMIN (THE FORTRESS) 🛡️
     // ==========================================
+    
+    // 4A. ADMIN ONLY (PICT Support)
     Route::middleware('role:admin')->group(function () {
         
         // System Settings
         Route::get('/admin/settings', [SettingController::class, 'index'])->name('admin.settings');
         Route::post('/admin/settings', [SettingController::class, 'update'])->name('admin.settings.update');
 
+        Route::resource('teams', TeamController::class);
+        Route::resource('training-plans', TrainingPlanController::class);
+        Route::resource('medical-records', MedicalRecordController::class);
+        Route::resource('staff', StaffController::class);
+    });
+
+    // 4B. ADMIN & REGISTRAR SHARED
+    Route::middleware('role:admin,registrar')->group(function () {
+        
         // 1. Admission / Review
         Route::get('/admission', [EnrollmentController::class, 'index'])->name('admission.index');
         Route::get('/admission/{id}', [EnrollmentController::class, 'show'])->name('admission.show'); 
@@ -159,11 +170,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('sections', SectionController::class);
         Route::resource('subjects', SubjectController::class);
         Route::resource('schedules', ScheduleController::class);
-
-        Route::resource('teams', TeamController::class);
-        Route::resource('training-plans', TrainingPlanController::class);
-        Route::resource('medical-records', MedicalRecordController::class);
-        Route::resource('staff', StaffController::class);
 
         // 4. Reports
         Route::prefix('reports')->name('reports.')->group(function() {

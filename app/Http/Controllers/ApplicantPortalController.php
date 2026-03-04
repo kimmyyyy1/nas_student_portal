@@ -115,7 +115,7 @@ class ApplicantPortalController extends Controller
         $applicant = Applicant::create($data);
 
         // Notify admins
-        $admins = User::where('role', 'admin')->get();
+        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
         $message = "New application from: {$applicant->first_name} {$applicant->last_name}";
         Notification::send($admins, new NewApplicantNotification($applicant, $message));
 
@@ -214,7 +214,7 @@ class ApplicantPortalController extends Controller
         ]);
 
         // Notify admins
-        $admins = User::where('role', 'admin')->get();
+        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
         $message = "Requirements uploaded by: {$applicant->first_name} {$applicant->last_name}";
         Notification::send($admins, new NewApplicantNotification($applicant, $message));
 
@@ -368,7 +368,7 @@ class ApplicantPortalController extends Controller
         ]);
 
         // Notify admins
-        $admins = User::where('role', 'admin')->get();
+        $admins = User::whereIn('role', ['admin', 'registrar'])->get();
         $message = "Enrollment form submitted by: {$applicant->first_name} {$applicant->last_name}";
         Notification::send($admins, new NewApplicantNotification($applicant, $message));
 

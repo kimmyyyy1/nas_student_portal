@@ -170,7 +170,7 @@
         </div>
 
 
-        @if(Auth::check() && Auth::user()->role === 'admin')
+        @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'registrar']))
             <div class="fixed bottom-4 right-4 z-50">
                 @livewire('notifications-bell')
             </div>

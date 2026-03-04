@@ -13,7 +13,9 @@
         @endif
 
         {{-- MAIN GRID --}}
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 w-full">
+        <form id="status-form" action="{{ route('admission.process', $application->id) }}" method="POST" onsubmit="return handleFormAjax(event, 'Application status and remarks updated successfully!')">
+            @csrf @method('PATCH')
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 w-full">
 
             {{-- LEFT CONTENT AREA (GLASSMOPHISM: Transparent White Background) --}}
             {{-- ⚡ GINAWANG bg-white/10 para kitang-kita ang background image ⚡ --}}
@@ -196,14 +198,14 @@
                                 <p class="text-xl sm:text-2xl font-black text-slate-800 uppercase tracking-tight">{{ $application->school_type ?? 'N/A' }}</p>
                             </div>
 
-                            <div class="p-4 sm:p-6 rounded-xl md:rounded-2xl border shadow-sm transition-colors flex justify-between items-center sm:block {{ $application->palaro_finisher == 'Yes' ? 'bg-yellow-50/80 border-yellow-400' : 'bg-white/40 border-white/40 opacity-75' }}">
-                                <span class="block text-[9px] sm:text-[10px] font-black uppercase tracking-wider {{ $application->palaro_finisher == 'Yes' ? 'text-yellow-800' : 'text-slate-500' }}">Palarong Pambansa Finisher</span>
-                                <span class="text-base sm:text-xl lg:text-2xl font-black uppercase mt-0 sm:mt-2 block {{ $application->palaro_finisher == 'Yes' ? 'text-yellow-700' : 'text-slate-500' }}">{{ $application->palaro_finisher }}</span>
+                            <div class="p-4 sm:p-6 rounded-xl md:rounded-2xl border shadow-sm transition-colors flex justify-between items-center sm:block {{ $application->palaro_finisher == 'Yes' ? 'bg-yellow-50/80 border-yellow-400' : 'bg-white/60 border-white/40' }}">
+                                <span class="block text-[9px] sm:text-[10px] font-black uppercase tracking-wider {{ $application->palaro_finisher == 'Yes' ? 'text-yellow-800' : 'text-slate-600' }}">Palarong Pambansa Finisher</span>
+                                <span class="text-base sm:text-xl lg:text-2xl font-black uppercase mt-0 sm:mt-2 block {{ $application->palaro_finisher == 'Yes' ? 'text-yellow-700' : 'text-slate-800' }}">{{ $application->palaro_finisher }}</span>
                             </div>
 
-                            <div class="p-4 sm:p-6 rounded-xl md:rounded-2xl border shadow-sm transition-colors flex justify-between items-center sm:block {{ $application->batang_pinoy_finisher == 'Yes' ? 'bg-yellow-50/80 border-yellow-400' : 'bg-white/40 border-white/40 opacity-75' }}">
-                                <span class="block text-[9px] sm:text-[10px] font-black uppercase tracking-wider {{ $application->batang_pinoy_finisher == 'Yes' ? 'text-yellow-800' : 'text-slate-500' }}">Batang Pinoy Finisher</span>
-                                <span class="text-base sm:text-xl lg:text-2xl font-black uppercase mt-0 sm:mt-2 block {{ $application->batang_pinoy_finisher == 'Yes' ? 'text-yellow-700' : 'text-slate-500' }}">{{ $application->batang_pinoy_finisher }}</span>
+                            <div class="p-4 sm:p-6 rounded-xl md:rounded-2xl border shadow-sm transition-colors flex justify-between items-center sm:block {{ $application->batang_pinoy_finisher == 'Yes' ? 'bg-yellow-50/80 border-yellow-400' : 'bg-white/60 border-white/40' }}">
+                                <span class="block text-[9px] sm:text-[10px] font-black uppercase tracking-wider {{ $application->batang_pinoy_finisher == 'Yes' ? 'text-yellow-800' : 'text-slate-600' }}">Batang Pinoy Finisher</span>
+                                <span class="text-base sm:text-xl lg:text-2xl font-black uppercase mt-0 sm:mt-2 block {{ $application->batang_pinoy_finisher == 'Yes' ? 'text-yellow-700' : 'text-slate-800' }}">{{ $application->batang_pinoy_finisher }}</span>
                             </div>
                         </div>
                     </section>
@@ -252,18 +254,13 @@
                     {{-- IV. DOCUMENTS --}}
                     <section class="w-full">
                         <div class="flex items-center mb-5 lg:mb-6 w-full">
-                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black mr-3 sm:mr-4 shadow-lg text-sm sm:text-lg flex-shrink-0 border border-white/20">4</div>
-                            <div class="flex-1">
-                                <h3 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-tighter leading-tight drop-shadow-sm">Submitted Documents</h3>
-                                <p class="text-[10px] sm:text-xs text-slate-600 font-bold uppercase tracking-wide">Review & Verification</p>
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black mr-3 sm:mr-4 shadow-lg text-sm sm:text-lg flex-shrink-0 border border-white/20">4</div>
+                                <div class="flex-1">
+                                    <h3 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-tighter leading-tight drop-shadow-sm">Submitted Documents</h3>
+                                    <p class="text-[10px] sm:text-xs text-slate-600 font-bold uppercase tracking-wide">Review & Verification</p>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <form id="remarks-form" action="{{ route('admission.process', $application->id) }}" method="POST" class="w-full" onsubmit="return handleFormAjax(event, 'Remarks saved successfully!')">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="status" value="{{ $application->status }}">
-
+                            
                             <div class="rounded-xl lg:rounded-2xl border border-white/30 shadow-sm overflow-hidden w-full overflow-x-auto bg-white/40 backdrop-blur-sm">
                                 <table class="min-w-[600px] w-full text-left border-collapse table-fixed">
                                     <thead class="bg-white/30 text-[8px] sm:text-[10px] uppercase text-slate-600 font-black border-b border-white/20 tracking-wider">
@@ -363,128 +360,114 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
-                            <div class="mt-4 md:mt-5 lg:mt-6 text-right no-print">
-                                <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 px-6 lg:py-3 lg:px-8 rounded-lg lg:rounded-xl text-[10px] lg:text-xs uppercase tracking-widest shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition w-full sm:w-auto">
-                                    Save Remarks Only
+                        </section>
+                    </div>
+                </div>
+
+                {{-- SIDEBAR ACTIONS (GLASSMOPHISM) --}}
+                <div class="w-full lg:col-span-1 no-print lg:sticky lg:top-6 self-start space-y-6">
+                    
+                    {{-- APPLICATION DECISION --}}
+                    <div class="bg-white/80 backdrop-blur-xl shadow-xl shadow-indigo-100/30 rounded-3xl border border-white/80 p-5 sm:p-6 w-full text-slate-800">
+                        <div class="flex items-center justify-between border-b border-slate-500/20 pb-3 sm:pb-4 mb-4 sm:mb-6">
+                            <h3 class="text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest">Application Decision</h3>
+                            @if(in_array($application->status, ['Officially Enrolled', 'Enrolled']))
+                                <button wire:click="toggleLock" class="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded {{ $application->is_locked ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' }} transition">
+                                    <span wire:loading.remove wire:target="toggleLock">
+                                        {{ $application->is_locked ? '🔒 Unlock' : '🔓 Lock' }}
+                                    </span>
+                                    <span wire:loading wire:target="toggleLock" class="animate-pulse">Loading...</span>
                                 </button>
-                            </div>
-                        </form>
-                    </section>
-                </div>
-            </div>
-
-            {{-- SIDEBAR ACTIONS (GLASSMOPHISM) --}}
-            <div class="w-full lg:col-span-1 no-print lg:sticky lg:top-6 space-y-6">
-                
-                {{-- APPLICATION DECISION --}}
-                <div class="bg-white/40 backdrop-blur-md shadow-xl shadow-indigo-100/30 rounded-3xl border border-white/50 p-5 sm:p-6 w-full text-slate-800">
-                    <div class="flex items-center justify-between border-b border-slate-500/20 pb-3 sm:pb-4 mb-4 sm:mb-6">
-                        <h3 class="text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest">Application Decision</h3>
-                        @if(in_array($application->status, ['Officially Enrolled', 'Enrolled']))
-                            <button wire:click="toggleLock" class="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded {{ $application->is_locked ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' }} transition">
-                                <span wire:loading.remove wire:target="toggleLock">
-                                    {{ $application->is_locked ? '🔒 Unlock' : '🔓 Lock' }}
-                                </span>
-                                <span wire:loading wire:target="toggleLock" class="animate-pulse">Loading...</span>
-                            </button>
-                        @endif
-                    </div>
-                    
-                    @if($application->is_locked)
-                        <div class="mb-4 bg-red-50 border-l-4 border-red-500 p-3 rounded text-red-700 text-xs shadow-sm">
-                            <span class="font-bold">Record Locked.</span> You cannot modify the status or documents of a finalized enrollment record. Unlock it first to make changes.
+                            @endif
                         </div>
-                    @endif
-
-                    <form id="status-form" action="{{ route('admission.process', $application->id) }}" method="POST" class="w-full" onsubmit="return handleFormAjax(event, 'Application status updated!')">
-                        @csrf @method('PATCH')
                         
-                        @if(isset($remarks) && is_array($remarks))
-                            @foreach($remarks as $k => $v) <input type="hidden" name="document_remarks[{{ $k }}]" value="{{ $v }}"> @endforeach
+                        @if($application->is_locked)
+                            <div class="mb-4 bg-red-50 border-l-4 border-red-500 p-3 rounded text-red-700 text-xs shadow-sm">
+                                <span class="font-bold">Record Locked.</span> You cannot modify the status or documents of a finalized enrollment record. Unlock it first to make changes.
+                            </div>
                         @endif
 
-                        <div class="mb-5 sm:mb-6 w-full">
-                            <label class="block text-[9px] sm:text-[10px] font-black text-slate-700 uppercase mb-1.5 sm:mb-2 tracking-wider">Set Status</label>
-                            
-                            <div class="w-full">
-                                <select name="status" id="status" {{ $application->is_locked ? 'disabled' : '' }} class="w-full border-white/60 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm py-2.5 px-3 sm:py-3 sm:px-3 bg-white cursor-pointer disabled:bg-slate-100 disabled:text-slate-400">
-                                    <optgroup label="Phase 1: Registration">
-                                        <option value="With Pending Requirements" {{ $application->status == 'With Pending Requirements' ? 'selected' : '' }}>With Pending Requirements</option>
-                                        <option value="With Complete Requirements &amp; for 1st Level Assessment" {{ $application->status == 'With Complete Requirements &amp; for 1st Level Assessment' ? 'selected' : '' }}>For 1st Level Assessment</option>
-                                        <option value="For 2nd Level Assessment" {{ $application->status == 'For 2nd Level Assessment' ? 'selected' : '' }}>Passed 1st Level (Move to Phase 2)</option>
-                                    </optgroup>
-                                    <optgroup label="Phase 2: Documents">
-                                        <option value="Waitlisted" {{ $application->status == 'Waitlisted' ? 'selected' : '' }}>Waitlisted</option>
-                                        <option value="Qualified" {{ $application->status == 'Qualified' ? 'selected' : '' }}>Qualified (Final)</option>
-                                    </optgroup>
-                                    <optgroup label="Declined">
-                                        <option value="Not Qualified" {{ in_array($application->status, ['Not Qualified', 'Rejected', 'Failed']) ? 'selected' : '' }}>Not Qualified</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mb-5 sm:mb-6 hidden w-full" id="rejection-div">
-                            <label class="block text-[9px] sm:text-[10px] font-black text-red-600 uppercase mb-1.5 sm:mb-2 tracking-wider">Reason for Rejection</label>
-                            <textarea name="rejection_reason" {{ $application->is_locked ? 'disabled' : '' }} rows="3" class="w-full border-red-200 bg-red-50/90 rounded-lg sm:rounded-xl text-xs sm:text-sm text-red-800 focus:border-red-500 focus:ring-red-500 p-2.5 sm:p-3 placeholder-red-400 disabled:bg-slate-200 disabled:text-slate-500 shadow-inner" placeholder="State reason...">{{ $application->rejection_reason }}</textarea>
-                        </div>
-
-                        <button type="submit" {{ $application->is_locked ? 'disabled' : '' }} class="{{ $application->is_locked ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-indigo-300/50' }} w-full font-black py-3 sm:py-4 rounded-lg sm:rounded-xl transition transform hover:-translate-y-0.5 text-[10px] sm:text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2">
-                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                            Update Status
-                        </button>
-                    </form>
-                </div>
-
-                {{-- AUDIT TRAIL LOG --}}
-                <div class="bg-white/40 backdrop-blur-md shadow-xl shadow-indigo-100/30 rounded-3xl border border-white/50 p-5 sm:p-6 w-full text-slate-800">
-                    <h2 class="text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest flex items-center mb-4 border-b border-slate-500/20 pb-3 sm:pb-4">
-                        <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Audit Trail
-                    </h2>
-                    
-                    <div class="space-y-4 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
-                        @forelse($auditLogs as $log)
-                            @php
-                                $details = json_decode($log->details, true);
-                            @endphp
-                            <div class="border-l-2 border-indigo-200 pl-3 py-1 relative">
-                                <span class="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-indigo-500"></span>
-                                <div class="text-[10px] sm:text-xs">
-                                    <span class="font-bold text-slate-800">{{ $log->user->name ?? 'System' }}</span>
-                                    <span class="text-slate-500">{{ $log->action }}</span>
+                            <div class="mb-5 sm:mb-6 w-full">
+                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-700 uppercase mb-1.5 sm:mb-2 tracking-wider">Set Status</label>
+                                
+                                <div class="w-full">
+                                    <select name="status" id="status" {{ $application->is_locked ? 'disabled' : '' }} class="w-full border-white/60 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm py-2.5 px-3 sm:py-3 sm:px-3 bg-white cursor-pointer disabled:bg-slate-100 disabled:text-slate-400">
+                                        <optgroup label="Phase 1: Registration">
+                                            <option value="With Pending Requirements" {{ $application->status == 'With Pending Requirements' ? 'selected' : '' }}>With Pending Requirements</option>
+                                            <option value="With Complete Requirements &amp; for 1st Level Assessment" {{ $application->status == 'With Complete Requirements &amp; for 1st Level Assessment' ? 'selected' : '' }}>For 1st Level Assessment</option>
+                                            <option value="For 2nd Level Assessment" {{ $application->status == 'For 2nd Level Assessment' ? 'selected' : '' }}>Passed 1st Level (Move to Phase 2)</option>
+                                        </optgroup>
+                                        <optgroup label="Phase 2: Documents">
+                                            <option value="Waitlisted" {{ $application->status == 'Waitlisted' ? 'selected' : '' }}>Waitlisted</option>
+                                            <option value="Qualified" {{ $application->status == 'Qualified' ? 'selected' : '' }}>Qualified (Final)</option>
+                                        </optgroup>
+                                        <optgroup label="Declined">
+                                            <option value="Not Qualified" {{ in_array($application->status, ['Not Qualified', 'Rejected', 'Failed']) ? 'selected' : '' }}>Not Qualified</option>
+                                        </optgroup>
+                                    </select>
                                 </div>
-                                <div class="text-[9px] text-slate-400 mt-1 uppercase tracking-wider">
-                                    {{ \Carbon\Carbon::parse($log->created_at)->format('M d, Y h:i A') }}
-                                </div>
-                                @if(isset($details['status']))
-                                    <div class="mt-1 text-[10px] text-slate-600 bg-white/50 px-2 py-1 rounded inline-block">
-                                        Status set to: <span class="font-bold text-indigo-600">{{ $details['status'] }}</span>
-                                    </div>
-                                @endif
-                                @if(isset($details['document']))
-                                    <div class="mt-1 text-[10px] text-slate-600 bg-white/50 px-2 py-1 rounded inline-block uppercase font-bold">
-                                        {{ str_replace('_', ' ', $details['document']) }}
-                                    </div>
-                                @endif
-                                @if(isset($details['remarks']))
-                                    <div class="mt-1 text-[9px] text-slate-500 italic">
-                                        "{{ $details['remarks'] }}"
-                                    </div>
-                                @endif
                             </div>
-                        @empty
-                            <div class="text-xs text-slate-400 text-center italic py-4">
-                                No audit logs yet.
+
+                            <div class="mb-5 sm:mb-6 hidden w-full" id="rejection-div">
+                                <label class="block text-[9px] sm:text-[10px] font-black text-red-600 uppercase mb-1.5 sm:mb-2 tracking-wider">Reason for Rejection</label>
+                                <textarea name="rejection_reason" {{ $application->is_locked ? 'disabled' : '' }} rows="3" class="w-full border-red-200 bg-red-50/90 rounded-lg sm:rounded-xl text-xs sm:text-sm text-red-800 focus:border-red-500 focus:ring-red-500 p-2.5 sm:p-3 placeholder-red-400 disabled:bg-slate-200 disabled:text-slate-500 shadow-inner" placeholder="State reason...">{{ $application->rejection_reason }}</textarea>
                             </div>
-                        @endforelse
+
+                            <button type="submit" {{ $application->is_locked ? 'disabled' : '' }} class="{{ $application->is_locked ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-indigo-300/50' }} w-full font-black py-3 sm:py-4 rounded-lg sm:rounded-xl transition transform hover:-translate-y-0.5 text-[10px] sm:text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2">
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                Update Status
+                            </button>
                     </div>
-                </div>
-                
-            </div>
 
-        </div>
+                    {{-- AUDIT TRAIL LOG --}}
+                    <div class="bg-white/80 backdrop-blur-xl shadow-xl shadow-indigo-100/30 rounded-3xl border border-white/80 p-5 sm:p-6 w-full text-slate-800">
+                        <h2 class="text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest flex items-center mb-4 border-b border-slate-500/20 pb-3 sm:pb-4">
+                            <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Audit Trail
+                        </h2>
+                        
+                        <div class="space-y-4 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                            @forelse($auditLogs as $log)
+                                @php
+                                    $details = json_decode($log->details, true);
+                                @endphp
+                                <div class="border-l-2 border-indigo-200 pl-3 py-1 relative">
+                                    <span class="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-indigo-500"></span>
+                                    <div class="text-[10px] sm:text-xs">
+                                        <span class="font-bold text-slate-800">{{ $log->user->name ?? 'System' }}</span>
+                                        <span class="text-slate-500">{{ $log->action }}</span>
+                                    </div>
+                                    <div class="text-[9px] text-slate-400 mt-1 uppercase tracking-wider">
+                                        {{ \Carbon\Carbon::parse($log->created_at)->format('M d, Y h:i A') }}
+                                    </div>
+                                    @if(isset($details['status']))
+                                        <div class="mt-1 text-[10px] text-slate-600 bg-white/50 px-2 py-1 rounded inline-block">
+                                            Status set to: <span class="font-bold text-indigo-600">{{ $details['status'] }}</span>
+                                        </div>
+                                    @endif
+                                    @if(isset($details['document']))
+                                        <div class="mt-1 text-[10px] text-slate-600 bg-white/50 px-2 py-1 rounded inline-block uppercase font-bold">
+                                            {{ str_replace('_', ' ', $details['document']) }}
+                                        </div>
+                                    @endif
+                                    @if(isset($details['remarks']))
+                                        <div class="mt-1 text-[9px] text-slate-500 italic">
+                                            "{{ $details['remarks'] }}"
+                                        </div>
+                                    @endif
+                                </div>
+                            @empty
+                                <div class="text-xs text-slate-400 text-center italic py-4">
+                                    No audit logs yet.
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                    
+                </div>
+
+            </div>
+        </form>
     <script>
         function handleFormAjax(e, successMsg) {
             e.preventDefault();

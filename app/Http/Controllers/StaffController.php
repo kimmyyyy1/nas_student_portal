@@ -41,8 +41,8 @@ class StaffController extends Controller
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:staff,email|unique:users,email',
             'contact_number' => 'nullable|string',
-            // Added 'staff' to allowed roles to match the dropdown
-            'role' => 'required|in:teacher,coach,sass,admin,staff', 
+            // Added 'staff' and 'registrar' to allowed roles to match the dropdown
+            'role' => 'required|in:teacher,coach,sass,admin,staff,registrar', 
             'department' => 'nullable|string',
             'position' => 'nullable|string',
         ]);
@@ -91,8 +91,8 @@ class StaffController extends Controller
             'last_name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('staff')->ignore($staff->id)],
             'contact_number' => 'nullable|string',
-            // Added 'staff' here as well
-            'role' => 'required|in:teacher,coach,sass,admin,staff',
+            // Added 'staff' and 'registrar' to allowed roles
+            'role' => 'required|in:teacher,coach,sass,admin,staff,registrar',
             'department' => 'nullable|string',
             'position' => 'nullable|string',
         ]);

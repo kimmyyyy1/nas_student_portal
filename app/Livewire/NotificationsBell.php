@@ -51,8 +51,19 @@ class NotificationsBell extends Component
                 $data = $notification->data;
                 $applicantId = $data['applicant_id'] ?? null;
 
-                // Mark as read gamit ang built-in method
-                $notification->markAsRead();
+                if ($applicantId) {
+                    // Mark as read para sa LAHAT ng users na may ganitong notification (Syncing)
+                    DB::table('notifications')
+                        ->whereNull('read_at')
+                        ->where(function($q) use ($applicantId) {
+                            $q->where('data', 'like', '%"applicant_id":' . $applicantId . '%')
+                              ->orWhere('data', 'like', '%"applicant_id":"' . $applicantId . '"%');
+                        })
+                        ->update(['read_at' => now()]);
+                } else {
+                    // Fallback
+                    $notification->markAsRead();
+                }
 
                 // I-update ang local count agad
                 $this->refreshNotifications();
@@ -77,8 +88,17 @@ class NotificationsBell extends Component
         if (Auth::check()) {
             $user = Auth::user();
             
-            // Mark all unread notifications as read
-            $user->unreadNotifications()->update(['read_at' => now()]);
+            if (in_array($user->role, ['admin', 'registrar'])) {
+                $adminIds = \App\Models\User::whereIn('role', ['admin', 'registrar'])->pluck('id');
+                DB::table('notifications')
+                    ->whereIn('notifiable_id', $adminIds)
+                    ->where('notifiable_type', \App\Models\User::class)
+                    ->whereNull('read_at')
+                    ->update(['read_at' => now()]);
+            } else {
+                // Mark all unread notifications as read
+                $user->unreadNotifications()->update(['read_at' => now()]);
+            }
             
             // Sync the counts
             $this->notificationCount = 0;
@@ -93,7 +113,7 @@ class NotificationsBell extends Component
         if (Auth::check()) {
             $user = Auth::user();
             
-            // Delete all notifications for this user from the database
+            // Delete all notifications strictly for this user from the database
             $user->notifications()->delete();
             
             // Sync the counts

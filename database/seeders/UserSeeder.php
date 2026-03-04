@@ -10,45 +10,20 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        // 1. REGISTRAR (Admin)
-        User::create([
-            'name' => 'Registrar Admin',
-            'email' => 'admin@nas.edu',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-        ]);
-
-        // 2. COACH
-        User::create([
-            'name' => 'Coach Dimaano',
-            'email' => 'coach@nas.edu',
-            'password' => Hash::make('password'),
-            'role' => 'coach',
-        ]);
-
-        // 3. TEACHER
-        User::create([
-            'name' => 'Teacher Santos',
-            'email' => 'teacher@nas.edu',
-            'password' => Hash::make('password'),
-            'role' => 'teacher',
-        ]);
-
-        // 4. SASS (Medical, Nutrition, Guidance) 
-        // Role changed from 'medical' to 'sass'
-        User::create([
-            'name' => 'SASS Officer',
-            'email' => 'sass@nas.edu',
-            'password' => Hash::make('password'),
-            'role' => 'sass',
-        ]);
+        // =========================================================
+        // CENTRALIZED DEFAULT ACCOUNT 
+        // =========================================================
+        // IT / PICT Support is the ONLY seeded account. All other 
+        // accounts (Registrar, Coach, Teacher, etc.) should be 
+        // created manually via the Staff Management UI.
         
-        // 5. ICT
-        User::create([
-            'name' => 'ICT Support',
-            'email' => 'ict@nas.edu',
-            'password' => Hash::make('password'),
-            'role' => 'admin', 
-        ]);
+        User::updateOrCreate(
+            ['email' => 'pict@nas.edu'],
+            [
+                'name' => 'PICT Support',
+                'password' => Hash::make('password'),
+                'role' => 'admin', 
+            ]
+        );
     }
 }

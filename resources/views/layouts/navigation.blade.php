@@ -51,7 +51,7 @@
         <div id="sidebar-menu" class="flex-1 overflow-y-auto no-scrollbar" wire:ignore.self>
              
             <div class="h-24 flex items-center justify-center pt-4 pb-2 shrink-0">
-                <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : route('dashboard') }}" wire:navigate 
+                <a href="{{ Auth::user()->role === 'student' ? route('student.dashboard') : (Auth::user()->role === 'registrar' ? route('admission.index') : route('dashboard')) }}" wire:navigate 
                    class="block w-full px-6 transform active:scale-95 transition-transform duration-200">
                     <img src="{{ asset('images/nas/horizontal.png') }}" alt="NAS Logo" class="h-auto w-full object-contain drop-shadow-md hover:scale-105 transition-transform duration-300"> 
                 </a>
@@ -150,13 +150,10 @@
                         <i class='bx bx-user-pin text-lg mr-3 {{ request()->routeIs('students.*') ? 'text-indigo-600 drop-shadow-sm' : 'text-slate-400 group-hover:text-indigo-500' }}'></i> Student Directory
                     </a>
 
-                    @if(Auth::user()->name !== 'Registrar')
+                    @if(Auth::user()->role === 'admin')
                         <a href="{{ url('/admin/settings') }}" wire:navigate class="{{ $navSubClass }} {{ request()->is('admin/settings') ? $activeBlue : $inactiveBlue }}">
                             <i class='bx bx-cog text-lg mr-3 {{ request()->is('admin/settings') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> System Settings
                         </a>
-                    @endif
-
-                    @if(Auth::user()->name !== 'Registrar') 
 
                         <div class="pt-4 pb-1"><p class="px-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Academics</p></div>
                         
@@ -196,7 +193,6 @@
                         <a href="{{ route('staff.index') }}" wire:navigate class="{{ $navSubClass }} {{ request()->routeIs('staff.*') ? $activeBlue : $inactiveBlue }}">
                             <i class='bx bx-cog text-lg mr-3 {{ request()->routeIs('staff.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}'></i> User Management
                         </a>
-
                     @endif
 
                 @endif

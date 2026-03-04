@@ -35,13 +35,15 @@ class OfficialEnrollmentController extends Controller
     public function show(Request $request, $id) 
     {
         // 👇👇👇 NOTIFICATION LOGIC 👇👇👇
+        // 1. Mark Notification as Read globally for all admins viewing this application
         if ($request->has('read')) {
-            $notificationId = $request->query('read');
-            $notification = Auth::user()->notifications()->find($notificationId);
-            
-            if ($notification) {
-                $notification->markAsRead();
-            }
+            \Illuminate\Support\Facades\DB::table('notifications')
+                ->whereNull('read_at')
+                ->where(function($q) use ($id) {
+                    $q->where('data', 'like', '%"applicant_id":' . $id . '%')
+                      ->orWhere('data', 'like', '%"applicant_id":"' . $id . '"%');
+                })
+                ->update(['read_at' => now()]);
         }
         // 👆👆👆 END LOGIC 👆👆👆
 

@@ -50,14 +50,15 @@ class EnrollmentController extends Controller
     // --- UPDATED SHOW METHOD FOR NOTIFICATION MARK AS READ ---
     public function show(Request $request, $id): View 
     {
-        // 1. Mark Notification as Read (If clicked from bell)
+        // 1. Mark Notification as Read globally for all admins viewing this application
         if ($request->has('read')) {
-            $notificationId = $request->query('read');
-            $notification = Auth::user()->notifications()->find($notificationId);
-            
-            if ($notification) {
-                $notification->markAsRead();
-            }
+            \Illuminate\Support\Facades\DB::table('notifications')
+                ->whereNull('read_at')
+                ->where(function($q) use ($id) {
+                    $q->where('data', 'like', '%"applicant_id":' . $id . '%')
+                      ->orWhere('data', 'like', '%"applicant_id":"' . $id . '"%');
+                })
+                ->update(['read_at' => now()]);
         }
 
         $application = Applicant::findOrFail($id);
