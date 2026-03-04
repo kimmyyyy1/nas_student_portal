@@ -7,7 +7,7 @@
                 <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur opacity-30"></div>
                 {{-- User Avatar / Placeholder --}}
                 @if(isset($application) && $application->uploaded_files && isset($application->uploaded_files['id_picture']))
-                    <img src="{{ fileUrl($application->uploaded_files['id_picture']) }}" class="relative h-20 w-20 rounded-full object-cover border-4 border-white shadow-md">
+                    <img src="{{ $application->uploaded_files['id_picture'] }}" class="relative h-20 w-20 rounded-full object-cover border-4 border-white shadow-md">
                 @else
                     <div class="relative h-20 w-20 rounded-full bg-indigo-100 flex items-center justify-center border-4 border-white shadow-md text-indigo-600 text-2xl font-black">
                         {{ substr(Auth::user()->first_name, 0, 1) }}{{ substr(Auth::user()->last_name, 0, 1) }}

@@ -19,11 +19,24 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator; 
 
-use Illuminate\Support\Facades\Storage;
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\UploadApi;
 
 class StudentController extends Controller
 {
-    // Using local storage — no Cloudinary configuration needed
+    private function configureCloudinary()
+    {
+        Configuration::instance([
+            'cloud' => [
+                'cloud_name' => 'dqkzofruk', 
+                'api_key'    => '452544782214523', 
+                'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
+            ],
+            'url' => [
+                'secure' => true
+            ]
+        ]);
+    }
 
     /**
      * Display the Student Directory with filters.
@@ -189,8 +202,12 @@ class StudentController extends Controller
         $photoUrl = null;
         if ($request->hasFile('photo')) {
             try {
-                $path = Storage::disk('public')->putFile('uploads/photos', $request->file('photo'));
-                $photoUrl = $path;
+                $this->configureCloudinary(); 
+                $uploadApi = new UploadApi();
+                $result = $uploadApi->upload($request->file('photo')->getRealPath(), [
+                    'folder' => 'students/photos'
+                ]);
+                $photoUrl = $result['secure_url'];
             } catch (\Exception $e) { }
         }
 
@@ -257,6 +274,9 @@ class StudentController extends Controller
         $failCount = 0;
         $errors = [];
 
+        $this->configureCloudinary();
+        $uploadApi = new UploadApi();
+
         foreach ($files as $file) {
             $filenameWithExt = $file->getClientOriginalName();
             $studentId = pathinfo($filenameWithExt, PATHINFO_FILENAME); 
@@ -265,8 +285,12 @@ class StudentController extends Controller
 
             if ($student) {
                 try {
-                    $path = Storage::disk('public')->putFile('uploads/photos', $file);
-                    $student->update(['id_picture' => $path]);
+                    $result = $uploadApi->upload($file->getRealPath(), [
+                        'folder' => 'students/photos'
+                    ]);
+                    $photoUrl = $result['secure_url'];
+
+                    $student->update(['id_picture' => $photoUrl]);
                     $successCount++;
                 } catch (\Exception $e) {
                     $failCount++;

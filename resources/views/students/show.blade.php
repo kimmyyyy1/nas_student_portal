@@ -122,9 +122,9 @@
                     {{-- PROFILE HEADER --}}
                     <div class="relative flex flex-col md:flex-row items-center md:items-end -mt-16 md:-mt-20 mb-8">
                         <div class="relative group z-20">
-                            <img src="{{ $student->id_picture ? fileUrl($student->id_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($student->first_name . ' ' . $student->last_name) . '&background=random&size=256' }}" 
+                            <img src="{{ $student->id_picture ?? asset('images/default-avatar.svg') }}" 
                                  class="w-32 h-32 md:w-44 md:h-44 rounded-full border-4 border-white shadow-xl object-cover bg-white" 
-                                 alt="Profile">
+                                 alt="{{ $student->full_name }}'s profile photo">
                             @php
                                 $statusColor = match($student->status) {
                                     'Enrolled' => 'bg-green-500',

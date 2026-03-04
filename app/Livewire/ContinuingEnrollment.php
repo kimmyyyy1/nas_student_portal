@@ -8,7 +8,8 @@ use App\Models\Applicant;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\UploadApi;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\NewApplicantNotification;
 
@@ -102,9 +103,19 @@ class ContinuingEnrollment extends Component
     {
         $this->validate();
 
-        // Using local storage instead of Cloudinary
+        // 🚀 GAYAHIN ANG CONFIGURATION SA APPLICANT PORTAL
+        Configuration::instance([
+            'cloud' => [
+                'cloud_name' => 'dqkzofruk', 
+                'api_key'    => '452544782214523', 
+                'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo'
+            ],
+            'url' => ['secure' => true]
+        ]);
+
         try {
             $user = Auth::user();
+            $uploadApi = new UploadApi();
             $student = Student::where('nas_student_id', $user->student_id)->first();
             
             $fileUrls = [];
@@ -125,8 +136,7 @@ class ContinuingEnrollment extends Component
 
             foreach ($uploadFields as $model => $key) {
                 if ($this->$model) {
-                    $path = $this->$model->store('uploads/renewal', 'public');
-                    $fileUrls[$key] = $path;
+                    $fileUrls[$key] = $uploadApi->upload($this->$model->getRealPath(), ['folder' => 'nas_requirements'])['secure_url'];
                     $updatedStatuses[$key] = 'pending';
                     $isNewSubmission = true;
                 }

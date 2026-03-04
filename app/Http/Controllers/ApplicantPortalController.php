@@ -11,14 +11,25 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\UploadApi;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\NewApplicantNotification;
 use App\Notifications\EnrollmentSubmittedNotification;
 
 class ApplicantPortalController extends Controller
 {
-    // No constructor needed — using local storage now
+    public function __construct()
+    {
+        Configuration::instance([
+            'cloud' => [
+                'cloud_name' => 'dqkzofruk', 
+                'api_key'    => '452544782214523', 
+                'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo'
+            ],
+            'url' => ['secure' => true]
+        ]);
+    }
 
     // ==========================================
     // PHASE 1: DASHBOARD & REGISTRATION
@@ -174,8 +185,11 @@ class ApplicantPortalController extends Controller
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
-                    $path = Storage::disk('public')->putFile('uploads/requirements', $file);
-                    $currentFiles[$key] = $path;
+                    $upload = (new UploadApi())->upload($file->getRealPath(), [
+                        'folder' => 'nas_student_portal/phase2_requirements',
+                        'resource_type' => 'auto'
+                    ]);
+                    $currentFiles[$key] = $upload['secure_url'];
                     
                     if (isset($docStatuses[$key]) && ($docStatuses[$key] === 'declined' || $docStatuses[$key] === 'Needs resubmission')) {
                         $isResubmission = true;
@@ -327,8 +341,11 @@ class ApplicantPortalController extends Controller
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
-                    $path = Storage::disk('public')->putFile('uploads/enrollment', $file);
-                    $currentFiles[$key] = $path;
+                    $upload = (new UploadApi())->upload($file->getRealPath(), [
+                        'folder' => 'nas_student_portal/official_enrollment',
+                        'resource_type' => 'auto'
+                    ]);
+                    $currentFiles[$key] = $upload['secure_url'];
                     $uploadedDocNames[] = $this->formatFileName($key);
                 } catch (\Exception $e) {
                     continue; 
@@ -390,11 +407,11 @@ class ApplicantPortalController extends Controller
         $currentFiles = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
         if ($request->hasFile('id_picture')) {
             try {
-                $path = Storage::disk('public')->putFile('uploads/ids', $request->file('id_picture'));
-                $currentFiles['id_picture'] = $path;
+                $upload = (new UploadApi())->upload($request->file('id_picture')->getRealPath(), ['folder' => 'nas_student_portal/ids']);
+                $currentFiles['id_picture'] = $upload['secure_url'];
                 $applicant->update([
                     'uploaded_files' => $currentFiles,
-                    'photo' => $path
+                    'photo' => $upload['secure_url']
                 ]);
             } catch (\Exception $e) {}
         } else {
