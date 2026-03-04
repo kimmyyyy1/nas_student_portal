@@ -24,7 +24,7 @@
                 <div class="p-5 sm:p-8 lg:p-10 space-y-8 lg:space-y-12 w-full">
                     
                     {{-- HEADER --}}
-                    <div class="flex flex-col md:flex-row items-center justify-between pb-6 border-b-2 border-slate-500/20 gap-4 lg:gap-6 w-full">
+                    <div class="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 mb-6 bg-white/40 backdrop-blur-md rounded-2xl md:rounded-3xl border border-white/50 shadow-sm gap-4 lg:gap-6 w-full">
                         <div class="w-full md:w-32 lg:w-40 flex justify-center md:justify-start flex-shrink-0">
                             <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" alt="NAS Logo" class="h-16 sm:h-20 lg:h-28 w-auto object-contain drop-shadow-md">
                         </div>
@@ -33,10 +33,10 @@
                                 NAS Annual Search for Competent, Exceptional, Notable, and Talented Student-Athlete Scholars
                             </h1>
                             <div class="flex flex-col items-center justify-center w-full mt-1.5 lg:mt-2">
-                                <h2 class="text-[9px] sm:text-[10px] lg:text-xs font-bold text-blue-700 uppercase tracking-[0.2em] drop-shadow-sm">
+                                <h2 class="text-[9px] sm:text-[10px] lg:text-xs font-bold text-blue-800 uppercase tracking-[0.2em] drop-shadow-sm">
                                     (NASCENT SAS)
                                 </h2>
-                                <p class="text-[8px] sm:text-[9px] font-bold text-slate-600 mt-1 uppercase tracking-wider">New Clark City, Capas, Tarlac</p>
+                                <p class="text-[8px] sm:text-[9px] font-bold text-slate-700 mt-1 uppercase tracking-wider shadow-white">New Clark City, Capas, Tarlac</p>
                             </div>
                         </div>
                         <div class="w-full md:w-32 lg:w-40 flex justify-center md:justify-end flex-shrink-0 hidden md:flex">
@@ -65,7 +65,7 @@
                                             $rawFiles = $application->uploaded_files;
                                             if (is_string($rawFiles)) { $files = json_decode($rawFiles, true); } else { $files = $rawFiles; }
                                             $files = is_array($files) ? $files : [];
-                                            $photoUrl = $files['id_picture'] ?? null;
+                                            $photoUrl = $files['id_picture'] ?? $application->photo ?? null;
                                         @endphp
                                         @if(!empty($photoUrl))
                                             <img src="{{ $photoUrl }}" class="w-full h-full object-cover" alt="Applicant Photo">
@@ -193,25 +193,7 @@
 
                             <div class="bg-white/60 p-5 sm:p-6 rounded-xl md:rounded-2xl border-l-4 border-indigo-600 border-t border-r border-b border-white/40 shadow-md">
                                 <label class="block text-[9px] sm:text-[10px] font-black text-indigo-500 uppercase mb-2 tracking-wider">Current School Type</label>
-                                <p class="text-xl sm:text-2xl font-black text-slate-800 uppercase tracking-tight">{{ $application->school_type }}</p>
-                            </div>
-
-                            <div class="bg-white/60 p-5 sm:p-6 rounded-xl md:rounded-2xl border-t border-r border-b border-white/40 shadow-md">
-                                <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase mb-2 tracking-wider">Last Grade Level</label>
-                                <p class="text-lg sm:text-xl font-black text-slate-800 uppercase tracking-tight">{{ $application->school_last_grade_level ?? 'N/A' }}</p>
-                            </div>
-
-                            <div class="bg-white/60 p-5 sm:p-6 rounded-xl md:rounded-2xl border-t border-r border-b border-white/40 shadow-md flex items-center justify-between">
-                                <div>
-                                    <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase mb-2 tracking-wider">Year Completed</label>
-                                    <p class="text-lg sm:text-xl font-black text-slate-800 uppercase tracking-tight">{{ $application->school_last_year_completed ?? 'N/A' }}</p>
-                                </div>
-                                @if($application->school_id)
-                                    <div class="text-right">
-                                        <label class="block text-[8px] sm:text-[9px] font-black text-slate-400 uppercase mb-1 tracking-wider">School ID</label>
-                                        <p class="font-mono font-bold text-slate-600 text-sm sm:text-base tracking-widest">{{ $application->school_id }}</p>
-                                    </div>
-                                @endif
+                                <p class="text-xl sm:text-2xl font-black text-slate-800 uppercase tracking-tight">{{ $application->school_type ?? 'N/A' }}</p>
                             </div>
 
                             <div class="p-4 sm:p-6 rounded-xl md:rounded-2xl border shadow-sm transition-colors flex justify-between items-center sm:block {{ $application->palaro_finisher == 'Yes' ? 'bg-yellow-50/80 border-yellow-400' : 'bg-white/40 border-white/40 opacity-75' }}">
@@ -393,9 +375,10 @@
             </div>
 
             {{-- SIDEBAR ACTIONS (GLASSMOPHISM) --}}
-            <div class="w-full lg:col-span-1 no-print">
-                {{-- ⚡ GINAWANG bg-white/10 + backdrop-blur para transparent din ang sidebar ⚡ --}}
-                <div class="bg-white/10 backdrop-blur-md shadow-xl shadow-indigo-100/30 rounded-3xl border border-white/30 p-5 sm:p-6 lg:sticky lg:top-6 w-full text-slate-800">
+            <div class="w-full lg:col-span-1 no-print lg:sticky lg:top-6 space-y-6">
+                
+                {{-- APPLICATION DECISION --}}
+                <div class="bg-white/40 backdrop-blur-md shadow-xl shadow-indigo-100/30 rounded-3xl border border-white/50 p-5 sm:p-6 w-full text-slate-800">
                     <div class="flex items-center justify-between border-b border-slate-500/20 pb-3 sm:pb-4 mb-4 sm:mb-6">
                         <h3 class="text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest">Application Decision</h3>
                         @if(in_array($application->status, ['Officially Enrolled', 'Enrolled']))
@@ -409,7 +392,7 @@
                     </div>
                     
                     @if($application->is_locked)
-                        <div class="mb-4 bg-red-50 border-l-4 border-red-500 p-3 rounded text-red-700 text-xs">
+                        <div class="mb-4 bg-red-50 border-l-4 border-red-500 p-3 rounded text-red-700 text-xs shadow-sm">
                             <span class="font-bold">Record Locked.</span> You cannot modify the status or documents of a finalized enrollment record. Unlock it first to make changes.
                         </div>
                     @endif
@@ -422,10 +405,10 @@
                         @endif
 
                         <div class="mb-5 sm:mb-6 w-full">
-                            <label class="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase mb-1.5 sm:mb-2 tracking-wider">Set Status</label>
+                            <label class="block text-[9px] sm:text-[10px] font-black text-slate-700 uppercase mb-1.5 sm:mb-2 tracking-wider">Set Status</label>
                             
                             <div class="w-full">
-                                <select name="status" id="status" {{ $application->is_locked ? 'disabled' : '' }} class="w-full border-white/40 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm py-2.5 px-3 sm:py-3 sm:px-3 bg-white/60 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400">
+                                <select name="status" id="status" {{ $application->is_locked ? 'disabled' : '' }} class="w-full border-white/60 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm py-2.5 px-3 sm:py-3 sm:px-3 bg-white cursor-pointer disabled:bg-slate-100 disabled:text-slate-400">
                                     <optgroup label="Phase 1: Registration">
                                         <option value="With Pending Requirements" {{ $application->status == 'With Pending Requirements' ? 'selected' : '' }}>With Pending Requirements</option>
                                         <option value="With Complete Requirements &amp; for 1st Level Assessment" {{ $application->status == 'With Complete Requirements &amp; for 1st Level Assessment' ? 'selected' : '' }}>For 1st Level Assessment</option>
@@ -443,8 +426,8 @@
                         </div>
 
                         <div class="mb-5 sm:mb-6 hidden w-full" id="rejection-div">
-                            <label class="block text-[9px] sm:text-[10px] font-black text-red-400 uppercase mb-1.5 sm:mb-2 tracking-wider">Reason for Rejection</label>
-                            <textarea name="rejection_reason" {{ $application->is_locked ? 'disabled' : '' }} rows="3" class="w-full border-red-200 bg-red-50/80 rounded-lg sm:rounded-xl text-xs sm:text-sm text-red-700 focus:border-red-500 focus:ring-red-500 p-2.5 sm:p-3 placeholder-red-300 disabled:bg-slate-100 disabled:text-slate-400" placeholder="State reason...">{{ $application->rejection_reason }}</textarea>
+                            <label class="block text-[9px] sm:text-[10px] font-black text-red-600 uppercase mb-1.5 sm:mb-2 tracking-wider">Reason for Rejection</label>
+                            <textarea name="rejection_reason" {{ $application->is_locked ? 'disabled' : '' }} rows="3" class="w-full border-red-200 bg-red-50/90 rounded-lg sm:rounded-xl text-xs sm:text-sm text-red-800 focus:border-red-500 focus:ring-red-500 p-2.5 sm:p-3 placeholder-red-400 disabled:bg-slate-200 disabled:text-slate-500 shadow-inner" placeholder="State reason...">{{ $application->rejection_reason }}</textarea>
                         </div>
 
                         <button type="submit" {{ $application->is_locked ? 'disabled' : '' }} class="{{ $application->is_locked ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-indigo-300/50' }} w-full font-black py-3 sm:py-4 rounded-lg sm:rounded-xl transition transform hover:-translate-y-0.5 text-[10px] sm:text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2">
@@ -455,9 +438,9 @@
                 </div>
 
                 {{-- AUDIT TRAIL LOG --}}
-                <div class="mt-6 bg-white/60 p-5 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/40 shadow-xl w-full">
-                    <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center mb-4">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="bg-white/40 backdrop-blur-md shadow-xl shadow-indigo-100/30 rounded-3xl border border-white/50 p-5 sm:p-6 w-full text-slate-800">
+                    <h2 class="text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest flex items-center mb-4 border-b border-slate-500/20 pb-3 sm:pb-4">
+                        <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Audit Trail
                     </h2>
                     

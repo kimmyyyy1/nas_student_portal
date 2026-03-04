@@ -92,6 +92,10 @@ class ApplicantPortalController extends Controller
             'sport_specification' => 'nullable|string',
             'palaro_finisher' => 'required|string',
             'batang_pinoy_finisher' => 'required|string',
+            'school_type' => 'required|string',
+            'school_last_grade_level' => 'nullable|string',
+            'school_last_year_completed' => 'nullable|string',
+            'school_id' => 'nullable|string',
             'guardian_name' => 'required|string',
             'guardian_relationship' => 'required|string',
             'guardian_email' => 'required|email',
@@ -388,6 +392,7 @@ class ApplicantPortalController extends Controller
             'region', 'province', 'municipality_city', 'barangay', 
             'street_address', 'zip_code', 'learn_about_nas', 'attended_campaign',
             'sport', 'sport_specification', 'palaro_finisher', 'batang_pinoy_finisher', 
+            'school_type', 'school_last_grade_level', 'school_last_year_completed', 'school_id',
             'guardian_name', 'guardian_relationship', 'guardian_email', 'guardian_contact'
         ]);
         $data['middle_name'] = $request->middle_name ?? 'N/A';

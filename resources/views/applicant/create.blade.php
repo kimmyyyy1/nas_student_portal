@@ -466,6 +466,22 @@
 
                         </div>
                     </div>
+
+                    {{-- SCHOOL INFORMATION --}}
+                    <div class="mt-8 md:mt-12 bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-100/50">
+                        <h4 class="text-sm md:text-base font-black text-slate-800 uppercase tracking-tighter mb-6 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            School Information
+                        </h4>
+                        <div>
+                            <label class="block text-[10px] md:text-xs font-bold text-slate-500 uppercase mb-2 ml-1 tracking-wider">School Type *</label>
+                            <select name="school_type" x-model="inputs.school_type" required class="w-full h-12 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl border-2 border-slate-100 bg-slate-50 font-bold text-slate-700">
+                                <option value="">Select Type</option>
+                                <option value="Public">Public</option>
+                                <option value="Private">Private</option>
+                            </select>
+                        </div>
+                    </div>
                 </section>
 
                 {{-- SECTION 3: GUARDIAN --}}
