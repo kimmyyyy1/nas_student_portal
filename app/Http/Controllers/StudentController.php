@@ -19,24 +19,11 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator; 
 
-use Cloudinary\Configuration\Configuration;
-use Cloudinary\Api\Upload\UploadApi;
+use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
-    private function configureCloudinary()
-    {
-        Configuration::instance([
-            'cloud' => [
-                'cloud_name' => 'dqkzofruk', 
-                'api_key'    => '452544782214523', 
-                'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
-            ],
-            'url' => [
-                'secure' => true
-            ]
-        ]);
-    }
+    // Using local storage — no Cloudinary configuration needed
 
     /**
      * Display the Student Directory with filters.
@@ -89,6 +76,35 @@ class StudentController extends Controller
 
         $students = $query->orderBy('last_name')->paginate(15); 
         return view('students.index', compact('students', 'sections'));
+    }
+
+    /**
+     * Bulk update student statuses.
+     */
+    public function bulkUpdateStatus(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'student_ids' => 'required|array',
+            'student_ids.*' => 'exists:students,id',
+            'bulk_status' => 'required|in:New,Continuing,Transfer out,Graduate,Enrolled',
+        ]);
+
+        $status = $request->bulk_status;
+        $count = count($request->student_ids);
+
+        Student::whereIn('id', $request->student_ids)->update(['status' => $status]);
+
+        $user = Auth::user();
+        if ($user) {
+            $role = ucfirst($user->role);
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'action' => 'Bulk Update Status',
+                'description' => "<strong>{$role}</strong> {$user->name} updated the status of <strong>{$count} student(s)</strong> to <strong>{$status}</strong>.",
+            ]);
+        }
+
+        return back()->with('success', "Successfully updated the status of {$count} student(s) to {$status}.");
     }
 
     /**
@@ -173,12 +189,8 @@ class StudentController extends Controller
         $photoUrl = null;
         if ($request->hasFile('photo')) {
             try {
-                $this->configureCloudinary(); 
-                $uploadApi = new UploadApi();
-                $result = $uploadApi->upload($request->file('photo')->getRealPath(), [
-                    'folder' => 'students/photos'
-                ]);
-                $photoUrl = $result['secure_url'];
+                $path = Storage::disk('public')->putFile('uploads/photos', $request->file('photo'));
+                $photoUrl = $path;
             } catch (\Exception $e) { }
         }
 
@@ -245,9 +257,6 @@ class StudentController extends Controller
         $failCount = 0;
         $errors = [];
 
-        $this->configureCloudinary();
-        $uploadApi = new UploadApi();
-
         foreach ($files as $file) {
             $filenameWithExt = $file->getClientOriginalName();
             $studentId = pathinfo($filenameWithExt, PATHINFO_FILENAME); 
@@ -256,12 +265,8 @@ class StudentController extends Controller
 
             if ($student) {
                 try {
-                    $result = $uploadApi->upload($file->getRealPath(), [
-                        'folder' => 'students/photos'
-                    ]);
-                    $photoUrl = $result['secure_url'];
-
-                    $student->update(['id_picture' => $photoUrl]);
+                    $path = Storage::disk('public')->putFile('uploads/photos', $file);
+                    $student->update(['id_picture' => $path]);
                     $successCount++;
                 } catch (\Exception $e) {
                     $failCount++;

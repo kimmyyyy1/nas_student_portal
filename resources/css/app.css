@@ -12,10 +12,25 @@
     }
 
     /* Targetin natin lahat ng pasaway na elements */
-    body, h1, h2, h3, h4, h5, h6, 
-    p, span, a, li, 
-    button, input, select, textarea, label,
-    table, td, th {
+    body,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    span,
+    a,
+    li,
+    button,
+    input,
+    select,
+    textarea,
+    label,
+    table,
+    td,
+    th {
         font-family: 'Poppins', sans-serif !important;
     }
 }
@@ -28,16 +43,19 @@ body {
 
 /* 4. SYSTEM-WIDE PREMIUM COMPONENTS */
 @layer components {
+
     /* Standard Card Container */
     .premium-card {
-        @apply bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2rem] p-6 sm:p-8;
+        @apply bg-white/70 backdrop-blur-xl border border-white/60 sm:rounded-[2rem] p-6 sm:p-8;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
     }
 
     /* Standard Table Container */
     .premium-table-container {
-        @apply bg-white/70 backdrop-blur-xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-white/60 sm:rounded-3xl overflow-hidden;
+        @apply bg-white/70 backdrop-blur-xl border border-white/60 sm:rounded-3xl overflow-hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
     }
-    
+
     .premium-table-container table {
         @apply min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent;
     }
@@ -45,7 +63,7 @@ body {
     .premium-table-header {
         @apply bg-white/40 border-b border-gray-100/50 backdrop-blur-md;
     }
-    
+
     .premium-table-header th {
         @apply px-5 py-4 text-left text-[11px] font-black text-slate-500 uppercase tracking-widest;
     }
@@ -53,7 +71,7 @@ body {
     .premium-table-row {
         @apply hover:bg-white/50 transition duration-200 ease-in-out border-b border-gray-50/50 last:border-0;
     }
-    
+
     .premium-table-cell {
         @apply px-5 py-3.5;
     }

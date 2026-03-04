@@ -148,11 +148,36 @@
 
             {{-- TABLE SECTION --}}
             <div class="premium-table-container">
-                <div class="w-full overflow-x-auto custom-scroll"> 
-                    <table class="min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent">
-                        <thead class="premium-table-header">
-                            <tr>
-                                <th>Student ID</th>
+                <form id="bulkUpdateForm" action="{{ route('students.bulk-update-status') }}" method="POST">
+                    @csrf
+                    
+                    {{-- BULK ACTION TAB --}}
+                    <div class="px-5 py-3 border-b border-gray-200 bg-white/60 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="selectAllCheckbox" class="rounded border-gray-300 text-blue-600 shadow-sm cursor-pointer w-4 h-4">
+                            <label for="selectAllCheckbox" class="text-[10px] md:text-sm font-bold text-slate-600 uppercase tracking-widest cursor-pointer select-none">Select All</label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select name="bulk_status" id="bulkStatusSelect" class="block w-32 md:w-48 rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs py-1.5 md:py-2 text-gray-900 cursor-pointer" required>
+                                <option value="">Change Status To...</option>
+                                <option value="New">New</option>
+                                <option value="Continuing">Continuing</option>
+                                <option value="Enrolled">Enrolled</option>
+                                <option value="Transfer out">Transfer Out</option>
+                                <option value="Graduate">Graduate (Alumni)</option>
+                            </select>
+                            <button type="submit" onclick="return confirm('Are you sure you want to update the status of the selected students?')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-xl text-xs font-bold shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider" id="bulkSubmitBtn" disabled>
+                                Update
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="w-full overflow-x-auto custom-scroll"> 
+                        <table class="min-w-full divide-y divide-gray-100/50 whitespace-nowrap bg-transparent">
+                            <thead class="premium-table-header">
+                                <tr>
+                                    <th class="w-10 px-4"></th>
+                                    <th>Student ID</th>
                                 <th>Name</th>
                                 <th>Grade & Sec</th>
                                 <th>Sport</th>
@@ -164,12 +189,15 @@
                         <tbody id="student-list" class="divide-y divide-gray-50/50">
                             @forelse($students as $student)
                                 <tr class="premium-table-row">
+                                    <td class="px-4 whitespace-nowrap text-center align-middle">
+                                        <input type="checkbox" name="student_ids[]" value="{{ $student->id }}" class="student-checkbox rounded border-gray-300 text-blue-600 shadow-sm cursor-pointer w-4 h-4">
+                                    </td>
                                     
                                     <td class="premium-table-cell">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 mr-2 hidden sm:block">
                                                 @if($student->id_picture)
-                                                    <img class="h-8 w-8 rounded-full object-cover border border-gray-300" src="{{ $student->id_picture }}" alt="">
+                                                    <img class="h-8 w-8 rounded-full object-cover border border-gray-300" src="{{ fileUrl($student->id_picture) }}" alt="">
                                                 @else
                                                     <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold text-xs border border-indigo-200">
                                                         {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}
@@ -295,7 +323,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center text-slate-400 font-medium">
+                                    <td colspan="7" class="px-6 py-12 text-center text-slate-400 font-medium">
                                         No enrolled students found.
                                     </td>
                                 </tr>
@@ -307,6 +335,7 @@
                 <div class="px-5 py-4 border-t border-white/60 bg-white/40">
                     {{ $students->appends(request()->query())->links() }}
                 </div>
+                </form>
             </div>
         </div>
     </div>
@@ -331,9 +360,43 @@
                     const newBody = doc.getElementById('student-list').innerHTML;
                     if(document.getElementById('student-list')) {
                         document.getElementById('student-list').innerHTML = newBody;
+                        rebindCheckboxes(); // re-bind events after DOM replacement
                     }
                 })
                 .catch(error => console.error('Error updating table:', error));
         }
+
+        // Bulk Selection Logic
+        function rebindCheckboxes() {
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+            const bulkSubmitBtn = document.getElementById('bulkSubmitBtn');
+            const bulkStatusSelect = document.getElementById('bulkStatusSelect');
+
+            if(!selectAllCheckbox || !bulkSubmitBtn) return;
+
+            function updateSubmitButton() {
+                const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+                bulkSubmitBtn.disabled = checkedCount === 0 || bulkStatusSelect.value === '';
+            }
+
+            selectAllCheckbox.addEventListener('change', function() {
+                studentCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+                updateSubmitButton();
+            });
+
+            studentCheckboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
+                    const allChecked = document.querySelectorAll('.student-checkbox:checked').length === studentCheckboxes.length;
+                    selectAllCheckbox.checked = allChecked && studentCheckboxes.length > 0;
+                    updateSubmitButton();
+                });
+            });
+
+            bulkStatusSelect.addEventListener('change', updateSubmitButton);
+        }
+
+        // Initialize immediately
+        document.addEventListener('DOMContentLoaded', rebindCheckboxes);
     </script>
 </x-app-layout>

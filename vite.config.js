@@ -9,7 +9,6 @@ export default defineConfig({
         }),
     ],
     build: {
-        // 👇 Dinagdagan ko ng comment para ma-detect ni Git
-        sourcemap: false, 
+        sourcemap: false,
     },
 }); 

@@ -185,6 +185,36 @@
                     </div>
                 </div>
 
+                <!-- Enrollment Analytics Section -->
+                <div class="mb-3">
+                    <h3 class="text-[13px] font-black text-slate-800 uppercase tracking-widest flex items-center"><i class='bx bx-check-shield mr-2 text-indigo-500 text-lg'></i> Enrollment Status</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <!-- Pending Verification -->
+                    <div class="bg-white/70 backdrop-blur-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2rem] p-7 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Pending Verification</p><h3 class="text-4xl font-black text-slate-800 tracking-tight count-up" data-target="{{ $enrollmentPending }}">0</h3></div>
+                            <div class="bg-gradient-to-br from-amber-100 to-amber-50/50 p-4 rounded-2xl text-amber-600 shadow-sm border border-amber-100/50"><i class='bx bxs-file-find text-3xl'></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Returned for Revision -->
+                    <div class="bg-white/70 backdrop-blur-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2rem] p-7 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Returned for Revision</p><h3 class="text-4xl font-black text-slate-800 tracking-tight count-up" data-target="{{ $enrollmentReturned }}">0</h3></div>
+                            <div class="bg-gradient-to-br from-rose-100 to-rose-50/50 p-4 rounded-2xl text-rose-600 shadow-sm border border-rose-100/50"><i class='bx bxs-error-circle text-3xl'></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Officially Enrolled -->
+                    <div class="bg-white/70 backdrop-blur-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2rem] p-7 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Officially Enrolled</p><h3 class="text-4xl font-black text-slate-800 tracking-tight count-up" data-target="{{ $enrollmentCompleted }}">0</h3></div>
+                            <div class="bg-gradient-to-br from-emerald-100 to-emerald-50/50 p-4 rounded-2xl text-emerald-600 shadow-sm border border-emerald-100/50"><i class='bx bxs-check-shield text-3xl'></i></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <!-- Activity Stream (Expanded on Left) -->
                     <div class="md:col-span-3 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2rem] flex flex-col h-[480px] overflow-hidden relative">

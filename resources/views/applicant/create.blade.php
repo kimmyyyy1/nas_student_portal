@@ -44,6 +44,9 @@
                     palaro_finisher: "{{ old('palaro_finisher', 'No') }}",
                     batang_pinoy_finisher: "{{ old('batang_pinoy_finisher', 'No') }}",
                     school_type: "{{ old('school_type', '') }}",
+                    school_last_grade_level: "{{ old('school_last_grade_level', '') }}",
+                    school_last_year_completed: "{{ old('school_last_year_completed', '') }}",
+                    school_id: "{{ old('school_id', '') }}",
 
                     // Guardian (Strict Labels)
                     guardian_name: "{{ old('guardian_name', '') }}",
@@ -407,10 +410,10 @@
                                     <option value="Aquatics" class="text-slate-800">Aquatics (Swimming)</option>
                                     <option value="Athletics" class="text-slate-800">Athletics (Track and Field)</option>
                                     <option value="Badminton" class="text-slate-800">Badminton</option>
-                                    <option value="Gymnastics" class="text-slate-800">Gymnastics</option>
+                                    <option value="Gymnastics" class="text-slate-800">Gymnastics (Rhythmic/Artistic)</option>
                                     <option value="Judo" class="text-slate-800">Judo</option>
                                     <option value="Table Tennis" class="text-slate-800">Table Tennis</option>
-                                    <option value="Taekwondo" class="text-slate-800">Taekwondo</option>
+                                    <option value="Taekwondo" class="text-slate-800">Taekwondo (Kyorugi/Poomsae)</option>
                                     <option value="Weightlifting" class="text-slate-800">Weightlifting</option>
                                 </select>
                             </div>
@@ -418,16 +421,16 @@
                             {{-- DYNAMIC FOLLOW UP --}}
                             <div class="mt-6 md:mt-8 relative z-10" x-show="inputs.sport" x-transition>
                                 <template x-if="inputs.sport === 'Aquatics'">
-                                    <div><label class="block text-[10px] md:text-xs font-bold text-blue-200 uppercase mb-2 tracking-wide">Specific Event</label><input type="text" name="sport_specification" x-model="inputs.sport_specification" class="w-full rounded-xl border-none bg-white/20 h-12 md:h-14 px-4 md:px-5 text-white placeholder-blue-200 font-bold focus:ring-2 focus:ring-white/30" placeholder="e.g. Freestyle"></div>
+                                    <div><label class="block text-[10px] md:text-xs font-bold text-blue-200 uppercase mb-2 tracking-wide">Specific Event</label><input type="text" name="sport_specification" x-model="inputs.sport_specification" class="w-full rounded-xl border-none bg-white/20 h-12 md:h-14 px-4 md:px-5 text-white placeholder-blue-200 font-bold focus:ring-2 focus:ring-white/30" placeholder="e.g. Freestyle, Butterfly"></div>
                                 </template>
                                 <template x-if="inputs.sport === 'Athletics'">
-                                    <div><label class="block text-[10px] md:text-xs font-bold text-blue-200 uppercase mb-2 tracking-wide">Specific Event</label><input type="text" name="sport_specification" x-model="inputs.sport_specification" class="w-full rounded-xl border-none bg-white/20 h-12 md:h-14 px-4 md:px-5 text-white placeholder-blue-200 font-bold focus:ring-2 focus:ring-white/30" placeholder="e.g. 100m Dash"></div>
+                                    <div><label class="block text-[10px] md:text-xs font-bold text-blue-200 uppercase mb-2 tracking-wide">Specific Event</label><input type="text" name="sport_specification" x-model="inputs.sport_specification" class="w-full rounded-xl border-none bg-white/20 h-12 md:h-14 px-4 md:px-5 text-white placeholder-blue-200 font-bold focus:ring-2 focus:ring-white/30" placeholder="e.g. 100m Dash, Javelin Throw"></div>
                                 </template>
                                 <template x-if="inputs.sport === 'Taekwondo'">
-                                    <div><label class="block text-[10px] md:text-xs font-bold text-blue-200 uppercase mb-2 tracking-wide">Category</label><div class="relative"><select name="sport_specification" x-model="inputs.sport_specification" class="w-full rounded-xl border-none bg-white/20 h-12 md:h-14 px-4 md:px-5 text-white font-bold appearance-none focus:ring-2 focus:ring-white/30"><option value="Poomsae" class="text-slate-800">Poomsae</option><option value="Kyorugi" class="text-slate-800">Kyorugi</option></select></div></div>
+                                    <div><label class="block text-[10px] md:text-xs font-bold text-blue-200 uppercase mb-2 tracking-wide">Category</label><div class="relative"><select name="sport_specification" x-model="inputs.sport_specification" class="w-full rounded-xl border-none bg-white/20 h-12 md:h-14 px-4 md:px-5 text-white font-bold appearance-none focus:ring-2 focus:ring-white/30"><option value="" class="text-slate-800">Select Category</option><option value="Poomsae" class="text-slate-800">Poomsae</option><option value="Kyorugi" class="text-slate-800">Kyorugi</option></select></div></div>
                                 </template>
                                 <template x-if="inputs.sport === 'Gymnastics'">
-                                    <div><label class="block text-[10px] md:text-xs font-bold text-blue-200 uppercase mb-2 tracking-wide">Category</label><div class="relative"><select name="sport_specification" x-model="inputs.sport_specification" class="w-full rounded-xl border-none bg-white/20 h-12 md:h-14 px-4 md:px-5 text-white font-bold appearance-none focus:ring-2 focus:ring-white/30"><option value="Artistic" class="text-slate-800">Artistic</option><option value="Rhythmic" class="text-slate-800">Rhythmic</option></select></div></div>
+                                    <div><label class="block text-[10px] md:text-xs font-bold text-blue-200 uppercase mb-2 tracking-wide">Category</label><div class="relative"><select name="sport_specification" x-model="inputs.sport_specification" class="w-full rounded-xl border-none bg-white/20 h-12 md:h-14 px-4 md:px-5 text-white font-bold appearance-none focus:ring-2 focus:ring-white/30"><option value="" class="text-slate-800">Select Category</option><option value="Artistic" class="text-slate-800">Artistic</option><option value="Rhythmic" class="text-slate-800">Rhythmic</option></select></div></div>
                                 </template>
                             </div>
                         </div>
@@ -460,14 +463,7 @@
                                     </label>
                                 </div>
                             </div>
-                            <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] border border-slate-100 shadow-lg">
-                                <label class="block text-[10px] md:text-xs font-black text-slate-400 uppercase mb-4 tracking-widest">Current School Type</label>
-                                <select name="school_type" x-model="inputs.school_type" class="w-full h-12 md:h-14 pl-4 md:pl-6 pr-10 md:pr-12 rounded-xl md:rounded-2xl border-2 border-slate-100 bg-slate-50 font-bold text-slate-700" required>
-                                    <option value="">Select Type</option>
-                                    <option value="Public">Public</option>
-                                    <option value="Private">Private</option>
-                                </select>
-                            </div>
+
                         </div>
                     </div>
                 </section>
@@ -508,8 +504,7 @@
                         Data Privacy Consent
                     </h4>
                     
-                    {{-- WRAPPED WITH SCROLLBAR CONTAINER --}}
-                    <div class="h-48 md:h-64 overflow-y-auto bg-slate-50 p-4 md:p-6 rounded-xl border border-slate-200 text-slate-600 text-xs md:text-sm leading-relaxed mb-6 space-y-4 shadow-sm custom-scrollbar text-justify">
+                    <div class="h-48 md:h-64 overflow-y-auto bg-slate-50 p-4 md:p-6 rounded-xl border border-slate-200 text-slate-600 text-[10px] md:text-sm leading-relaxed mb-6 space-y-4 shadow-sm custom-scrollbar text-justify font-medium">
                         <p>I/We certify that the above information is true, complete and correct. I/We understand that any false or misleading information shall render my/our child ineligible for admission or may be subject for dismissal. If admitted, I/We agreed to abide by the policies, rules and regulations of the National Academy of Sports.</p>
                         
                         <p>For and in behalf of our minor child, I/We declare and confirm that, of my/our our volition, submit and will continue to submit, necessary information and documents to the National Academy of Sports (“NAS”), with the intention of applying, if qualified, enroll my/our child for the upcoming school year. In this regard, I/We acknowledge and understand that NAS requires our and our child’s personal and/or sensitive information (collectively “information”), for legitimate and lawful purposes, including but limited to verifying our identity, evaluating academic qualifications and eligibility, assessing physical fitness, and facilitating official communication with us.</p>
@@ -518,11 +513,11 @@
                         <ul class="list-disc pl-5 space-y-2">
                             <li>NAS may collect, record, use, process, store, and transmit our information in accordance with the Data Privacy Act of 2012, its implementing Rules and Regulations (IRR), and other applicable laws.</li>
                             <li>NAS may disclose our information only with our consent, or when required or authorized under relevant laws, rules, and regulations.</li>
-                            <li>NAS shall adopt appropriate organizational, physical, and technical measurement to ensure the confidentiality, integrity, and availability  of our information.</li>
+                            <li>NAS shall adopt appropriate organizational, physical, and technical measurement to ensure the confidentiality, integrity, and availability of our information.</li>
                             <li>NAS may retain our information only for as long as necessary to fulfill the purposes stated herein, or as required by applicable laws and regulations.</li>
                         </ul>
 
-                        <p>We also understand that as date subjects under the Data of 2012, we have right to:</p>
+                        <p>We also understand that as data subjects under the Data Privacy Act of 2012, we have the right to:</p>
                         <ul class="list-disc pl-5 space-y-2">
                             <li>Inquire about, request access to, review or obtain a copy of our information in the custody of NAS.</li>
                             <li>Request correction or updating our information;</li>

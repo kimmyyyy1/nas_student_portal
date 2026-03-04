@@ -47,14 +47,14 @@
         <form wire:submit="submitEnrollment" class="w-full">
             <div class="space-y-8">
                 {{-- Student Info --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-5 rounded-2xl border">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white/40 backdrop-blur-md p-5 rounded-2xl border border-white/50 shadow-sm">
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Student Name</label>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Student Name</label>
                         <p class="font-black text-slate-800 text-lg uppercase">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Grade Level to Enroll</label>
-                        <div class="mt-1 flex items-center justify-between p-3 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Grade Level to Enroll</label>
+                        <div class="mt-1 flex items-center justify-between p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 shadow-inner">
                             <span class="font-black text-indigo-700 text-lg uppercase drop-shadow-sm">{{ $grade_level }}</span>
                             <span class="px-2.5 py-1 bg-indigo-100 text-indigo-600 rounded-md text-[9px] font-black uppercase tracking-widest border border-indigo-200 shadow-sm">Auto-computed</span>
                         </div>
@@ -77,29 +77,19 @@
 
                     @foreach($fields as $field)
                     @php
-                        $status = $statuses[$field['key']] ?? 'pending';
-                        $isUploaded = isset($currentFiles[$field['key']]) && !empty($currentFiles[$field['key']]);
-                        $remark = $remarks[$field['key']] ?? null;
-
-                        $statusClasses = match($status) {
-                            'approved' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
-                            'declined' => 'bg-red-100 text-red-800 border-red-200',
-                            default => 'bg-amber-100 text-amber-800 border-amber-200',
-                        };
-                    @endphp
-                    <div class="border {{ $status === 'declined' ? 'border-red-300 bg-red-50/30' : 'border-slate-200 bg-white shadow-sm' }} rounded-2xl p-5 transition-all">
-                        @php
                         $model = $field['model'];
                         $label = $field['label'];
                         $desc = $field['desc'];
-                        $dbKey = $field['key']; // Use the 'key' from the $fields array for $dbKey
+                        $dbKey = $field['key'];
+                        
                         $isDeclined = isset($statuses[$dbKey]) && $statuses[$dbKey] === 'declined';
                         $isPending = isset($statuses[$dbKey]) && $statuses[$dbKey] === 'pending';
                         $isApproved = isset($statuses[$dbKey]) && $statuses[$dbKey] === 'approved';
                         $hasFile = isset($currentFiles[$dbKey]);
+                        $remark = $remarks[$dbKey] ?? null;
                     @endphp
 
-                    <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border transition-all {{ $isDeclined ? 'border-red-400 bg-red-50/50 shadow-sm' : 'border-slate-200 hover:border-indigo-300' }}">
+                    <div class="p-4 sm:p-5 rounded-2xl border transition-all shadow-sm backdrop-blur-md {{ $isDeclined ? 'border-red-400 bg-red-50/70' : 'border-white/60 bg-white/40 hover:border-indigo-300' }}">
                         <label class="block text-xs font-black text-slate-700 uppercase mb-1.5 flex items-center justify-between">
                             <span>
                                 {{ $label }} 
@@ -151,7 +141,7 @@
 
                 <button type="submit" wire:loading.attr="disabled" class="w-full bg-slate-900 hover:bg-indigo-600 text-white font-black py-4 rounded-xl shadow-lg uppercase tracking-widest text-sm disabled:opacity-50">
                     <span wire:loading.remove wire:target="submitEnrollment">Submit Renewal Application</span>
-                    <span wire:loading wire:target="submitEnrollment">Processing to Cloudinary...</span>
+                    <span wire:loading wire:target="submitEnrollment">Uploading files...</span>
                 </button>
             </div>
         </form>

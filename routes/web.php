@@ -142,6 +142,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // 2. Official Enrollment (Admission Confirmation)
         Route::get('/official-enrollment', [OfficialEnrollmentController::class, 'index'])->name('official-enrollment.index');
+        Route::get('/official-enrollment/export', [OfficialEnrollmentController::class, 'export'])->name('official-enrollment.export');
         Route::get('/official-enrollment/process/{id}', [OfficialEnrollmentController::class, 'show'])->name('official-enrollment.show');
         Route::post('/official-enrollment/store/{id}', [OfficialEnrollmentController::class, 'store'])->name('official-enrollment.store');
         Route::patch('/official-enrollment/return/{id}', [OfficialEnrollmentController::class, 'returnToApplicant'])->name('official-enrollment.return');
@@ -152,6 +153,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/students-enrollment-list', [StudentController::class, 'enrollmentList'])->name('students.enrollment'); 
         
         // ⚡ CLEANUP: Disabled 'create' and 'store' for students as they come from Admission ⚡
+        Route::post('/students/bulk-update-status', [StudentController::class, 'bulkUpdateStatus'])->name('students.bulk-update-status');
         Route::resource('students', StudentController::class)->except(['create', 'store']);
 
         Route::resource('sections', SectionController::class);

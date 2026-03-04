@@ -7,7 +7,7 @@
                 <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur opacity-30"></div>
                 {{-- User Avatar / Placeholder --}}
                 @if(isset($application) && $application->uploaded_files && isset($application->uploaded_files['id_picture']))
-                    <img src="{{ $application->uploaded_files['id_picture'] }}" class="relative h-20 w-20 rounded-full object-cover border-4 border-white shadow-md">
+                    <img src="{{ fileUrl($application->uploaded_files['id_picture']) }}" class="relative h-20 w-20 rounded-full object-cover border-4 border-white shadow-md">
                 @else
                     <div class="relative h-20 w-20 rounded-full bg-indigo-100 flex items-center justify-center border-4 border-white shadow-md text-indigo-600 text-2xl font-black">
                         {{ substr(Auth::user()->first_name, 0, 1) }}{{ substr(Auth::user()->last_name, 0, 1) }}
@@ -60,15 +60,15 @@
                 // ⚡ CENTRALIZED STATUS LOGIC ⚡
                 $currentStatus = strtoupper($application->status);
 
-                // Check for ADMITTED status to trigger the final redirect
-                $isRedirectReady = str_contains($currentStatus, 'ADMITTED') || str_contains($currentStatus, 'ENROLLED AND ADMITTED');
+                // Check for OFFICIALLY ENROLLED status to trigger the final redirect
+                $isRedirectReady = str_contains($currentStatus, 'OFFICIALLY ENROLLED') || str_contains($currentStatus, 'ADMITTED');
                 
                 // Other statuses
-                $isSubmitted   = str_contains($currentStatus, 'OFFICIALLY ENROLLED') && !$isRedirectReady;
+                $isSubmitted   = str_contains($currentStatus, 'FOR ENROLLMENT VERIFICATION') && !$isRedirectReady;
                 $isQualified   = str_contains($currentStatus, 'QUALIFIED') && !str_contains($currentStatus, 'NOT');
-                $isPhase2      = str_contains($currentStatus, '2ND LEVEL') || str_contains($currentStatus, 'REQUIREMENTS');
+                $isPhase2      = str_contains($currentStatus, '2ND LEVEL');
                 $isRejected    = str_contains($currentStatus, 'NOT QUALIFIED') || str_contains($currentStatus, 'REJECTED') || str_contains($currentStatus, 'FAILED');
-                $isReturned    = str_contains($currentStatus, 'RETURNED');
+                $isReturned    = str_contains($currentStatus, 'RETURNED') || str_contains($currentStatus, 'WITH PENDING REQUIREMENTS');
                 
                 // Progress Bar Width
                 $displayProgress = 25; 
@@ -114,7 +114,7 @@
                     </div>
                     
                     <h2 class="text-3xl font-black text-gray-800 mb-2 tracking-tight">Congratulations, Scholar!</h2>
-                    <p class="text-gray-500 font-medium mb-1">Your admission is confirmed.</p>
+                    <p class="text-gray-500 font-medium mb-1">Your NASCENT SAS application is confirmed.</p>
                     <p class="text-indigo-600 text-sm animate-pulse font-bold mt-4">Redirecting to your Student Portal...</p>
                 </div>
             @endif
@@ -150,8 +150,8 @@
                                 @else PHASE 1 @endif
                             </span>
                             <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">
-                                @if($isRedirectReady) Officially Admitted
-                                @elseif($isSubmitted) For Admin Verification
+                                @if($isRedirectReady) Officially Enrolled
+                                @elseif($isSubmitted) For Enrollment Verification
                                 @elseif($isQualified) Proceed to Enrollment
                                 @else Assessment Ongoing @endif
                             </span>
@@ -265,7 +265,7 @@
                         </div>
                         <button disabled class="w-full bg-blue-600 border border-blue-500 text-white font-black py-3.5 rounded-xl cursor-not-allowed relative z-10 text-xs uppercase tracking-widest shadow-lg flex justify-center items-center opacity-80">
                             <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            Waiting for Admission
+                            Waiting for NASCENT SAS verification
                         </button>
 
                     {{-- ⚡ SCENARIO: ADMITTED (READY TO REDIRECT) ⚡ --}}
@@ -303,7 +303,7 @@
                             </a>
                         @else
                             <a href="{{ route('applicant.requirements') }}" class="inline-flex w-full justify-center items-center bg-white text-red-600 font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-red-50 transition transform hover:-translate-y-1 relative z-10 text-xs uppercase tracking-widest animate-pulse">
-                                Fix Admission Docs
+                                Fix NASCENT SAS Docs
                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             </a>
                         @endif

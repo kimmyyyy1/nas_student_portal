@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth; // Added for Auth access
+use App\Models\AuditLog;
 
 class EnrollmentController extends Controller
 {
@@ -66,7 +67,9 @@ class EnrollmentController extends Controller
             $application->touch(); 
         }
         
-        return view('admission.show', compact('application'));
+        $auditLogs = \App\Models\AuditLog::with('user')->where('applicant_id', $id)->latest()->get();
+
+        return view('admission.show', compact('application', 'auditLogs'));
     }
 
     public function process(Request $request, $id) {
@@ -90,6 +93,17 @@ class EnrollmentController extends Controller
         $validated['document_remarks'] = $currentRemarks;
 
         $application->update($validated);
+
+        // LOG AUDIT TRAIL
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'applicant_id' => $application->id,
+            'action' => 'Updated Application Status',
+            'details' => json_encode([
+                'status' => $validated['status'], 
+                'remarks' => 'Updated via Application Review'
+            ])
+        ]);
         
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Application details updated.']);
@@ -102,10 +116,13 @@ class EnrollmentController extends Controller
     {
         $application = Applicant::findOrFail($id);
         
-        $statuses = $application->document_statuses ?? [];
-        $remarks = $application->document_remarks ?? [];
+        $statuses = is_array($application->document_statuses) ? $application->document_statuses : (is_string($application->document_statuses) ? json_decode($application->document_statuses, true) : []);
+        if (!is_array($statuses)) $statuses = [];
+
+        $remarks = is_array($application->document_remarks) ? $application->document_remarks : (is_string($application->document_remarks) ? json_decode($application->document_remarks, true) : []);
+        if (!is_array($remarks)) $remarks = [];
         
-        $statuses[$doc_key] = 'approved';
+        $statuses[$doc_key] = 'Accepted';
         
         if(isset($remarks[$doc_key])) {
             $remarks[$doc_key] = null;
@@ -117,31 +134,54 @@ class EnrollmentController extends Controller
             'date_checked' => now()
         ]);
 
+        // LOG AUDIT TRAIL
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'applicant_id' => $application->id,
+            'action' => 'Accepted Document',
+            'details' => json_encode([
+                'document' => $doc_key, 
+                'status' => 'Accepted'
+            ])
+        ]);
+
         if ($request->ajax() || $request->wantsJson()) {
-            return response()->json(['status' => 'approved', 'doc_key' => $doc_key]);
+            return response()->json(['status' => 'Accepted', 'doc_key' => $doc_key]);
         }
         
-        return back()->with('success', strtoupper(str_replace('_', ' ', $doc_key)) . ' approved.');
+        return back()->with('success', strtoupper(str_replace('_', ' ', $doc_key)) . ' Accepted.');
     }
 
     public function declineDocument(Request $request, $id, $doc_key)
     {
         $application = Applicant::findOrFail($id);
         
-        $statuses = $application->document_statuses ?? [];
+        $statuses = is_array($application->document_statuses) ? $application->document_statuses : (is_string($application->document_statuses) ? json_decode($application->document_statuses, true) : []);
+        if (!is_array($statuses)) $statuses = [];
         
-        $statuses[$doc_key] = 'declined';
+        $statuses[$doc_key] = 'Needs resubmission';
         
         $application->update([
             'document_statuses' => $statuses,
             'date_checked' => now()
         ]);
 
+        // LOG AUDIT TRAIL
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'applicant_id' => $application->id,
+            'action' => 'Returned Document',
+            'details' => json_encode([
+                'document' => $doc_key, 
+                'status' => 'Needs resubmission'
+            ])
+        ]);
+
         if ($request->ajax() || $request->wantsJson()) {
-            return response()->json(['status' => 'declined', 'doc_key' => $doc_key]);
+            return response()->json(['status' => 'Needs resubmission', 'doc_key' => $doc_key]);
         }
         
-        return back()->with('error', strtoupper(str_replace('_', ' ', $doc_key)) . ' declined. Please verify/add remarks.');
+        return back()->with('error', strtoupper(str_replace('_', ' ', $doc_key)) . ' marked for resubmission. Please verify/add remarks.');
     }
 
     public function generatePdf($id) {

@@ -236,7 +236,7 @@
                     <div class="flex items-end gap-4">
                         <div class="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl bg-white/90 backdrop-blur-md border-4 border-white/80 shadow-xl overflow-hidden flex-shrink-0">
                             @if($student->id_picture)
-                                <img src="{{ $student->id_picture }}" alt="Profile" class="h-full w-full object-cover">
+                                <img src="{{ fileUrl($student->id_picture) }}" alt="Profile" class="h-full w-full object-cover">
                             @else
                                 <div class="h-full w-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-blue-100 text-indigo-600 text-2xl sm:text-3xl font-bold">
                                     {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}

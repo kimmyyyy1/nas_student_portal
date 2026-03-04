@@ -74,7 +74,7 @@
                                             <div class="flex items-center gap-4">
                                                 <div class="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 font-bold overflow-hidden border border-slate-200 shadow-sm">
                                                     @if($student->id_picture)
-                                                        <img src="{{ asset($student->id_picture) }}" class="h-full w-full object-cover">
+                                                        <img src="{{ fileUrl($student->id_picture) }}" class="h-full w-full object-cover">
                                                     @else
                                                         {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}
                                                     @endif

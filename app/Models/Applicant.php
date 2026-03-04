@@ -20,6 +20,7 @@ class Applicant extends Model
         'first_name',
         'middle_name',
         'extension_name', // Added this just in case
+        'photo', // 2x2 Image Path
         
         // Personal Details
         'date_of_birth',
@@ -36,6 +37,9 @@ class Applicant extends Model
         
         // Sports & School Info
         'school_type',
+        'school_last_grade_level',
+        'school_last_year_completed',
+        'school_id',
         'sport',
         'sport_specification',
         'palaro_finisher',
@@ -68,6 +72,7 @@ class Applicant extends Model
         'student_id', // Official Student Number inputted by the Registrar
         'assessment_score',
         'rejection_reason',
+        'is_locked', // Record Locking Facility
         'document_remarks',
         'document_statuses',
         'date_checked',
@@ -85,6 +90,7 @@ class Applicant extends Model
         'is_pwd' => 'boolean',
         'is_4ps' => 'boolean',
         'is_enrolled' => 'boolean',
+        'is_locked' => 'boolean',
     ];
 
     // --- ITO ANG FIXED RELATIONSHIP ---

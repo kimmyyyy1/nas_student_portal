@@ -31,6 +31,55 @@
                     </span>
                 </div>
             </div>
+            {{-- Search and Filters --}}
+            <div class="mb-6 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div class="lg:col-span-2">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class='bx bx-search text-slate-400'></i>
+                        </div>
+                        <input wire:model.live.debounce.300ms="search" type="text" class="form-input block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Search by Name or LRN...">
+                    </div>
+                </div>
+                <div>
+                    <select wire:model.live="filterStatus" class="form-select block w-full py-2 pl-3 pr-8 border border-slate-200 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 text-slate-600">
+                        <option value="">All Statuses</option>
+                        <option value="For Enrollment Verification">For Enrollment Verification</option>
+                        <option value="Qualified (Returned)">Qualified (Returned)</option>
+                        <option value="Renewal (Returned)">Renewal (Returned)</option>
+                        <option value="Officially Enrolled">Officially Enrolled</option>
+                        <option value="Pending Renewal">Pending Renewal</option>
+                    </select>
+                </div>
+                <div>
+                    <select wire:model.live="filterSport" class="form-select block w-full py-2 pl-3 pr-8 border border-slate-200 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 text-slate-600">
+                        <option value="">All Sports</option>
+                        @foreach($sports as $sportOption)
+                            <option value="{{ $sportOption }}">{{ $sportOption }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <select wire:model.live="filterRegion" class="form-select block w-full py-2 pl-3 pr-8 border border-slate-200 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 text-slate-600">
+                        <option value="">All Regions</option>
+                        @foreach($regions as $regionOption)
+                            <option value="{{ $regionOption }}">{{ Str::limit($regionOption, 20) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-end mb-4">
+                <button wire:click="exportCSV" wire:loading.attr="disabled" class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-lg font-bold text-xs text-white uppercase tracking-widest hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
+                    <span wire:loading.remove wire:target="exportCSV">
+                        <i class='bx bx-export mr-2 text-sm'></i> Export to CSV
+                    </span>
+                    <span wire:loading wire:target="exportCSV">
+                        <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Exporting...
+                    </span>
+                </button>
+            </div>
             
             @if($enrollees->isEmpty())
                 <div class="text-center py-16 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
@@ -102,8 +151,8 @@
                                     <td class="premium-table-cell text-center">
                                         @php
                                             $stat = strtoupper($applicant->status);
-                                            $isAdmitted = str_contains($stat, 'ADMITTED') || str_contains($stat, 'ENROLLED') && !str_contains($stat, 'OFFICIALLY') && !str_contains($stat, 'RENEWAL');
-                                            $isPending = str_contains($stat, 'OFFICIALLY ENROLLED') || str_contains($stat, 'VERIFICATION');
+                                            $isAdmitted = str_contains($stat, 'OFFICIALLY ENROLLED') || str_contains($stat, 'ADMITTED') || (str_contains($stat, 'ENROLLED') && !str_contains($stat, 'FOR') && !str_contains($stat, 'RENEWAL'));
+                                            $isPending = str_contains($stat, 'FOR ENROLLMENT VERIFICATION') || str_contains($stat, 'VERIFICATION');
                                             $isRenewalPending = str_contains($stat, 'PENDING RENEWAL');
                                             $isReturned = str_contains($stat, 'RETURN');
                                         @endphp

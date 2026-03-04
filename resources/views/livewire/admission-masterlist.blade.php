@@ -105,7 +105,7 @@
                 </div>
                 <i class='bx bxs-user-check text-xl md:text-2xl text-purple-200'></i>
             </div>
-            <p class="text-[10px] text-purple-600 mt-2 font-medium">Endorsed</p>
+            <p class="text-[10px] text-purple-600 mt-2 font-medium">Enrolled</p>
         </a>
 
     </div>
@@ -128,7 +128,7 @@
                         @elseif (request('status'))
                             {{ request('status') }} List
                         @else
-                            Masterlist
+                            NASCENT SAS Masterlist
                         @endif
                     </h3>
                     @if (request('status') || request('search'))
@@ -139,17 +139,56 @@
                     @endif
                 </div>
 
-                <div class="relative w-full md:w-64">
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <i class='bx bx-search text-gray-400'></i>
+                <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                    {{-- SPORT FILTER --}}
+                    <select wire:model.live="filterSport" class="block w-full md:w-48 p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Sports</option>
+                        <option value="Aquatics">Aquatics</option>
+                        <option value="Athletics">Athletics</option>
+                        <option value="Badminton">Badminton</option>
+                        <option value="Gymnastics">Gymnastics</option>
+                        <option value="Judo">Judo</option>
+                        <option value="Table Tennis">Table Tennis</option>
+                        <option value="Taekwondo">Taekwondo</option>
+                        <option value="Weightlifting">Weightlifting</option>
+                    </select>
+
+                    {{-- REGION FILTER --}}
+                    <select wire:model.live="filterRegion" class="block w-full md:w-48 p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Regions</option>
+                        <option value="NCR">NCR</option>
+                        <option value="CAR">CAR</option>
+                        <option value="Region I">Region I</option>
+                        <option value="Region II">Region II</option>
+                        <option value="Region III">Region III</option>
+                        <option value="Region IV-A">Region IV-A</option>
+                        <option value="MIMAROPA">MIMAROPA</option>
+                        <option value="Region V">Region V</option>
+                        <option value="Region VI">Region VI</option>
+                        <option value="Region VII">Region VII</option>
+                        <option value="Region VIII">Region VIII</option>
+                        <option value="Region IX">Region IX</option>
+                        <option value="Region X">Region X</option>
+                        <option value="Region XI">Region XI</option>
+                        <option value="Region XII">Region XII</option>
+                        <option value="Region XIII">Region XIII</option>
+                        <option value="BARMM">BARMM</option>
+                        <option value="Negros Island Region">Negros Island Region</option>
+                    </select>
+
+                    {{-- NAME/LRN SEARCH --}}
+                    <div class="relative w-full md:w-64">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class='bx bx-search text-gray-400'></i>
+                        </div>
+                        <input type="text" name="search" placeholder="Search Name/LRN..."
+                            wire:model.live.debounce.500ms="search"
+                            class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
                     </div>
-                    <input type="text" name="search" placeholder="Search Name/LRN..."
-                        wire:model.live.debounce.500ms="search"
-                        class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
                 </div>
             </div>
 
-            @if (request('status') || request('search'))
+            @if (request('status') || request('search') || request('filterSport') || request('filterRegion'))
                 <div class="hidden md:block mb-4">
                     <a href="{{ route('admission.index') }}" wire:navigate
                         class="text-xs text-red-500 hover:underline flex items-center">
@@ -256,7 +295,11 @@
                                             <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-red-100 text-red-800 border border-red-200">
                                                 Not Qualified
                                             </span>
-                                        @elseif(str_contains($badgeStatus, 'ENDORSED') || str_contains($badgeStatus, 'ENROLLED') || str_contains($badgeStatus, 'ADMITTED'))
+                                        @elseif($badgeStatus == 'FOR ENROLLMENT VERIFICATION')
+                                            <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200 shadow-sm animate-pulse">
+                                                For Verification
+                                            </span>
+                                        @elseif(str_contains($badgeStatus, 'ENROLLED') || str_contains($badgeStatus, 'ADMITTED'))
                                             <span class="px-2.5 py-1 inline-flex text-[10px] md:text-xs leading-5 font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200 shadow-sm">
                                                 {{ $app->status }}
                                             </span>
@@ -288,7 +331,7 @@
                     <div class="bg-gray-50 rounded-full h-20 w-20 flex items-center justify-center mx-auto mb-4">
                         <i class='bx bx-search text-4xl text-gray-300'></i>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900">No applications found</h3>
+                    <h3 class="text-lg font-medium text-gray-900">No NASCENT SAS applications found</h3>
                     <p class="text-gray-500 text-sm mt-1">
                         @if (request('status'))
                             No <strong>{{ request('status') }}</strong> applications yet.

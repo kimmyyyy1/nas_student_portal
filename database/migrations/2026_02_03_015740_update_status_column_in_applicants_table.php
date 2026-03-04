@@ -13,13 +13,25 @@ return new class extends Migration
     {
         Schema::table('applicants', function (Blueprint $table) {
             $table->enum('status', [
+                'Pending',
+                'Submitted',
                 'With Pending Requirements',
                 'With Complete Requirements & for 1st Level Assessment',
                 'For 2nd Level Assessment',
-                'Not Qualified',
+                'Submitted for 1st Level Assessment',
                 'Waitlisted',
                 'Qualified',
-                'Endorsed for Enrollment'
+                'Qualified (Returned)',
+                'Accepted',
+                'Not Qualified',
+                'Rejected',
+                'Failed',
+                'For Enrollment Verification',
+                'Officially Enrolled',
+                'Admitted',
+                'Enrolled',
+                'Pending Renewal',
+                'Renewal (Returned)'
             ])->default('With Pending Requirements')->change();
         });
     }

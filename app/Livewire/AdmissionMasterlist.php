@@ -12,13 +12,17 @@ class AdmissionMasterlist extends Component
 
     public $search = '';
     public $status = '';
+    public $filterSport = '';
+    public $filterRegion = '';
 
-    protected $queryString = ['search', 'status'];
+    protected $queryString = ['search', 'status', 'filterSport', 'filterRegion'];
 
     public function mount()
     {
         $this->search = request()->query('search', $this->search);
         $this->status = request()->query('status', $this->status);
+        $this->filterSport = request()->query('filterSport', $this->filterSport);
+        $this->filterRegion = request()->query('filterRegion', $this->filterRegion);
     }
 
     public function render()
@@ -34,6 +38,14 @@ class AdmissionMasterlist extends Component
                     ->orWhere('lrn', 'like', "%{$search}%")
                     ->orWhere('email_address', 'like', "%{$search}%");
             });
+        }
+
+        // --- 1.5 ADVANCED FILTERING LOGIC ---
+        if ($this->filterSport) {
+            $query->where('sport', $this->filterSport);
+        }
+        if ($this->filterRegion) {
+            $query->where('region', $this->filterRegion);
         }
 
         // --- 2. FILTER LOGIC (Clicking Dashboard Cards) ---
@@ -58,12 +70,11 @@ class AdmissionMasterlist extends Component
             } elseif ($this->status === 'Not Qualified') {
                 $query->whereIn('status', ['Not Qualified', 'Rejected', 'Failed']);
             } elseif ($this->status === 'Enrolled' || $this->status === 'Admitted') {
-                // ⚡ FIX: Added 'Admitted' and 'Officially Enrolled' para mag-reflect pagka-click ng card ⚡
                 $query->whereIn('status', [
-                    'Admitted', 
+                    'For Enrollment Verification',
                     'Officially Enrolled', 
-                    'Enrolled', 
-                    'Endorsed for Enrollment'
+                    'Admitted',
+                    'Enrolled'
                 ]);
             } else {
                 $query->where('status', $this->status);
@@ -105,10 +116,10 @@ class AdmissionMasterlist extends Component
         // Count Enrolled 
         // ⚡ FIX: Idinagdag ang 'Admitted' and 'Officially Enrolled' sa bibilangin para maging '1' ang card ⚡
         $countEnrolled = Applicant::whereIn('status', [
-            'Admitted',
+            'For Enrollment Verification',
             'Officially Enrolled',
-            'Enrolled', 
-            'Endorsed for Enrollment'
+            'Admitted',
+            'Enrolled'
         ])->count();
 
         // --- 4. PAGINATION ---

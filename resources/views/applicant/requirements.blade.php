@@ -88,8 +88,8 @@
                                 $status = $statuses[$key] ?? 'pending';
                                 $remark = $remarks[$key] ?? null;
                                 $hasFile = isset($files[$key]);
-                                $isDeclined = ($status === 'declined');
-                                $isApproved = ($status === 'approved');
+                                $isDeclined = ($status === 'declined' || $status === 'Needs resubmission');
+                                $isApproved = ($status === 'approved' || $status === 'Accepted');
 
                                 $borderClass = 'border-slate-100';
                                 $bgClass = 'bg-white';
@@ -178,8 +178,8 @@
                                     $status = $statuses[$key] ?? 'pending';
                                     $remark = $remarks[$key] ?? null;
                                     $hasFile = isset($files[$key]);
-                                    $isDeclined = ($status === 'declined');
-                                    $isApproved = ($status === 'approved');
+                                    $isDeclined = ($status === 'declined' || $status === 'Needs resubmission');
+                                    $isApproved = ($status === 'approved' || $status === 'Accepted');
 
                                     $borderClass = 'border-dashed border-slate-200';
                                     $bgClass = 'bg-slate-50';

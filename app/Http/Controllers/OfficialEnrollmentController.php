@@ -9,6 +9,9 @@ use App\Models\EnrollmentDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\EnrollmentStatusUpdatedNotification;
+use App\Models\AuditLog;
 
 class OfficialEnrollmentController extends Controller
 {
@@ -17,7 +20,7 @@ class OfficialEnrollmentController extends Controller
      */
     public function index()
     {
-        $enrollees = Applicant::whereIn('status', ['Officially Enrolled', 'Pending Renewal'])
+        $enrollees = Applicant::whereIn('status', ['For Enrollment Verification', 'Pending Renewal'])
                               ->with('enrollmentDetail')
                               ->orderBy('updated_at', 'desc')
                               ->paginate(10);
@@ -54,7 +57,7 @@ class OfficialEnrollmentController extends Controller
         $applicant = Applicant::with('enrollmentDetail')->findOrFail($id);
 
         // 🛡️ SECURITY CHECK
-        if (!in_array($applicant->status, ['Officially Enrolled', 'Pending Renewal'])) {
+        if (!in_array($applicant->status, ['For Enrollment Verification', 'Pending Renewal'])) {
             return redirect()->route('official-enrollment.index')
                 ->with('error', 'Security Alert: Unauthorized action. This applicant is not ready for enrollment.');
         }
@@ -139,6 +142,21 @@ class OfficialEnrollmentController extends Controller
                     'guardian_name'         => $applicant->guardian_name,
                     'guardian_relationship' => $applicant->guardian_relationship,
                     'guardian_contact'      => $applicant->guardian_contact,
+                    
+                    // NASCENT SAS Specific
+                    'sport'                 => $applicant->sport,
+                    'sport_specification'   => $applicant->sport_specification,
+                    'ip_group_name'         => $applicant->ip_group_name,
+                    'pwd_disability'        => $applicant->pwd_disability,
+                    'heard_about_nas'       => $applicant->heard_about_nas,
+                    'referrer_name'         => $applicant->referrer_name,
+                    'attended_articulation' => $applicant->attended_articulation ?? 'No',
+                    'school_name'           => $applicant->school_name,
+                    'school_type'           => $applicant->school_type,
+                    'last_grade_level'      => $applicant->school_last_grade_level,
+                    'last_school_year'      => $applicant->school_last_year_completed,
+                    'school_id'             => $applicant->school_id,
+                    'school_address'        => $applicant->school_address,
                     'guardian_email'        => $applicant->guardian_email,
                     'guardian_address'      => $details->guardian_address ?? 'Same as Student',
                 ]);
@@ -155,7 +173,20 @@ class OfficialEnrollmentController extends Controller
 
             // D. UPDATE APPLICANT STATUS
             $applicant->update([
-                'status' => 'Admitted'
+                'status' => 'Officially Enrolled'
+            ]);
+
+            // Notify Applicant
+            if ($user) {
+                Notification::send($user, new EnrollmentStatusUpdatedNotification($applicant, 'Officially Enrolled'));
+            }
+
+            // LOG AUDIT TRAIL
+            AuditLog::create([
+                'user_id' => Auth::id(),
+                'applicant_id' => $applicant->id,
+                'action' => 'Finalized Enrollment',
+                'details' => json_encode(['to' => 'Officially Enrolled', 'remarks' => 'Student officially enrolled by Registrar'])
             ]);
         });
 
@@ -171,22 +202,133 @@ class OfficialEnrollmentController extends Controller
     {
         $applicant = Applicant::findOrFail($id);
 
-        $remarks = is_string($applicant->document_remarks) ? json_decode($applicant->document_remarks, true) : ($applicant->document_remarks ?? []);
-        $isRenewal = $applicant->status === 'Pending Renewal' || ($remarks['is_renewal'] ?? false);
+        $currentRemarks = is_string($applicant->document_remarks) ? json_decode($applicant->document_remarks, true) : ($applicant->document_remarks ?? []);
+        $isRenewal = $applicant->status === 'Pending Renewal' || ($currentRemarks['is_renewal'] ?? false);
 
         // 🛡️ SECURITY CHECK FOR RETURN
-        if ($applicant->status !== 'Officially Enrolled' && $applicant->status !== 'Pending Renewal') {
+        if ($applicant->status !== 'For Enrollment Verification' && $applicant->status !== 'Pending Renewal') {
             return redirect()->route('official-enrollment.index')
                 ->with('error', 'Action denied. You can only return active applications.');
         }
 
+        // Capture document-specific remarks and overall remarks
+        $documentRemarks = $request->input('document_remarks', []);
+        $overallRemarks = $request->input('overall_remarks', '');
+
+        // Merge into the document_remarks column
+        $newRemarks = array_merge($currentRemarks, [
+            'documents' => $documentRemarks,
+            'overall' => $overallRemarks,
+            'returned_at' => now()->toDateTimeString(),
+        ]);
+
         // Update status para makapag-edit ulit si Student.
         $newStatus = $isRenewal ? 'Renewal (Returned)' : 'Qualified (Returned)';
+        $oldStatus = $applicant->status;
         $applicant->update([
             'status' => $newStatus,
+            'document_remarks' => $newRemarks
         ]);
+
+        // LOG AUDIT TRAIL
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'applicant_id' => $applicant->id,
+            'action' => 'Returned Enrollment Documents',
+            'details' => json_encode(['from' => $oldStatus, 'to' => $newStatus, 'remarks' => $overallRemarks])
+        ]);
+
+        // Notify Applicant
+        $user = User::find($applicant->user_id);
+        if ($user) {
+            Notification::send($user, new EnrollmentStatusUpdatedNotification($applicant, $newStatus, $overallRemarks));
+        }
 
         return redirect()->route('official-enrollment.index')
             ->with('success', 'Application successfully returned to the student for revision.');
+    }
+
+    /**
+     * Export Enrollment Records to CSV
+     */
+    public function export(Request $request)
+    {
+        $search = $request->input('search');
+        $filterSport = $request->input('sport');
+        $filterRegion = $request->input('region');
+        $filterStatus = $request->input('status');
+
+        $query = Applicant::whereIn('status', [
+            'For Enrollment Verification', 
+            'Qualified (Returned)',
+            'Renewal (Returned)',
+            'Officially Enrolled', 
+            'Pending Renewal',     
+            'Admitted',            
+            'Enrolled'             
+        ]);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('lrn', 'like', '%' . $search . '%')
+                  ->orWhere('first_name', 'like', '%' . $search . '%')
+                  ->orWhere('last_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        if (!empty($filterSport)) {
+            $query->where('sport', $filterSport);
+        }
+
+        if (!empty($filterRegion)) {
+            $query->where('region', $filterRegion);
+        }
+
+        if (!empty($filterStatus)) {
+            $query->where('status', $filterStatus);
+        }
+
+        $enrollees = $query->latest()->get();
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=nascentsas_enrollment_records.csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = [
+            'App ID', 'LRN', 'Last Name', 'First Name', 'Middle Name', 
+            'Sex', 'Region', 'Province', 'Sport', 'Status', 'Record Type'
+        ];
+
+        $callback = function() use($enrollees, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($enrollees as $enrollee) {
+                $remarks = is_string($enrollee->document_remarks) ? json_decode($enrollee->document_remarks, true) : ($enrollee->document_remarks ?? []);
+                $recordType = ($enrollee->status === 'Pending Renewal') || ($remarks['is_renewal'] ?? false) ? 'Old (Renewal)' : 'New';
+
+                fputcsv($file, [
+                    $enrollee->id,
+                    $enrollee->lrn ?? 'N/A',
+                    $enrollee->last_name,
+                    $enrollee->first_name,
+                    $enrollee->middle_name ?? '',
+                    $enrollee->gender,
+                    $enrollee->region,
+                    $enrollee->province,
+                    $enrollee->sport ?? 'N/A',
+                    $enrollee->status,
+                    $recordType
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

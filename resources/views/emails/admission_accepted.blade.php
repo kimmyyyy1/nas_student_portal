@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>NAS Admission</title>
+    <title>NASCENT SAS Application</title>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <h1 style="color: #2563eb;">Congratulations, {{ $student->first_name }}!</h1>

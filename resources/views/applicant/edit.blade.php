@@ -105,7 +105,7 @@
                                 
                                 <div style="width: 200px; height: 200px;" class="bg-white border-4 border-dashed border-indigo-300 flex items-center justify-center text-indigo-400 rounded-lg overflow-hidden relative shadow-sm mb-3">
                                     @if($application->uploaded_files['id_picture'] ?? false)
-                                        <img src="{{ $application->uploaded_files['id_picture'] }}" class="absolute inset-0 w-full h-full object-cover z-10" id="current-preview">
+                                        <img src="{{ fileUrl($application->uploaded_files['id_picture']) }}" class="absolute inset-0 w-full h-full object-cover z-10" id="current-preview">
                                     @else
                                         <div id="preview-text" class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
                                             <span class="text-xs text-center px-2 font-bold uppercase tracking-wider text-indigo-300">Photo<br>Preview</span>

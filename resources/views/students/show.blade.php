@@ -80,8 +80,15 @@
         
         // ⚡ SPORT & CATEGORY ⚡
         $displaySport = $student->sport ?? ($applicantFallback->sport ?? ($details->sport ?? 'N/A'));
-        // Subukang kunin ang category sa team, kung wala, sa applicant's sport specification
-        $displayCategory = $student->team->sport_type ?? ($applicantFallback->sport_specification ?? '-');
+        $displayCategory = $student->sport_specification ?? ($applicantFallback->sport_specification ?? ($student->team->sport_type ?? '-'));
+
+        // ⚡ SCHOOL INFO ⚡
+        $last_grade = $student->last_grade_level ?? ($applicantFallback->school_last_grade_level ?? ($details->last_grade_level ?? 'N/A'));
+        $last_yr = $student->last_school_year ?? ($applicantFallback->school_last_year_completed ?? ($details->last_school_year ?? 'N/A'));
+        $sch_name = $student->school_name ?? ($applicantFallback->school_name ?? ($details->school_name ?? 'N/A'));
+        $sch_id = $student->school_id ?? ($applicantFallback->school_id ?? ($details->school_id ?? 'N/A'));
+        $sch_type = $student->school_type ?? ($applicantFallback->school_type ?? ($details->school_type ?? 'N/A'));
+        $sch_addr = $student->school_address ?? ($applicantFallback->school_address ?? ($details->school_address ?? 'N/A'));
     @endphp
 
     <div class="py-6 md:py-12">
@@ -115,7 +122,7 @@
                     {{-- PROFILE HEADER --}}
                     <div class="relative flex flex-col md:flex-row items-center md:items-end -mt-16 md:-mt-20 mb-8">
                         <div class="relative group z-20">
-                            <img src="{{ $student->id_picture ?? 'https://ui-avatars.com/api/?name=' . urlencode($student->first_name . ' ' . $student->last_name) . '&background=random&size=256' }}" 
+                            <img src="{{ $student->id_picture ? fileUrl($student->id_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($student->first_name . ' ' . $student->last_name) . '&background=random&size=256' }}" 
                                  class="w-32 h-32 md:w-44 md:h-44 rounded-full border-4 border-white shadow-xl object-cover bg-white" 
                                  alt="Profile">
                             @php
@@ -212,6 +219,7 @@
                                         <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Age</p><p class="font-bold text-gray-900">{{ \Carbon\Carbon::parse($student->birthdate)->age }} years old</p></div>
                                         <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Religion</p><p class="font-medium text-gray-900">{{ $religion }}</p></div>
                                         <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Sport</p><p class="font-black text-gray-900 text-lg uppercase">{{ $displaySport }}</p></div>
+                                        <div><p class="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">Specification / Event</p><p class="font-bold text-gray-900 uppercase">{{ $displayCategory }}</p></div>
                                     </div>
                                 </div>
 
@@ -287,19 +295,19 @@
 
                             {{-- SCHOOL INFORMATION --}}
                             <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center pb-2 border-b border-gray-100"><span class="bg-emerald-100 p-2 rounded-lg mr-3 text-emerald-600"><i class='bx bx-building'></i></span> School Information [New Only]</h3>
-                                @if($details && $details->school_name && $details->school_name !== 'N/A')
+                                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center pb-2 border-b border-gray-100"><span class="bg-emerald-100 p-2 rounded-lg mr-3 text-emerald-600"><i class='bx bx-building'></i></span> Previous School Information</h3>
+                                @if($sch_name && $sch_name !== 'N/A')
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
-                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Last Grade Level Completed</p><p class="font-medium text-gray-900">{{ $details->last_grade_level ?? 'N/A' }}</p></div>
-                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Last School Year Completed</p><p class="font-medium text-gray-900">{{ $details->last_school_year ?? 'N/A' }}</p></div>
-                                        <div class="sm:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School Name</p><p class="font-bold text-gray-900 text-base uppercase">{{ $details->school_name }}</p></div>
-                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School ID</p><p class="font-medium text-gray-900">{{ $details->school_id ?? 'N/A' }}</p></div>
-                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School Type</p><p class="font-medium text-gray-900">{{ $details->school_type ?? 'N/A' }}</p></div>
-                                        <div class="sm:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School Address</p><p class="font-medium text-gray-900">{{ $details->school_address ?? 'N/A' }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Last Grade Level Completed</p><p class="font-medium text-gray-900">{{ $last_grade }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Last School Year Completed</p><p class="font-medium text-gray-900">{{ $last_yr }}</p></div>
+                                        <div class="sm:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School Name</p><p class="font-bold text-gray-900 text-base uppercase">{{ $sch_name }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School ID</p><p class="font-medium text-gray-900">{{ $sch_id }}</p></div>
+                                        <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School Type</p><p class="font-medium text-gray-900">{{ $sch_type }}</p></div>
+                                        <div class="sm:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">School Address</p><p class="font-medium text-gray-900">{{ $sch_addr }}</p></div>
                                     </div>
                                 @else
                                     <div class="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                        <p class="text-sm text-gray-400 italic">Not a transferee — No previous school information on file.</p>
+                                        <p class="text-sm text-gray-400 italic">No previous school information on file.</p>
                                     </div>
                                 @endif
                             </div>

@@ -1,0 +1,384 @@
+NASCENT SAS
+Rename Admissions to NASCENT SAS
+Include both NAS Logo and NASCENT SAS Logo
+Include meaning of NASCENT SAS instead of National Academy of Sports Student-Athlete Admission Application
+NAS Annual Search for Competent, Exceptional, Notable, and Talented Student-Athlete Scholars (NASCENT SAS) 
+Status:
+With Pending Requirements
+With Complete Requirements & for 1
+st
+ Level Assessment
+For 2
+nd
+ Level Assessment
+Not Qualified
+Waitlisted
+Qualified
+Endorsed for Enrollment
+At present, we manually encode applicant data into our Google Sheets. This allows us to easily generate statistics and reports based on our needs. There is no need for the encoded data to generate a PDF file, as this would be redundant with the Scholarship Application Form. What we need is for the encoded data to automatically generate a log sheet to eliminate manual encoding. It is also important that statistics can be easily generated. Because of this, the following are the fields that the applicant needs to fill out. Please use the 
+exact wordings
+ provided below to ensure consistency with our forms and with our promotional materials.
+--------------------------------------------
+PERSONAL INFORMATION
+Recent 2X2 Photograph with White Background
+Learner Reference Number (LRN): 
+(limit input to 12 numeric characters only)
+Last Name:
+First Name:
+Middle Name (Write N/A if not applicable)
+Date of Birth:
+Age:
+Sex:
+ (dropdown)
+Boy
+Girl
+Region: 
+(dropdown)
+Cordillera Administrative Region
+Region 1: Ilocos Region
+Region 2: Cagayan Valley
+Region 3: Central Luzon
+Region IV-A: CALABARZON
+Region IV-B: MIMAROPA
+Region 5: Bicol Region
+National Capital Region
+Region 6: Western Visayas
+Region 7: Central Visayas
+Region 8: Eastern Visayas
+Negros Island Region
+Region 9: Zamboanga Peninsula
+Region 10: Northern Mindanao
+Region 11: Davao Region
+Region 12: SOCCSKSARGEN
+Region 13: CARAGA
+Bangsamoro Autonomous Region in Muslim Mindanao
+Province:
+ (dropdown)
+Abra
+Agusan del Norte
+Agusan del Sur
+Aklan
+Albay
+Antique
+Apayao
+Aurora
+Basilan
+Bataan
+Batanes
+Batangas
+Benguet
+Biliran
+Bohol
+Bukidnon
+Bulacan
+Cagayan
+Camarines Norte
+Camarines Sur
+Camiguin
+Capiz
+Catanduanes
+Cavite
+Cebu
+Compostela Valley
+Cotabato
+Davao del Norte
+Davao del Sur
+Davao Occidental
+Davao Oriental
+Dinagat Islands
+Eastern Samar
+Guimaras
+Ifugao
+Ilocos Norte
+Ilocos Sur
+Iloilo
+Isabela
+Kalinga
+La Union
+Laguna
+Lanao Del Norte
+Lanao del Sur
+Leyte
+Maguindanao
+Marinduque
+Masbate
+Metro Manila
+Misamis Occidental
+Misamis Oriental
+Mountain Province
+Negros Occidental
+Negros Oriental
+Northern Samar
+Nueva Ecija
+Nueva Vizcaya
+Occidental Mindoro
+Oriental Mindoro
+Palawan
+Pampanga
+Pangasinan
+Quezon
+Quirino
+Rizal
+Romblon
+Samar
+Sarangani
+Siquijor
+Sorsogon
+South Cotabato
+Southern Leyte
+Sultan Kudarat
+Sulu
+Surigao del Norte
+Surigao del Sur
+Tarlac
+Tawi-Tawi
+Zambales
+Zamboanga Del Norte
+Zamboanga del Sur
+Zamboanga Sibugay
+Municipality/City:
+Barangay:
+Street / House No.:
+Zip Code:
+Where did you learn about NAS?
+ (dropdown)
+NASCENT SAS Facebook Page
+NAS Social Media Page
+NAS Personnel / Student-Athlete Referral
+National Sports Association / Coach
+News
+Local Government Unit
+School
+If referred, write the name of the NAS Personnel / Student-Athlete (One (1) name only):
+Have you attended any of our articulation campaign or visited an information booth?:
+ (dropdown)
+Yes
+No
+Member of Indigenous Group? 
+ (dropdown)
+Yes
+No
+If yes, IP Group?
+Person with Disability?
+ (dropdown)
+Yes
+No
+If yes, what disability?
+Beneficiary of 4Ps?
+ (dropdown)
+Yes
+No
+SPORTS & SCHOOL INFORMATION
+Focus Sports:
+ (dropdown)
+Aquatics (Swimming)
+Athletics (Track and Field)
+Badminton
+Gymnastics
+Judo
+Table Tennis
+Taekwondo
+Weightlifting
+If Aquatics, please specify:
+If Athletics, please specify:
+If Taekwondo, Poomsae or Kyorugi?
+If Gymnastics, Artistic or Rhythmic?
+Palarong Pambansa Podium Finisher?
+ (dropdown)
+Yes
+No
+Batang Pinoy Podium Finisher?
+ (dropdown)
+ 
+Yes
+No
+School Type:
+ (dropdown)
+Public
+Private
+PARENTS' & DESIGNATED GUARDIAN'S INFORMATION
+Designated Guardian:
+Relationship to the Applicant:
+Email Address:
+Contact Number:
+FORMS & REQUIREMENTS
+Scholarship Application Form
+Student-Athlete’s Profile Form
+Preparticipation Physical Evaluation Clearance Form
+Coach’s Recommendation Form with Coach’s valid Government-Issued ID with signature 
+(not required since it is preferably to be submitted directly via email by the coach to the Secretariat)
+Adviser’s Recommendation Form with Adviser’s valid Government-Issued ID with signature 
+(not required since it is preferably to be submitted directly via email by the adviser to the Secretariat)
+PSA Birth Certificate
+Grade 5 and 6 Report Card (for incoming Grade 7) or Grade 6 and 7 Report Card (for incoming Grade 8)
+Designated Guardian’s valid Government-Issued ID with signature
+Kukkiwon Certificate (If taekwondo) 
+(not required for all)
+IP Certification (If member of an indigenous group) 
+(not required for all)
+PWD ID (If person with disability) 
+(not required for all)
+4Ps ID or Certification (If beneficiary of the 4Ps) 
+(not required for all)
+--------------------------------------------
+Include action button in forms and requirements:
+Submitted – 
+automatic once submitted
+Pending – 
+automatic once there is no submission
+Needs resubmission – 
+admin control
+Accepted – 
+admin control
+ 
+Notification via email if there is submission or resubmission.
+Include Data Privacy Consent (same with that reflected in the Scholarship Application Form):
+I/We certify that the above information is true, complete and correct. I/We understand that any false or misleading information shall render my/our child ineligible for admission or may be subject for dismissal. If admitted, I/We agreed to abide by the policies, rules and regulations of the National Academy of Sports. 
+For and in behalf of our minor child, I/We declare and confirm that, of my/our our volition, submit and will continue to submit, necessary information and documents to the National Academy of Sports (“NAS”), with the intention of applying, if qualified, enroll my/our child for the upcoming school year. In this regard, I/We acknowledge and understand that NAS requires our and our child’s personal and/or sensitive information (collectively “information”), for legitimate and lawful purposes, including but limited to verifying our identity, evaluating academic qualifications and eligibility, assessing physical fitness, and facilitating official communication with us. 
+We acknowledge and agree that: 
+NAS may collect, record, use, process, store, and transmit our information in accordance with the Data Privacy Act of 2012, its implementing Rules and Regulations (IRR), and other applicable laws.
+ 
+NAS may disclose our information only with our consent, or when required or authorized under relevant laws, rules, and regulations. 
+ 
+NAS shall adopt appropriate organizational, physical, and technical measurement to ensure the confidentiality, integrity, and availability  of our information. 
+ 
+NAS may retain our information only for as long as necessary to fulfill the purposes stated herein, or as required by applicable laws and regulations. 
+  
+We also understand that as date subjects under the Data of 2012, we have right to:
+Inquire about, request access to, review or obtain a copy of our information in the custody of NAS. 
+Request correction or updating our information; 
+Withdraw or withhold consent, object to processing or request deletion of our information subject to limitations where NAS has a legal obligation or legitimate purpose to retain such information. 
+I/We understand that refusal to provide the required information, or subsequent withdrawal of consent, may prevent NAS from processing our application and carrying out the purpose described in this document, we may contact NASCENT SAS secretariat at 
+nascentsas@deped.gov.ph
+.
+By signing below, I/We declared that we read, understand, and voluntarily consent to the collection, recording, use, processing, storage, disclosure, and transmission of our child’s information, including photographs,  videos, storage, data or documents, submitted to NAS in accordance with the Data Privacy Act of 2012 and applicable regulations. 
+ENROLLMENT 
+Registrar/Admin 
+Include advanced filtering and search (LRN, Name, Sport, Region).
+Editable status tracker:
+• With Pending Requirements
+• With Complete Requirements
+Admin‑controlled requirement validation buttons: Pending, Submitted, Needs Resubmission, Accepted.
+Automated email notification system for submission, resubmission, and approval updates.
+Export reports to Excel/CSV.
+Audit trail showing edits, reviewer, and timestamp.
+Role‑based access (Registrar, Secretariat, Assessor, IT Admin).
+Ability to lock finalized records.
+Centralized database connected across all portals.
+No duplicate encoding of student data.
+Real-time synchronization across modules.
+Secure cloud storage for uploaded files.
+Compliance with Data Privacy Act of 2012.
+Daily automated backup system.
+Error logging system accessible to IT.
+REPORTING REQUIREMENTS
+Automated generation of statistics and analytics.
+Exportable summaries per region, sport, or status.
+Graphical dashboards for presentation use.
+Qualified Applicants (New)
+Auto-populate personal data from application database.
+Display list of required enrollment documents with status indicators.
+Upload section for required documents with file preview.
+Admin override capability for manual verification.
+Allow to edit information until submission is finalized.
+Continuing Student-Athletes (Old)
+Separate login for returning learners.
+Add Option to “Register as Student”
+Display list of required enrollment documents with status indicators.
+Upload section for required documents with file preview.
+Admin override capability for manual verification.
+Allow to edit information until submission is finalized.
+FORMS & REQUIREMENTS
+NEW
+OLD
+Student-Athlete’s Information Form
+Student-Athlete’s Information Form
+Basic Education Enrollment Form
+Basic Education Enrollment Form
+Scholarship Agreement
+Scholarship Agreement
+Student Uniform Measurement Form
+Student Uniform Measurement Form
+Pre-ingress Health Assessment Forms
+Pre-ingress Health Assessment Forms
+Grade 6 or Grade 7 Report Card
+Passport of the Student-Athlete 
+(if available)
+PSA Birth Certificate
+Mother’s valid Government-Issued ID with signature 
+(not required for all)
+Passport of the Student-Athlete 
+(if available)
+Father’s valid Government-Issued ID with signature 
+(not required for all)
+Mother’s valid Government-Issued ID with signature 
+(not required for all)
+Designated Guardian’s valid Government-Issued ID with signature
+Father’s valid Government-Issued ID with signature 
+(not required for all)
+Designated Guardian’s valid Government-Issued ID with signature
+IP Certification (If member of an indigenous group) 
+(not required for all)
+PWD ID (If person with disability) 
+(not required for all)
+4Ps ID or Certification (If beneficiary of the 4Ps) 
+(not required for all)
+Include action button in forms and requirements:
+Submitted – 
+automatic once submitted
+Pending – 
+automatic once there is no submission
+Needs resubmission – 
+admin control
+Accepted – 
+admin control
+ 
+STUDENT DIRECTORY
+Registrar/Admin
+Bulk approval and bulk status update function.
+Identification
+LRN:
+Student No. 
+(Given by Registrar)
+Student-Athlete’s Information
+Last Name:
+First Name:
+Middle Name:
+Extension Name:
+Email Address:
+Sex:
+Birthdate:
+Birthplace:
+Age:
+Sex:
+Sport:
+IP: Yes/No
+PWD: Yes/No
+4Ps: Yes/No
+Region:
+Province:
+Municipality/City:
+Barangay:
+Street / House No.:
+Zip Code:
+PARENTS' & DESIGNATED GUARDIAN'S INFORMATION
+Father’s Name (Last Name, First Name, Middle Name)
+Address:
+Contact No.:
+Email:
+Mother’s Name (Last Name, First Name, Middle Name)
+Address:
+Contact No.:
+Email:
+Guardian’s Name (Last Name, First Name, Middle Name) 
+Relationship:
+Address:
+Contact No.:
+Email:
+SCHOOL INFORMATION [NEW ONLY]
+Last Grade Level Completed:
+Last School Year Completed:
+School Name:
+School ID:
+School Address:
+School Type: 

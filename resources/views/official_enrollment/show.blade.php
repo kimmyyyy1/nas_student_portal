@@ -20,7 +20,7 @@
         // ⚡ FIX: Binago natin ang logic. Dahil "OFFICIALLY ENROLLED" ang initial status
         // galing sa applicant, hindi na natin isasama ang 'ENROLLED' sa check para hindi 
         // mawala ang Admit button. Dapat may "ADMITTED" talaga para maging true ito.
-        $isAdmitted = str_contains($stat, 'ADMITTED'); 
+        $isAdmitted = str_contains($stat, 'OFFICIALLY ENROLLED') || str_contains($stat, 'ADMITTED'); 
 
         $gender = strtoupper($applicant->gender);
         if(in_array($gender, ['BOY', 'M', 'MALE'])) $gender = 'MALE';
@@ -320,10 +320,13 @@
 
                     {{-- SECTION 4: DOCUMENTS (GLASS EFFECT) --}}
                     <div class="bg-white/90 backdrop-blur-md p-5 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2rem] shadow-xl border border-white/40 w-full">
-                        <h3 class="text-indigo-900 font-black uppercase text-[10px] sm:text-xs tracking-widest mb-6 lg:mb-8 flex items-center">
-                            <span class="bg-indigo-600 text-white w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center text-[9px] sm:text-[10px] mr-2.5 sm:mr-3 shrink-0">04</span> 
-                            Submitted Official Requirements
-                        </h3>
+                        <form id="verificationForm" action="{{ route('official-enrollment.return', $applicant->id) }}" method="POST">
+                            @csrf @method('PATCH')
+                            
+                            <h3 class="text-indigo-900 font-black uppercase text-[10px] sm:text-xs tracking-widest mb-6 lg:mb-8 flex items-center">
+                                <span class="bg-indigo-600 text-white w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center text-[9px] sm:text-[10px] mr-2.5 sm:mr-3 shrink-0">04</span> 
+                                Submitted Official Requirements
+                            </h3>
 
                         @php
                             $remarks = is_string($applicant->document_remarks) ? json_decode($applicant->document_remarks, true) : ($applicant->document_remarks ?? []);
@@ -343,18 +346,20 @@
                             ];
 
                             $initialLabels = [
-                                'sa_info_form' => 'Student-Athlete Info Form',
-                                'scholarship_app_form' => 'Scholarship Application',
-                                'sa_profile_form' => 'Athlete Profile Summary',
-                                'ppe_clearance' => 'Medical Clearance (PPE)',
+                                'sa_info_form' => 'Student-Athlete’s Information Form',
+                                'basic_ed_form' => 'Basic Education Enrollment Form',
+                                'scholarship_agreement' => 'Scholarship Agreement',
+                                'uniform_measurement' => 'Student Uniform Measurement Form',
+                                'ppe_clearance' => 'Pre-ingress Health Assessment Forms',
+                                'report_card' => 'Grade 6 or Grade 7 Report Card',
                                 'psa_birth_cert' => 'PSA Birth Certificate',
-                                'report_card' => 'Previous Report Card (SF9)',
-                                'guardian_id' => 'Guardian Govt ID',
-                                'kukkiwon_cert' => 'Kukkiwon Certificate (TKD)',
-                                'ip_cert' => 'IP Certification',
-                                'pwd_id' => 'PWD ID Card',
-                                '4ps_id' => '4Ps Membership/ID',
-                                'id_picture' => 'Official 2x2 Photo'
+                                'passport' => 'Passport of the Student-Athlete (if available)',
+                                'mother_id' => 'Mother’s valid Government-Issued ID with signature (not required for all)',
+                                'father_id' => 'Father’s valid Government-Issued ID with signature (not required for all)',
+                                'guardian_id' => 'Designated Guardian’s valid Government-Issued ID with signature',
+                                'ip_cert' => 'IP Certification (If member of an indigenous group) (not required for all)',
+                                'pwd_id' => 'PWD ID (If person with disability) (not required for all)',
+                                '4ps_id' => '4Ps ID or Certification (If beneficiary of the 4Ps) (not required for all)'
                             ];
                         @endphp
 
@@ -370,20 +375,25 @@
                                     @foreach($renewalLabels as $key => $label)
                                         @if(isset($files[$key]) && !empty($files[$key]))
                                             @php $hasRenewal = true; @endphp
-                                            <div class="flex items-center justify-between p-3 sm:p-4 border border-orange-200 rounded-xl sm:rounded-2xl bg-orange-50/50 hover:bg-orange-100/50 transition-all group w-full">
-                                                <div class="flex items-center gap-3 sm:gap-4 overflow-hidden w-full">
-                                                    <div class="bg-white p-2 sm:p-3 rounded-lg sm:rounded-xl text-orange-600 shadow-sm group-hover:bg-orange-600 group-hover:text-white shrink-0 transition-colors">
-                                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                <div class="flex flex-col w-full">
+                                                    <div class="flex items-center justify-between p-3 sm:p-4 border border-orange-200 rounded-xl sm:rounded-2xl bg-orange-50/50 hover:bg-orange-100/50 transition-all group w-full">
+                                                        <div class="flex items-center gap-3 sm:gap-4 overflow-hidden w-full">
+                                                            <div class="bg-white p-2 sm:p-3 rounded-lg sm:rounded-xl text-orange-600 shadow-sm group-hover:bg-orange-600 group-hover:text-white shrink-0 transition-colors">
+                                                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                            </div>
+                                                            <div class="truncate min-w-0">
+                                                                <p class="text-[8px] sm:text-[9px] font-black text-orange-500 uppercase">Renewal Requirement</p>
+                                                                <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $label }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <a href="{{ $files[$key] }}" target="_blank" class="bg-orange-600 hover:bg-orange-700 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
+                                                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                        </a>
                                                     </div>
-                                                    <div class="truncate min-w-0">
-                                                        <p class="text-[8px] sm:text-[9px] font-black text-orange-500 uppercase">Renewal Requirement</p>
-                                                        <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $label }}</p>
-                                                    </div>
+                                                    <input type="text" name="document_remarks[{{ $key }}]" placeholder="Remarks for this file (optional)" 
+                                                           value="{{ $remarks['documents'][$key] ?? '' }}"
+                                                           class="mt-2 w-full text-[10px] border-slate-200 rounded-lg px-3 py-2 bg-white/50 focus:ring-orange-500 focus:border-orange-500">
                                                 </div>
-                                                <a href="{{ $files[$key] }}" target="_blank" class="bg-orange-600 hover:bg-orange-700 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
-                                                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                                </a>
-                                            </div>
                                         @endif
                                     @endforeach
                                     @if(!$hasRenewal)
@@ -403,20 +413,25 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
                             @forelse($initialLabels as $key => $label)
                                 @if(isset($files[$key]) && !empty($files[$key]))
-                                    <div class="flex items-center justify-between p-3 sm:p-4 border border-slate-200 rounded-xl sm:rounded-2xl bg-slate-50/50 hover:bg-indigo-50/50 transition-all group w-full">
-                                        <div class="flex items-center gap-3 sm:gap-4 overflow-hidden w-full">
-                                            <div class="bg-white p-2 sm:p-3 rounded-lg sm:rounded-xl text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white shrink-0 transition-colors">
-                                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        <div class="flex flex-col w-full">
+                                            <div class="flex items-center justify-between p-3 sm:p-4 border border-slate-200 rounded-xl sm:rounded-2xl bg-slate-50/50 hover:bg-indigo-50/50 transition-all group w-full">
+                                                <div class="flex items-center gap-3 sm:gap-4 overflow-hidden w-full">
+                                                    <div class="bg-white p-2 sm:p-3 rounded-lg sm:rounded-xl text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white shrink-0 transition-colors">
+                                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                    </div>
+                                                    <div class="truncate min-w-0">
+                                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Requirement</p>
+                                                        <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $label }}</p>
+                                                    </div>
+                                                </div>
+                                                <a href="{{ $files[$key] }}" target="_blank" class="bg-slate-800 hover:bg-indigo-600 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
+                                                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                </a>
                                             </div>
-                                            <div class="truncate min-w-0">
-                                                <p class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase">Requirement</p>
-                                                <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $label }}</p>
-                                            </div>
+                                            <input type="text" name="document_remarks[{{ $key }}]" placeholder="Remarks for this file (optional)" 
+                                                   value="{{ $remarks['documents'][$key] ?? '' }}"
+                                                   class="mt-2 w-full text-[10px] border-slate-200 rounded-lg px-3 py-2 bg-white/50 focus:ring-indigo-500 focus:border-indigo-500">
                                         </div>
-                                        <a href="{{ $files[$key] }}" target="_blank" class="bg-slate-800 hover:bg-indigo-600 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
-                                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                        </a>
-                                    </div>
                                 @endif
                             @empty
                                 <div class="col-span-1 md:col-span-2 text-center py-6 sm:py-8 w-full">
@@ -424,8 +439,9 @@
                                 </div>
                             @endforelse
                         </div>
-                    </div>
+                    </form>
                 </div>
+            </div>
 
                 {{-- RIGHT SIDE: FINAL ADMISSION (STICKY SIDEBAR) --}}
                 <div class="w-full lg:col-span-1 no-print">
@@ -507,18 +523,29 @@
                                             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         </button>
                                     </form>
-
-                                    <div class="mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-slate-200 w-full">
-                                        <form action="{{ route('official-enrollment.return', $applicant->id) }}" method="POST" class="w-full">
-                                            @csrf @method('PATCH')
-                                            <button type="submit" onclick="return confirm('Return for revision?')" 
-                                                class="w-full bg-red-50 hover:bg-red-500 text-red-600 hover:text-white font-black py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-all uppercase tracking-wider sm:tracking-widest text-[9px] sm:text-[10px] border border-red-100">
-                                                Return for Revision
-                                            </button>
-                                        </form>
-                                    </div>
                                 </div>
                             @endif
+                        </div>
+
+                        @if(!$isAdmitted)
+                            {{-- ⚡ SEPARATE CARD FOR RETURN FLOW ⚡ --}}
+                            <div class="bg-white/90 backdrop-blur-md shadow-2xl rounded-[2rem] sm:rounded-[2.5rem] border border-white/40 overflow-hidden w-full p-6 sm:p-8 animate-fade-in no-print">
+                                <div class="mb-4">
+                                    <label for="overall_remarks" class="block text-[10px] sm:text-xs font-black text-red-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                        Overall Return Instructions
+                                    </label>
+                                    <textarea name="overall_remarks" id="overall_remarks" form="verificationForm" rows="3" 
+                                              class="w-full text-xs border-red-100 rounded-2xl bg-red-50/20 focus:ring-red-500 focus:border-red-500 placeholder-red-300 resize-none shadow-inner"
+                                              placeholder="Provide general instructions for the student...">{{ $remarks['overall'] ?? '' }}</textarea>
+                                </div>
+                                <button type="submit" form="verificationForm" onclick="return confirm('Return for revision?')" 
+                                    class="w-full bg-red-50 hover:bg-red-500 text-red-600 hover:text-white font-black py-4 px-6 rounded-2xl transition-all uppercase tracking-widest text-[10px] border border-red-100 shadow-xl shadow-red-100/50 transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 mt-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                                    Return for Revision
+                                </button>
+                            </div>
+                        @endif
 
                         </div>
                     </div>

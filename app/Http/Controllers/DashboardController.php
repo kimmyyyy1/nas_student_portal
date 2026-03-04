@@ -65,6 +65,11 @@ class DashboardController extends Controller
         $totalTeams = Team::count();       
         $upcomingPlans = 0;
 
+        // Enrollment Analytics
+        $enrollmentPending = Applicant::whereIn('status', ['For Enrollment Verification', 'Pending Renewal'])->count();
+        $enrollmentReturned = Applicant::whereIn('status', ['Qualified (Returned)', 'Renewal (Returned)'])->count();
+        $enrollmentCompleted = Applicant::whereIn('status', ['Officially Enrolled', 'Enrolled'])->count();
+
         $sportsBreakdown = Team::select('sport', DB::raw('count(*) as count'))->groupBy('sport')->orderBy('count', 'desc')->take(3)->get();
         $activities = ActivityLog::with('user')->latest()->take(5)->get();
 
@@ -247,7 +252,8 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'totalStudents', 'maleCount', 'femaleCount', 'totalApplicants', 
             'activeSections', 'totalTeams', 'upcomingPlans', 'activities', 
-            'mapMarkers', 'sportsBreakdown', 'islandCounts'
+            'mapMarkers', 'sportsBreakdown', 'islandCounts',
+            'enrollmentPending', 'enrollmentReturned', 'enrollmentCompleted'
         ));
     }
 

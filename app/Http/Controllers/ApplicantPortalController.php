@@ -11,24 +11,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
-use Cloudinary\Configuration\Configuration;
-use Cloudinary\Api\Upload\UploadApi;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\NewApplicantNotification;
+use App\Notifications\EnrollmentSubmittedNotification;
 
 class ApplicantPortalController extends Controller
 {
-    public function __construct()
-    {
-        Configuration::instance([
-            'cloud' => [
-                'cloud_name' => 'dqkzofruk', 
-                'api_key'    => '452544782214523', 
-                'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo'
-            ],
-            'url' => ['secure' => true]
-        ]);
-    }
+    // No constructor needed — using local storage now
 
     // ==========================================
     // PHASE 1: DASHBOARD & REGISTRATION
@@ -91,7 +81,6 @@ class ApplicantPortalController extends Controller
             'sport_specification' => 'nullable|string',
             'palaro_finisher' => 'required|string',
             'batang_pinoy_finisher' => 'required|string',
-            'school_type' => 'required|string',
             'guardian_name' => 'required|string',
             'guardian_relationship' => 'required|string',
             'guardian_email' => 'required|email',
@@ -129,7 +118,16 @@ class ApplicantPortalController extends Controller
     {
         $applicant = Applicant::where('user_id', Auth::id())->firstOrFail();
 
-        if (!str_contains($applicant->status, '2nd Level') && !str_contains($applicant->status, 'Returned')) {
+        $allowedStatuses = ['2nd Level', 'Returned', 'With Pending Requirements'];
+        $canAccess = false;
+        foreach ($allowedStatuses as $status) {
+            if (str_contains(strtoupper($applicant->status), strtoupper($status))) {
+                $canAccess = true;
+                break;
+            }
+        }
+
+        if (!$canAccess) {
             return redirect()->route('applicant.dashboard')
                 ->with('error', 'You are not yet eligible to submit Phase 2 requirements.');
         }
@@ -160,7 +158,7 @@ class ApplicantPortalController extends Controller
             if ($doc == '4ps_id' && !$applicant->is_4ps) $isRelevant = false;
 
             if ($isRelevant) {
-                if (!isset($currentFiles[$doc]) || (isset($docStatuses[$doc]) && $docStatuses[$doc] === 'declined')) {
+                if (!isset($currentFiles[$doc]) || (isset($docStatuses[$doc]) && ($docStatuses[$doc] === 'declined' || $docStatuses[$doc] === 'Needs resubmission'))) {
                     $rules["files.$doc"] = 'required|file|mimes:pdf,jpg,jpeg,png,heic,heif|max:10240';
                 } else {
                     $rules["files.$doc"] = 'nullable|file|mimes:pdf,jpg,jpeg,png,heic,heif|max:10240';
@@ -176,13 +174,10 @@ class ApplicantPortalController extends Controller
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
-                    $upload = (new UploadApi())->upload($file->getRealPath(), [
-                        'folder' => 'nas_student_portal/phase2_requirements',
-                        'resource_type' => 'auto'
-                    ]);
-                    $currentFiles[$key] = $upload['secure_url'];
+                    $path = Storage::disk('public')->putFile('uploads/requirements', $file);
+                    $currentFiles[$key] = $path;
                     
-                    if (isset($docStatuses[$key]) && $docStatuses[$key] === 'declined') {
+                    if (isset($docStatuses[$key]) && ($docStatuses[$key] === 'declined' || $docStatuses[$key] === 'Needs resubmission')) {
                         $isResubmission = true;
                     }
                     $docStatuses[$key] = 'pending'; 
@@ -214,14 +209,16 @@ class ApplicantPortalController extends Controller
 
     public function showEnrollmentForm(): View|RedirectResponse
     {
-        $applicant = Applicant::where('user_id', Auth::id())->firstOrFail();
+        $applicant = Applicant::where('user_id', Auth::id())->with('enrollmentDetail')->firstOrFail();
 
-        if (!str_contains($applicant->status, 'Qualified')) {
+        if (!str_contains($applicant->status, 'Qualified') && !str_contains($applicant->status, 'Returned')) {
             return redirect()->route('applicant.dashboard')
                 ->with('error', 'You are not yet eligible for enrollment.');
         }
 
-        return view('applicant.enrollment', compact('applicant'));
+        $details = $applicant->enrollmentDetail;
+
+        return view('applicant.enrollment', compact('applicant', 'details'));
     }
 
     public function submitEnrollmentForm(Request $request): RedirectResponse
@@ -234,6 +231,8 @@ class ApplicantPortalController extends Controller
             'lrn' => 'required|digits:12',
             'last_name' => 'required',
             'first_name' => 'required',
+            'middle_name' => 'required',
+            'extension_name' => 'required',
             'date_of_birth' => 'required|date',
             'sex' => 'required',
             'age' => 'required|numeric',
@@ -250,18 +249,27 @@ class ApplicantPortalController extends Controller
             'guardian_relationship' => 'required',
             'guardian_contact' => 'required',
             'guardian_email' => 'required|email',
-            'files.sa_info_form' => 'required|file|max:10240',
-            'files.scholarship_app_form' => 'required|file|max:10240',
-            'files.sa_profile_form' => 'required|file|max:10240',
-            'files.ppe_clearance' => 'required|file|max:10240',
-            'files.psa_birth_cert' => 'required|file|max:10240',
-            'files.report_card' => 'required|file|max:10240',
-            'files.guardian_id' => 'required|file|max:10240',
+            'last_grade_level' => 'required|string',
+            'last_school_year' => 'required|string',
+            'school_name' => 'required|string',
+            'school_id' => 'required|string',
+            'school_address' => 'required|string',
+            'school_type' => 'required|string',
+            'files.sa_info_form' => ($applicant->uploaded_files['sa_info_form'] ?? false) ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240' : 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.basic_ed_form' => ($applicant->uploaded_files['basic_ed_form'] ?? false) ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240' : 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.scholarship_agreement' => ($applicant->uploaded_files['scholarship_agreement'] ?? false) ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240' : 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.uniform_measurement' => ($applicant->uploaded_files['uniform_measurement'] ?? false) ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240' : 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.ppe_clearance' => ($applicant->uploaded_files['ppe_clearance'] ?? false) ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240' : 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.report_card' => ($applicant->uploaded_files['report_card'] ?? false) ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240' : 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.psa_birth_cert' => ($applicant->uploaded_files['psa_birth_cert'] ?? false) ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240' : 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.passport' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.mother_id' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.father_id' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.guardian_id' => ($applicant->uploaded_files['guardian_id'] ?? false) ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240' : 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.ip_cert' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.pwd_id' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.4ps_id' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
-
-        // 2. CHECK TRANSFEREE
-        $schoolDefault = 'N/A';
-        $isTransferee = !empty($request->school_name); 
 
         // 3. CREATE/UPDATE ENROLLMENT RECORD
         EnrollmentDetail::updateOrCreate(
@@ -270,8 +278,8 @@ class ApplicantPortalController extends Controller
                 'lrn' => $request->lrn,
                 'last_name' => $request->last_name,
                 'first_name' => $request->first_name,
-                'middle_name' => $request->middle_name ?? 'N/A',
-                'extension_name' => $request->extension_name ?? 'N/A',
+                'middle_name' => $request->middle_name,
+                'extension_name' => $request->extension_name,
                 'date_of_birth' => $request->date_of_birth,
                 'age' => $request->age,
                 'sex' => $request->sex,
@@ -303,12 +311,12 @@ class ApplicantPortalController extends Controller
                 'guardian_address' => $request->guardian_address,
                 'guardian_contact' => $request->guardian_contact,
                 'guardian_email' => $request->guardian_email,
-                'last_grade_level' => $isTransferee ? $request->last_grade_level : $schoolDefault,
-                'last_school_year' => $isTransferee ? $request->last_school_year : $schoolDefault,
-                'school_name' => $isTransferee ? $request->school_name : $schoolDefault,
-                'school_id' => $isTransferee ? $request->school_id : $schoolDefault,
-                'school_address' => $isTransferee ? $request->school_address : $schoolDefault,
-                'school_type' => $isTransferee ? $request->school_type : $schoolDefault,
+                'last_grade_level' => $request->last_grade_level,
+                'last_school_year' => $request->last_school_year,
+                'school_name' => $request->school_name,
+                'school_id' => $request->school_id,
+                'school_address' => $request->school_address,
+                'school_type' => $request->school_type,
             ]
         );
 
@@ -319,11 +327,8 @@ class ApplicantPortalController extends Controller
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
-                    $upload = (new UploadApi())->upload($file->getRealPath(), [
-                        'folder' => 'nas_student_portal/official_enrollment',
-                        'resource_type' => 'auto'
-                    ]);
-                    $currentFiles[$key] = $upload['secure_url'];
+                    $path = Storage::disk('public')->putFile('uploads/enrollment', $file);
+                    $currentFiles[$key] = $path;
                     $uploadedDocNames[] = $this->formatFileName($key);
                 } catch (\Exception $e) {
                     continue; 
@@ -333,15 +338,21 @@ class ApplicantPortalController extends Controller
 
         // 5. UPDATE APPLICANT STATUS ONLY
         // ⚡ DO NOT CHANGE ROLE TO 'STUDENT' HERE YET ⚡
+        $isResubmission = !empty($applicant->document_remarks);
+        
         $applicant->update([
             'uploaded_files' => $currentFiles,
-            'status' => 'Officially Enrolled'
+            'status' => 'For Enrollment Verification',
+            'document_remarks' => null // Clear remarks after revision
         ]);
 
         // Notify admins
         $admins = User::where('role', 'admin')->get();
         $message = "Enrollment form submitted by: {$applicant->first_name} {$applicant->last_name}";
         Notification::send($admins, new NewApplicantNotification($applicant, $message));
+
+        // Notify applicant
+        Notification::send(Auth::user(), new EnrollmentSubmittedNotification($applicant, $isResubmission));
 
         // ✅ REDIRECT BACK TO APPLICANT DASHBOARD
         // Mananatili siyang applicant hanggang i-approve ng admin.
@@ -360,7 +371,7 @@ class ApplicantPortalController extends Controller
             'region', 'province', 'municipality_city', 'barangay', 
             'street_address', 'zip_code', 'learn_about_nas', 'attended_campaign',
             'sport', 'sport_specification', 'palaro_finisher', 'batang_pinoy_finisher', 
-            'school_type', 'guardian_name', 'guardian_relationship', 'guardian_email', 'guardian_contact'
+            'guardian_name', 'guardian_relationship', 'guardian_email', 'guardian_contact'
         ]);
         $data['middle_name'] = $request->middle_name ?? 'N/A';
         $data['referrer_name'] = ($request->learn_about_nas === 'NAS Personnel / Student-Athlete Referral') 
@@ -379,11 +390,16 @@ class ApplicantPortalController extends Controller
         $currentFiles = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
         if ($request->hasFile('id_picture')) {
             try {
-                $upload = (new UploadApi())->upload($request->file('id_picture')->getRealPath(), ['folder' => 'nas_student_portal/ids']);
-                $currentFiles['id_picture'] = $upload['secure_url'];
+                $path = Storage::disk('public')->putFile('uploads/ids', $request->file('id_picture'));
+                $currentFiles['id_picture'] = $path;
+                $applicant->update([
+                    'uploaded_files' => $currentFiles,
+                    'photo' => $path
+                ]);
             } catch (\Exception $e) {}
+        } else {
+             $applicant->update(['uploaded_files' => $currentFiles]);
         }
-        $applicant->update(['uploaded_files' => $currentFiles]);
     }
 
     private function formatFileName($key) {

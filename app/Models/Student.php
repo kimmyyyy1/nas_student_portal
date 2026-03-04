@@ -74,6 +74,21 @@ class Student extends Model implements HasMedia
         'guardian_contact',
         'guardian_address',
 
+        // --- NASCENT SAS Fields ---
+        'sport',
+        'sport_specification',
+        'ip_group_name',
+        'pwd_disability',
+        'heard_about_nas',
+        'referrer_name',
+        'attended_articulation',
+        'school_name',
+        'school_type',
+        'last_grade_level',
+        'last_school_year',
+        'school_id',
+        'school_address',
+
         // ❌ NOTE: WALA DAPAT DITO ANG 'role'. 
         // Ang 'role' ay nasa User table, hindi sa Student table.
     ];

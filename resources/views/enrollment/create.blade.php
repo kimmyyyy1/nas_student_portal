@@ -156,7 +156,7 @@
                     </div>
 
                     <div class="mt-10 flex items-center justify-between border-t pt-6">
-                        <a href="{{ route('admission.track') }}" class="text-indigo-600 hover:underline text-sm font-bold">Check Application Status</a>
+                        <a href="{{ route('admission.track') }}" class="text-indigo-600 hover:underline text-sm font-bold">Check NASCENT SAS Status</a>
                         <button type="submit" class="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-12 py-4 rounded-full font-bold text-xl shadow-xl transform transition hover:scale-105">
                             SUBMIT APPLICATION
                         </button>
