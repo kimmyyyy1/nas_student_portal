@@ -27,6 +27,7 @@ class ContinuingEnrollment extends Component
     public $mother_id;
     public $father_id;
     public $guardian_id;
+    public $student_id_file;
 
     // Existing Data
     public $applicant;
@@ -80,19 +81,20 @@ class ContinuingEnrollment extends Component
             'mother_id'             => 'renewal_mother_id',
             'father_id'             => 'renewal_father_id',
             'guardian_id'           => 'renewal_guardian_id',
+            'student_id_file'       => 'renewal_student_id',
         ];
 
         foreach ($fields as $model => $key) {
             $status = $this->statuses[$key] ?? 'pending';
             $isMissing = !isset($this->currentFiles[$key]) || empty($this->currentFiles[$key]);
             
-            $isOptional = in_array($model, ['passport', 'mother_id', 'father_id']);
+            $isOptional = in_array($model, ['passport', 'mother_id', 'father_id', 'student_id_file']);
             
             // Required if missing OR declined, unless optional
             if (!$isOptional && ($isMissing || $status === 'declined')) {
-                $rules[$model] = 'required|mimes:jpg,jpeg,png,pdf|max:5120';
+                $rules[$model] = 'required|mimes:jpg,jpeg,png,pdf|max:20480';
             } else {
-                $rules[$model] = 'nullable|mimes:jpg,jpeg,png,pdf|max:5120';
+                $rules[$model] = 'nullable|mimes:jpg,jpeg,png,pdf|max:20480';
             }
         }
 
@@ -132,6 +134,7 @@ class ContinuingEnrollment extends Component
                'mother_id' => 'renewal_mother_id',
                'father_id' => 'renewal_father_id',
                'guardian_id' => 'renewal_guardian_id',
+               'student_id_file' => 'renewal_student_id',
             ];
 
             foreach ($uploadFields as $model => $key) {

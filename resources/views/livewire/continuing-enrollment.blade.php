@@ -1,9 +1,18 @@
 <div class="w-full py-6 sm:py-8 font-sans">
     <div class="max-w-5xl mx-auto">
-        <div class="text-center mb-8 lg:mb-10 bg-white/60 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-sm border border-white/50">
-            <img src="{{ asset('images/nas/nas-logo-sidebar.png') }}" class="h-16 sm:h-20 mx-auto mb-4 drop-shadow-sm">
-            <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Continuing Student Enrollment</h1>
-            <p class="text-indigo-600 font-black uppercase mt-2 text-sm tracking-widest">SY {{ date('Y') }}-{{ date('Y') + 1 }}</p>
+        <div class="text-center mb-8 lg:mb-10 bg-gradient-to-br from-white/95 to-slate-50/95 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-lg border border-white/80 relative overflow-hidden">
+            {{-- Decorative blurs --}}
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-blue-100/50 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-100/50 rounded-full blur-3xl"></div>
+            
+            <div class="relative z-10 flex items-center justify-center gap-5 mb-5">
+                <img src="{{ asset('images/nas/NAS LOGO.png') }}" class="h-16 sm:h-20 w-auto object-contain drop-shadow-md hover:scale-105 transition-transform duration-300">
+                <div class="h-12 w-px bg-slate-300"></div>
+                <img src="{{ asset('images/nas/NASCENT SAS.png') }}" class="h-16 sm:h-20 w-auto object-contain drop-shadow-md hover:scale-105 transition-transform duration-300">
+            </div>
+            <h1 class="relative z-10 text-2xl md:text-3xl font-black text-slate-800 uppercase tracking-tight">Continuing Student Enrollment</h1>
+            <p class="relative z-10 text-indigo-600 font-extrabold uppercase mt-2 text-sm tracking-widest bg-indigo-50 inline-block px-4 py-1 rounded-full border border-indigo-100/50 shadow-sm">SY {{ date('Y') }}-{{ date('Y') + 1 }}</p>
         </div>
 
         @if ($applicant && $applicant->status === 'Renewal (Returned)')
@@ -28,7 +37,12 @@
             </div>
         @endif
 
-        @if ($applicant && in_array($applicant->status, ['Admitted', 'Officially Enrolled', 'Enrolled']))
+        @php
+            $renewalRemarks = $applicant->document_remarks ?? [];
+            $hasRenewalSubmission = isset($renewalRemarks['is_renewal']) && $renewalRemarks['is_renewal'] === true;
+            $isRenewalApproved = $hasRenewalSubmission && in_array($applicant->status, ['Admitted', 'Officially Enrolled', 'Enrolled']);
+        @endphp
+        @if ($applicant && $isRenewalApproved)
             <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 p-8 rounded-3xl shadow-xl border border-indigo-400/30 text-white text-center relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mt-20 -mr-20 blur-2xl"></div>
                 <div class="relative z-10 flex flex-col items-center">
@@ -47,10 +61,14 @@
         <form wire:submit="submitEnrollment" class="w-full">
             <div class="space-y-8">
                 {{-- Student Info --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white/40 backdrop-blur-md p-5 rounded-2xl border border-white/50 shadow-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white/95 backdrop-blur-md p-5 rounded-2xl border border-white/80 shadow-lg">
                     <div>
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Student Name</label>
                         <p class="font-black text-slate-800 text-lg uppercase">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Student No.</label>
+                        <p class="font-black text-slate-800 text-lg uppercase">{{ Auth::user()->student->nas_student_id ?? Auth::user()->student_id ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Grade Level to Enroll</label>
@@ -70,9 +88,10 @@
                         ['model' => 'uniform_measurement', 'key' => 'renewal_uniform_measurement', 'label' => '4. Student Uniform Measurement Form', 'desc' => 'Upload filled-out Uniform Measurement form.'],
                         ['model' => 'health_assessment', 'key' => 'renewal_health_assessment', 'label' => '5. Pre-ingress Health Assessment Forms', 'desc' => 'Upload Health Assessment forms.'],
                         ['model' => 'passport', 'key' => 'renewal_passport', 'label' => '6. Passport of the Student-Athlete (if available)', 'desc' => 'Upload clear image/PDF.'],
-                        ['model' => 'mother_id', 'key' => 'renewal_mother_id', 'label' => '7. Mother’s valid Government-Issued ID', 'desc' => 'With signature (not required for all).'],
-                        ['model' => 'father_id', 'key' => 'renewal_father_id', 'label' => '8. Father’s valid Government-Issued ID', 'desc' => 'With signature (not required for all).'],
-                        ['model' => 'guardian_id', 'key' => 'renewal_guardian_id', 'label' => '9. Designated Guardian’s valid Government-Issued ID', 'desc' => 'With signature.']
+                        ['model' => 'mother_id', 'key' => 'renewal_mother_id', 'label' => '7. Mother’s valid Government-Issued ID', 'desc' => 'With signature (Optional).'],
+                        ['model' => 'father_id', 'key' => 'renewal_father_id', 'label' => '8. Father’s valid Government-Issued ID', 'desc' => 'With signature (Optional).'],
+                        ['model' => 'guardian_id', 'key' => 'renewal_guardian_id', 'label' => '9. Designated Guardian’s valid Government-Issued ID', 'desc' => 'With signature.'],
+                        ['model' => 'student_id_file', 'key' => 'renewal_student_id', 'label' => '10. Student’s School ID (Optional)', 'desc' => 'Upload clear image/PDF of your NAS School ID.']
                     ]; @endphp
 
                     @foreach($fields as $field)
@@ -89,59 +108,76 @@
                         $remark = $remarks[$dbKey] ?? null;
                     @endphp
 
-                    <div class="p-4 sm:p-5 rounded-2xl border transition-all shadow-sm backdrop-blur-md {{ $isDeclined ? 'border-red-400 bg-red-50/70' : 'border-white/60 bg-white/40 hover:border-indigo-300' }}">
-                        <label class="block text-xs font-black text-slate-700 uppercase mb-1.5 flex items-center justify-between">
-                            <span>
+                    <div class="p-5 sm:p-6 rounded-3xl border transition-all shadow-md backdrop-blur-xl hover:shadow-lg hover:-translate-y-0.5 duration-300 {{ $isDeclined ? 'border-red-300 bg-red-50' : 'border-white/80 bg-white/90 hover:border-indigo-300/60' }}">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-sm font-black text-slate-800 uppercase tracking-wide">
                                 {{ $label }} 
                                 @if(str_contains($label, '(Optional)'))
-                                    <span class="text-[9px] font-bold text-slate-400 normal-case ml-1">(Optional)</span>
+                                    <span class="text-[10px] font-bold text-slate-400 normal-case ml-2 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">Optional</span>
                                 @else
-                                    <span class="text-red-500 ml-0.5">*</span>
+                                    <span class="text-red-500 ml-0.5 text-lg leading-none">*</span>
                                 @endif
-                            </span>
+                            </label>
 
                             @if($isDeclined)
-                                <span class="bg-red-100 text-red-600 text-[9px] px-2 py-0.5 rounded-md uppercase tracking-wider">Needs Revision</span>
+                                <span class="bg-red-100 text-red-700 text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider font-bold border border-red-200 shadow-sm flex items-center gap-1"><i class='bx bxs-error-circle'></i> Needs Revision</span>
                             @elseif($isPending && $applicant && $applicant->status !== 'Renewal (Returned)')
-                                <span class="bg-amber-100 text-amber-600 text-[9px] px-2 py-0.5 rounded-md uppercase tracking-wider">Pending Review</span>
+                                <span class="bg-amber-100 text-amber-700 text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider font-bold border border-amber-200 shadow-sm flex items-center gap-1"><i class='bx bx-time-five'></i> Pending Review</span>
                             @elseif($isApproved)
-                                <span class="bg-emerald-100 text-emerald-600 text-[9px] px-2 py-0.5 rounded-md uppercase tracking-wider"><i class='bx bx-check'></i> Approved</span>
+                                <span class="bg-emerald-100 text-emerald-700 text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider font-bold border border-emerald-200 shadow-sm flex items-center gap-1"><i class='bx bx-check-double'></i> Approved</span>
                             @elseif($hasFile && !$applicant)
-                                <span class="bg-indigo-100 text-indigo-600 text-[9px] px-2 py-0.5 rounded-md uppercase tracking-wider"><i class='bx bx-check'></i> Uploaded</span>
+                                <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider font-bold border border-indigo-200 shadow-sm flex items-center gap-1"><i class='bx bx-cloud-upload'></i> Uploaded</span>
                             @endif
-                        </label>
+                        </div>
 
                         @if($isDeclined && isset($remarks[$dbKey]))
-                            <p class="text-[10px] text-red-600 mb-3 bg-red-100/50 p-2 rounded-lg border border-red-200"><strong class="uppercase text-[9px]">Registrar Remark:</strong> {{ $remarks[$dbKey] }}</p>
+                            <div class="text-[11px] text-red-700 mb-4 bg-red-100/50 p-3 rounded-xl border border-red-200 flex gap-2 items-start text-left">
+                                <i class='bx bxs-message-square-error text-lg mt-0.5'></i>
+                                <div><strong class="uppercase text-[10px] block mb-0.5">Registrar Remark:</strong> {{ $remarks[$dbKey] }}</div>
+                            </div>
                         @else
-                            <p class="text-[10px] text-slate-500 mb-3">{{ $desc }}</p>
+                            <p class="text-[11px] text-slate-500 mb-4 font-medium">{{ $desc }}</p>
                         @endif
 
-                        <div class="relative">
-                            <input type="file" wire:model="{{ $model }}" accept=".pdf,.jpg,.jpeg,.png"
-                                   class="block w-full text-xs text-slate-500
-                                          file:mr-4 file:py-2 file:px-4
-                                          file:rounded-xl file:border-0
-                                          file:text-xs file:font-bold
-                                          file:bg-indigo-50 file:text-indigo-700
-                                          hover:file:bg-indigo-100 transition-colors cursor-pointer">
+                        <div class="relative group">
+                            <div class="absolute inset-0 bg-gradient-to-r from-indigo-50 to-blue-50 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-300"></div>
                             
-                            <!-- Loading Indicator for this specific file -->
-                            <div wire:loading wire:target="{{ $model }}" class="absolute right-3 top-1/2 -translate-y-1/2">
-                                <svg class="animate-spin h-4 w-4 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
+                            <input type="file" wire:model="{{ $model }}" accept=".pdf,.jpg,.jpeg,.png"
+                                   class="relative z-10 block w-full text-xs text-slate-600 font-medium
+                                          file:mr-4 file:py-2.5 file:px-5
+                                          file:rounded-xl file:border-0
+                                          file:text-xs file:font-bold file:uppercase file:tracking-wider
+                                          file:bg-indigo-600 file:text-white file:shadow-md
+                                           hover:file:bg-indigo-700 file:transition-all hover:file:-translate-y-0.5
+                                          cursor-pointer border-2 border-dashed border-slate-300 hover:border-indigo-400 rounded-2xl bg-white/50 px-2 py-2 transition-all">
+                            
+                            <!-- Loading Indicator -->
+                            <div wire:loading wire:target="{{ $model }}" class="absolute right-4 top-1/2 -translate-y-1/2 z-20">
+                                <div class="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-indigo-100 shadow-sm">
+                                    <svg class="animate-spin h-4 w-4 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wider">Uploading...</span>
+                                </div>
                             </div>
                         </div>
+                        <p class="text-[9px] text-slate-400 mt-1.5 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Accepted: JPG, JPEG, PNG, PDF &bull; Max size: 20MB
+                        </p>
                         @error($field['model']) <span class="text-red-500 text-[10px] font-bold mt-1 block">{{ $message }}</span> @enderror
                     </div>
                     @endforeach
                 </div>
 
-                <button type="submit" wire:loading.attr="disabled" class="w-full bg-slate-900 hover:bg-indigo-600 text-white font-black py-4 rounded-xl shadow-lg uppercase tracking-widest text-sm disabled:opacity-50">
-                    <span wire:loading.remove wire:target="submitEnrollment">Submit Renewal Application</span>
-                    <span wire:loading wire:target="submitEnrollment">Uploading files...</span>
+                <button type="submit" wire:loading.attr="disabled" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-2xl shadow-[0_8px_30px_rgb(79,70,229,0.3)] hover:shadow-[0_8px_30px_rgb(79,70,229,0.5)] transition-all duration-300 hover:-translate-y-1 uppercase tracking-widest text-sm disabled:opacity-50 disabled:cursor-not-allowed mt-4">
+                    <span wire:loading.remove wire:target="submitEnrollment" class="flex items-center justify-center gap-2">
+                        Submit Renewal Application <i class='bx bx-right-arrow-alt text-xl'></i>
+                    </span>
+                    <span wire:loading wire:target="submitEnrollment" class="flex items-center justify-center gap-2">
+                        <i class='bx bx-loader-alt animate-spin text-xl'></i> Uploading files...
+                    </span>
                 </button>
             </div>
         </form>

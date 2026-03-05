@@ -164,12 +164,25 @@ class OfficialEnrollmentController extends Controller
                 ]);
             }
 
-            // C. UPDATE USER ROLE (Ensure they are a student)
+            // C. UPDATE USER ROLE & STUDENT ID (Ensure they are a student and ID matches)
             $user = User::find($applicant->user_id);
             if($user) {
-                // For renewals, the role might already be 'student'. Only update if not already.
+                $userUpdates = [];
                 if (!$isRenewal || $user->role !== 'student') {
-                    $user->update(['role' => 'student']);
+                    $userUpdates['role'] = 'student';
+                }
+                
+                // Sync the user's student_id with the one provided by Registrar
+                $finalStudentId = $isRenewal 
+                    ? ($request->student_id ?? $existingStudent->nas_student_id)
+                    : $studentId;
+
+                if ($finalStudentId && $user->student_id !== $finalStudentId) {
+                    $userUpdates['student_id'] = $finalStudentId;
+                }
+
+                if (!empty($userUpdates)) {
+                    $user->update($userUpdates);
                 }
             }
 

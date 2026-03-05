@@ -105,7 +105,8 @@
                 <main class="flex-1 flex flex-col overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 xl:px-12 pb-20 lg:pb-8 animate-page-enter w-full">
                     {{ $slot }}
 
-                    {{-- FOOTER (extra pr for notifications bell) --}}
+                    {{-- FOOTER - Only visible to employees (admin/registrar/teacher/coach) --}}
+                    @if(Auth::check() && !in_array(Auth::user()->role, ['student', 'applicant']))
                     <footer class="mt-auto -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-12 -mb-20 lg:-mb-8 w-auto z-20 relative">
                         <div class="px-4 sm:px-6 lg:px-8 xl:px-12 py-6 pr-20 sm:pr-24 lg:pr-28 xl:pr-32 bg-gradient-to-b from-[#171a21] to-[#0f1115] border-t border-slate-700/60 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
                             {{-- Accent line --}}
@@ -125,6 +126,7 @@
                             </div>
                         </div>
                     </footer>
+                    @endif
                 </main>
                 
             </div>
