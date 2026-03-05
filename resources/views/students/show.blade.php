@@ -111,12 +111,25 @@
                 
                 <div class="px-4 md:px-8 relative z-10">
                     
-                    {{-- EDIT BUTTON --}}
-                    <div class="hidden md:block absolute top-6 right-8 z-50">
-                        <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
-                           class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer">
-                            <i class='bx bx-edit text-lg mr-2'></i> Edit Profile
-                        </a>
+                    {{-- EDIT & LOCK BUTTONS --}}
+                    <div class="hidden md:flex absolute top-6 right-8 z-50 gap-3">
+                        {{-- Finalize/Unfinalize Toggle (Unfinalize only for admin) --}}
+                        @if(!$student->is_locked || auth()->user()->role === 'admin')
+                        <form action="{{ route('students.toggle-lock', $student) }}" method="POST">
+                            @csrf
+                            <button type="submit" onclick="return confirm(this.dataset.msg)" data-msg="{{ $student->is_locked ? 'Unfinalize this record? It will become editable again.' : 'Finalize this record? It will be locked from editing.' }}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest shadow-md cursor-pointer transition ease-in-out duration-150 {{ $student->is_locked ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-emerald-600 hover:bg-emerald-700 text-white' }}">
+                                <i class='bx {{ $student->is_locked ? "bx-lock-open" : "bx-check-shield" }} text-lg mr-2'></i>
+                                {{ $student->is_locked ? 'Unfinalize' : 'Finalize' }} Record
+                            </button>
+                        </form>
+                        @endif
+                        {{-- Edit Button (hidden when locked) --}}
+                        @if(!$student->is_locked)
+                            <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
+                               class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md cursor-pointer">
+                                <i class='bx bx-edit text-lg mr-2'></i> Edit Profile
+                            </a>
+                        @endif
                     </div>
 
                     {{-- PROFILE HEADER --}}
@@ -138,13 +151,36 @@
                         </div>
                     </div>
 
-                    {{-- MOBILE EDIT BUTTON --}}
-                    <div class="block md:hidden w-full mb-8">
-                        <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
-                           class="flex items-center justify-center w-full px-4 py-3 bg-indigo-600 border border-transparent rounded-lg font-bold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none shadow-md cursor-pointer transition">
-                            <i class='bx bx-edit text-xl mr-2'></i> Edit Profile
-                        </a>
+                    {{-- MOBILE EDIT & LOCK BUTTONS --}}
+                    <div class="block md:hidden w-full mb-8 space-y-3">
+                        {{-- Finalize/Unfinalize Toggle (Unfinalize only for admin) --}}
+                        @if(!$student->is_locked || auth()->user()->role === 'admin')
+                        <form action="{{ route('students.toggle-lock', $student) }}" method="POST">
+                            @csrf
+                            <button type="submit" onclick="return confirm(this.dataset.msg)" data-msg="{{ $student->is_locked ? 'Unfinalize this record? It will become editable again.' : 'Finalize this record? It will be locked from editing.' }}" class="flex items-center justify-center w-full px-4 py-3 border border-transparent rounded-lg font-bold text-sm uppercase tracking-widest shadow-md cursor-pointer transition {{ $student->is_locked ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-emerald-600 hover:bg-emerald-700 text-white' }}">
+                                <i class='bx {{ $student->is_locked ? "bx-lock-open" : "bx-check-shield" }} text-xl mr-2'></i>
+                                {{ $student->is_locked ? 'Unfinalize Record' : 'Finalize Record' }}
+                            </button>
+                        </form>
+                        @endif
+                        @if(!$student->is_locked)
+                            <a href="{{ route('students.edit', ['student' => $student->id] + ($queryParams ?? [])) }}" wire:navigate
+                               class="flex items-center justify-center w-full px-4 py-3 bg-indigo-600 border border-transparent rounded-lg font-bold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none shadow-md cursor-pointer transition">
+                                <i class='bx bx-edit text-xl mr-2'></i> Edit Profile
+                            </a>
+                        @endif
                     </div>
+
+                    {{-- LOCK BANNER --}}
+                    @if($student->is_locked)
+                        <div class="mb-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-xl flex items-center gap-3">
+                            <i class='bx bxs-lock-alt text-amber-600 text-2xl'></i>
+                            <div>
+                                <p class="font-black text-amber-800 text-xs uppercase tracking-widest">Record Finalized</p>
+                                <p class="text-sm text-amber-700 font-medium">This student record has been finalized and is locked from further edits.</p>
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- DETAILS GRID --}}
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-gray-100 pt-8 relative z-0">
@@ -317,4 +353,33 @@
             </div>
         </div>
     </div>
+    
+    {{-- SweetAlert2 for Notifications --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    html: '{!! session('success') !!}',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    toast: true,
+                    position: 'top-end'
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Action Failed',
+                    html: '{!! session('error') !!}',
+                    showConfirmButton: true,
+                    confirmButtonColor: '#d33'
+                });
+            @endif
+        });
+    </script>
 </x-app-layout>

@@ -40,6 +40,7 @@ class Student extends Model implements HasMedia
         'entry_year',
         'grade_level',
         'status',           // New, Continuing, Transfer out, Graduate, Enrolled
+        'is_locked',        // Record Locking Facility
         'promotion_status', // Promoted, Conditional, Retained
         'general_average',  // Final Grade
         
@@ -107,6 +108,7 @@ class Student extends Model implements HasMedia
         'q3' => 'double',
         'q4' => 'double',
         'general_average' => 'double',
+        'is_locked' => 'boolean',
     ];
 
     // --- RELATIONSHIPS ---

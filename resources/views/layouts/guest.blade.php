@@ -20,8 +20,8 @@
         </script>
         <script defer src="/_vercel/insights/script.js"></script>
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
+    <body class="font-sans text-gray-900 antialiased min-h-screen flex flex-col bg-gray-100">
+        <div class="flex-1 flex flex-col sm:justify-center items-center pt-6 pb-20 sm:pt-0">
             <div>
                 <a href="/">
                     <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
@@ -32,6 +32,20 @@
                 {{ $slot }}
             </div>
         </div>
+
+        {{-- CENTERED MINIMALIST FULL-WIDTH FOOTER --}}
+        <footer class="mt-auto w-full px-4 sm:px-6 lg:px-8 py-5 bg-[#171a21] border-t border-slate-700/80 flex flex-col items-center justify-center gap-2 text-center shadow-inner z-20 relative">
+            {{-- Logo & Name (Centered) --}}
+            <div class="flex items-center justify-center gap-3">
+                <img src="{{ asset('images/nas/PICTD.png') }}" alt="PICT Division" class="h-6 w-auto mix-blend-screen opacity-90">
+                <span class="text-xs font-semibold text-slate-300 tracking-wider">PICT DIVISION</span>
+            </div>
+            
+            {{-- Copyright --}}
+            <p class="text-[11px] text-slate-400 font-medium tracking-wide">
+                &copy; {{ date('Y') }} NAS Student-Athlete Information System. All rights reserved.
+            </p>
+        </footer>
 
         <!-- Vercel Speed Insights -->
         <script>

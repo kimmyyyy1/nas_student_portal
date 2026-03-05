@@ -102,10 +102,24 @@
 
                 {{-- MAIN CONTENT --}}
                 {{-- ⚡ Removed max-w restrictions, added wider padding on large screens (xl:px-12) ⚡ --}}
-                <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 xl:px-12 pb-20 lg:pb-8 animate-page-enter w-full">
+                <main class="flex-1 flex flex-col overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 xl:px-12 pb-20 lg:pb-8 animate-page-enter w-full">
                     {{ $slot }}
-                </main>
 
+                    {{-- CENTERED MINIMALIST FULL-WIDTH FOOTER --}}
+                    <footer class="mt-auto -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-12 -mb-20 lg:-mb-8 px-4 sm:px-6 lg:px-8 xl:px-12 py-5 bg-[#171a21] border-t border-slate-700/80 flex flex-col items-center justify-center gap-2 text-center w-auto shadow-inner z-20 relative">
+                        {{-- Logo & Name (Centered) --}}
+                        <div class="flex items-center justify-center gap-3">
+                            <img src="{{ asset('images/nas/PICTD.png') }}" alt="PICT Division" class="h-6 w-auto mix-blend-screen opacity-90">
+                            <span class="text-xs font-semibold text-slate-300 tracking-wider">PICT DIVISION</span>
+                        </div>
+                        
+                        {{-- Copyright --}}
+                        <p class="text-[11px] text-slate-400 font-medium tracking-wide">
+                            &copy; {{ date('Y') }} NAS Student-Athlete Information System. All rights reserved.
+                        </p>
+                    </footer>
+                </main>
+                
             </div>
         </div>
 

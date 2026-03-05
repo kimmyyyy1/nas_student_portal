@@ -1,4 +1,4 @@
-<div class="py-6 lg:py-10 min-h-screen w-full block" wire:poll.2s>
+<div class="py-6 lg:py-10 w-full block" wire:poll.2s>
     
     <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 

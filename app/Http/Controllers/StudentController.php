@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\RecordFinalizedNotification;
 
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
@@ -39,13 +41,11 @@ class StudentController extends Controller
     }
 
     /**
-     * Display the Student Directory with filters.
+     * Builds the student query combining all search and filter params.
      */
-    public function index(Request $request): View
+    private function buildStudentQuery(Request $request)
     {
-        $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
-        
-        $query = Student::with(['section', 'team']);
+        $query = Student::query();
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -87,6 +87,18 @@ class StudentController extends Controller
             });
         }
 
+        return $query;
+    }
+
+    /**
+     * Display the Student Directory with filters.
+     */
+    public function index(Request $request): View
+    {
+        $sections = Section::orderBy('grade_level')->orderBy('section_name')->get();
+        
+        $query = $this->buildStudentQuery($request)->with(['section', 'team']);
+
         $students = $query->orderBy('last_name')->paginate(15); 
         return view('students.index', compact('students', 'sections'));
     }
@@ -97,15 +109,26 @@ class StudentController extends Controller
     public function bulkUpdateStatus(Request $request): RedirectResponse
     {
         $request->validate([
-            'student_ids' => 'required|array',
-            'student_ids.*' => 'exists:students,id',
             'bulk_status' => 'required|in:New,Continuing,Transfer out,Graduate,Enrolled',
         ]);
+        
+        if (!$request->boolean('select_all_matching')) {
+            $request->validate([
+                'student_ids' => 'required|array',
+                'student_ids.*' => 'exists:students,id',
+            ]);
+            $query = Student::whereIn('id', $request->student_ids);
+        } else {
+            $query = $this->buildStudentQuery($request);
+        }
 
         $status = $request->bulk_status;
-        $count = count($request->student_ids);
-
-        Student::whereIn('id', $request->student_ids)->update(['status' => $status]);
+        
+        // Prevent changing status of locked records
+        $query->where('is_locked', false);
+        
+        $count = $query->count();
+        $query->update(['status' => $status]);
 
         $user = Auth::user();
         if ($user) {
@@ -118,6 +141,90 @@ class StudentController extends Controller
         }
 
         return back()->with('success', "Successfully updated the status of {$count} student(s) to {$status}.");
+    }
+
+    /**
+     * Bulk finalize (lock) selected student records.
+     */
+    public function bulkFinalize(Request $request): RedirectResponse
+    {
+        if (!$request->boolean('select_all_matching')) {
+            $request->validate([
+                'student_ids' => 'required|array',
+                'student_ids.*' => 'exists:students,id',
+            ]);
+            $query = Student::whereIn('id', $request->student_ids);
+        } else {
+            $query = $this->buildStudentQuery($request);
+        }
+
+        // Prevent re-finalizing locked records
+        $query->where('is_locked', false);
+        
+        $count = $query->count();
+        $query->update(['is_locked' => true]);
+
+        $user = Auth::user();
+        if ($user) {
+            $role = ucfirst($user->role);
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'action' => 'Bulk Finalized Records',
+                'description' => "<strong>{$role}</strong> {$user->name} finalized <strong>{$count} student record(s)</strong>.",
+            ]);
+
+            // Notify the OPPOSITE role
+            if ($user->role === 'admin') {
+                $recipients = User::where('role', 'registrar')->get();
+            } else {
+                $recipients = User::where('role', 'admin')->get();
+            }
+            $message = "{$role} {$user->name} finalized {$count} student record(s).";
+            Notification::send($recipients, new RecordFinalizedNotification($message, null, 'bulk_finalized'));
+        }
+
+        return back()->with('success', "🔒 Successfully finalized {$count} student record(s).");
+    }
+
+    /**
+     * Bulk unfinalize (unlock) selected student records. Admin only.
+     */
+    public function bulkUnfinalize(Request $request): RedirectResponse
+    {
+        if (Auth::user()->role !== 'admin') {
+            return back()->with('error', 'Only PICT Support (Admin) can unfinalize records.');
+        }
+
+        if (!$request->boolean('select_all_matching')) {
+            $request->validate([
+                'student_ids' => 'required|array',
+                'student_ids.*' => 'exists:students,id',
+            ]);
+            $query = Student::whereIn('id', $request->student_ids);
+        } else {
+            $query = $this->buildStudentQuery($request);
+        }
+
+        // Only unfinalize actually locked records
+        $query->where('is_locked', true);
+        
+        $count = $query->count();
+        $query->update(['is_locked' => false]);
+
+        $user = Auth::user();
+        $role = ucfirst($user->role);
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'action' => 'Bulk Unfinalized Records',
+            'description' => "<strong>{$role}</strong> {$user->name} unfinalized <strong>{$count} student record(s)</strong>.",
+        ]);
+
+        // Notify registrars when admin unfinalizes a record
+        $registrars = User::where('role', 'registrar')->get();
+        $message = "{$role} {$user->name} unfinalized {$count} student record(s).";
+        Notification::send($registrars, new RecordFinalizedNotification($message, null, 'bulk_unfinalized'));
+
+        return back()->with('success', "🔓 Successfully unfinalized {$count} student record(s).");
     }
 
     /**
@@ -146,6 +253,11 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student): RedirectResponse
     {
+        // Lock Guard: Prevent editing locked records
+        if ($student->is_locked) {
+            return redirect()->route('students.show', $student)->with('error', 'This record is locked and cannot be edited.');
+        }
+
         $validatedData = $request->validate([
             'nas_student_id' => ['required', 'string', 'max:255', Rule::unique('students')->ignore($student->id)],
             'lrn' => ['required', 'string', 'max:255', Rule::unique('students')->ignore($student->id)],
@@ -239,9 +351,58 @@ class StudentController extends Controller
      */
     public function destroy(Student $student): RedirectResponse
     {
+        // Lock Guard
+        if ($student->is_locked) {
+            return redirect()->route('students.show', $student)->with('error', 'This record is locked and cannot be deleted.');
+        }
         if($student->user) $student->user->delete();
         $student->delete();
         return redirect()->route('students.index')->with('success', 'Student record deleted.');
+    }
+
+    /**
+     * Toggle lock status of a student record.
+     */
+    public function toggleLock(Student $student): RedirectResponse
+    {
+        // Only admins can unfinalize a record
+        if ($student->is_locked && Auth::user()->role !== 'admin') {
+            return redirect()->route('students.show', $student)
+                ->with('error', 'Only PICT Support (Admin) can unfinalize a record.');
+        }
+
+        $student->is_locked = !$student->is_locked;
+        $student->save();
+
+        $user = Auth::user();
+        $role = ucfirst($user->role);
+
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'action' => $student->is_locked ? 'Finalized Record' : 'Unfinalized Record',
+            'description' => "<strong>{$role}</strong> {$user->name} " . ($student->is_locked ? 'finalized' : 'unfinalized') . " record of <strong>{$student->last_name}, {$student->first_name}</strong>.",
+        ]);
+
+        // Notify the correct role based on the action
+        $actionText = $student->is_locked ? 'finalized' : 'unfinalized';
+        $message = "{$role} {$user->name} {$actionText} the record of {$student->first_name} {$student->last_name}.";
+
+        if ($student->is_locked) {
+            // Finalized: notify the OPPOSITE role
+            if ($user->role === 'admin') {
+                $recipients = User::where('role', 'registrar')->get();
+            } else {
+                $recipients = User::where('role', 'admin')->get();
+            }
+        } else {
+            // If Unfinalized (must be by Admin), notify Registrar
+            $recipients = User::where('role', 'registrar')->get();
+        }
+
+        Notification::send($recipients, new RecordFinalizedNotification($message, $student->id, $student->is_locked ? 'finalized' : 'unfinalized'));
+
+        return redirect()->route('students.show', $student)
+            ->with('success', $student->is_locked ? '🔒 Record has been finalized and locked.' : '🔓 Record has been unfinalized and unlocked.');
     }
 
     /**

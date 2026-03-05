@@ -67,7 +67,14 @@
                     </h3>
                 </div>
 
-                <div class="flex gap-2 w-full mt-1">
+                @if(auth()->check() && auth()->user()->role === 'admin')
+                    <div class="flex items-center gap-2 mt-2 px-1">
+                        <input type="checkbox" wire:model.live="readGlobal" id="readGlobalNotifs" class="rounded text-blue-600 border-gray-300 shadow-sm cursor-pointer w-3.5 h-3.5 focus:ring-blue-500">
+                        <label for="readGlobalNotifs" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider cursor-pointer select-none">Include all employee notifications</label>
+                    </div>
+                @endif
+                
+                <div class="flex gap-2 w-full mt-2">
                     @if($notificationCount > 0)
                         <button wire:click.prevent="markAllAsRead" 
                                 type="button"
@@ -91,19 +98,43 @@
                     @php
                         $message = $notification->data['message'] ?? '';
                         $appId = $notification->data['applicant_id'] ?? '#';
+                        $studentId = $notification->data['student_id'] ?? null;
+                        $action = $notification->data['action'] ?? null;
+                        
                         $isEnrollment = str_starts_with($message, 'Enrollment form submitted');
+                        $isFinalized = $action === 'finalized' || $action === 'bulk_finalized';
+                        $isUnfinalized = $action === 'unfinalized' || $action === 'bulk_unfinalized';
                         
                         $targetRoute = $isEnrollment 
                             ? route('official-enrollment.show', ['id' => $appId])
                             : route('admission.show', ['id' => $appId]);
                             
+                        if ($studentId) {
+                            $targetRoute = route('students.show', ['student' => $studentId]);
+                        } elseif ($isFinalized || $isUnfinalized) {
+                            $targetRoute = route('students.index'); // Bulk actions redirect to list
+                        }
+                            
                         $isRead = !is_null($notification->read_at);
                         
                         // Soft Light Iconography
-                        $iconClass = $isEnrollment ? 'bx-file-blank' : 'bx-user-circle';
-                        $iconColor = $isEnrollment ? 'text-purple-500' : 'text-blue-500';
-                        $iconBg = $isEnrollment ? 'bg-purple-50' : 'bg-blue-50';
-                        $iconBorder = $isEnrollment ? 'border-purple-100' : 'border-blue-100';
+                        if ($isFinalized) {
+                            $iconClass = 'bx-check-shield';
+                            $iconColor = 'text-emerald-600';
+                            $iconBg = 'bg-emerald-50';
+                            $iconBorder = 'border-emerald-100';
+                        } elseif ($isUnfinalized) {
+                            $iconClass = 'bx-lock-open';
+                            $iconColor = 'text-amber-600';
+                            $iconBg = 'bg-amber-50';
+                            $iconBorder = 'border-amber-100';
+                        } else {
+                            $iconClass = $isEnrollment ? 'bx-file-blank' : 'bx-user-circle';
+                            $iconColor = $isEnrollment ? 'text-purple-500' : 'text-blue-500';
+                            $iconBg = $isEnrollment ? 'bg-purple-50' : 'bg-blue-50';
+                            $iconBorder = $isEnrollment ? 'border-purple-100' : 'border-blue-100';
+                        }
+                        
                         $itemBg = 'hover:bg-slate-50/80 border-l-[3px] border-l-transparent';
                         
                         if (!$isRead) {

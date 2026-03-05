@@ -12,7 +12,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8 bg-slate-50 min-h-screen">
+    <div class="py-8 bg-slate-50">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             {{-- STATUS ALERT --}}

@@ -110,11 +110,11 @@
         .flag-stripe-bar { background: linear-gradient(to right, #0038A8 50%, #CE1126 50%); }
     </style>
 
-    <div class="py-12 min-h-screen bg-transparent text-slate-800">
+    <div class="py-12 bg-transparent text-slate-800">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             @if(in_array(auth()->user()->role, ['admin', 'registrar']))
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 {{ auth()->user()->role === 'admin' ? 'lg:grid-cols-4' : 'lg:grid-cols-3' }} gap-8 mb-8">
                     <!-- Total Students Card -->
                     <div x-data="{ 
                             hover: false, 
@@ -176,13 +176,15 @@
                         </div>
                     </div>
 
-                    <!-- Upcoming Plans -->
+                    <!-- Upcoming Plans (Admin Only) -->
+                    @if(auth()->user()->role === 'admin')
                     <div class="bg-white/70 backdrop-blur-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 sm:rounded-[2rem] p-7 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1">
                         <div class="flex items-center justify-between">
                             <div><p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Upcoming Plans</p><h3 class="text-4xl font-black text-slate-800 tracking-tight count-up" data-target="{{ $upcomingPlans }}">0</h3></div>
                             <div class="bg-gradient-to-br from-rose-100 to-rose-50/50 p-4 rounded-2xl text-rose-600 shadow-sm border border-rose-100/50"><i class='bx bxs-calendar-event text-3xl'></i></div>
                         </div>
                     </div>
+                    @endif
                 </div>
 
                 <!-- Enrollment Analytics Section -->

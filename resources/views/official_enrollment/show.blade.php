@@ -91,7 +91,7 @@
         $is_4ps = (in_array(strtolower($raw_4ps), ['yes', '1', 'true', 'on']));
     @endphp
 
-    <div class="py-6 lg:py-12 min-h-screen w-full block"> 
+    <div class="py-6 lg:py-12 w-full block"> 
         <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
             
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 w-full">

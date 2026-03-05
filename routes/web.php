@@ -165,6 +165,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // ⚡ CLEANUP: Disabled 'create' and 'store' for students as they come from Admission ⚡
         Route::post('/students/bulk-update-status', [StudentController::class, 'bulkUpdateStatus'])->name('students.bulk-update-status');
+        Route::post('/students/bulk-finalize', [StudentController::class, 'bulkFinalize'])->name('students.bulk-finalize');
+        Route::post('/students/bulk-unfinalize', [StudentController::class, 'bulkUnfinalize'])->name('students.bulk-unfinalize');
+        Route::post('/students/{student}/toggle-lock', [StudentController::class, 'toggleLock'])->name('students.toggle-lock');
         Route::resource('students', StudentController::class)->except(['create', 'store']);
 
         Route::resource('sections', SectionController::class);

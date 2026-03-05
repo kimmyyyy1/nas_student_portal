@@ -10,6 +10,7 @@ class NotificationsBell extends Component
 {
     public $notificationCount = 0;
     public $lastNotificationId = null;
+    public $readGlobal = false;
 
     public function mount()
     {
@@ -50,6 +51,7 @@ class NotificationsBell extends Component
             if ($notification) {
                 $data = $notification->data;
                 $applicantId = $data['applicant_id'] ?? null;
+                $studentId = $data['student_id'] ?? null;
 
                 if ($applicantId) {
                     // Mark as read para sa LAHAT ng users na may ganitong notification (Syncing)
@@ -61,7 +63,7 @@ class NotificationsBell extends Component
                         })
                         ->update(['read_at' => now()]);
                 } else {
-                    // Fallback
+                    // Fallback para sa iba (like student_id notifications)
                     $notification->markAsRead();
                 }
 
@@ -71,13 +73,14 @@ class NotificationsBell extends Component
                 // Redirect
                 if ($applicantId) {
                     $message = $data['message'] ?? '';
-                    if (str_starts_with($message, 'Enrollment form submitted') || str_starts_with($message, 'New application from')) {
-                        // Check if it's enrollment to redirect to the correct verification page
-                        if (str_starts_with($message, 'Enrollment form submitted')) {
-                            return redirect()->route('official-enrollment.show', ['id' => $applicantId]);
-                        }
+                    if (str_starts_with($message, 'Enrollment form submitted')) {
+                        return redirect()->route('official-enrollment.show', ['id' => $applicantId]);
                     }
                     return redirect()->route('admission.show', ['id' => $applicantId]);
+                }
+                
+                if ($studentId) {
+                    return redirect()->route('students.show', ['student' => $studentId]);
                 }
             }
         }
@@ -88,15 +91,13 @@ class NotificationsBell extends Component
         if (Auth::check()) {
             $user = Auth::user();
             
-            if (in_array($user->role, ['admin', 'registrar'])) {
-                $adminIds = \App\Models\User::whereIn('role', ['admin', 'registrar'])->pluck('id');
+            if ($user->role === 'admin' && $this->readGlobal) {
+                // Admin chose to read EVERYONE's notifications across the entire system
                 DB::table('notifications')
-                    ->whereIn('notifiable_id', $adminIds)
-                    ->where('notifiable_type', \App\Models\User::class)
                     ->whereNull('read_at')
                     ->update(['read_at' => now()]);
             } else {
-                // Mark all unread notifications as read
+                // Normal behavior: read ONLY this specific user's notifications
                 $user->unreadNotifications()->update(['read_at' => now()]);
             }
             
@@ -113,8 +114,13 @@ class NotificationsBell extends Component
         if (Auth::check()) {
             $user = Auth::user();
             
-            // Delete all notifications strictly for this user from the database
-            $user->notifications()->delete();
+            if ($user->role === 'admin' && $this->readGlobal) {
+                // Admin chose to DELETE EVERYONE's notifications across the entire system
+                DB::table('notifications')->delete();
+            } else {
+                // Delete all notifications strictly for this user from the database
+                $user->notifications()->delete();
+            }
             
             // Sync the counts
             $this->notificationCount = 0;
