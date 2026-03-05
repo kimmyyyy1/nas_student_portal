@@ -105,18 +105,25 @@
                 <main class="flex-1 flex flex-col overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8 xl:px-12 pb-20 lg:pb-8 animate-page-enter w-full">
                     {{ $slot }}
 
-                    {{-- CENTERED MINIMALIST FULL-WIDTH FOOTER --}}
-                    <footer class="mt-auto -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-12 -mb-20 lg:-mb-8 px-4 sm:px-6 lg:px-8 xl:px-12 py-5 bg-[#171a21] border-t border-slate-700/80 flex flex-col items-center justify-center gap-2 text-center w-auto shadow-inner z-20 relative">
-                        {{-- Logo & Name (Centered) --}}
-                        <div class="flex items-center justify-center gap-3">
-                            <img src="{{ asset('images/nas/PICTD.png') }}" alt="PICT Division" class="h-6 w-auto mix-blend-screen opacity-90">
-                            <span class="text-xs font-semibold text-slate-300 tracking-wider">PICT DIVISION</span>
+                    {{-- FOOTER (extra pr for notifications bell) --}}
+                    <footer class="mt-auto -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-12 -mb-20 lg:-mb-8 w-auto z-20 relative">
+                        <div class="px-4 sm:px-6 lg:px-8 xl:px-12 py-6 pr-20 sm:pr-24 lg:pr-28 xl:pr-32 bg-gradient-to-b from-[#171a21] to-[#0f1115] border-t border-slate-700/60 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
+                            {{-- Accent line --}}
+                            <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500/60 to-transparent"></div>
+                            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl mx-auto">
+                                {{-- Logo & Brand --}}
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ asset('images/nas/PICTD.png') }}" alt="PICT Division" class="h-11 w-auto object-contain opacity-95 drop-shadow-sm">
+                                    <div class="border-l border-slate-500/50 pl-3">
+                                        <span class="text-sm font-semibold text-slate-200 tracking-wide">National Academy of Sports</span>
+                                    </div>
+                                </div>
+                                {{-- Copyright --}}
+                                <p class="text-sm text-slate-200 font-medium text-center sm:text-right">
+                                    &copy; {{ date('Y') }} Student-Athlete Information System. All rights reserved.
+                                </p>
+                            </div>
                         </div>
-                        
-                        {{-- Copyright --}}
-                        <p class="text-[11px] text-slate-400 font-medium tracking-wide">
-                            &copy; {{ date('Y') }} NAS Student-Athlete Information System. All rights reserved.
-                        </p>
                     </footer>
                 </main>
                 
