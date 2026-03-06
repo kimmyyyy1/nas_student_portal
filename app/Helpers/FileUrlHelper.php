@@ -9,6 +9,13 @@ if (!function_exists('fileUrl')) {
     function fileUrl($path) {
         if (empty($path)) return null;
         if (str_starts_with($path, 'http')) return $path; // Old Cloudinary URL
-        return asset('storage/' . $path); // New local storage path
+        
+        // Clean the path to avoid double 'storage/' prefix issues
+        $cleanPath = ltrim($path, '/');
+        if (str_starts_with($cleanPath, 'storage/')) {
+            $cleanPath = substr($cleanPath, 8);
+        }
+        
+        return asset('storage/' . $cleanPath);
     }
 }
