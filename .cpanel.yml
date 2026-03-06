@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/nasedu/public_html/nassystem.org
+    - /bin/cp -R * $DEPLOYPATH
