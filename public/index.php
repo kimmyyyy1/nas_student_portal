@@ -17,18 +17,21 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-// 🚀 VERCEL SERVERLESS FIX: Override storage path to /tmp directory
-if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL'])) {
-    $storagePath = '/tmp/storage';
-    if (!is_dir($storagePath)) {
-        mkdir($storagePath, 0777, true);
-        mkdir($storagePath . '/framework/cache/data', 0777, true);
-        mkdir($storagePath . '/framework/views', 0777, true);
-        mkdir($storagePath . '/framework/sessions', 0777, true);
-        mkdir($storagePath . '/app', 0777, true);
-        mkdir($storagePath . '/logs', 0777, true);
+// 🚀 CPANEL/SERVER FIX: Ensure storage path is writable
+$storagePath = __DIR__.'/../storage';
+if (!is_writable($storagePath)) {
+    // If main storage is not writable, fallback to /tmp if necessary
+    // This is often needed in shared hosting or serverless
+    $tmpStorage = '/tmp/nas_storage';
+    if (!is_dir($tmpStorage)) {
+        mkdir($tmpStorage, 0777, true);
+        mkdir($tmpStorage . '/framework/cache/data', 0777, true);
+        mkdir($tmpStorage . '/framework/views', 0777, true);
+        mkdir($tmpStorage . '/framework/sessions', 0777, true);
+        mkdir($tmpStorage . '/app', 0777, true);
+        mkdir($tmpStorage . '/logs', 0777, true);
     }
-    $app->useStoragePath($storagePath);
+    $app->useStoragePath($tmpStorage);
 }
 
 $app->handleRequest(Request::capture());
