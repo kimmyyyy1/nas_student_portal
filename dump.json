@@ -1,0 +1,49 @@
+{
+    "id": 649072,
+    "status": "Renewal (Returned)",
+    "document_remarks": {
+        "renewal_grade_level": "Grade 8",
+        "renewal_date": "2026-03-05 17:02:57",
+        "is_renewal": true,
+        "documents": {
+            "renewal_sa_info_form": null,
+            "renewal_basic_ed_form": null,
+            "renewal_scholarship_agreement": null,
+            "renewal_uniform_measurement": null,
+            "renewal_health_assessment": null,
+            "renewal_passport": null,
+            "renewal_guardian_id": null,
+            "sa_info_form": null,
+            "basic_ed_form": null,
+            "scholarship_agreement": null,
+            "uniform_measurement": null,
+            "ppe_clearance": null,
+            "report_card": null,
+            "psa_birth_cert": null,
+            "passport": null,
+            "mother_id": null,
+            "father_id": null,
+            "guardian_id": null,
+            "ip_cert": null
+        },
+        "overall": null,
+        "returned_at": "2026-03-05 17:04:12"
+    },
+    "document_statuses": {
+        "scholarship_form": "Accepted",
+        "student_profile": "Accepted",
+        "medical_clearance": "Accepted",
+        "psa_birth_cert": "Accepted",
+        "report_card": "Accepted",
+        "guardian_id": "Accepted",
+        "kukkiwon_cert": "Accepted",
+        "ip_cert": "Accepted",
+        "renewal_sa_info_form": "pending",
+        "renewal_basic_ed_form": "pending",
+        "renewal_scholarship_agreement": "pending",
+        "renewal_uniform_measurement": "pending",
+        "renewal_health_assessment": "pending",
+        "renewal_guardian_id": "pending",
+        "renewal_passport": "pending"
+    }
+}

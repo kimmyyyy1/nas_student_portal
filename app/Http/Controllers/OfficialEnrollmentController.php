@@ -72,6 +72,16 @@ class OfficialEnrollmentController extends Controller
             // Check if it's a renewal
             $isRenewal = ($applicant->status === 'Pending Renewal') || ($remarks['is_renewal'] ?? false);
             
+            // 📚 SAVE DOCUMENT HISTORY
+            $currentSy = \App\Models\SystemSetting::where('setting_key', 'current_school_year')->value('setting_value') ?? (date('Y') . '-' . (date('Y') + 1));
+            $history = is_string($applicant->historical_files) ? json_decode($applicant->historical_files, true) : ($applicant->historical_files ?? []);
+            
+            if (!empty($files)) {
+                $history[$currentSy] = $files;
+                $applicant->historical_files = $history;
+                $applicant->save();
+            }
+
             // Find existing student by LRN
             $existingStudent = Student::where('lrn', $applicant->lrn)->first();
 
@@ -237,13 +247,32 @@ class OfficialEnrollmentController extends Controller
             'returned_at' => now()->toDateTimeString(),
         ]);
 
+        // Update document_statuses based on remarks
+        $currentStatuses = is_string($applicant->document_statuses) ? json_decode($applicant->document_statuses, true) : ($applicant->document_statuses ?? []);
+        
+        foreach ($documentRemarks as $key => $remarkText) {
+            if (!empty(trim($remarkText))) {
+                $currentStatuses[$key] = 'declined';
+            }
+        }
+
         // Update status para makapag-edit ulit si Student.
         $newStatus = $isRenewal ? 'Renewal (Returned)' : 'Qualified (Returned)';
         $oldStatus = $applicant->status;
+        
         $applicant->update([
             'status' => $newStatus,
-            'document_remarks' => $newRemarks
+            'document_remarks' => $newRemarks,
+            'document_statuses' => $currentStatuses
         ]);
+
+        // Sync to Student record if it's a renewal
+        if ($isRenewal) {
+            $student = Student::where('lrn', $applicant->lrn)->first();
+            if ($student) {
+                $student->update(['status' => $newStatus]);
+            }
+        }
 
         // LOG AUDIT TRAIL
         AuditLog::create([

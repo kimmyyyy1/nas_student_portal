@@ -98,7 +98,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/student/dashboard', [StudentPortalController::class, 'index'])->name('student.dashboard');
         
         // ⚡ DISABLED MUNA PARA SA CLEANUP (CLOUD ERROR FIX) ⚡
-        Route::get('/student/renew-enrollment', \App\Livewire\ContinuingEnrollment::class)->name('student.renew-enrollment');
+        // Renewal Enrollment
+        Route::get('/student/renew-enrollment', [\App\Http\Controllers\StudentPortalController::class, 'renewEnrollment'])->name('student.renew-enrollment');
+        Route::post('/student/renew-enrollment', [\App\Http\Controllers\StudentPortalController::class, 'storeRenewal'])->name('student.renew-enrollment.store');
     });
 
     // ==========================================

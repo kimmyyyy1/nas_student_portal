@@ -367,7 +367,13 @@
                             {{-- ⚡ RENEWAL DOCUMENTS SUBSECTION ⚡ --}}
                             <div class="mb-8 w-full">
                                 <div class="flex items-center gap-2 mb-4">
-                                    <span class="px-3 py-1 bg-orange-100 text-orange-700 text-[10px] font-black uppercase rounded-full border border-orange-200 shadow-sm animate-pulse">Scholarship Renewal Documents</span>
+                                    <span class="px-3 py-1 bg-orange-100 text-orange-700 text-[10px] font-black uppercase rounded-full border border-orange-200 shadow-sm {{ !$isAdmitted ? 'animate-pulse' : '' }}">
+                                        {{ $isAdmitted ? 'Scholarship Documents' : 'Scholarship Renewal Documents' }} 
+                                        @php
+                                            $currentSettingsSy = \App\Models\SystemSetting::where('setting_key', 'current_school_year')->value('setting_value') ?? (date('Y').'-'.(date('Y')+1));
+                                        @endphp
+                                        (S.Y. {{ $currentSettingsSy }})
+                                    </span>
                                     <div class="h-px bg-orange-100 flex-1"></div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
@@ -382,7 +388,7 @@
                                                                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                                             </div>
                                                             <div class="truncate min-w-0">
-                                                                <p class="text-[8px] sm:text-[9px] font-black text-orange-500 uppercase">Renewal Requirement</p>
+                                                                <p class="text-[8px] sm:text-[9px] font-black text-orange-500 uppercase">{{ $isAdmitted ? 'Requirement' : 'Renewal Requirement' }}</p>
                                                                 <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $label }}</p>
                                                             </div>
                                                         </div>
@@ -390,9 +396,11 @@
                                                             <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                                         </a>
                                                     </div>
-                                                    <input type="text" name="document_remarks[{{ $key }}]" placeholder="Remarks for this file (optional)" 
-                                                           value="{{ $remarks['documents'][$key] ?? '' }}"
-                                                           class="mt-2 w-full text-[10px] border-slate-200 rounded-lg px-3 py-2 bg-white/50 focus:ring-orange-500 focus:border-orange-500">
+                                                    @if(!$isAdmitted)
+                                                        <input type="text" name="document_remarks[{{ $key }}]" placeholder="Remarks for this file (optional)" 
+                                                               value="{{ $remarks['documents'][$key] ?? '' }}"
+                                                               class="mt-2 w-full text-[10px] border-slate-200 rounded-lg px-3 py-2 bg-white/50 focus:ring-orange-500 focus:border-orange-500">
+                                                    @endif
                                                 </div>
                                         @endif
                                     @endforeach
@@ -405,7 +413,18 @@
                             </div>
                             
                             <div class="flex items-center gap-2 mb-4 mt-6">
-                                <span class="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black uppercase rounded-full border border-slate-200">Initial Application Files</span>
+                                <span class="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black uppercase rounded-full border border-slate-200">
+                                    Initial Application Files 
+                                    @if($applicant->created_at)
+                                        @php
+                                            $date = \Carbon\Carbon::parse($applicant->created_at);
+                                            $y = $date->format('Y');
+                                            $m = $date->format('m');
+                                            $syInitial = $m >= 6 ? "$y-".($y+1) : ($y-1)."-$y";
+                                        @endphp
+                                        (S.Y. {{ $syInitial }})
+                                    @endif
+                                </span>
                                 <div class="h-px bg-slate-100 flex-1"></div>
                             </div>
                         @endif
@@ -428,9 +447,11 @@
                                                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                                 </a>
                                             </div>
-                                            <input type="text" name="document_remarks[{{ $key }}]" placeholder="Remarks for this file (optional)" 
-                                                   value="{{ $remarks['documents'][$key] ?? '' }}"
-                                                   class="mt-2 w-full text-[10px] border-slate-200 rounded-lg px-3 py-2 bg-white/50 focus:ring-indigo-500 focus:border-indigo-500">
+                                            @if(!$isRenewal && !$isAdmitted)
+                                                <input type="text" name="document_remarks[{{ $key }}]" placeholder="Remarks for this file (optional)" 
+                                                       value="{{ $remarks['documents'][$key] ?? '' }}"
+                                                       class="mt-2 w-full text-[10px] border-slate-200 rounded-lg px-3 py-2 bg-white/50 focus:ring-indigo-500 focus:border-indigo-500">
+                                            @endif
                                         </div>
                                 @endif
                             @empty
@@ -439,6 +460,44 @@
                                 </div>
                             @endforelse
                         </div>
+
+                        {{-- 📚 DOCUMENT HISTORY (PER S.Y.) 📚 --}}
+                        @php
+                            $history = is_string($applicant->historical_files) ? json_decode($applicant->historical_files, true) : ($applicant->historical_files ?? []);
+                        @endphp
+                        
+                        @if(!empty($history))
+                            @foreach($history as $sy => $syFiles)
+                                <div class="flex items-center gap-2 mb-4 mt-8">
+                                    <span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-black uppercase rounded-full border border-indigo-200 shadow-sm">S.Y. {{ $sy }} Files</span>
+                                    <div class="h-px bg-indigo-100 flex-1"></div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
+                                    @foreach($syFiles as $key => $url)
+                                        @php
+                                            $label = $initialLabels[$key] ?? ($renewalLabels[$key] ?? ucwords(str_replace('_', ' ', $key)));
+                                        @endphp
+                                        <div class="flex flex-col w-full">
+                                            <div class="flex items-center justify-between p-3 sm:p-4 border border-slate-200 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 transition-all group w-full">
+                                                <div class="flex items-center gap-3 sm:gap-4 overflow-hidden w-full">
+                                                    <div class="bg-indigo-50 p-2 sm:p-3 rounded-lg sm:rounded-xl text-indigo-600 shadow-inner shrink-0">
+                                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                                                    </div>
+                                                    <div class="truncate min-w-0">
+                                                        <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Archived File</p>
+                                                        <p class="text-[10px] sm:text-xs font-black text-slate-700 uppercase truncate">{{ $label }}</p>
+                                                    </div>
+                                                </div>
+                                                <a href="{{ $url }}" target="_blank" class="bg-slate-200 hover:bg-indigo-500 hover:text-white text-slate-700 p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-sm shrink-0 ml-2">
+                                                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endforeach
+                        @endif
+
                     </form>
                 </div>
             </div>
@@ -489,12 +548,12 @@
                                         @if($isRenewal)
                                             <div class="text-center w-full">
                                                 <label class="block text-[9px] sm:text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2 sm:mb-3">Existing Student No.</label>
-                                                <div class="bg-emerald-900/50 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border-2 border-emerald-800 text-white w-full">
+                                                <div class="bg-emerald-700/80 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border-[3px] border-emerald-500 text-white w-full shadow-inner">
                                                     @php
                                                         $std = \App\Models\Student::where('lrn', $applicant->lrn)->first();
                                                         $existingId = $std ? $std->nas_student_id : $applicant->student_id;
                                                     @endphp
-                                                    <span class="font-mono text-xl sm:text-2xl font-black tracking-[0.1em] sm:tracking-[0.2em] text-emerald-400">
+                                                    <span class="font-mono text-xl sm:text-2xl font-black tracking-normal sm:tracking-wide text-white drop-shadow-md">
                                                         {{ $existingId }}
                                                     </span>
                                                     <input type="hidden" name="student_id" value="{{ $existingId }}">

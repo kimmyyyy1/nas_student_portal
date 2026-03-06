@@ -60,6 +60,12 @@ return [
             'report' => false,
         ],
 
+        // 👇 VERCEL TEMP STORAGE FOR LIVEWIRE UPLOADS 👇
+        'vercel_tmp' => [
+            'driver' => 'local',
+            'root' => '/tmp/storage/api/livewire-tmp',
+        ],
+
         // 👇 ITO ANG FINAL FIX: FLAT CONFIGURATION 👇
         'cloudinary' => [
             'driver' => 'cloudinary',
@@ -74,7 +80,7 @@ return [
             // Dapat nasa ROOT level sila (hindi naka-loob sa ibang array).
             'key'        => '452544782214523', 
             'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
-
+            
             // 3. BACKUP URL
             'cloud_url' => 'cloudinary://452544782214523:Dew-wu6KDw8HNKzO473L5P5tpqo@dqkzofruk',
             

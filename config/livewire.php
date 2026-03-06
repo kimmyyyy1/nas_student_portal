@@ -64,7 +64,7 @@ return [
     */
 
     'temporary_file_upload' => [
-        'disk' => 'public',        // ⚡ BINAGO NATIN ITO: Gawing 'public' imbes na null
+        'disk' => isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) ? 'vercel_tmp' : 'public',
         'rules' => ['required', 'file', 'max:20480'],       // 20MB max upload limit
         'directory' => null,   // Example: 'tmp'                      | Default: 'livewire-tmp'
         'middleware' => null,  // Example: 'throttle:5,1'             | Default: 'throttle:60,1'
