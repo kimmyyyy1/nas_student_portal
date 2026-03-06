@@ -47,7 +47,7 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-// 2. UTILITY ROUTE: CLEAR CACHE
+// 2. UTILITY ROUTE: CLEAR CACHE & LINK STORAGE
 Route::get('/clear-all', function() {
     try {
         Artisan::call('config:clear');
@@ -57,6 +57,15 @@ Route::get('/clear-all', function() {
         return response()->json(['message' => 'System Cache & Routes Cleared Successfully!']);
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+Route::get('/link-storage', function() {
+    try {
+        Artisan::call('storage:link');
+        return "Storage link created successfully!";
+    } catch (\Exception $e) {
+        return "Error creating storage link: " . $e->getMessage();
     }
 });
 
