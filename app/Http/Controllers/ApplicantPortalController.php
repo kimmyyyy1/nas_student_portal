@@ -11,9 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
-use Cloudinary\Configuration\Configuration;
-use Cloudinary\Api\Upload\UploadApi;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use App\Notifications\NewApplicantNotification;
 use App\Notifications\EnrollmentSubmittedNotification;
 
@@ -21,14 +20,7 @@ class ApplicantPortalController extends Controller
 {
     public function __construct()
     {
-        Configuration::instance([
-            'cloud' => [
-                'cloud_name' => 'dqkzofruk', 
-                'api_key'    => '452544782214523', 
-                'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo'
-            ],
-            'url' => ['secure' => true]
-        ]);
+        // Cloudinary configuration removed
     }
 
     // ==========================================
@@ -189,11 +181,8 @@ class ApplicantPortalController extends Controller
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
-                    $upload = (new UploadApi())->upload($file->getRealPath(), [
-                        'folder' => 'nas_student_portal/phase2_requirements',
-                        'resource_type' => 'auto'
-                    ]);
-                    $currentFiles[$key] = $upload['secure_url'];
+                    $path = $file->store('nas_requirements', 'public');
+                    $currentFiles[$key] = $path;
                     
                     if (isset($docStatuses[$key]) && ($docStatuses[$key] === 'declined' || $docStatuses[$key] === 'Needs resubmission')) {
                         $isResubmission = true;
@@ -345,11 +334,8 @@ class ApplicantPortalController extends Controller
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $key => $file) {
                 try {
-                    $upload = (new UploadApi())->upload($file->getRealPath(), [
-                        'folder' => 'nas_student_portal/official_enrollment',
-                        'resource_type' => 'auto'
-                    ]);
-                    $currentFiles[$key] = $upload['secure_url'];
+                    $path = $file->store('nas_requirements', 'public');
+                    $currentFiles[$key] = $path;
                     $uploadedDocNames[] = $this->formatFileName($key);
                 } catch (\Exception $e) {
                     continue; 
@@ -412,16 +398,113 @@ class ApplicantPortalController extends Controller
         $currentFiles = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
         if ($request->hasFile('id_picture')) {
             try {
-                $upload = (new UploadApi())->upload($request->file('id_picture')->getRealPath(), ['folder' => 'nas_student_portal/ids']);
-                $currentFiles['id_picture'] = $upload['secure_url'];
+                $path = $request->file('id_picture')->store('id_pictures', 'public');
+                $currentFiles['id_picture'] = $path;
                 $applicant->update([
                     'uploaded_files' => $currentFiles,
-                    'photo' => $upload['secure_url']
+                    'photo' => $path
                 ]);
             } catch (\Exception $e) {}
         } else {
              $applicant->update(['uploaded_files' => $currentFiles]);
         }
+    }
+
+    /**
+     * View/Download uploaded applicant files securely.
+     */
+    public function viewFile($id, $type)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'registrar', 'applicant'])) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $applicant = Applicant::findOrFail($id);
+
+        if ($user->role === 'applicant' && $applicant->user_id !== $user->id) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $files = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
+        
+        if (!isset($files[$type]) || empty($files[$type])) {
+            abort(404, 'File not found.');
+        }
+
+        $filePath = $files[$type];
+
+        if (str_starts_with($filePath, 'http')) {
+            return redirect($filePath);
+        }
+
+        $fullPath = storage_path('app/public/' . $filePath);
+        if (!file_exists($fullPath)) {
+            abort(404, 'File does not exist on server.');
+        }
+
+        return response()->file($fullPath);
+    }
+
+    /**
+     * Show the applicant profile edit form.
+     */
+    public function edit(): View
+    {
+        $application = Applicant::where('user_id', Auth::id())->firstOrFail();
+        $applicant = $application; // View uses both names sometimes
+        return view('applicant.edit', compact('application', 'applicant'));
+    }
+
+    /**
+     * Update the applicant's profile information.
+     */
+    public function update(Request $request): RedirectResponse
+    {
+        $applicant = Applicant::where('user_id', Auth::id())->firstOrFail();
+        
+        // 1. Validate Basic Info
+        $validated = $request->validate([
+            'lrn' => 'required|string|size:12|unique:applicants,lrn,' . $applicant->id,
+            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'gender' => 'required|string',
+            'age' => 'required|numeric',
+            'date_of_birth' => 'required|date',
+            'region' => 'required|string',
+            'province' => 'required|string',
+            'municipality_city' => 'required|string',
+            'barangay' => 'required|string',
+            'street_address' => 'nullable|string',
+            'zip_code' => 'required|string',
+        ]);
+
+        // 2. Map Data (Using existing mapInputData helper)
+        $data = $this->mapInputData($request);
+
+        // 3. Handle ID Picture Upload
+        $currentFiles = is_string($applicant->uploaded_files) ? json_decode($applicant->uploaded_files, true) : ($applicant->uploaded_files ?? []);
+        if ($request->hasFile('id_picture')) {
+            try {
+                // Delete old file if it's local
+                if (isset($currentFiles['id_picture']) && !str_starts_with($currentFiles['id_picture'], 'http')) {
+                    Storage::disk('public')->delete($currentFiles['id_picture']);
+                }
+
+                $path = $request->file('id_picture')->store('id_pictures', 'public');
+                $currentFiles['id_picture'] = $path;
+                $data['photo'] = $path;
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error uploading ID picture: ' . $e->getMessage());
+            }
+        }
+        $data['uploaded_files'] = $currentFiles;
+
+        // 4. Update Database
+        $applicant->update($data);
+
+        return redirect()->route('applicant.dashboard')->with('success', 'Profile updated successfully!');
     }
 
     private function formatFileName($key) {

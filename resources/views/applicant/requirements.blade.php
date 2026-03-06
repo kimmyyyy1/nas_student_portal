@@ -131,7 +131,7 @@
                                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                                             File Accepted
                                         </span>
-                                        <a href="{{ $files[$key] }}" target="_blank" class="text-[10px] font-bold text-slate-400 hover:text-indigo-600 hover:underline">VIEW FILE</a>
+                                        <a href="{{ fileUrl($files[$key]) }}" target="_blank" class="text-[10px] font-bold text-slate-400 hover:text-indigo-600 hover:underline">VIEW FILE</a>
                                     </div>
                                 @else
                                     <input type="file" 
@@ -144,7 +144,7 @@
                                     @if($hasFile && !$isDeclined)
                                         <div class="flex justify-between mt-1 px-1">
                                             <p class="text-[9px] text-slate-400 italic">Current file uploaded. Upload to replace.</p>
-                                            <a href="{{ $files[$key] }}" target="_blank" class="text-[9px] font-bold text-indigo-500 hover:underline">VIEW</a>
+                                            <a href="{{ fileUrl($files[$key]) }}" target="_blank" class="text-[9px] font-bold text-indigo-500 hover:underline">VIEW</a>
                                         </div>
                                     @endif
                                 @endif
@@ -213,7 +213,7 @@
                                         <div class="flex items-center gap-2 mt-2 opacity-75">
                                             <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                                             <span class="text-xs font-bold text-emerald-600">Accepted</span>
-                                            <a href="{{ $files[$key] }}" target="_blank" class="ml-auto text-[10px] font-bold text-slate-400 hover:text-indigo-600 underline">VIEW</a>
+                                            <a href="{{ fileUrl($files[$key]) }}" target="_blank" class="ml-auto text-[10px] font-bold text-slate-400 hover:text-indigo-600 underline">VIEW</a>
                                         </div>
                                     @else
                                         <input type="file" 

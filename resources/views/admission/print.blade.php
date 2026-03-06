@@ -130,7 +130,7 @@
             {{-- RIGHT: 2x2 Photo --}}
             <div class="w-24 h-24 flex-shrink-0 border border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden">
                 @if(isset($application->uploaded_files['id_picture']))
-                    <img src="{{ $application->uploaded_files['id_picture'] }}" class="w-full h-full object-cover">
+                    <img src="{{ fileUrl($application->uploaded_files['id_picture']) }}" class="w-full h-full object-cover">
                 @else
                     <span class="text-[10px] text-gray-400 font-bold uppercase text-center p-1">2x2 Photo</span>
                 @endif

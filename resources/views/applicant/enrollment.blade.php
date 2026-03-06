@@ -423,7 +423,7 @@
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                                 PREVIOUSLY UPLOADED & VERIFIED
                                             </div>
-                                            <a href="{{ $applicant->uploaded_files[$key] }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-2 py-0.5 rounded transition-all flex items-center gap-1">
+                                            <a href="{{ fileUrl($applicant->uploaded_files[$key]) }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-2 py-0.5 rounded transition-all flex items-center gap-1">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                 VIEW
                                             </a>
@@ -468,7 +468,7 @@
                                     @elseif(isset($applicant->uploaded_files['passport']))
                                         <div class="mb-2 p-1.5 bg-emerald-600 text-white text-[8px] font-black uppercase rounded shadow-sm flex items-center justify-between">
                                             <span>✔ PREVIOUSLY UPLOADED</span>
-                                            <a href="{{ $applicant->uploaded_files['passport'] }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
+                                            <a href="{{ fileUrl($applicant->uploaded_files['passport']) }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
                                         </div>
                                     @endif
                                     <label class="block text-[10px] font-bold text-blue-600 uppercase mb-2">Passport of the Student-Athlete (if available)</label>
@@ -483,7 +483,7 @@
                                     @elseif(isset($applicant->uploaded_files['mother_id']))
                                         <div class="mb-2 p-1.5 bg-emerald-600 text-white text-[8px] font-black uppercase rounded shadow-sm flex items-center justify-between">
                                             <span>✔ PREVIOUSLY UPLOADED</span>
-                                            <a href="{{ $applicant->uploaded_files['mother_id'] }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
+                                            <a href="{{ fileUrl($applicant->uploaded_files['mother_id']) }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
                                         </div>
                                     @endif
                                     <label class="block text-[10px] font-bold text-slate-600 uppercase mb-2">Mother’s valid Government-Issued ID with signature (not required for all)</label>
@@ -498,7 +498,7 @@
                                     @elseif(isset($applicant->uploaded_files['father_id']))
                                         <div class="mb-2 p-1.5 bg-emerald-600 text-white text-[8px] font-black uppercase rounded shadow-sm flex items-center justify-between">
                                             <span>✔ PREVIOUSLY UPLOADED</span>
-                                            <a href="{{ $applicant->uploaded_files['father_id'] }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
+                                            <a href="{{ fileUrl($applicant->uploaded_files['father_id']) }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
                                         </div>
                                     @endif
                                     <label class="block text-[10px] font-bold text-slate-600 uppercase mb-2">Father’s valid Government-Issued ID with signature (not required for all)</label>
@@ -513,7 +513,7 @@
                                     @elseif(isset($applicant->uploaded_files['ip_cert']))
                                         <div class="mb-2 p-1.5 bg-emerald-600 text-white text-[8px] font-black uppercase rounded shadow-sm flex items-center justify-between">
                                             <span>✔ PREVIOUSLY UPLOADED</span>
-                                            <a href="{{ $applicant->uploaded_files['ip_cert'] }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
+                                            <a href="{{ fileUrl($applicant->uploaded_files['ip_cert']) }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
                                         </div>
                                     @endif
                                     <label class="block text-[10px] font-bold text-purple-600 uppercase mb-2">IP Certification (If member of an indigenous group) (not required for all)</label>
@@ -528,7 +528,7 @@
                                     @elseif(isset($applicant->uploaded_files['pwd_id']))
                                         <div class="mb-2 p-1.5 bg-emerald-600 text-white text-[8px] font-black uppercase rounded shadow-sm flex items-center justify-between">
                                             <span>✔ PREVIOUSLY UPLOADED</span>
-                                            <a href="{{ $applicant->uploaded_files['pwd_id'] }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
+                                            <a href="{{ fileUrl($applicant->uploaded_files['pwd_id']) }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
                                         </div>
                                     @endif
                                     <label class="block text-[10px] font-bold text-pink-600 uppercase mb-2">PWD ID (If person with disability) (not required for all)</label>
@@ -543,7 +543,7 @@
                                     @elseif(isset($applicant->uploaded_files['4ps_id']))
                                         <div class="mb-2 p-1.5 bg-emerald-600 text-white text-[8px] font-black uppercase rounded shadow-sm flex items-center justify-between">
                                             <span>✔ PREVIOUSLY UPLOADED</span>
-                                            <a href="{{ $applicant->uploaded_files['4ps_id'] }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
+                                            <a href="{{ fileUrl($applicant->uploaded_files['4ps_id']) }}" target="_blank" class="bg-white/20 hover:bg-white/40 px-1 rounded transition-all">VIEW</a>
                                         </div>
                                     @endif
                                     <label class="block text-[10px] font-bold text-emerald-600 uppercase mb-2">4Ps ID or Certification (If beneficiary of the 4Ps) (not required for all)</label>

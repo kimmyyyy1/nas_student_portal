@@ -65,31 +65,6 @@ return [
             'driver' => 'local',
             'root' => '/tmp/storage/api/livewire-tmp',
         ],
-
-        // 👇 ITO ANG FINAL FIX: FLAT CONFIGURATION 👇
-        'cloudinary' => [
-            'driver' => 'cloudinary',
-            
-            // 1. STANDARD CREDENTIALS
-            'cloud_name' => 'dqkzofruk',
-            'api_key'    => '452544782214523',
-            'api_secret' => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
-
-            // 2. CRITICAL FIX: ALIASES
-            // Ito ang hinahanap ng error na "Undefined array key 'key'".
-            // Dapat nasa ROOT level sila (hindi naka-loob sa ibang array).
-            'key'        => '452544782214523', 
-            'secret'     => 'Dew-wu6KDw8HNKzO473L5P5tpqo',
-            
-            // 3. BACKUP URL
-            'cloud_url' => 'cloudinary://452544782214523:Dew-wu6KDw8HNKzO473L5P5tpqo@dqkzofruk',
-            
-            'throw' => false,
-            
-            // ❌ NOTE: Wala tayong inilagay na 'cloud' => [...] array dito
-            // para iwasan ang TypeError.
-        ],
-
     ],
 
     /*

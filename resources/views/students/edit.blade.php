@@ -57,7 +57,7 @@
                                     <i class='bx bxs-user-rectangle text-7xl mb-2'></i>
                                     <span class="text-xs font-semibold uppercase tracking-wider">Upload Photo</span>
                                 </div>
-                                <img id="photo-preview" src="{{ $hasAvatar ? $avatarUrl : '' }}" class="absolute inset-0 w-full h-full object-cover rounded-lg border-4 border-gray-300 shadow-md {{ $hasAvatar ? '' : 'hidden' }}" alt="ID Preview">
+                                <img id="photo-preview" src="{{ $hasAvatar ? fileUrl($avatarUrl) : '' }}" class="absolute inset-0 w-full h-full object-cover rounded-lg border-4 border-gray-300 shadow-md {{ $hasAvatar ? '' : 'hidden' }}" alt="ID Preview">
                                 <label for="photo-input" class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-lg">
                                     <i class='bx bxs-camera text-white text-4xl mb-1'></i>
                                     <span class="text-white text-xs font-bold uppercase tracking-wide">Change Photo</span>

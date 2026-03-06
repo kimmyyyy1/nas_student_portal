@@ -392,7 +392,7 @@
                                                                 <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $label }}</p>
                                                             </div>
                                                         </div>
-                                                        <a href="{{ $files[$key] }}" target="_blank" class="bg-orange-600 hover:bg-orange-700 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
+                                                        <a href="{{ fileUrl($files[$key]) }}" target="_blank" class="bg-orange-600 hover:bg-orange-700 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
                                                             <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                                         </a>
                                                     </div>
@@ -443,7 +443,7 @@
                                                         <p class="text-[10px] sm:text-xs font-black text-slate-800 uppercase truncate">{{ $label }}</p>
                                                     </div>
                                                 </div>
-                                                <a href="{{ $files[$key] }}" target="_blank" class="bg-slate-800 hover:bg-indigo-600 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
+                                                <a href="{{ fileUrl($files[$key]) }}" target="_blank" class="bg-slate-800 hover:bg-indigo-600 text-white p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-lg transform hover:scale-105 shrink-0 ml-2">
                                                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                                 </a>
                                             </div>
@@ -488,7 +488,7 @@
                                                         <p class="text-[10px] sm:text-xs font-black text-slate-700 uppercase truncate">{{ $label }}</p>
                                                     </div>
                                                 </div>
-                                                <a href="{{ $url }}" target="_blank" class="bg-slate-200 hover:bg-indigo-500 hover:text-white text-slate-700 p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-sm shrink-0 ml-2">
+                                                <a href="{{ fileUrl($url) }}" target="_blank" class="bg-slate-200 hover:bg-indigo-500 hover:text-white text-slate-700 p-2 sm:p-2.5 rounded-lg sm:rounded-xl transition-all shadow-sm shrink-0 ml-2">
                                                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                                 </a>
                                             </div>

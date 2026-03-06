@@ -196,7 +196,7 @@
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-8 w-8 mr-2 hidden sm:block">
                                             @if($student->id_picture)
-                                                <img class="h-10 w-10 rounded-full object-cover ring-2 ring-white" src="{{ $student->id_picture ?? asset('images/default-avatar.svg') }}" alt="{{ $student->full_name }}">
+                                                <img class="h-10 w-10 rounded-full object-cover ring-2 ring-white" src="{{ fileUrl($student->id_picture) }}" alt="{{ $student->full_name }}">
                                             @else
                                                 <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold text-xs border border-indigo-200">
                                                     {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}

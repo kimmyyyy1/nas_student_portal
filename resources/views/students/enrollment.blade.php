@@ -50,7 +50,7 @@
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full overflow-hidden">
                                                 @if(isset($applicant->uploaded_files['id_picture']))
-                                                    <img src="{{ asset('storage/' . $applicant->uploaded_files['id_picture']) }}" class="h-10 w-10 object-cover">
+                                                    <img src="{{ fileUrl($applicant->uploaded_files['id_picture']) }}" class="h-10 w-10 object-cover">
                                                 @else
                                                     <span class="flex items-center justify-center h-full text-xs font-bold text-gray-500">{{ substr($applicant->first_name, 0, 1) }}</span>
                                                 @endif

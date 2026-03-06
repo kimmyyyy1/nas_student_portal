@@ -5,14 +5,14 @@
         <tr>
             <td align="right" style="padding-right: 15px; width: 50%; vertical-align: middle;">
                 <a href="{{ $url }}" style="display: inline-block; text-decoration: none;">
-                    <img src="https://res.cloudinary.com/dqkzofruk/image/upload/nas_student_portal/branding/nas-logo-email2.png" 
+                    <img src="{{ asset('images/nas/NAS LOGO.png') }}" 
                          alt="NAS Logo" 
                          style="width: 140px; height: auto; display: block; margin-left: auto; border: none; outline: none; text-decoration: none;">
                 </a>
             </td>
             <td align="left" style="padding-left: 15px; width: 50%; vertical-align: middle;">
                 <a href="{{ $url }}" style="display: inline-block; text-decoration: none;">
-                    <img src="https://res.cloudinary.com/dqkzofruk/image/upload/nas_student_portal/branding/nascent-sas-logo-email.png" 
+                    <img src="{{ asset('images/nas/NASCENT SAS.png') }}" 
                          alt="NASCENT SAS Logo" 
                          style="width: 160px; height: auto; display: block; margin-right: auto; border: none; outline: none; text-decoration: none;">
                 </a>
