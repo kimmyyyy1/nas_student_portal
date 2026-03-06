@@ -14,6 +14,10 @@ $kernel->bootstrap();
 echo "[1/2] MIGRATING APPLICANTS uploaded_files...\n";
 
 $applicants = Applicant::whereNotNull('uploaded_files')->get();
+echo "Total applicants with files: " . $applicants->count() . "\n";
+if ($applicants->count() > 0) {
+    echo "Sample path: " . json_encode($applicants->first()->uploaded_files) . "\n";
+}
 $migratedCount = 0;
 $failedCount = 0;
 
@@ -58,6 +62,12 @@ echo "Applicants Migration Complete: {$migratedCount} files migrated, {$failedCo
 
 
 echo "\n[2/2] MIGRATING STUDENTS id_picture...\n";
+
+$allStudents = Student::whereNotNull('id_picture')->get();
+echo "Total students with ID pictures: " . $allStudents->count() . "\n";
+if ($allStudents->count() > 0) {
+    echo "Sample ID picture path: " . $allStudents->first()->id_picture . "\n";
+}
 
 $students = Student::whereNotNull('id_picture')->where('id_picture', 'like', '%res.cloudinary.com%')->get();
 $studentMigratedCount = 0;
