@@ -12,6 +12,11 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+
+# Utility Scripts
+public/fix_storage_link.php
+public/check_link.php
+public/migrate_cloudinary.php
 /.fleet
 /.idea
 /.vscode
